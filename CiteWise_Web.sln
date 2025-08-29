@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CiteWise_Web", "CiteWise_Web\CiteWise_Web.csproj", "{FA9A03FB-C281-4A20-8243-AF97949C2DE2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA9A03FB-C281-4A20-8243-AF97949C2DE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA9A03FB-C281-4A20-8243-AF97949C2DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA9A03FB-C281-4A20-8243-AF97949C2DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA9A03FB-C281-4A20-8243-AF97949C2DE2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C61BBB0B-6B37-46B8-882E-7BD891007D9A}
+	EndGlobalSection
+EndGlobal
