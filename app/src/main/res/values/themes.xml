@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.CiteWise_Mobile" parent="Base.Theme.CiteWise_Mobile" />
+
+    <style name="Shape.Pill" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
 </resources>

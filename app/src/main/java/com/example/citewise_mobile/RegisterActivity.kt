@@ -1,210 +1,210 @@
 package com.example.citewise_mobile
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
+import android.util.Patterns
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import androidx.core.widget.addTextChangedListener
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textview.MaterialTextView
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.database.database
 
 class RegisterActivity : AppCompatActivity() {
 
-    private lateinit var edFirstName: EditText
-    private lateinit var etEmail: EditText
-    private lateinit var etPassword: EditText
-    private lateinit var etConfirmPassword: EditText
-    private lateinit var btnRegister: Button
-    private lateinit var tvLogin: TextView
-    private lateinit var btnGoogle: ImageView
-    private lateinit var btnFacebook: ImageView
-    private lateinit var btnApple: ImageView
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: FirebaseDatabase
+    private val auth = Firebase.auth
+    private val db = Firebase.database
+
+    private lateinit var toggle: MaterialButtonToggleGroup
+    private lateinit var btnStudent: MaterialButton
+    private lateinit var btnConsultant: MaterialButton
+
+    private lateinit var sectionStudent: View
+    private lateinit var sectionConsultant: View
+
+    private lateinit var etFirst: TextInputEditText
+    private lateinit var etSur: TextInputEditText
+    private lateinit var etEmail: TextInputEditText
+    private lateinit var etPass: TextInputEditText
+    private lateinit var pbStrength: android.widget.ProgressBar
+    private lateinit var actvInstitution: AutoCompleteTextView
+    private lateinit var etField: TextInputEditText
+    private lateinit var etCompany: TextInputEditText
+    private lateinit var actvLanguage: AutoCompleteTextView
+
+    private lateinit var cbTerms: MaterialCheckBox
+    private lateinit var btnSign: MaterialButton
+    private lateinit var progress: LinearProgressIndicator
+    private lateinit var tvGoLogin: MaterialTextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Initialize Firebase
-        auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance()
+        // Toggle + sections
+        toggle = findViewById(R.id.toggleAccountType)
+        btnStudent = findViewById(R.id.btnStudent)
+        btnConsultant = findViewById(R.id.btnConsultant)
+        sectionStudent = findViewById(R.id.sectionStudent)
+        sectionConsultant = findViewById(R.id.sectionConsultant)
 
-        // Initialize UI elements
-        edFirstName = findViewById(R.id.etFirstName)
+        // Common fields
+        etFirst = findViewById(R.id.etFirstName)
+        etSur = findViewById(R.id.etSurname)
         etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        etConfirmPassword = findViewById(R.id.etConfirmPassword)
-        btnRegister = findViewById(R.id.btnSignUp)
-        tvLogin = findViewById(R.id.tvLoginLink)
-        btnGoogle = findViewById(R.id.btnGoogle)
-        btnFacebook = findViewById(R.id.btnFacebook)
-        btnApple = findViewById(R.id.btnApple)
+        etPass = findViewById(R.id.etPassword)
+        pbStrength = findViewById(R.id.pbPasswordStrength)
+        actvLanguage = findViewById(R.id.actvLanguage)
 
-        btnRegister.setOnClickListener {
-            registerUser()
+        // Student fields
+        actvInstitution = findViewById(R.id.actvInstitution)
+        etField = findViewById(R.id.etFieldOfStudy)
+
+        // Consultant fields
+        etCompany = findViewById(R.id.etCompany)
+
+        // Actions
+        cbTerms = findViewById(R.id.cbTerms)
+        btnSign = findViewById(R.id.btnSignUp)
+        progress = findViewById(R.id.progress)
+        tvGoLogin = findViewById(R.id.tvGoLogin)
+
+        // Dropdown adapters
+        actvInstitution.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, resources.getStringArray(R.array.institutions))
+        )
+        actvLanguage.setAdapter(
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, resources.getStringArray(R.array.languages))
+        )
+
+        // Default role = student
+        toggle.check(btnStudent.id)
+        showRole("student")
+
+        toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            when (checkedId) {
+                btnStudent.id -> showRole("student")
+                btnConsultant.id -> showRole("consultant")
+            }
+            revalidate()
         }
 
-        // Set click listeners for social login buttons
-        btnGoogle.setOnClickListener {
-            // Implement Google sign-in logic
-            Toast.makeText(this, "Google sign-in clicked", Toast.LENGTH_SHORT).show()
+        // Password strength (very simple)
+        etPass.addTextChangedListener { s ->
+            val n = (s?.length ?: 0).coerceAtMost(12)
+            pbStrength.progress = (n * 100 / 12)
+            revalidate()
         }
 
-        btnFacebook.setOnClickListener {
-            // Implement Facebook sign-in logic
-            Toast.makeText(this, "Facebook sign-in clicked", Toast.LENGTH_SHORT).show()
+        // Revalidate on changes
+        listOf(etFirst, etSur, etEmail, etField, etCompany).forEach {
+            it.addTextChangedListener { revalidate() }
         }
+        actvInstitution.addTextChangedListener { revalidate() }
+        actvLanguage.addTextChangedListener { revalidate() }
+        cbTerms.setOnCheckedChangeListener { _, _ -> revalidate() }
 
-        btnApple.setOnClickListener {
-            // Implement Apple sign-in logic
-            Toast.makeText(this, "Apple sign-in clicked", Toast.LENGTH_SHORT).show()
+        btnSign.setOnClickListener { doRegister() }
+        tvGoLogin.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
-
-        setLoginTextView()
     }
-    //Reference: Based on code from Android Knowledge (2024),
-    //"Login and Signup using Firebase Realtime Database in Android Studio | Kotlin"
-    //"https://www.youtube.com/watch?v=MhLkezKsHbY"
-    private fun registerUser() {
-        val firstName = edFirstName.text.toString().trim()
-        val email = etEmail.text.toString().trim()
-        val password = etPassword.text.toString().trim()
-        val confirmPassword = etConfirmPassword.text.toString().trim()
 
-        val hasNumber = Regex(".*[0-9].*").containsMatchIn(password)
-        val hasSpecial = Regex(".*[!@#\$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*").containsMatchIn(password)
+    private fun role(): String = when (toggle.checkedButtonId) {
+        R.id.btnStudent -> "student"
+        R.id.btnConsultant -> "consultant"
+        else -> "student" // fallback
+    }
 
-        // Validate input
-        if(firstName.isEmpty()) {
-            edFirstName.error = "First Name is required"
-            edFirstName.requestFocus()
-            return
+    private fun showRole(role: String) {
+        sectionStudent.visibility = if (role == "student") View.VISIBLE else View.GONE
+        sectionConsultant.visibility = if (role == "consultant") View.VISIBLE else View.GONE
+    }
+
+    private fun revalidate() {
+        val commonOk = etFirst.text?.isNotBlank() == true &&
+                etSur.text?.isNotBlank() == true &&
+                validEmail(etEmail.text?.toString()) &&
+                (etPass.text?.length ?: 0) >= 6 &&
+                actvLanguage.text?.isNotBlank() == true &&
+                cbTerms.isChecked
+
+        val roleOk = when (role()) {
+            "student" -> actvInstitution.text?.isNotBlank() == true && etField.text?.isNotBlank() == true
+            "consultant" -> etCompany.text?.isNotBlank() == true
+            else -> false
         }
 
-        if (email.isEmpty()) {
-            etEmail.error = "Email is required"
-            etEmail.requestFocus()
-            return
+        btnSign.isEnabled = commonOk && roleOk
+    }
+
+    private fun validEmail(value: String?): Boolean =
+        !value.isNullOrBlank() && Patterns.EMAIL_ADDRESS.matcher(value).matches()
+
+    private fun doRegister() {
+        val first = etFirst.text?.toString()?.trim().orEmpty()
+        val sur = etSur.text?.toString()?.trim().orEmpty()
+        val email = etEmail.text?.toString()?.trim().orEmpty()
+        val pass = etPass.text?.toString().orEmpty()
+        val lang = actvLanguage.text?.toString()?.trim().orEmpty()
+        val r = role()
+
+        if (!btnSign.isEnabled) {
+            revalidate(); return
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.error = "Please enter a valid email"
-            etEmail.requestFocus()
-            return
-        }
+        progress.visibility = View.VISIBLE
+        btnSign.isEnabled = false
 
-        if (password.isEmpty()) {
-            etPassword.error = "Password is required"
-            etPassword.requestFocus()
-            return
-        }
-
-        if (password.length < 6 || !hasNumber || !hasSpecial) {
-            etPassword.error = "Password must be at least 6 characters and contain a number and special character"
-            etPassword.requestFocus()
-            return
-        }
-
-        if (confirmPassword.isEmpty()) {
-            etConfirmPassword.error = "Confirm your password"
-            etConfirmPassword.requestFocus()
-            return
-        }
-
-        if (password != confirmPassword) {
-            etConfirmPassword.error = "Passwords do not match"
-            etConfirmPassword.requestFocus()
-            return
-        }
-
-        btnRegister.isEnabled = false
-        btnRegister.text = "Registering..."
-
-        auth.createUserWithEmailAndPassword(email, password)
+        auth.createUserWithEmailAndPassword(email, pass)
             .addOnCompleteListener(this) { task ->
-                btnRegister.isEnabled = true
-                btnRegister.text = getString(R.string.register)
-
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
-
-                    user?.let {
-                        val userRef = database.reference.child("users").child(it.uid)
-                        val userData = hashMapOf(
-                            "email" to email,
-                            "createdAt" to System.currentTimeMillis()
-                        )
-                        userRef.setValue(userData)
-                            .addOnSuccessListener {
-                                // Clear any saved credentials in shared preferences
-                                val sharedPrefs = getSharedPreferences("LoginPrefs", MODE_PRIVATE)
-                                sharedPrefs.edit().clear().apply()
-
-                                Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
-
-                                // Pass flag to LoginActivity to indicate coming from registration
-                                val intent = Intent(this, LoginActivity::class.java)
-                                intent.putExtra("FROM_REGISTRATION", true)
-                                startActivity(intent)
-                                finish()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(this, "Error saving user data: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                } else {
-                    val errorMessage = when (task.exception?.message) {
-                        "The email address is already in use by another account." ->
-                            "This email is already registered. Try logging in."
-                        else -> "Registration failed: ${task.exception?.message}"
-                    }
-                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                if (!task.isSuccessful) {
+                    progress.visibility = View.GONE
+                    btnSign.isEnabled = true
+                    return@addOnCompleteListener
                 }
+
+                val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+
+                val profile = mutableMapOf(
+                    "uid" to uid,
+                    "firstName" to first,
+                    "surname" to sur,
+                    "email" to email,
+                    "preferredLanguage" to lang,
+                    "role" to r,
+                    "createdAt" to System.currentTimeMillis()
+                )
+
+                when (r) {
+                    "student" -> {
+                        profile["institution"] = actvInstitution.text?.toString()?.trim().orEmpty()
+                        profile["fieldOfStudy"] = etField.text?.toString()?.trim().orEmpty()
+                    }
+                    "consultant" -> {
+                        profile["company"] = etCompany.text?.toString()?.trim().orEmpty()
+                    }
+                }
+
+                db.reference.child("users").child(uid).setValue(profile)
+                    .addOnCompleteListener {
+                        progress.visibility = View.GONE
+                        btnSign.isEnabled = true
+                        if (it.isSuccessful) {
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        }
+                    }
             }
-    }
-
-    //Reference: Based on code from Burak Selcuk (2022),
-    //"Spannable String Kotlin"
-    //https://www.youtube.com/watch?v=W0liX18l4Tg
-    //(Google 2019):
-    private fun setLoginTextView() {
-        val fullText = "Already have an account? Login"
-        val spannableString = SpannableString(fullText)
-
-        val loginStart = fullText.indexOf("Login")
-        val loginEnd = loginStart + "Login".length
-
-        val clickableSpan = object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
-            }
-
-            override fun updateDrawState(ds: TextPaint) {
-                super.updateDrawState(ds)
-                ds.color = ContextCompat.getColor(this@RegisterActivity, R.color.purple) // Your purple color
-                ds.isUnderlineText = true // Optional: remove underline
-            }
-        }
-
-        spannableString.setSpan(clickableSpan, loginStart, loginEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        tvLogin.text = spannableString
-        tvLogin.movementMethod = LinkMovementMethod.getInstance()
-        tvLogin.highlightColor = Color.TRANSPARENT
     }
 }
-//References
-//Google. 2019. “Firebase Authentication Firebase”.
-// <https://firebase.google.com/docs/auth>.
-// [accessed 1 May 2025]

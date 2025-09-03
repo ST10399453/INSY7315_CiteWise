@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">CiteWise_Mobile</string>
+    <string-array name="institutions">
+        <item>IIE Varsity College</item>
+        <item>IIE Rosebank College</item>
+        <item>IIE MSA</item>
+        <item>University of Cape Town</item>
+        <item>University of Pretoria</item>
+        <item>Stellenbosch University</item>
+    </string-array>
+
+    <string-array name="languages">
+        <item>English</item>
+        <item>isiZulu</item>
+        <item>isiXhosa</item>
+        <item>Afrikaans</item>
+        <item>Sesotho</item>
+        <item>Setswana</item>
+    </string-array>
 </resources>
