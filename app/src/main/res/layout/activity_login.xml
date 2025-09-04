@@ -81,7 +81,8 @@
                 android:id="@+id/cbRemember"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remember me"/>
+                android:fontFamily="@font/poppins"
+                android:text="Remember me" />
 
             <View
                 android:layout_width="0dp"

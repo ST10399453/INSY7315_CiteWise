@@ -1,10 +1,414 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="16dp"
+    android:fillViewport="true"
     tools:context=".StudentDashboardActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Added header with logo and menu -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="65dp"
+                android:layout_height="65dp"
+                android:src="@drawable/landscape_placeholder"
+                android:contentDescription="App Logo"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:layout_width="32dp"
+                android:layout_height="26dp"
+                android:src="@drawable/hamburger"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Menu"/>
+        </LinearLayout>
+
+        <!-- Added greeting section -->
+        <TextView
+            android:id="@+id/tvGreeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="Hi Connor"
+            android:textColor="@color/primary_blue"
+            android:textSize="36sp"
+            android:fontFamily="@font/poppins_extra_bold"
+            android:textStyle="bold" />
+
+        <!-- Added service request progress card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="359dp"
+            android:layout_height="502dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Service Request Progress"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_blue"
+                    android:fontFamily="@font/poppins"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins"
+                    android:text="Business Plan Draft"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ProgressBar
+                    android:id="@+id/progressService"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:max="100"
+                    android:progress="25" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:text="Submitted • Deadline: 25.08.2025"
+                    android:textSize="10sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Added request service button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRequestService"
+            android:layout_width="359dp"
+            android:layout_gravity="center"
+            android:layout_height="55dp"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/white"
+            android:fontFamily="@font/poppins_sembold"
+            android:shadowDx="-4"
+            android:shadowDy="-4"
+            android:shadowRadius="2"
+            android:text="Request a Service"
+            android:textColor="@color/primary_blue"
+            android:textSize="18sp"
+            app:cornerRadius="50dp"
+            app:strokeWidth="2px" />
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Notifications -->
+                <TextView
+                    android:id="@+id/tvNotifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notifications"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textSize="20sp"
+                    android:textColor="@color/primary_blue"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Applied gradient background to notification buttons -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnMissingDocuments"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/button_gradient_blue"
+                        android:fontFamily="@font/poppins"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:text="Missing Documents"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="50dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFeedback"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Feedback"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_gradient_blue"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="0dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:fontFamily="@font/poppins"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnNewMessages"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="New Messages"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_gradient_blue"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="0dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:fontFamily="@font/poppins"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRateConsultant"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Rate your consultant"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_gradient_blue"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="0dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:fontFamily="@font/poppins"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnStatusUpdate"
+                        android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/button_gradient_blue"
+                        android:fontFamily="@font/poppins"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:text="Status update"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="0dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+        <!-- Added AI Assistant section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AI Assistant"
+            android:layout_gravity="center"
+            android:fontFamily="@font/poppins_medium"
+            android:textSize="20sp"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="124dp"
+            android:layout_height="121dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="27dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/ivAssistant"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/landscape_placeholder"
+                    android:contentDescription="AI Assistant"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ask me anything!"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Added service quote section -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Service Quote"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_blue"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Business Plan Draft"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total: R6500 • Deadline: 25.08.2025"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="16dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAccept"
+                        android:layout_width="90dp"
+                        android:layout_height="25dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:text="Accept"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_gradient_blue"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="20dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:fontFamily="@font/poppins"
+                        android:textSize="11sp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDownloadPDF"
+                        android:layout_width="105dp"
+                        android:layout_height="25dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:text="Download"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_gradient_blue"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="20dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:fontFamily="@font/poppins"
+                        android:textSize="11sp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRequestReview"
+                        android:layout_width="105dp"
+                        android:layout_height="25dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="Review"
+                        android:textColor="@android:color/white"
+                        android:background="@drawable/button_gradient_blue"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="20dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:fontFamily="@font/poppins"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
