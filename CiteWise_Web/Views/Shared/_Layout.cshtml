@@ -5,12 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CiteWise_Web</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CiteWise_Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/register.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <header>
+
+    <div class="sidebar">
+        @* ADD IMAGE FOR CITEWISE LOGO  *@
+        <h2>CiteWise</h2>
+        <a href="#" class="active"><i class="fa fa-home"></i> Dashboard</a>
+        <a href="#"><i class="fa fa-plus-square"></i> Request a Service</a>
+        <a href="#"><i class="fa fa-folder"></i> Academic Resources</a>
+        <a href="#"><i class="fa fa-envelope"></i> Messages</a>
+        <a href="#"><i class="fa fa-user"></i> Profile</a>
+    </div>
+
+    <div class="topbar">
+        @* Left side: Greeting *@
+        <div class="topbar-left">
+            <h2><span>Hi Akhi</span></h2>
+        </div>
+
+        @* Right side: Notifications + User *@
+        <div class="topbar-right">
+            <i class="fa-regular fa-bell icon"></i>
+            <a asp-controller="Home" asp-action="Register">
+                <img src="https://via.placeholder.com/40" alt="PP"> 
+            </a>
+        </div>
+    </div>
+
+
+    @* <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CiteWise_Web</a>
@@ -39,18 +66,18 @@
                 </div>
             </div>
         </nav>
-    </header>
+    </header> *@
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    @* <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - CiteWise_Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

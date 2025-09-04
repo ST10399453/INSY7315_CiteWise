@@ -1,4 +1,4 @@
-html {
+/*html {
   font-size: 14px;
 }
 
@@ -28,4 +28,123 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}*/
+
+
+
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #F5F5F5 ;
+    display: flex;
+}
+
+.sidebar {
+    width: 240px;
+    background: #FFF;
+    min-height: 100vh;
+    padding: 20px 0px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border: 1px solid #FFF;
+    box-shadow: -4px -2px 9.4px -1px #FFF, 0 7px 18.9px -5px #C1C8DF inset, 5px 6px 15.8px -6px #C7CDE2;
+}
+
+    .sidebar h2 {
+        color: #0027B2;
+        font-family: 'Poppins', sans-serif;
+        font-size: 32px;
+        font-style: normal;
+        font-weight: 800;
+        line-height: 175%;
+        letter-spacing: 0.96px;
+        padding-left: 12px
+    }
+
+    /*Sidebar links*/
+    .sidebar a {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 16px 24px;
+        text-decoration: none;
+        color: #333;
+        font-size: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+        .sidebar a:hover, .sidebar a.active {
+            background-color: rgba(202, 212, 245, 0.75);
+            /*color: #1a3cff;*/
+        }
+
+        .sidebar a i {
+            color: #0027B2;
+            font-size: 22px;
+            margin-right: 14px;
+            min-width: 22px; 
+            text-align: center;
+        }
+
+.topbar {
+    margin-left: 40px; /* moves name closer to sidebar */
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    position: fixed;
+    top: 34px;
+    right: 0;
+    left: 220px; 
+    background: transparent; 
+    border-bottom: none;
+    z-index: 10;
+}
+
+.topbar-left {
+    margin-left: 10px; /* moves name closer to sidebar */
+}
+
+    .topbar-left span {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .topbar-left h2 span {
+        color: #0027B2; 
+        font-family: 'Poppins', sans-serif;
+        font-size: 36px; 
+        font-style: normal;
+        font-weight: 800; 
+        line-height: 175%;
+        letter-spacing: 0.36px;
+    }
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    margin-right: 40px; /* moves bell icon more left */
+}
+
+.topbar .icon {
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 24px; 
+    color: #333;
+}
+
+.topbar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 15px; 
 }
