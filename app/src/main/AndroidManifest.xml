@@ -13,7 +13,73 @@
         android:theme="@style/Theme.CiteWise_Mobile"
         tools:targetApi="31">
         <activity
-            android:name=".DashboardActivity"
+            android:name=".AdminProfileSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminUploadResourcesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ConsultantProfileSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ConsultantTaskDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ConsultantTasksActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentProfileSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SelectedChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RequestServiceSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RequestServiceStep4Activity"
+            android:exported="false" />
+        <activity
+            android:name=".RequestServiceStep3Activity"
+            android:exported="false" />
+        <activity
+            android:name=".RequestServiceStep2Activity"
+            android:exported="false" />
+        <activity
+            android:name=".RequestServiceStep1Activity"
+            android:exported="false" />
+        <activity
+            android:name=".RequestDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RequestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ServiceRequestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentDashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ResetConfirmationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VerificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ResetScreenActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ConsultantDashboardActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"

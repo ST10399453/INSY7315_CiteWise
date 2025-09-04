@@ -112,7 +112,7 @@ class LoginActivity : AppCompatActivity() {
 
                 if (task.isSuccessful) {
                     // TODO: navigate to your home screen
-                    startActivity(Intent(this, DashboardActivity::class.java))
+                    startActivity(Intent(this, ConsultantDashboardActivity::class.java))
                     finish()
                 } else {
                     tilPassword.error = task.exception?.localizedMessage ?: "Login failed"

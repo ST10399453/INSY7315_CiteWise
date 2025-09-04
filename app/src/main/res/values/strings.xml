@@ -17,4 +17,23 @@
         <item>Sesotho</item>
         <item>Setswana</item>
     </string-array>
+
+    <!-- Login Screen -->
+    <string name="login_title">Log In</string>
+    <string name="login_subtitle">Log in to your account</string>
+    <string name="email_or_username">Email or Username</string>
+    <string name="password">Password</string>
+    <string name="remember_me">Remember me</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="btn_login">Log In</string>
+    <string name="or_continue_with">Or continue with</string>
+
+    <!-- Social login -->
+    <string name="continue_facebook">Continue with Facebook</string>
+    <string name="continue_google">Continue with Google</string>
+    <string name="continue_apple">Continue with Apple</string>
+
+    <!-- Sign Up -->
+    <string name="new_user">New User? </string>
+    <string name="sign_up">Sign Up</string>
 </resources>
