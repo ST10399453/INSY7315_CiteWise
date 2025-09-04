@@ -1,4 +1,4 @@
-﻿
+﻿/* page + white box */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -11,32 +11,193 @@ body {
     box-sizing: border-box;
     min-height: 100vh;
 }
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
 
 .register-page {
     display: flex;
-    justify-content: center; 
-    align-items: flex-start; 
-    min-height: calc(100vh - 120px);
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
 }
 
 .register-container {
     background: #fff;
-    padding: 40px;
+    padding: 28px 28px 36px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    width: 400px;
-    text-align: center;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border: 1px solid #FFF;
+    box-shadow: -4px -2px 9.4px -1px #FFF, 0 7px 18.9px -5px #C1C8DF inset, 5px 6px 15.8px -6px #C7CDE2;
+    width: 450px;
+    max-width: 100%;
 }
-    .register-container h2 {
-        margin-bottom: 20px;
-        color: #0027B2;
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
+
+/* toggle inside white box */
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+/*    DONT NOT CHNAGE THE STYLING BELOW*/
+.switch {
+    --_switch-bg-clr: #E3E6F1;
+    --_switch-padding: 4px;
+    --_slider-bg-clr: #0027B2; /* slider color unchecked */
+    --_slider-bg-clr-on: #0027B2; /* slider color checked */
+    --_slider-txt-clr: #ffffff;
+    --_label-padding: 1rem 2rem;
+    --_switch-easing: cubic-bezier( 0.47, 1.64, 0.41, 0.8 );
+    color: white;
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    border-radius: 9999px;
+/*    border: 2px solid #0027B2;*/
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    position: relative;
+    isolation: isolate;
+}
+
+    .switch input[type="checkbox"] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
     }
 
+    .switch > span {
+        display: grid;
+        place-content: center;
+        transition: opacity 300ms ease-in-out 150ms;
+        padding: var(--_label-padding);
+    }
+
+    .switch::before,
+    .switch::after {
+        content: "";
+        position: absolute;
+        border-radius: inherit;
+        transition: inset 150ms ease-in-out;
+    }
+    /* switch slider */
+    .switch::before {
+        background-color: var(--_slider-bg-clr);
+        inset: var(--_switch-padding) 50% var(--_switch-padding) var(--_switch-padding);
+        transition: inset 500ms var(--_switch-easing), background-color 500ms ease-in-out;
+        z-index: -1;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.3);
+    }
+    /* switch bg color */
+    .switch::after {
+        background-color: var(--_switch-bg-clr);
+        inset: 0;
+        z-index: -2;
+        border: 2px solid #0027B2;
+    }
+    /* switch hover & focus */
+    .switch:focus-within::after {
+        inset: -0.25rem;
+    }
+
+    .switch:has(input:checked):hover > span:first-of-type,
+    .switch:has(input:not(:checked)):hover > span:last-of-type {
+        opacity: 1;
+        transition-delay: 0ms;
+        transition-duration: 100ms;
+    }
+    /* switch hover */
+    .switch:has(input:checked):hover::before {
+        inset: var(--_switch-padding) var(--_switch-padding) var(--_switch-padding) 45%;
+    }
+
+    .switch:has(input:not(:checked)):hover::before {
+        inset: var(--_switch-padding) 45% var(--_switch-padding) var(--_switch-padding);
+    }
+    /* checked - move slider to right */
+    .switch:has(input:checked)::before {
+        background-color: var(--_slider-bg-clr-on);
+        inset: var(--_switch-padding) var(--_switch-padding) var(--_switch-padding) 50%;
+    }
+    /* checked - set opacity */
+    .switch > span:last-of-type,
+    .switch > input:checked + span:first-of-type {
+        opacity: 0.75;
+    }
+
+    .switch > input:checked ~ span:last-of-type {
+        opacity: 1;
+    }
+
+/*    DO NOT CHNANGE THE ABOVE STYLING*/
+
+
+
+
+.forms-stage {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    transition: height 360ms cubic-bezier(.22,1,.36,1);
+/*    height: 420px;*/
+    height: 0;
+}
+
+/* panels */
+.form-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: 8px;
+    transition: transform 420ms cubic-bezier(.22,1,.36,1), opacity 320ms ease;
+    opacity: 0;
+    transform: translateX(100%);
+    pointer-events: none;
+}
+
+.forms-stage .login-panel {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.forms-stage.show-register .login-panel {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.forms-stage.show-register .register-panel {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.forms-stage:not(.show-register) .register-panel {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
 .register-form .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 14px;
     text-align: left;
 }
 
@@ -49,51 +210,39 @@ body {
 
 .register-form input {
     width: 100%;
+    max-width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 14px;
 }
 
 .btn-primary {
     width: 100%;
+    max-width: 100%;
     padding: 12px;
-    background-color: #0027B2;
+    background: #0027B2;
     color: #fff;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
     cursor: pointer;
-    margin-top: 10px;
-    transition: background 0.3s;
-}
-
-    .btn-primary:hover {
-        background-color: #001a7a;
-    }
-
-.divider {
-    margin: 20px 0;
-    text-align: center;
-    color: #888;
-    font-size: 14px;
+    margin-top: 6px;
 }
 
 .btn-google {
     width: 100%;
+    max-width: 100%;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    background: #fff;
     display: flex;
+    gap: 10px;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    transition: background 0.3s;
+    background: #fff;
+    cursor: pointer;
+    margin-top: 8px;
 }
-
     .btn-google img {
         width: 20px;
         height: 20px;
@@ -102,3 +251,10 @@ body {
     .btn-google:hover {
         background: #f2f2f2;
     }
+
+.divider {
+    text-align: center;
+    color: #888;
+    margin: 12px 0;
+    font-size: 14px;
+}

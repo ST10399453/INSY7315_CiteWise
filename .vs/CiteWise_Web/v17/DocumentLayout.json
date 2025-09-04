@@ -3,28 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\home\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\home\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\wwwroot\\css\\register.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\wwwroot\\css\\register.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\home\\signin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\home\\signin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\home\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\home\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\wwwroot\\css\\register.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\wwwroot\\css\\register.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
       "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\wwwroot\\css\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -51,38 +47,40 @@
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "register.css",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\css\\register.css",
-              "RelativeDocumentMoniker": "CiteWise_Web\\wwwroot\\css\\register.css",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\css\\register.css",
-              "RelativeToolTip": "CiteWise_Web\\wwwroot\\css\\register.css",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGcAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-09-03T20:59:56.947Z"
+              "Title": "site.js",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\js\\site.js",
+              "RelativeDocumentMoniker": "CiteWise_Web\\wwwroot\\js\\site.js",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\js\\site.js",
+              "RelativeToolTip": "CiteWise_Web\\wwwroot\\js\\site.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-09-04T16:17:09.706Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "site.css",
               "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\css\\site.css",
               "RelativeDocumentMoniker": "CiteWise_Web\\wwwroot\\css\\site.css",
               "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\css\\site.css",
               "RelativeToolTip": "CiteWise_Web\\wwwroot\\css\\site.css",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAACwAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAAE0AAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-09-03T19:29:13.326Z"
+              "WhenOpened": "2025-09-04T16:01:33.428Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Home\\Index.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Home\\Index.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Home\\Index.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-03T08:06:38.454Z"
+              "DocumentIndex": 0,
+              "Title": "register.css",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\css\\register.css",
+              "RelativeDocumentMoniker": "CiteWise_Web\\wwwroot\\css\\register.css",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\wwwroot\\css\\register.css",
+              "RelativeToolTip": "CiteWise_Web\\wwwroot\\css\\register.css",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAAC8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-03T20:59:56.947Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -92,31 +90,20 @@
               "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Shared\\_Layout.cshtml",
               "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Shared\\_Layout.cshtml",
               "RelativeToolTip": "CiteWise_Web\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-03T07:46:03.362Z"
+              "WhenOpened": "2025-09-03T07:46:03.362Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "SignIn.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Home\\SignIn.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Home\\SignIn.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Home\\SignIn.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Home\\SignIn.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-03T07:44:33.832Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
               "Title": "Register.cshtml",
               "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Home\\Register.cshtml",
               "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Home\\Register.cshtml",
               "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Home\\Register.cshtml",
               "RelativeToolTip": "CiteWise_Web\\Views\\Home\\Register.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAADgAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-09-03T07:43:40.407Z",
               "EditorCaption": ""
