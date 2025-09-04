@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">CiteWise_Mobile</string>
+    <string name="app_name">CiteWise</string>
+
+    <!-- Institution list -->
     <string-array name="institutions">
         <item>IIE Varsity College</item>
         <item>IIE Rosebank College</item>
@@ -9,6 +11,7 @@
         <item>Stellenbosch University</item>
     </string-array>
 
+    <!-- Languages -->
     <string-array name="languages">
         <item>English</item>
         <item>isiZulu</item>
@@ -22,10 +25,12 @@
     <string name="login_title">Log In</string>
     <string name="login_subtitle">Log in to your account</string>
     <string name="email_or_username">Email or Username</string>
+    <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="remember_me">Remember me</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="btn_login">Log In</string>
+    <string name="login">Log In</string>
     <string name="or_continue_with">Or continue with</string>
 
     <!-- Social login -->
@@ -35,5 +40,19 @@
 
     <!-- Sign Up -->
     <string name="new_user">New User? </string>
+    <string name="new_user_q">New User? </string>
     <string name="sign_up">Sign Up</string>
+
+    <!-- Reset Password -->
+    <string name="reset_password_title">Reset Password</string>
+    <string name="reset_password_subtitle">Enter your email address and we’ll send you a reset link.</string>
+    <string name="reset_via_email">Email</string>
+    <string name="reset_via_sms">SMS</string>
+    <string name="phone_number">Phone number</string>
+    <string name="send_reset_link">Send reset link</string>
+    <string name="send_code">Send code</string>
+    <string name="verification_code">Verification code</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="verify_and_set_password">Verify and Set Password</string>
 </resources>

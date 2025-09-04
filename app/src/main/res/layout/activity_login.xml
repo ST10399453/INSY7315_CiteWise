@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -14,7 +15,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Title -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvTitle"
             android:layout_width="match_parent"
@@ -23,7 +23,6 @@
             android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
             android:paddingBottom="8dp"/>
 
-        <!-- Logo (vector or bitmap) -->
         <ImageView
             android:id="@+id/imgLogo"
             android:layout_width="120dp"
@@ -32,44 +31,44 @@
             android:layout_gravity="center"
             android:contentDescription="@string/app_name"
             android:src="@drawable/landscape_placeholder"
-            android:scaleType="centerInside"
-            />
+            android:scaleType="centerInside"/>
 
-        <!-- Email -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:hint="Email or Username">
+            android:hint="@string/email">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
+                android:autofillHints="emailAddress"
+                android:imeOptions="actionNext"
                 tools:text="ethan@example.com"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Password"
+            android:hint="@string/password"
             app:endIconMode="password_toggle">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword"
+                android:autofillHints="password"
+                android:imeOptions="actionDone"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Remember me + Forgot password -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -81,8 +80,7 @@
                 android:id="@+id/cbRemember"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins"
-                android:text="Remember me" />
+                android:text="@string/remember_me" />
 
             <View
                 android:layout_width="0dp"
@@ -93,22 +91,20 @@
                 android:id="@+id/tvForgot"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Forgot password?"
+                android:text="@string/forgot_password"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                 android:textColor="?attr/colorPrimary"/>
         </LinearLayout>
 
-        <!-- Login button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="20dp"
-            android:text="Log In"
+            android:text="Login"
             android:enabled="false"/>
 
-        <!-- Progress -->
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress"
             android:layout_width="match_parent"
@@ -116,13 +112,12 @@
             android:layout_marginTop="12dp"
             android:visibility="gone"/>
 
-        <!-- Social login -->
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:gravity="center"
-            android:text="Or continue with"
+            android:text="@string/or_continue_with"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"/>
 
@@ -133,7 +128,6 @@
             android:orientation="horizontal"
             android:layout_marginTop="12dp">
 
-            <!-- Facebook -->
             <ImageView
                 android:id="@+id/btnFacebook"
                 android:layout_width="44dp"
@@ -146,7 +140,6 @@
                 android:src="@drawable/ic_facebook"
                 app:tint="@android:color/black" />
 
-            <!-- Google -->
             <ImageView
                 android:id="@+id/btnGoogle"
                 android:layout_width="44dp"
@@ -156,10 +149,8 @@
                 android:contentDescription="@string/continue_google"
                 android:padding="10dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_google"
-                />
+                android:src="@drawable/ic_google" />
 
-            <!-- Apple -->
             <ImageView
                 android:id="@+id/btnApple"
                 android:layout_width="44dp"
@@ -173,7 +164,6 @@
                 app:tint="@android:color/black" />
         </LinearLayout>
 
-        <!-- Sign up -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -184,13 +174,13 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New User? " />
+                android:text="New User?" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvGoSignUp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sign Up"
+                android:text="@string/sign_up"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"/>
         </LinearLayout>

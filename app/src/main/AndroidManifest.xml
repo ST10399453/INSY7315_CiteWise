@@ -76,7 +76,7 @@
             android:name=".VerificationActivity"
             android:exported="false" />
         <activity
-            android:name=".ResetScreenActivity"
+            android:name=".ResetPasswordActivity"
             android:exported="false" />
         <activity
             android:name=".ForgotPasswordActivity"

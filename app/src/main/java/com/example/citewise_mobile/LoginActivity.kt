@@ -1,11 +1,16 @@
 package com.example.citewise_mobile
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
+import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -31,54 +36,45 @@ class LoginActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
 
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+
         tilEmail = findViewById(R.id.tilEmail)
         tilPassword = findViewById(R.id.tilPassword)
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
         progress = findViewById(R.id.progress)
+
         val tvForgot = findViewById<MaterialTextView>(R.id.tvForgot)
         val tvGoSignUp = findViewById<MaterialTextView>(R.id.tvGoSignUp)
 
-        // Enable button only when inputs are valid
+        // Enable login only when valid
         val revalidate = {
-            val ok = isValidEmail(etEmail.text?.toString()) &&
-                    (etPassword.text?.length ?: 0) >= 6
+            val ok = isValidEmail(etEmail.text?.toString()) && (etPassword.text?.length ?: 0) >= 6
             btnLogin.isEnabled = ok
         }
-        listOf(etEmail, etPassword).forEach {
-            it.addTextChangedListener(afterTextChanged = { revalidate() })
-        }
+        listOf(etEmail, etPassword).forEach { it.addTextChangedListener(afterTextChanged = { revalidate() }) }
 
-        // Login action
+        // Login
         btnLogin.setOnClickListener { tryLogin() }
 
-        // Keyboard "done" triggers login
+        // IME "done" triggers login
         etPassword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE && btnLogin.isEnabled) {
                 tryLogin(); true
             } else false
         }
 
-        // Forgot password (sends reset email if email looks valid)
-        tvForgot.setOnClickListener {
-            val email = etEmail.text?.toString()?.trim().orEmpty()
-            if (!isValidEmail(email)) {
-                tilEmail.error = "Enter a valid email to reset"
-                return@setOnClickListener
+        // Forgot password -> ALWAYS redirect; email is asked on the reset screen
+        findViewById<com.google.android.material.textview.MaterialTextView>(R.id.tvForgot)
+            .setOnClickListener {
+                startActivity(Intent(this, ForgotPasswordActivity::class.java))
             }
-            tilEmail.error = null
-            progress.show()
-            auth.sendPasswordResetEmail(email)
-                .addOnCompleteListener {
-                    progress.hide()
-                    if (it.isSuccessful) {
-                        tilEmail.helperText = "Reset link sent to $email"
-                    } else {
-                        tilEmail.error = it.exception?.localizedMessage ?: "Failed to send reset"
-                    }
-                }
-        }
+
 
         // Go to registration
         tvGoSignUp.setOnClickListener {
@@ -91,6 +87,7 @@ class LoginActivity : AppCompatActivity() {
         val pass = etPassword.text?.toString().orEmpty()
 
         tilEmail.error = null
+        tilEmail.helperText = null
         tilPassword.error = null
 
         if (!isValidEmail(email)) {
@@ -102,28 +99,33 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
+        hideKeyboard()
         progress.show()
         btnLogin.isEnabled = false
 
-        auth.signInWithEmailAndPassword(email, pass)
-            .addOnCompleteListener(this) { task ->
-                progress.hide()
-                btnLogin.isEnabled = true
+        auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(this) { task ->
+            progress.hide()
+            btnLogin.isEnabled = true
 
-                if (task.isSuccessful) {
-                    // TODO: navigate to your home screen
-                    startActivity(Intent(this, StudentDashboardActivity::class.java))
-                    finish()
-                } else {
-                    tilPassword.error = task.exception?.localizedMessage ?: "Login failed"
-                }
+            if (task.isSuccessful) {
+                startActivity(Intent(this, StudentDashboardActivity::class.java))
+                finish()
+            } else {
+                tilPassword.error = task.exception?.localizedMessage ?: "Login failed"
             }
+        }
     }
 
     private fun isValidEmail(value: String?) =
         !value.isNullOrBlank() && Patterns.EMAIL_ADDRESS.matcher(value).matches()
 
-    // tiny helpers for progress visibility
-    private fun LinearProgressIndicator.show() { this.visibility = android.view.View.VISIBLE }
-    private fun LinearProgressIndicator.hide() { this.visibility = android.view.View.GONE }
+    private fun hideKeyboard() {
+        currentFocus?.let { v ->
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(v.windowToken, 0)
+        }
+    }
+
+    private fun LinearProgressIndicator.show() { this.visibility = View.VISIBLE }
+    private fun LinearProgressIndicator.hide() { this.visibility = View.GONE }
 }
