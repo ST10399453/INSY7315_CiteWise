@@ -157,7 +157,7 @@ class LoginActivity : AppCompatActivity() {
                 val result = cm.getCredential(this@LoginActivity, request)
                 handleGoogleCredential(result.credential)
             } catch (e: GetCredentialException) {
-                tilPassword.error = e.localizedMessage ?: "Google sign-in was cancelled or failed"
+                tilPassword.error = "Google sign-in Aborted"
             } catch (t: Throwable) {
                 tilPassword.error = t.localizedMessage ?: "Google sign-in failed"
             }

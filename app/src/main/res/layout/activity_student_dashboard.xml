@@ -63,8 +63,11 @@
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="#FDFBFB"
             app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            app:contentPadding="16dp">
+            app:contentPadding="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -131,8 +134,11 @@
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="#ffffff"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:contentPadding="16dp">
+            app:contentPadding="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -150,13 +156,6 @@
                     android:textColor="@color/primary_blue"
                     android:textSize="20sp" />
 
-                <!-- Row template:
-                     - 56dp tall
-                     - icon fixed 24dp on the far left
-                     - two equal-weight spacers keep text centered
-                     - gradient background + ripple + clickable
-                -->
-
                 <!-- Missing Documents -->
                 <LinearLayout
                     android:id="@+id/btnMissingDocuments"
@@ -169,7 +168,7 @@
                     android:gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
+                    android:foreground="@drawable/ripple_white_rounded"
                     android:contentDescription="Missing Documents"
                     android:orientation="horizontal">
 
@@ -211,7 +210,7 @@
                     android:gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
+                    android:foreground="@drawable/ripple_white_rounded"
                     android:contentDescription="Feedback"
                     android:orientation="horizontal">
 
@@ -253,7 +252,7 @@
                     android:gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
+                    android:foreground="@drawable/ripple_white_rounded"
                     android:contentDescription="New Messages"
                     android:orientation="horizontal">
 
@@ -295,7 +294,7 @@
                     android:gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
+                    android:foreground="@drawable/ripple_white_rounded"
                     android:contentDescription="Rate your consultant"
                     android:orientation="horizontal">
 
@@ -337,7 +336,7 @@
                     android:gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
+                    android:foreground="@drawable/ripple_white_rounded"
                     android:contentDescription="Status update"
                     android:orientation="horizontal">
 
@@ -387,7 +386,10 @@
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="27dp"
-            app:cardElevation="2dp">
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
+            >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -401,7 +403,7 @@
                     android:id="@+id/ivAssistant"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ailogo"
+                    android:src="@drawable/ic_ai"
                     android:background="@color/white"
                     android:contentDescription="AI Assistant" />
             </LinearLayout>
@@ -415,7 +417,9 @@
             android:background="@color/white"
             app:cardBackgroundColor="#ffffff"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutline"
             app:contentPadding="16dp">
 
             <LinearLayout
@@ -471,7 +475,9 @@
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp" />
+                        app:cornerRadius="20dp"
+                        app:rippleColor="@color/ripple_nav_blue"
+                        android:stateListAnimator="@null"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadPDF"
@@ -485,7 +491,9 @@
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp" />
+                        app:cornerRadius="20dp"
+                        app:rippleColor="@color/ripple_nav_blue"
+                        android:stateListAnimator="@null"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnRequestReview"
@@ -498,7 +506,9 @@
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp" />
+                        app:cornerRadius="20dp"
+                        app:rippleColor="@color/ripple_nav_blue"
+                        android:stateListAnimator="@null"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

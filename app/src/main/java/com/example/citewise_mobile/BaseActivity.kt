@@ -1,17 +1,7 @@
 package com.example.citewise_mobile
-import android.content.Intent
 
-import android.content.SharedPreferences
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import com.example.citewise_mobile.AdminDashboardActivity
-import com.example.citewise_mobile.AdminProfileSettingsActivity
-import com.example.citewise_mobile.ChatsActivity
-import com.example.citewise_mobile.ConsultantDashboardActivity
-import com.example.citewise_mobile.ConsultantProfileSettingsActivity
-import com.example.citewise_mobile.R
-import com.example.citewise_mobile.ServiceRequestActivity
-import com.example.citewise_mobile.StudentDashboardActivity
-import com.example.citewise_mobile.StudentProfileSettingsActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 open class BaseActivity : AppCompatActivity() {
@@ -21,7 +11,8 @@ open class BaseActivity : AppCompatActivity() {
     private fun getCurrentUserRole(): UserRole {
         val sp = getSharedPreferences("user_prefs", MODE_PRIVATE)
         val roleString = sp.getString("user_role", "STUDENT")
-        return runCatching { UserRole.valueOf(roleString ?: "STUDENT") }.getOrDefault(UserRole.STUDENT)
+        return runCatching { UserRole.valueOf(roleString ?: "STUDENT") }
+            .getOrDefault(UserRole.STUDENT)
     }
 
     private fun getDashboardActivityClass(): Class<*> = when (getCurrentUserRole()) {
@@ -37,9 +28,12 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     protected fun setupBottomNavigation() {
-        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNav) // <- ID fixed
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottomNav) ?: return
 
-        bottomNavigation?.setOnItemSelectedListener { item ->
+        // Ignore reselect (don’t reload the same screen)
+        bottomNavigation.setOnItemReselectedListener { /* no-op */ }
+
+        bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> {
                     val clazz = getDashboardActivityClass()
@@ -57,9 +51,8 @@ open class BaseActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_resources -> {
-                    // TODO: replace with your actual Resources activity
+                    // TODO: start your ResourcesActivity when it exists
                     // startActivity(Intent(this, ResourcesActivity::class.java))
-                    // For now, route to dashboard or keep as no-op:
                     true
                 }
                 R.id.nav_messages -> {
@@ -97,7 +90,6 @@ open class BaseActivity : AppCompatActivity() {
                 setSelectedNavItem(R.id.nav_messages)
             is StudentProfileSettingsActivity, is ConsultantProfileSettingsActivity, is AdminProfileSettingsActivity ->
                 setSelectedNavItem(R.id.nav_profile)
-
             // If/when you add ResourcesActivity:
             // is ResourcesActivity -> setSelectedNavItem(R.id.nav_resources)
         }

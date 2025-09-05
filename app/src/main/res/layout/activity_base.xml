@@ -23,10 +23,13 @@
         android:background="@android:color/white"
         app:menu="@menu/bottom_navigation_menu"
         app:itemIconSize="24dp"
-        app:itemIconTint="#0027B2"
-        app:itemTextColor="#0027B2"
+        app:itemIconTint="@color/bottom_nav_item_tint"
+        app:itemTextColor="@color/bottom_nav_item_tint"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:elevation="0dp"
+        app:itemRippleColor="@color/ripple_nav_blue"
+        app:itemActiveIndicatorStyle="@style/BottomNavActiveIndicator"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

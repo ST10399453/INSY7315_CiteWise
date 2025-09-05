@@ -12,4 +12,10 @@
         <item name="cornerSize">28dp</item>
     </style>
 
+    <style name="BottomNavActiveIndicator">
+        <item name="android:color">@color/primary_blue</item>
+        <item name="android:alpha">0.12</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
+    </style>
+
 </resources>
