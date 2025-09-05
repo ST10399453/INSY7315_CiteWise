@@ -87,13 +87,13 @@ class ForgotPasswordActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
 
-                        // Wait 3 seconds, then go back to Login (prefill email if you like)
+                        // Wait 5 seconds, then go back to Login
                         Handler(Looper.getMainLooper()).postDelayed({
                             startActivity(
-                                Intent(this, LoginActivity::class.java).putExtra("email", email)
+                                Intent(this, LoginActivity::class.java)
                             )
                             finish()
-                        }, 3000)
+                        }, 5000)
                     } else {
                         val ex = task.exception
                         tilEmail.error = when (ex) {
