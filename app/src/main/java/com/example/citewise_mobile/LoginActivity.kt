@@ -25,6 +25,7 @@ import com.google.android.material.textview.MaterialTextView
 // Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
 
 // Credential Manager + Google Identity
 import androidx.credentials.Credential
@@ -90,7 +91,7 @@ class LoginActivity : AppCompatActivity() {
             } else false
         }
 
-        // Forgot password -> go to dedicated screen (collect email & send link there)
+        // Forgot password -> dedicated screen
         tvForgot.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
@@ -123,7 +124,8 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(this) { task ->
             showLoading(false)
             if (task.isSuccessful) {
-                goHome()
+                // Email/password users should already have a profile (created at registration)
+                routeByRole()
             } else {
                 tilPassword.error = task.exception?.localizedMessage ?: "Login failed"
             }
@@ -136,9 +138,8 @@ class LoginActivity : AppCompatActivity() {
         // Use the Web client ID from google-services.json (or strings.xml if you added it manually)
         val serverClientId = getString(R.string.default_web_client_id)
 
-        // Build the Google Sign-In option
-        val googleOption = GetSignInWithGoogleOption.Builder(serverClientId)
-            .build()
+        // Build the Google Sign-In option (newer API)
+        val googleOption = GetSignInWithGoogleOption.Builder(serverClientId).build()
 
         // Build the Credential Manager request
         val request = GetCredentialRequest.Builder()
@@ -152,7 +153,7 @@ class LoginActivity : AppCompatActivity() {
                 showLoading(true)
                 // May show account picker / One Tap
                 val result = cm.getCredential(this@LoginActivity, request)
-                handleGoogleCredential(result.credential)   // <-- Pass the Credential to handler
+                handleGoogleCredential(result.credential)
             } catch (e: GetCredentialException) {
                 showLoading(false)
                 tilPassword.error = e.localizedMessage ?: "Google sign-in was cancelled or failed"
@@ -168,19 +169,19 @@ class LoginActivity : AppCompatActivity() {
         if (credential is CustomCredential &&
             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
         ) {
-            // Extract the ID token from the Bundle
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
             val idToken = googleIdTokenCredential.idToken
 
             val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
             auth.signInWithCredential(firebaseCredential)
                 .addOnCompleteListener(this) { task ->
-                    showLoading(false)
-                    if (task.isSuccessful) {
-                        goHome()
-                    } else {
+                    if (!task.isSuccessful) {
+                        showLoading(false)
                         tilPassword.error = task.exception?.localizedMessage ?: "Google sign-in failed"
+                        return@addOnCompleteListener
                     }
+                    // Signed in with Google → check if profile exists; if not, complete profile
+                    handleFirstTimeGoogleUserOrRoute()
                 }
         } else {
             showLoading(false)
@@ -188,12 +189,63 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // ---------------- Helpers ----------------
-
-    private fun goHome() {
-        startActivity(Intent(this, StudentDashboardActivity::class.java))
-        finish()
+    /**
+     * After Google sign-in, check if /users/{uid} exists.
+     *  - If exists → route by role.
+     *  - If not → launch RegisterActivity in "google" mode to complete profile.
+     */
+    private fun handleFirstTimeGoogleUserOrRoute() {
+        val uid = auth.currentUser?.uid ?: run {
+            showLoading(false)
+            return
+        }
+        val ref = FirebaseDatabase.getInstance().reference.child("users").child(uid)
+        ref.get().addOnCompleteListener { t ->
+            showLoading(false)
+            if (!t.isSuccessful) {
+                tilPassword.error = t.exception?.localizedMessage ?: "Could not verify account"
+                return@addOnCompleteListener
+            }
+            val exists = t.result?.exists() == true
+            if (exists) {
+                routeByRole()
+            } else {
+                // First-time Google user → complete profile (role/institution/company/etc.)
+                startActivity(
+                    Intent(this, RegisterActivity::class.java)
+                        .putExtra("mode", "google")
+                )
+                finish()
+            }
+        }
     }
+
+    // ---------------- Role Routing ----------------
+
+    private fun routeByRole() {
+        val uid = auth.currentUser?.uid ?: run {
+            startActivity(Intent(this, LoginActivity::class.java)); finish(); return
+        }
+
+        val ref = FirebaseDatabase.getInstance().reference
+            .child("users").child(uid).child("role")
+
+        progress.visibility = View.VISIBLE
+
+        ref.get().addOnCompleteListener { t ->
+            progress.visibility = View.GONE
+            val role = t.result?.getValue(String::class.java)?.lowercase() ?: "student"
+            when (role) {
+                "student" -> startActivity(Intent(this, StudentDashboardActivity::class.java))
+                "consultant" -> startActivity(Intent(this, ConsultantDashboardActivity::class.java))
+                "admin" -> startActivity(Intent(this, AdminDashboardActivity::class.java))
+                else -> startActivity(Intent(this, StudentDashboardActivity::class.java))
+            }
+            finish()
+        }
+    }
+
+    // ---------------- Helpers ----------------
 
     private fun isValidEmail(value: String?) =
         !value.isNullOrBlank() && Patterns.EMAIL_ADDRESS.matcher(value).matches()
@@ -215,7 +267,23 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        // Auto-skip login if already authenticated
-        auth.currentUser?.let { goHome() }
+        // If already logged in, decide whether to route or complete profile (Google-first users)
+        auth.currentUser?.let {
+            val uid = it.uid
+            val ref = FirebaseDatabase.getInstance().reference.child("users").child(uid)
+            progress.visibility = View.VISIBLE
+            ref.get().addOnCompleteListener { t ->
+                progress.visibility = View.GONE
+                val exists = t.isSuccessful && t.result?.exists() == true
+                if (exists) {
+                    routeByRole()
+                } else {
+                    // For safety: if this is a Google user without a profile yet, send to completion
+                    // (Email/password users normally come from RegisterActivity and will have a profile)
+                    startActivity(Intent(this, RegisterActivity::class.java).putExtra("mode", "google"))
+                    finish()
+                }
+            }
+        }
     }
 }
