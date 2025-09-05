@@ -28,7 +28,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
     private lateinit var tilEmail: TextInputLayout
     private lateinit var etEmail: TextInputEditText
     private lateinit var btnSend: MaterialButton
-    private lateinit var progress: LinearProgressIndicator
 
     private val auth by lazy { FirebaseAuth.getInstance() }
 
@@ -46,7 +45,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
         tilEmail = findViewById(R.id.tilEmail)
         etEmail  = findViewById(R.id.etEmail)
         btnSend  = findViewById(R.id.btnSendEmailLink)
-        progress = findViewById(R.id.progress)
 
         // Prefill if provided
         intent.getStringExtra("email")?.let { etEmail.setText(it) }
@@ -72,11 +70,11 @@ class ForgotPasswordActivity : AppCompatActivity() {
             }
 
             hideKeyboard()
-            setLoading(true)
+
 
             auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener { task ->
-                    setLoading(false)
+
                     if (task.isSuccessful) {
                         // Let the user know it can take a bit, and to check Spam/Junk
                         tilEmail.helperText =
@@ -122,12 +120,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(v.windowToken, 0)
         }
-    }
-
-    private fun setLoading(loading: Boolean) {
-        progress.visibility = if (loading) View.VISIBLE else View.GONE
-        btnSend.isEnabled = !loading && isValidEmail(etEmail.text?.toString())
-        etEmail.isEnabled = !loading
     }
 
 
