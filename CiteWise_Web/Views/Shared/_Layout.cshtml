@@ -11,6 +11,7 @@
 </head>
 <body>
 
+
     <div class="sidebar">
         <div class="logo-container">
             <img src="~/img/CiteWise_Logo.jpg" alt="CiteWise Logo" class="sidebar-logo" />
@@ -19,34 +20,40 @@
 
         <a href="#">
             <img src="~/icons/Dashboard.svg" alt="Dashboard" class="sidebar-icon"/>
-            Dashboard
+            <span>Dashboard</span>
         </a>
 
         <a href="#">
             <img src="~/icons/Request.png" alt="Request Service Icon" class="sidebar-icon" />
-            Request a Service
+            <span>Request a Service</span>
         </a>
 
         <a href="#">
             <img src="~/icons/Resources.svg" alt="Academic Resources" class="sidebar-icon" />
-            Academic Resources
+            <span>Academic Resources</span>
         </a>
 
         <a href="#">
             <img src="~/icons/Messages.svg" alt="Messages" class="sidebar-icon" />
-            Messages
+            <span>Messages</span>
         </a>
 
         <a href="#">
             <img src="~/icons/Profile.svg" alt="Profile" class="sidebar-icon" />
-            Profile
+            <span>Profile</span>
         </a>
     </div>
 
     <div class="topbar">
         @* Left side: Greeting *@
-        <div class="topbar-left">
+        @* <div class="topbar-left">
             <h2><span>Hi Akhi</span></h2>
+        </div> *@
+        <div class="topbar-left">
+            <div class="toggle-btn">
+                <img src="~/icons/menu_sidebar.svg" alt="Sidebar expand & collapse" />
+            </div>
+            <h2 class="topbar-name"><span>Hi Akhi</span></h2>
         </div>
 
         @* Right side: Notifications + User *@
