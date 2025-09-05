@@ -1,6 +1,7 @@
 package com.example.citewise_mobile
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.view.View
@@ -15,6 +16,12 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.FirebaseTooManyRequestsException
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
+
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
@@ -30,30 +37,29 @@ class ForgotPasswordActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_forgot_password)
 
-        // Edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
 
-        // Bind views
         tilEmail = findViewById(R.id.tilEmail)
         etEmail  = findViewById(R.id.etEmail)
         btnSend  = findViewById(R.id.btnSendEmailLink)
         progress = findViewById(R.id.progress)
 
-        // Prefill if email was passed from LoginActivity (optional)
+        // Prefill if provided
         intent.getStringExtra("email")?.let { etEmail.setText(it) }
 
-        // Enable button only when email looks valid
+        // Revalidate on change
         etEmail.addTextChangedListener(afterTextChanged = {
-            btnSend.isEnabled = isValidEmail(etEmail.text?.toString())
-            if (tilEmail.error != null) tilEmail.error = null
-            if (!btnSend.isEnabled) tilEmail.helperText = null
+            tilEmail.error = null
+            tilEmail.helperText = null
+            revalidate()
         })
+        // Initial state
+        revalidate()
 
-        // Send reset link using DEFAULT Firebase domain (no ActionCodeSettings)
         btnSend.setOnClickListener {
             val email = etEmail.text?.toString()?.trim().orEmpty()
 
@@ -72,13 +78,40 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 .addOnCompleteListener { task ->
                     setLoading(false)
                     if (task.isSuccessful) {
-                        // Success == request accepted (email may still land in Spam)
-                        tilEmail.helperText = "Reset link sent to $email"
+                        // Let the user know it can take a bit, and to check Spam/Junk
+                        tilEmail.helperText =
+                            "Reset link sent to $email. It may take a few minutes — please also check your Spam/Junk folder."
+                        Toast.makeText(
+                            this,
+                            "Reset link sent. Check your inbox (and Spam/Junk).",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        // Wait 3 seconds, then go back to Login (prefill email if you like)
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            startActivity(
+                                Intent(this, LoginActivity::class.java).putExtra("email", email)
+                            )
+                            finish()
+                        }, 3000)
                     } else {
-                        tilEmail.error = task.exception?.localizedMessage ?: "Failed to send reset link"
+                        val ex = task.exception
+                        tilEmail.error = when (ex) {
+                            is FirebaseAuthInvalidUserException ->
+                                "No account found with that email"
+                            is FirebaseTooManyRequestsException ->
+                                "Too many requests. Please try again later"
+                            else -> ex?.localizedMessage ?: "Failed to send reset link"
+                        }
                     }
                 }
+
+
         }
+    }
+
+    private fun revalidate() {
+        btnSend.isEnabled = isValidEmail(etEmail.text?.toString())
     }
 
     private fun isValidEmail(value: String?) =
@@ -93,7 +126,9 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
     private fun setLoading(loading: Boolean) {
         progress.visibility = if (loading) View.VISIBLE else View.GONE
-        btnSend.isEnabled = !loading
+        btnSend.isEnabled = !loading && isValidEmail(etEmail.text?.toString())
         etEmail.isEnabled = !loading
     }
+
+
 }

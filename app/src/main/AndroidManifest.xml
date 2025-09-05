@@ -14,9 +14,6 @@
         android:theme="@style/Theme.CiteWise_Mobile"
         tools:targetApi="31">
         <activity
-            android:name=".BaseActivity"
-            android:exported="false" />
-        <activity
             android:name=".AdminProfileSettingsActivity"
             android:exported="false" />
         <activity
@@ -72,9 +69,6 @@
             android:exported="false" />
         <activity
             android:name=".ResetConfirmationActivity"
-            android:exported="false" />
-        <activity
-            android:name=".PasswordResetActivity"
             android:exported="false" />
         <activity
             android:name=".ForgotPasswordActivity"
