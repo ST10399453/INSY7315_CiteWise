@@ -30,6 +30,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:elevation="0dp"
-        app:itemRippleColor="@color/ripple_nav_blue"
         app:itemActiveIndicatorStyle="@style/BottomNavActiveIndicator"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

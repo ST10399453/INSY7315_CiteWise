@@ -399,13 +399,18 @@
                 android:background="@color/white"
                 android:orientation="vertical">
 
-                <ImageButton
+                <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/ivAssistant"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/ic_ai"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:background="@color/white"
+                    app:srcCompat="@drawable/ai_logo"
+                    android:scaleType="centerInside"
+                    android:adjustViewBounds="true"
+                    android:backgroundTint="@color/white"
+                    app:tint="@null"
                     android:contentDescription="AI Assistant" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -476,7 +481,6 @@
                         android:textSize="12sp"
                         app:backgroundTint="@null"
                         app:cornerRadius="20dp"
-                        app:rippleColor="@color/ripple_nav_blue"
                         android:stateListAnimator="@null"/>
 
                     <com.google.android.material.button.MaterialButton
@@ -492,7 +496,6 @@
                         android:textSize="12sp"
                         app:backgroundTint="@null"
                         app:cornerRadius="20dp"
-                        app:rippleColor="@color/ripple_nav_blue"
                         android:stateListAnimator="@null"/>
 
                     <com.google.android.material.button.MaterialButton
@@ -507,7 +510,6 @@
                         android:textSize="12sp"
                         app:backgroundTint="@null"
                         app:cornerRadius="20dp"
-                        app:rippleColor="@color/ripple_nav_blue"
                         android:stateListAnimator="@null"/>
                 </LinearLayout>
             </LinearLayout>
