@@ -29,6 +29,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:elevation="0dp"
-        app:itemActiveIndicatorStyle="@style/BottomNavActiveIndicator"/>
+        app:elevation="0dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
