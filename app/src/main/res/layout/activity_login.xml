@@ -128,19 +128,7 @@
             android:orientation="horizontal"
             android:layout_marginTop="12dp">
 
-            <ImageView
-                android:id="@+id/btnFacebook"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_margin="6dp"
-                android:background="@drawable/circle_background"
-                android:contentDescription="@string/continue_facebook"
-                android:padding="10dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_facebook"
-                app:tint="@android:color/black" />
-
-            <ImageView
+            <ImageButton
                 android:id="@+id/btnGoogle"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
@@ -150,18 +138,6 @@
                 android:padding="10dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_google" />
-
-            <ImageView
-                android:id="@+id/btnApple"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:layout_margin="6dp"
-                android:background="@drawable/circle_background"
-                android:contentDescription="@string/continue_apple"
-                android:padding="10dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_apple"
-                app:tint="@android:color/black" />
         </LinearLayout>
 
         <LinearLayout
