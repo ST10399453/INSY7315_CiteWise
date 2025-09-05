@@ -54,4 +54,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.material.v1130)
+    implementation(libs.androidx.transition)
 }

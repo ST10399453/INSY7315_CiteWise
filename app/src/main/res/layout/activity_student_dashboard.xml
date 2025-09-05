@@ -2,282 +2,381 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:padding="16dp"
     android:fillViewport="true"
-    tools:context=".StudentDashboardActivity">
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Added header with logo and menu -->
+        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="10dp"
-            android:background="@color/white"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp">
 
             <ImageView
                 android:layout_width="65dp"
                 android:layout_height="65dp"
-                android:src="@drawable/landscape_placeholder"
-                android:contentDescription="App Logo"/>
+                android:src="@drawable/citewise_logo"
+                android:contentDescription="App Logo" />
 
             <View
                 android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"/>
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <ImageButton
                 android:layout_width="32dp"
                 android:layout_height="26dp"
                 android:src="@drawable/hamburger"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Menu"/>
+                android:contentDescription="Menu" />
         </LinearLayout>
 
-        <!-- Added greeting section -->
+        <!-- Greeting -->
         <TextView
             android:id="@+id/tvGreeting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
             android:text="Hi Connor"
             android:textColor="@color/primary_blue"
             android:textSize="36sp"
             android:fontFamily="@font/poppins_extra_bold"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
 
-        <!-- Added service request progress card -->
+        <!-- Service Request Progress -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="230dp"
-            android:layout_gravity="center"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:background="@color/white"
             app:cardBackgroundColor="#FDFBFB"
             app:cardCornerRadius="20dp"
-            app:cardElevation="2dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="1dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Service Request Progress"
-                android:textColor="@color/primary_blue"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+            app:cardElevation="2dp"
+            app:contentPadding="16dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="128dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:background="@color/white"
-                android:orientation="vertical"
-                app:cornerRadius="20dp"
-                android:padding="20dp">
-
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:text="Service Request Progress"
+                    android:textColor="@color/primary_blue"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
                     android:fontFamily="@font/poppins_medium"
-                    android:layout_marginRight="90dp"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:text="Business Plan Draft"
                     android:textColor="@color/black"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/poppins_medium"
+                    android:layout_marginBottom="8dp" />
 
                 <ProgressBar
                     android:id="@+id/progressService"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="8dp"
-                    android:layout_marginBottom="8dp"
                     android:max="100"
-                    android:progress="25" />
+                    android:progress="25"
+                    android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
                     android:text="Submitted • Deadline: 25.08.2025"
                     android:textColor="#666666"
-                    android:textSize="10sp" />
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Added request service button -->
+        <!-- Request Service CTA -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRequestService"
             android:layout_width="match_parent"
-            android:layout_gravity="center"
             android:layout_height="55dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="@color/white"
             android:fontFamily="@font/poppins_sembold"
-            android:shadowDx="-4"
-            android:shadowDy="-4"
-            android:shadowRadius="2"
             android:text="Request a Service"
             android:textColor="@color/primary_blue"
             android:textSize="18sp"
             app:cornerRadius="50dp"
-            app:strokeWidth="2px" />
+            app:strokeWidth="1px" />
 
-
+        <!-- Notifications -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#ffffff"
             app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            app:cardElevation="4dp"
+            app:contentPadding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:background="@color/white"
-                android:padding="16dp">
+                android:orientation="vertical">
 
-                <!-- Notifications -->
                 <TextView
                     android:id="@+id/tvNotifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Notifications"
+                    android:layout_marginBottom="12dp"
                     android:fontFamily="@font/poppins_medium"
-                    android:textSize="20sp"
+                    android:text="Notifications"
                     android:textColor="@color/primary_blue"
-                    android:layout_marginBottom="8dp"/>
+                    android:textSize="20sp" />
 
+                <!-- Row template:
+                     - 56dp tall
+                     - icon fixed 24dp on the far left
+                     - two equal-weight spacers keep text centered
+                     - gradient background + ripple + clickable
+                -->
+
+                <!-- Missing Documents -->
                 <LinearLayout
+                    android:id="@+id/btnMissingDocuments"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/button_gradient_blue"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:contentDescription="Missing Documents"
+                    android:orientation="horizontal">
 
-                    <!-- Applied gradient background to notification buttons -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnMissingDocuments"
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/warning"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="8dp"
-                        android:background="@drawable/button_gradient_blue"
-                        android:fontFamily="@font/poppins"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
                         android:text="Missing Documents"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="50dp" />
+                        android:fontFamily="@font/poppins"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFeedback"
-                        android:layout_width="match_parent"
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <!-- Feedback -->
+                <LinearLayout
+                    android:id="@+id/btnFeedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/button_gradient_blue"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:contentDescription="Feedback"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/edit"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:text="Feedback"
                         android:textColor="@android:color/white"
-                        android:background="@drawable/button_gradient_blue"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="0dp"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:fontFamily="@font/poppins"
                         android:textSize="18sp"
-                        android:layout_marginBottom="8dp" />
+                        android:fontFamily="@font/poppins"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnNewMessages"
-                        android:layout_width="match_parent"
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <!-- New Messages -->
+                <LinearLayout
+                    android:id="@+id/btnNewMessages"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/button_gradient_blue"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:contentDescription="New Messages"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/comment"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:text="New Messages"
                         android:textColor="@android:color/white"
-                        android:background="@drawable/button_gradient_blue"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="0dp"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:fontFamily="@font/poppins"
                         android:textSize="18sp"
-                        android:layout_marginBottom="8dp"/>
+                        android:fontFamily="@font/poppins"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRateConsultant"
-                        android:layout_width="match_parent"
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <!-- Rate your consultant -->
+                <LinearLayout
+                    android:id="@+id/btnRateConsultant"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/button_gradient_blue"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:contentDescription="Rate your consultant"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/rating"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:text="Rate your consultant"
                         android:textColor="@android:color/white"
-                        android:background="@drawable/button_gradient_blue"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="0dp"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:fontFamily="@font/poppins"
                         android:textSize="18sp"
-                        android:layout_marginBottom="8dp"/>
+                        android:fontFamily="@font/poppins"/>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnStatusUpdate"
-                        android:layout_width="match_parent"
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+                </LinearLayout>
+
+                <!-- Status update -->
+                <LinearLayout
+                    android:id="@+id/btnStatusUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="0dp"
+                    android:background="@drawable/button_gradient_blue"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:contentDescription="Status update"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/recycle"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="16dp"
-                        android:background="@drawable/button_gradient_blue"
-                        android:fontFamily="@font/poppins"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
                         android:text="Status update"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        app:backgroundTint="@null"
-                        app:cornerRadius="0dp" />
+                        android:fontFamily="@font/poppins"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
                 </LinearLayout>
 
             </LinearLayout>
-
         </com.google.android.material.card.MaterialCardView>
-        <!-- Added AI Assistant section -->
+
+        <!-- AI Assistant -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="AI Assistant"
-            android:layout_gravity="center"
-            android:fontFamily="@font/poppins_medium"
-            android:textSize="20sp"
             android:textColor="@color/primary_blue"
-            android:layout_marginBottom="12dp"/>
+            android:textSize="20sp"
+            android:fontFamily="@font/poppins_medium"
+            android:layout_gravity="center"
+            android:layout_marginBottom="12dp" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="124dp"
@@ -285,16 +384,15 @@
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="27dp"
-
             app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:gravity="center"
                 android:background="@color/white"
-                android:gravity="center">
+                android:orientation="vertical">
 
                 <ImageButton
                     android:id="@+id/ivAssistant"
@@ -302,121 +400,102 @@
                     android:layout_height="match_parent"
                     android:src="@drawable/ailogo"
                     android:background="@color/white"
-                    android:layout_gravity="center"
-
-                    android:contentDescription="AI Assistant"
-                    android:layout_marginBottom="8dp"/>
-
+                    android:contentDescription="AI Assistant" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Added service quote section -->
+        <!-- Service Quote -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:background="@color/white"
+            app:cardBackgroundColor="#ffffff"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            app:contentPadding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:background="@color/white"
-                android:padding="20dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/poppins_medium"
                     android:text="Service Quote"
-                    android:textStyle="bold"
                     android:textColor="@color/primary_blue"
-                    android:fontFamily="@font/poppins_medium"
                     android:textSize="20sp"
-                    android:layout_marginBottom="12dp"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Business Plan Draft"
+                    android:layout_marginBottom="4dp"
                     android:fontFamily="@font/poppins_medium"
+                    android:text="Business Plan Draft"
                     android:textColor="@color/black"
-                    android:textStyle="bold"
                     android:textSize="15sp"
-                    android:layout_marginBottom="4dp"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:text="Total: R6500 • Deadline: 25.08.2025"
-                    android:textSize="12sp"
                     android:textColor="#666666"
-                    android:layout_marginBottom="16dp"/>
+                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:layout_marginTop="8dp">
+                    android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAccept"
-                        android:layout_width="wrap_content"
-                        android:layout_height="25dp"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/button_gradient_blue"
+                        android:fontFamily="@font/poppins"
                         android:text="Accept"
                         android:textColor="@android:color/white"
-                        android:background="@drawable/button_gradient_blue"
+                        android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:fontFamily="@font/poppins"
-                        android:textSize="11sp"/>
+                        app:cornerRadius="20dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadPDF"
-                        android:layout_width="wrap_content"
-                        android:layout_height="25dp"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/button_gradient_blue"
+                        android:fontFamily="@font/poppins"
                         android:text="Download"
                         android:textColor="@android:color/white"
-                        android:background="@drawable/button_gradient_blue"
+                        android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:fontFamily="@font/poppins"
-                        android:textSize="11sp"/>
+                        app:cornerRadius="20dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnRequestReview"
-                        android:layout_width="wrap_content"
-                        android:layout_height="25dp"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
                         android:layout_weight="1"
-                        android:layout_marginStart="8dp"
+                        android:background="@drawable/button_gradient_blue"
+                        android:fontFamily="@font/poppins"
                         android:text="Review"
                         android:textColor="@android:color/white"
-                        android:background="@drawable/button_gradient_blue"
+                        android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:stateListAnimator="@null"
-                        android:fontFamily="@font/poppins"
-                        android:textSize="11sp"/>
+                        app:cornerRadius="20dp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

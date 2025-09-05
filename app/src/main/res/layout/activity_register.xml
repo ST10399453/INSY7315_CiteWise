@@ -3,10 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:padding="24dp"
+    android:background="@color/white"
     tools:context=".RegisterActivity">
 
     <LinearLayout
@@ -20,7 +22,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Create account"
-            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" />
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/primary_blue"/>
 
         <!-- Role toggle -->
         <com.google.android.material.button.MaterialButtonToggleGroup
@@ -28,8 +33,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:singleSelection="true"
             android:layout_gravity="center"
+            app:singleSelection="true"
             app:selectionRequired="true">
 
             <com.google.android.material.button.MaterialButton
@@ -37,30 +42,42 @@
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Student" />
+                android:text="Student"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/primary_blue" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConsultant"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Consultant" />
+                android:text="Consultant"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/primary_blue"
+                app:strokeColor="@color/primary_blue"
+                app:strokeWidth="2dp" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <!-- First name -->
+        <!-- Name -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilFirstName"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="First name">
+            android:hint="Name"
+            app:boxStrokeColor="@color/primary_blue_dark">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFirstName"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
+                android:layout_height="51dp"
+                android:background="@drawable/outline_edittext"
+                android:fontFamily="@font/poppins"
+                android:inputType="textPersonName"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Surname -->
@@ -70,13 +87,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Surname">
+            android:hint="Surname"
+            app:boxStrokeColor="@color/primary_blue_dark">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSurname"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
+                android:layout_height="51dp"
+                android:background="@drawable/outline_edittext"
+                android:fontFamily="@font/poppins"
+                android:inputType="textPersonName"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email -->
@@ -86,13 +108,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="Email">
+            android:hint="Email"
+            app:boxStrokeColor="@color/primary_blue_dark">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
+                android:layout_height="51dp"
+                android:background="@drawable/outline_edittext"
+                android:fontFamily="@font/poppins"
+                android:inputType="textEmailAddress"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password -->
@@ -103,26 +130,49 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:hint="Password"
-            app:endIconMode="password_toggle">
+            app:boxStrokeColor="@color/primary_blue_dark"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/primary_blue_dark"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword" />
+                android:layout_height="51dp"
+                android:background="@drawable/outline_edittext"
+                android:fontFamily="@font/poppins"
+                android:inputType="textPassword"
+                android:paddingStart="12dp"
+                android:paddingEnd="42dp"
+                android:textColor="@color/black"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password strength -->
-        <ProgressBar
-            android:id="@+id/pbPasswordStrength"
-            style="?android:attr/progressBarStyleHorizontal"
+        <!-- Confirm Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilConfirmPassword"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:layout_marginTop="6dp"
-            android:max="100"
-            android:progress="0" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Confirm Password"
+            app:boxStrokeColor="@color/primary_blue_dark"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/primary_blue_dark"
+            app:errorIconDrawable="@null">
 
-        <!-- STUDENT SECTION -->
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etConfirmPassword"
+                android:layout_width="match_parent"
+                android:layout_height="51dp"
+                android:background="@drawable/outline_edittext"
+                android:fontFamily="@font/poppins"
+                android:inputType="textPassword"
+                android:paddingStart="12dp"
+                android:paddingEnd="42dp"
+                android:textColor="@color/black"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- STUDENT: What do you study? -->
         <LinearLayout
             android:id="@+id/sectionStudent"
             android:layout_width="match_parent"
@@ -132,37 +182,26 @@
             tools:visibility="visible">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilInstitution"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Tertiary Institution">
-
-                <AutoCompleteTextView
-                    android:id="@+id/actvInstitution"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:completionThreshold="1"
-                    tools:listitem="@android:layout/simple_list_item_1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilFieldOfStudy"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Field of Study">
+                android:hint="Field of Study"
+                app:boxStrokeColor="@color/primary_blue_dark">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etFieldOfStudy"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapWords" />
+                    android:layout_height="51dp"
+                    android:background="@drawable/outline_edittext"
+                    android:fontFamily="@font/poppins"
+                    android:inputType="textCapWords"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="@color/black"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <!-- CONSULTANT SECTION -->
+        <!-- CONSULTANT: What do you teach/specialise in? -->
         <LinearLayout
             android:id="@+id/sectionConsultant"
             android:layout_width="match_parent"
@@ -172,43 +211,24 @@
             android:visibility="gone">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilCompany"
+                android:id="@+id/tilSpecialisation"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Company">
+                android:hint="Specialisation / Subjects taught"
+                app:boxStrokeColor="@color/primary_blue_dark">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCompany"
+                    android:id="@+id/etSpecialisation"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapWords" />
+                    android:layout_height="51dp"
+                    android:background="@drawable/outline_edittext"
+                    android:fontFamily="@font/poppins"
+                    android:inputType="textCapWords"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="@color/black"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
-
-        <!-- Preferred language -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilLanguage"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="Preferred language">
-
-            <AutoCompleteTextView
-                android:id="@+id/actvLanguage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@android:layout/simple_list_item_1" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Terms -->
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/cbTerms"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Agree to Terms and Conditions" />
 
         <!-- Sign Up -->
         <com.google.android.material.button.MaterialButton
@@ -216,26 +236,23 @@
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:text="Sign Up"
-            android:enabled="false" />
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_sembold"
+            android:background="@drawable/button_gradient_blue"
+            app:backgroundTint="@null"
+            android:enabled="false"/>
 
-        <!-- Progress -->
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/progress"
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:layout_marginTop="12dp"
-            android:visibility="gone" />
-
-        <!-- Have account -->
+        <!-- Already have an account -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvGoLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Already have an account? Log In"
-            android:textColor="?attr/colorPrimary" />
-
+            android:textColor="@color/primary_blue"
+            android:fontFamily="@font/poppins_medium"/>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

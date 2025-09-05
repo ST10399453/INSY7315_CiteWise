@@ -43,6 +43,9 @@ class LoginActivity : AppCompatActivity() {
     private val auth = com.google.firebase.Firebase.auth
 
     private lateinit var tilEmail: TextInputLayout
+
+    private lateinit var tvForgot: MaterialTextView
+    private lateinit var tvGoSignUp: MaterialTextView
     private lateinit var tilPassword: TextInputLayout
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
@@ -71,8 +74,8 @@ class LoginActivity : AppCompatActivity() {
         progress = findViewById(R.id.progress)
         btnGoogle = findViewById(R.id.btnGoogle)
 
-        val tvForgot = findViewById<MaterialTextView>(R.id.tvForgot)
-        val tvGoSignUp = findViewById<MaterialTextView>(R.id.tvGoSignUp)
+        tvForgot = findViewById(R.id.tvForgot)
+        tvGoSignUp = findViewById(R.id.tvGoSignUp)
 
         // Enable email/password button only when inputs are valid
         val revalidate = {
@@ -263,27 +266,5 @@ class LoginActivity : AppCompatActivity() {
         etEmail.isEnabled = !loading
         etPassword.isEnabled = !loading
         btnGoogle.isEnabled = !loading
-    }
-
-    override fun onStart() {
-        super.onStart()
-        // If already logged in, decide whether to route or complete profile (Google-first users)
-        auth.currentUser?.let {
-            val uid = it.uid
-            val ref = FirebaseDatabase.getInstance().reference.child("users").child(uid)
-            progress.visibility = View.VISIBLE
-            ref.get().addOnCompleteListener { t ->
-                progress.visibility = View.GONE
-                val exists = t.isSuccessful && t.result?.exists() == true
-                if (exists) {
-                    routeByRole()
-                } else {
-                    // For safety: if this is a Google user without a profile yet, send to completion
-                    // (Email/password users normally come from RegisterActivity and will have a profile)
-                    startActivity(Intent(this, RegisterActivity::class.java).putExtra("mode", "google"))
-                    finish()
-                }
-            }
-        }
     }
 }

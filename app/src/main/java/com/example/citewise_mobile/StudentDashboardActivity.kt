@@ -1,16 +1,22 @@
 package com.example.citewise_mobile
 
+import BaseActivity
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
-class StudentDashboardActivity : AppCompatActivity() {
+class StudentDashboardActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_student_dashboard)
 
-    }
+        setContentView(R.layout.activity_base)
+
+        layoutInflater.inflate(
+            R.layout.activity_student_dashboard,
+            findViewById(R.id.baseContent),
+            true
+        )
+
+        setupBottomNavigation()
+        }
 }
