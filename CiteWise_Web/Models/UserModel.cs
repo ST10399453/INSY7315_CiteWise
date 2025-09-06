@@ -4,14 +4,9 @@ namespace CiteWise_Web.Models
 {
     public class UserModel
     {
-
         [Required]
-        [EmailAddress]
-
-        public string Email { get; set; }
-
-        [Required]
-        public string Password { get; set; }
+        [Display(Name = "Role")]
+        public string Role {  get; set; }
 
         [Required]
         [Display(Name = "First Name")]
@@ -20,6 +15,21 @@ namespace CiteWise_Web.Models
         [Required]
         [Display(Name = "Surname")]
         public string Surname { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")]
+        public string Password { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "Passwords do not match")]
+        [Display(Name = "Confirm Password")]
+        public string ConfirmPassword { get; set; }
 
     }
 }

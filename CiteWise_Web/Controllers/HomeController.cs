@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CiteWise_Web.Models;
 using Firebase.Auth;
 using Firebase.Database;
@@ -72,6 +72,7 @@ namespace CiteWise_Web.Controllers
                     var userId = fbAuthLink.User.LocalId;
                     await _firebaseClient.Child("users").Child(userId).PutAsync(new
                     {
+                        Role = userModel.Role,
                         FirstName = userModel.FirstName,
                         Surname = userModel.Surname,
                         Email = userModel.Email
