@@ -1,0 +1,28 @@
+﻿@model CiteWise_Web.Models.ConsultantOnboardingModel
+
+<h2>Consultant Onboarding</h2>
+
+<form asp-action="Consultant" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Uid" />
+    <input type="hidden" asp-for="IdToken" />
+
+    <div>
+        <label asp-for="Language"></label>
+        <input asp-for="Language" />
+        <span asp-validation-for="Language"></span>
+    </div>
+
+    <div>
+        <label asp-for="Specialisation"></label>
+        <input asp-for="Specialisation" />
+        <span asp-validation-for="Specialisation"></span>
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

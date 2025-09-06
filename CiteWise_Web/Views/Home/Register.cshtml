@@ -1,4 +1,4 @@
-﻿@model CiteWise_Web.Models.UserModel
+﻿@* @model CiteWise_Web.Models.UserModel
 <div class="register-page">
   <div class="register-container">
     <div class="toggle-container">
@@ -7,9 +7,9 @@
         <span>Login</span>
         <span>Register</span>
       </label>
-    </div>
+    </div> *@
 
-    <div id="formsStage" class="forms-stage">
+    @* <div id="formsStage" class="forms-stage">
       <!-- LOGIN PANEL -->
       <div id="loginForm" class="form-panel login-panel">
         <form asp-action="SignIn" method="post" class="register-form">
@@ -31,9 +31,9 @@
           Sign in with Google
         </button>
       </div>
-
+ *@
       <!-- REGISTER PANEL -->
-      <div id="registerForm" class="form-panel register-panel">
+      @* <div id="registerForm" class="form-panel register-panel"> *@
         @* <form asp-action="Register" method="post" class="register-form">
           <div class="form-group">
             <label for="FirstName">First Name</label>
@@ -53,7 +53,7 @@
           </div>
           <button type="submit" class="btn-primary">Register</button>
         </form> *@
-                <form asp-action="Register" method="post" class="register-form">
+                @* <form asp-action="Register" method="post" class="register-form">
 
                     <div class="form-group">
                         <label for="Role">Role</label>
@@ -102,3 +102,4 @@
     </div>
   </div>
 </div>
+ *@

@@ -5,10 +5,6 @@ namespace CiteWise_Web.Models
     public class UserModel
     {
         [Required]
-        [Display(Name = "Role")]
-        public string Role {  get; set; }
-
-        [Required]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
 
@@ -29,6 +25,7 @@ namespace CiteWise_Web.Models
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         [Display(Name = "Confirm Password")]
+
         public string ConfirmPassword { get; set; }
 
     }
