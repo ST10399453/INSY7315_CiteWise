@@ -215,7 +215,7 @@ html {
     min-height: 100%;
 }*/
 
-body {
+/*body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #F5F5F5;
@@ -323,13 +323,13 @@ body {
 }
 
     .toggle-btn img {
-        width: 28px; /* keep icon proportional */
-        height: auto;
+        width: 28px;*/ /* keep icon proportional */
+        /*height: auto;
     }
 
 .topbar-name {
-    margin-left: 36px; /* gap between icon and name */
-}
+    margin-left: 36px;*/ /* gap between icon and name */
+/*}
 
 .topbar-left h2 span {
     color: #0027B2;
@@ -359,12 +359,12 @@ body {
     border-radius: 50%;
     object-fit: cover;
     margin-left: 15px;
-}
+}*/
 
 /* Collapsed sidebar */
-.sidebar.collapsed {
-    transform: translateX(-100%); /* slide it out of view */
-    transition: transform 0.3s ease;
+/*.sidebar.collapsed {
+    transform: translateX(-100%);*/ /* slide it out of view */
+    /*transition: transform 0.3s ease;
 }
 
     .sidebar.collapsed h2,
@@ -379,4 +379,4 @@ body {
 
     .sidebar.collapsed ~ .topbar {
         left: 0;
-    }
+    }*/

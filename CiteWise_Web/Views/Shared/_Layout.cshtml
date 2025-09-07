@@ -7,10 +7,11 @@
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/register.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Landing.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="sidebar">
+    @* <div class="sidebar">
         <div class="logo-container">
             <img src="~/img/CiteWise_Logo.jpg" alt="CiteWise Logo" class="sidebar-logo" />
             <h2>iteWise</h2>
@@ -56,7 +57,53 @@
                 <img src="https://via.placeholder.com/40" alt="PP"> 
             </a>
         </div>
-    </div>
+    </div> *@
+
+
+    <header>
+        <nav class="custom-navbar">
+            <!-- Logo -->
+            <div class="logo">
+                <img src="~/CiteWise_Logo.ico" alt="Company Logo" />
+                <h2><span>Citewise</span></h2>
+            </div>
+
+            <!-- Center menu -->
+            <div class="nav-links" id="navLinks">
+                <button class="close-btn" id="closeBtn" aria-label="Close Menu">✖</button> @* Remove when doing drawer *@
+                <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Services</a>
+                <a href="#">About us</a>
+            </div>
+
+            <!-- Right actions -->
+            <div class="actions">
+                <a a asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                <a a asp-area="" asp-controller="Account" asp-action="Register" class="btn-primary">Register</a>
+                <!-- Hamburger -->
+                <button class="menu" id="menu" aria-label="Open Menu">☰</button>
+            </div>
+        </nav>
+    </header>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -73,10 +120,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js"></script>
-
+    <script src="~/js/Landing.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

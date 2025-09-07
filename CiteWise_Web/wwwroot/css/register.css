@@ -1,5 +1,5 @@
 ﻿/* page + white box */
-body {
+/*body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f7f9fc;
@@ -37,22 +37,22 @@ body {
     box-shadow: -4px -2px 9.4px -1px #FFF, 0 7px 18.9px -5px #C1C8DF inset, 5px 6px 15.8px -6px #C7CDE2;
     width: 450px;
     max-width: 100%;
-}
+}*/
 
 /* toggle inside white box */
-.toggle-container {
+/*.toggle-container {
     display: flex;
     justify-content: center;
     margin-bottom: 18px;
-}
+}*/
 
 /*    DONT NOT CHNAGE THE STYLING BELOW*/
-.switch {
+/*.switch {
     --_switch-bg-clr: #E3E6F1;
     --_switch-padding: 4px;
-    --_slider-bg-clr: #0027B2; /* slider color unchecked */
-    --_slider-bg-clr-on: #0027B2; /* slider color checked */
-    --_slider-txt-clr: #ffffff;
+    --_slider-bg-clr: #0027B2;*/ /* slider color unchecked */
+    /*--_slider-bg-clr-on: #0027B2;*/ /* slider color checked */
+    /*--_slider-txt-clr: #ffffff;
     --_label-padding: 1rem 2rem;
     --_switch-easing: cubic-bezier( 0.47, 1.64, 0.41, 0.8 );
     color: white;
@@ -60,9 +60,9 @@ body {
     display: flex;
     justify-content: center;
     position: relative;
-    border-radius: 9999px;
+    border-radius: 9999px;*/
 /*    border: 2px solid #0027B2;*/
-    cursor: pointer;
+    /*cursor: pointer;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     position: relative;
@@ -94,24 +94,24 @@ body {
         position: absolute;
         border-radius: inherit;
         transition: inset 150ms ease-in-out;
-    }
+    }*/
     /* switch slider */
-    .switch::before {
+    /*.switch::before {
         background-color: var(--_slider-bg-clr);
         inset: var(--_switch-padding) 50% var(--_switch-padding) var(--_switch-padding);
         transition: inset 500ms var(--_switch-easing), background-color 500ms ease-in-out;
         z-index: -1;
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.3);
-    }
+    }*/
     /* switch bg color */
-    .switch::after {
+    /*.switch::after {
         background-color: var(--_switch-bg-clr);
         inset: 0;
         z-index: -2;
         border: 2px solid #0027B2;
-    }
+    }*/
     /* switch hover & focus */
-    .switch:focus-within::after {
+    /*.switch:focus-within::after {
         inset: -0.25rem;
     }
 
@@ -120,46 +120,46 @@ body {
         opacity: 1;
         transition-delay: 0ms;
         transition-duration: 100ms;
-    }
+    }*/
     /* switch hover */
-    .switch:has(input:checked):hover::before {
+    /*.switch:has(input:checked):hover::before {
         inset: var(--_switch-padding) var(--_switch-padding) var(--_switch-padding) 45%;
     }
 
     .switch:has(input:not(:checked)):hover::before {
         inset: var(--_switch-padding) 45% var(--_switch-padding) var(--_switch-padding);
-    }
+    }*/
     /* checked - move slider to right */
-    .switch:has(input:checked)::before {
+    /*.switch:has(input:checked)::before {
         background-color: var(--_slider-bg-clr-on);
         inset: var(--_switch-padding) var(--_switch-padding) var(--_switch-padding) 50%;
-    }
+    }*/
     /* checked - set opacity */
-    .switch > span:last-of-type,
+    /*.switch > span:last-of-type,
     .switch > input:checked + span:first-of-type {
         opacity: 0.75;
     }
 
     .switch > input:checked ~ span:last-of-type {
         opacity: 1;
-    }
+    }*/
 
 /*    DO NOT CHNANGE THE ABOVE STYLING*/
 
 
 
 
-.forms-stage {
+/*.forms-stage {
     position: relative;
     width: 100%;
     overflow: hidden;
-    transition: height 360ms cubic-bezier(.22,1,.36,1);
+    transition: height 360ms cubic-bezier(.22,1,.36,1);*/
 /*    height: 420px;*/
-    height: 0;
-}
+    /*height: 0;
+}*/
 
 /* panels */
-.form-panel {
+/*.form-panel {
     position: absolute;
     top: 0;
     left: 0;
@@ -257,4 +257,4 @@ body {
     color: #888;
     margin: 12px 0;
     font-size: 14px;
-}
+}*/
