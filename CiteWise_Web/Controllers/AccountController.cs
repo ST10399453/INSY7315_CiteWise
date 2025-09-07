@@ -63,7 +63,7 @@ namespace CiteWise_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(UserModel model)
+        public async Task<IActionResult> Login(LoginModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -76,9 +76,24 @@ namespace CiteWise_Web.Controllers
                 return View(model);
             }
 
-            // Redirect to onboarding or dashboard
-            return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
+            // ✅ Fetch profile from DB
+            var profile = await _firebaseService.GetUserProfileAsync(authResponse.LocalId, authResponse.IdToken);
 
+            if (profile == null || string.IsNullOrEmpty(profile.Role) || profile.Role == "Pending")
+            {
+                // No profile yet → redirect to SelectRole
+                return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
+            }
+
+            // ✅ Profile exists → redirect by role
+            if (profile.Role == "Student")
+                return RedirectToAction("StudentDashboard", "Dashboard");
+            else if (profile.Role == "Consultant")
+                return RedirectToAction("ConsultantDashboard", "Dashboard");
+
+            // fallback
+            return RedirectToAction("Login");
         }
+
     }
 }

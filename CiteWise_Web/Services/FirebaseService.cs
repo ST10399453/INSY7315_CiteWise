@@ -60,15 +60,22 @@ namespace CiteWise_Web.Services
             };
 
             var json = JsonConvert.SerializeObject(data);
-
             var response = await client.PostAsync(
                 $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={_apiKey}",
                 new StringContent(json, Encoding.UTF8, "application/json")
             );
 
             var result = await response.Content.ReadAsStringAsync();
+
+            // Check if Firebase returned an error
+            if (result.Contains("error"))
+            {
+                return null; // or throw custom exception with message
+            }
+
             return JsonConvert.DeserializeObject<FirebaseAuthResponse>(result);
         }
+
 
         // -------------------------------
         // SAVE/UPDATE USER PROFILE
@@ -101,6 +108,26 @@ namespace CiteWise_Web.Services
 
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
+        }
+
+
+        // -------------------------------
+        // GET USER PROFILE (merge fields)
+        // -------------------------------
+
+        public async Task<UserProfile?> GetUserProfileAsync(string uid, string idToken)
+        {
+            using var client = GetClient();
+            var response = await client.GetAsync($"{_databaseUrl}/users/{uid}.json?auth={idToken}");
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(json) || json == "null")
+                return null;
+
+            return JsonConvert.DeserializeObject<UserProfile>(json);
         }
 
     }

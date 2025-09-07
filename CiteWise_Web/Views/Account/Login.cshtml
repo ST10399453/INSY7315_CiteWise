@@ -1,9 +1,13 @@
-﻿@model CiteWise_Web.Models.UserModel
+﻿@model CiteWise_Web.Models.LoginModel
 
 <h2>Login</h2>
 
 <form asp-action="Login" method="post">
-    <div>
+     <div asp-validation-summary="All" class="text-danger">
+     </div> 
+
+     <div>
+
         <label asp-for="Email"></label>
         <input asp-for="Email" />
         <span asp-validation-for="Email"></span>

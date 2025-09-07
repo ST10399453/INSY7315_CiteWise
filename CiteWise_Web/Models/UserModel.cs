@@ -2,9 +2,9 @@
 
 namespace CiteWise_Web.Models
 {
-    public class UserModel
+    public class UserModel //Change to RegistrationModel
     {
-        [Required]
+        //[Required]
         [Display(Name = "First Name")]
         public string FirstName { get; set; }
 

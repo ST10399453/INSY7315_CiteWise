@@ -3,36 +3,32 @@
   "WorkspaceRootPath": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\controllers\\onboardingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\controllers\\onboardingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\models\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\models\\usermodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\onboarding\\student.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\onboarding\\student.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\models\\loginmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\models\\loginmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\dashboard\\consultantdashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\dashboard\\consultantdashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\onboarding\\selectrole.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\onboarding\\selectrole.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\onboarding\\consultant.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\onboarding\\consultant.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\dashboard\\studentdashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\dashboard\\studentdashboard.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\services\\firebaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\services\\firebaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\account\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|c:\\users\\akhil\\androidstudioprojects\\insy7315_citewise\\citewise_web\\models\\studentonboardingmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA9A03FB-C281-4A20-8243-AF97949C2DE2}|CiteWise_Web\\CiteWise_Web.csproj|solutionrelative:citewise_web\\models\\studentonboardingmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -42,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -58,106 +54,93 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "OnboardingController.cs",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Controllers\\OnboardingController.cs",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Controllers\\OnboardingController.cs",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Controllers\\OnboardingController.cs",
-              "RelativeToolTip": "CiteWise_Web\\Controllers\\OnboardingController.cs",
-              "ViewState": "AgIAAGIAAAAAAAAAAAA9wIYAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-06T21:44:48.718Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Register.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Account\\Register.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Account\\Register.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Account\\Register.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Account\\Register.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-06T21:29:53.058Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "Login.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Account\\Login.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Account\\Login.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Account\\Login.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Account\\Login.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAzAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-06T21:29:16.032Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "StudentDashboard.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Dashboard\\StudentDashboard.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Dashboard\\StudentDashboard.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Dashboard\\StudentDashboard.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Dashboard\\StudentDashboard.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-06T21:28:57.585Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ConsultantDashboard.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Dashboard\\ConsultantDashboard.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Dashboard\\ConsultantDashboard.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Dashboard\\ConsultantDashboard.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Dashboard\\ConsultantDashboard.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-06T21:28:40.608Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Student.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Onboarding\\Student.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Onboarding\\Student.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Onboarding\\Student.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Onboarding\\Student.cshtml",
+              "Title": "LoginModel.cs",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Models\\LoginModel.cs",
+              "RelativeDocumentMoniker": "CiteWise_Web\\Models\\LoginModel.cs",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Models\\LoginModel.cs",
+              "RelativeToolTip": "CiteWise_Web\\Models\\LoginModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-06T21:28:03.812Z",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-07T09:28:07.235Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "SelectRole.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Onboarding\\SelectRole.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Onboarding\\SelectRole.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Onboarding\\SelectRole.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Onboarding\\SelectRole.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-06T21:27:49.121Z",
+              "DocumentIndex": 0,
+              "Title": "UserModel.cs",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Models\\UserModel.cs",
+              "RelativeDocumentMoniker": "CiteWise_Web\\Models\\UserModel.cs",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Models\\UserModel.cs",
+              "RelativeToolTip": "CiteWise_Web\\Models\\UserModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-07T09:24:37.76Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "Consultant.cshtml",
-              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Onboarding\\Consultant.cshtml",
-              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Onboarding\\Consultant.cshtml",
-              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Onboarding\\Consultant.cshtml",
-              "RelativeToolTip": "CiteWise_Web\\Views\\Onboarding\\Consultant.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAkAAAAAAAAAA==",
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Account\\Login.cshtml",
+              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Account\\Login.cshtml",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Account\\Login.cshtml",
+              "RelativeToolTip": "CiteWise_Web\\Views\\Account\\Login.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-09-06T21:27:22.509Z",
+              "WhenOpened": "2025-09-07T09:20:10.062Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FirebaseService.cs",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Services\\FirebaseService.cs",
+              "RelativeDocumentMoniker": "CiteWise_Web\\Services\\FirebaseService.cs",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Services\\FirebaseService.cs",
+              "RelativeToolTip": "CiteWise_Web\\Services\\FirebaseService.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAkwCkAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-07T09:10:07.947Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "CiteWise_Web\\Controllers\\AccountController.cs",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "CiteWise_Web\\Controllers\\AccountController.cs",
+              "ViewState": "AgIAADIAAAAAAAAAAAAgwEEAAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-07T09:09:42.538Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "CiteWise_Web\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "CiteWise_Web\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAADkAAAAAAAAAAAAAAFMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-09-07T08:22:46.186Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "StudentOnboardingModel.cs",
+              "DocumentMoniker": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Models\\StudentOnboardingModel.cs",
+              "RelativeDocumentMoniker": "CiteWise_Web\\Models\\StudentOnboardingModel.cs",
+              "ToolTip": "C:\\Users\\akhil\\AndroidStudioProjects\\INSY7315_CiteWise\\CiteWise_Web\\Models\\StudentOnboardingModel.cs",
+              "RelativeToolTip": "CiteWise_Web\\Models\\StudentOnboardingModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-07T08:14:59.717Z",
               "EditorCaption": ""
             }
           ]

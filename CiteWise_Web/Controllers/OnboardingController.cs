@@ -77,7 +77,6 @@ namespace CiteWise_Web.Controllers
                 FieldOfStudy = model.FieldOfStudy
             };
 
-            //await _firebaseService.SaveUserProfileAsync(model.Uid, model.IdToken, profile);
             var updates = new Dictionary<string, object>
             {
                 { "Role", "Student" },
@@ -119,7 +118,6 @@ namespace CiteWise_Web.Controllers
                 Specialisation = model.Specialisation
             };
 
-            //await _firebaseService.SaveUserProfileAsync(model.Uid, model.IdToken, profile);
             var updates = new Dictionary<string, object>
             {
                 { "Role", "Consultant" },
