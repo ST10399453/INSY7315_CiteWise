@@ -1,0 +1,25 @@
+﻿@model CiteWise_Web.Models.RoleSelectionModel
+
+<h2>Select Your Role</h2>
+
+<form asp-action="SelectRole" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Uid" />
+    <input type="hidden" asp-for="IdToken" />
+
+    <div>
+        <label asp-for="Role"></label>
+        <select asp-for="Role">
+            <option value="">-- Select Role --</option>
+            <option value="Student">Student</option>
+            <option value="Consultant">Consultant</option>
+        </select>
+        <span asp-validation-for="Role"></span>
+    </div>
+
+    <button type="submit">Continue</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

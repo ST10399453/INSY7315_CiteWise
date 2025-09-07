@@ -1,56 +1,4 @@
-﻿@model CiteWise_Web.Models.UserModel
-@* <div class="register-page">
-    <!-- Login Form -->
-        <div id="loginForm" class="register-container">
-        <!--h2>Sign In</h2> --> <
-            <form asp-action="SignIn" method="post" class="register-form">
-                <div class="form-group">
-                    <label for="Email">Email</label>
-                    <input asp-for="Email" class="form-control" id="Email" />
-                </div>
-                <div class="form-group">
-                    <label for="Password">Password</label>
-                    <input asp-for="Password" type="password" class="form-control" id="Password" />
-                </div>
-                <button type="submit" class="btn-primary">Sign In</button>
-            </form>
-            <div class="divider">or</div>
-            <button class="btn-google">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
-                Sign in with Google
-            </butt
-        </div>
-        <!-- Register Form -->
-        <div id="registerForm" class="register-container hidden">
-        <!--<h2>Register</h2> --> 
-        <form asp-action="Register" method="post" class="register-form">
-                <div class="form-group">
-                    <label for="FirstName">First Name</label>
-                    <input asp-for="FirstName" class="form-control" id="FirstName" />
-                </div>
-                <div class="form-group">
-                    <label for="Surname">Surname</label>
-                    <input asp-for="Surname" class="form-control" id="Surname" />
-                </div>
-                <div class="form-group">
-                    <label for="Email">Email</label>
-                    <input asp-for="Email" class="form-control" id="Email" />
-                </div>
-                <div class="form-group">
-                    <label for="Password">Password</label>
-                    <input asp-for="Password" type="password" class="form-control" id="Password" />
-                </div>
-                <button type="submit" class="btn-primary">Register</button>
-            </form>
-            <div class="divider">or</div>
-            <button class="btn-google">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
-                Sign in with Google
-            </button>
-        </div>
-</div> *@
-
-
+﻿@* @model CiteWise_Web.Models.UserModel
 <div class="register-page">
   <div class="register-container">
     <div class="toggle-container">
@@ -59,9 +7,9 @@
         <span>Login</span>
         <span>Register</span>
       </label>
-    </div>
+    </div> *@
 
-    <div id="formsStage" class="forms-stage">
+    @* <div id="formsStage" class="forms-stage">
       <!-- LOGIN PANEL -->
       <div id="loginForm" class="form-panel login-panel">
         <form asp-action="SignIn" method="post" class="register-form">
@@ -83,10 +31,10 @@
           Sign in with Google
         </button>
       </div>
-
+ *@
       <!-- REGISTER PANEL -->
-      <div id="registerForm" class="form-panel register-panel">
-        <form asp-action="Register" method="post" class="register-form">
+      @* <div id="registerForm" class="form-panel register-panel"> *@
+        @* <form asp-action="Register" method="post" class="register-form">
           <div class="form-group">
             <label for="FirstName">First Name</label>
             <input asp-for="FirstName" class="form-control" id="FirstName" />
@@ -104,7 +52,45 @@
             <input asp-for="Password" type="password" class="form-control" id="PasswordReg" />
           </div>
           <button type="submit" class="btn-primary">Register</button>
-        </form>
+        </form> *@
+                @* <form asp-action="Register" method="post" class="register-form">
+
+                    <div class="form-group">
+                        <label for="Role">Role</label>
+                        <select asp-for="Role" class="form-control" id="Role">
+                            <option value="">-- Select Role --</option>
+                            <option value="student">student</option>
+                            <option value="consultant">consultant</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="FirstName">First Name</label>
+                        <input asp-for="FirstName" class="form-control" id="FirstName" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Surname">Last Name</label>
+                        <input asp-for="Surname" class="form-control" id="Surname" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+                        <input asp-for="Email" class="form-control" id="Email" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Password</label>
+                        <input asp-for="Password" type="password" class="form-control" id="Password" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ConfirmPassword">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" id="ConfirmPassword" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+
 
         <div class="divider">or</div>
 
@@ -116,3 +102,4 @@
     </div>
   </div>
 </div>
+ *@

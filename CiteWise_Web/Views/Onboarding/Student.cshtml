@@ -1,0 +1,34 @@
+﻿@model CiteWise_Web.Models.StudentOnboardingModel
+
+<h2>Student Onboarding</h2>
+
+<form asp-action="Student" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Uid" />
+    <input type="hidden" asp-for="IdToken" />
+
+    <div>
+        <label asp-for="Language"></label>
+        <input asp-for="Language" />
+        <span asp-validation-for="Language"></span>
+    </div>
+
+    <div>
+        <label asp-for="Institution"></label>
+        <input asp-for="Institution" />
+        <span asp-validation-for="Institution"></span>
+    </div>
+
+    <div>
+        <label asp-for="FieldOfStudy"></label>
+        <input asp-for="FieldOfStudy" />
+        <span asp-validation-for="FieldOfStudy"></span>
+    </div>
+
+    <button type="submit">Save</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

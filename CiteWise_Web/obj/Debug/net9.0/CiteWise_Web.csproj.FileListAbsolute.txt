@@ -215,4 +215,14 @@ C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\ne
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8mtfyigxeg-f7w7swibvi.gz
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\qb4wj5lzw0-6tdoqgallp.gz
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-pbdmzmb5tu.gz
-C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ed26068xmw-j24zdvfppx.gz
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ed26068xmw-jag16lremq.gz
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\FirebaseAdmin.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Api.Gax.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Api.Gax.Rest.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Apis.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Apis.Auth.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Apis.Core.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\System.CodeDom.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\System.Management.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\runtimes\win\lib\net7.0\System.Management.dll

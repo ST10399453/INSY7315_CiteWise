@@ -10,8 +10,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-
-
     <div class="sidebar">
         <div class="logo-container">
             <img src="~/img/CiteWise_Logo.jpg" alt="CiteWise Logo" class="sidebar-logo" />
@@ -45,10 +43,6 @@
     </div>
 
     <div class="topbar">
-        @* Left side: Greeting *@
-        @* <div class="topbar-left">
-            <h2><span>Hi Akhi</span></h2>
-        </div> *@
         <div class="topbar-left">
             <div class="toggle-btn">
                 <img src="~/icons/menu_sidebar.svg" alt="Sidebar expand & collapse" />
@@ -56,7 +50,6 @@
             <h2 class="topbar-name"><span>Hi Akhi</span></h2>
         </div>
 
-        @* Right side: Notifications + User *@
         <div class="topbar-right">
             <i class="fa-regular fa-bell icon"></i>
             <a asp-controller="Home" asp-action="Register">
@@ -64,38 +57,6 @@
             </a>
         </div>
     </div>
-
-
-    @* <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CiteWise_Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Register">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="SignIn">Sign In</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="LogOut">Log Out</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header> *@
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -107,9 +68,16 @@
             &copy; 2025 - CiteWise_Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer> *@
+
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js"></script>
+
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
