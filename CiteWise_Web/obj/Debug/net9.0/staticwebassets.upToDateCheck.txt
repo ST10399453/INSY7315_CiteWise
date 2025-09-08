@@ -10,7 +10,12 @@ wwwroot\icons\Messages.svg
 wwwroot\icons\Profile.svg
 wwwroot\icons\Request.png
 wwwroot\icons\Resources.svg
+wwwroot\img\Calander.png
 wwwroot\img\CiteWise_Logo.jpg
+wwwroot\img\Cloud.png
+wwwroot\img\Growth.png
+wwwroot\img\main_circle.png
+wwwroot\img\Network.png
 wwwroot\js\Landing.js
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -74,6 +79,7 @@ wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\CiteWise_Logo.ico
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\Landing.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\register.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\site.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\favicon.ico
@@ -143,5 +149,4 @@ C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\dist\jquery.slim.min.js
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\dist\jquery.slim.min.map
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\LICENSE.txt
-C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\Landing.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingHome.css
