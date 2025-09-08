@@ -2,7 +2,29 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero">
+    <div class="hero-left">
+        <h2 class="hero-title">CiteWise</h2>
+        <p class="hero-desc">
+            Dr Majoko Projects (Pty) Ltd is a South African academic service provider
+            dedicated to assisting postgraduate students with high-quality research
+            support services. CiteWise services include data analysis (quantitative
+            and qualitative), academic proofreading, structured writing guidance,
+            and research coaching.
+        </p>
+        <div class="hero-buttons">
+            <a asp-area="" asp-controller="Account" asp-action="Register" class="reg">Register Now</a>
+            <a asp-area="" asp-controller="Account" asp-action="Login" class="btn-secondary">Login</a>
+        </div>
+    </div>
+
+    <div class="hero-right">
+        <div class="circle-graphic">
+            <div class="circle-item">📈</div>
+            <div class="circle-item">🔗</div>
+            <div class="circle-item">📅</div>
+            <div class="circle-item">☁️</div>
+            <div class="main-circle"></div>
+        </div>
+    </div>
+</section>

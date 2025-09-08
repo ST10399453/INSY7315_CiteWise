@@ -1,0 +1,151 @@
+﻿/* Hero Section */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4rem 8%;
+    gap: 3rem;
+    background: white;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Left side */
+.hero-left {
+    flex: 1;
+}
+
+.hero-title {
+    font-size: 48px;
+    font-weight: 800;
+    color: #0027B2;
+    margin-bottom: 1.5rem;
+}
+
+.hero-desc {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #444;
+    max-width: 600px;
+    margin-bottom: 2rem;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1.5rem;
+}
+
+    .hero-buttons a {
+        color: black;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        text-decoration: none;
+    }
+
+.reg {
+    background: #0027B2;
+    color: #fff;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: -8px -8px 10px 0 #FFF, 6px 5px 10px 3px rgba(54, 54, 54, 0.24);
+    transition: 0.3s;
+}
+
+.reg:hover {
+    transform: translateY(-4px);
+    opacity: 0.9;
+}
+
+/* Secondary button (Login) */
+.btn-secondary {
+    background: #fff;
+    color: black;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid #ddd;
+    box-shadow: -4px -2px 9.4px -1px #FFF, 0 7px 18.9px -5px #C1C8DF inset, 5px 6px 15.8px -6px #C7CDE2;
+    transition: 0.3s;
+}
+
+    .btn-secondary:hover {
+        opacity: 0.8;
+        transform: translateY(-4px);
+    }
+
+a.btn-primary {
+    text-decoration: none !important;
+    color: white !important;
+}
+
+a.reg {
+    color: white !important;
+}
+
+/* Right side (circle graphic) */
+.hero-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circle-graphic {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+}
+
+/* Main central circle */
+.main-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    background: #0027B2;
+    border-radius: 50%;
+    opacity: 0.8;
+}
+
+/* Placeholder icons around */
+.circle-item {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+    /* Position each around the circle */
+    .circle-item:nth-child(1) {
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .circle-item:nth-child(2) {
+        top: 25%;
+        left: -10%;
+    }
+
+    .circle-item:nth-child(3) {
+        bottom: 25%;
+        left: -10%;
+    }
+
+    .circle-item:nth-child(4) {
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
