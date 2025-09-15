@@ -2,18 +2,92 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/main_background"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
+
+        <LinearLayout
+            android:id="@+id/cardContainer"
+            android:layout_width="0dp"
+            android:layout_height="512dp"
+            android:layout_margin="32dp"
+            android:background="@drawable/card_neumorphic_background"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            app:cardCornerRadius="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_margin="24dp"
+                android:layout_marginBottom="24dp"
+                android:contentDescription="@string/logo_description"
+                android:src="@drawable/logo"/>
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Welcome to CiteWise"
+                android:textColor="@color/text_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_marginBottom="32dp"
+                android:gravity="center_horizontal"
+                android:fontFamily="@font/poppins_regular"
+                android:text="CiteWise is a research support system for postgraduate students"
+                android:textColor="@color/text_faded"
+                android:textSize="14sp" />
+
+            <!--Register Button -->
+            <Button
+                android:id="@+id/btnRegister"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_margin="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/btn_register"
+                android:fontFamily="@font/poppins_bold"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:text="REGISTER NOW"
+                android:textAllCaps="true"
+                android:textColor="@color/text_light"
+                app:backgroundTint="@null"/>
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_margin="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/btn_login"
+                android:fontFamily="@font/poppins_bold"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:text="LOGIN"
+                android:textAllCaps="true"
+                android:textColor="@color/text_dark"
+                app:backgroundTint="@null"/>
+        </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
