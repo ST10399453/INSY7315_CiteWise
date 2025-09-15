@@ -6,4 +6,16 @@
     </style>
 
     <style name="Theme.CiteWise_Mobile" parent="Base.Theme.CiteWise_Mobile" />
+
+    <style name="Shape.Pill" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="BottomNavActiveIndicator">
+        <item name="android:color">@color/primary_blue</item>
+        <item name="android:alpha">0.12</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
+    </style>
+
 </resources>
