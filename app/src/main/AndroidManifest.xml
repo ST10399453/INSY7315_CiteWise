@@ -68,9 +68,6 @@
             android:name=".StudentDashboardActivity"
             android:exported="false" />
         <activity
-            android:name=".ResetConfirmationActivity"
-            android:exported="false" />
-        <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity
