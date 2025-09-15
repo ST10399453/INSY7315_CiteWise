@@ -8,7 +8,6 @@
             <solid android:color="@color/light_highlight"/>
         </shape>
     </item>
-
     <item
         android:left="8dp"
         android:top="8dp">
@@ -17,7 +16,6 @@
             <solid android:color="@color/dark_shadow"/>
         </shape>
     </item>
-
     <item
         android:right="4dp"
         android:bottom="4dp"
