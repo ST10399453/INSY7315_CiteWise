@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/main_background"
     android:fillViewport="true"
     android:padding="16dp"
     android:paddingBottom="0dp">
@@ -26,7 +26,7 @@
             <ImageView
                 android:layout_width="65dp"
                 android:layout_height="65dp"
-                android:src="@drawable/citewise_logo"
+                android:src="@drawable/logo"
                 android:contentDescription="App Logo" />
 
             <View
@@ -49,123 +49,119 @@
             android:id="@+id/tvGreeting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hi"
-            android:textColor="@color/primary_blue"
+            android:text="Hi, "
+            android:textColor="@color/gradient_end"
             android:textSize="36sp"
             android:fontFamily="@font/poppins_extra_bold"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
+            android:textStyle="bold"/>
 
         <!-- Service Request Progress -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#FDFBFB"
-            app:cardCornerRadius="20dp"
-            app:contentPadding="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorOutline"
-            >
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_width="376dp"
+                android:layout_height="150dp"
+                android:layout_margin="24dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Service Request Progress"
-                    android:textColor="@color/primary_blue"
+                    android:textColor="@color/gradient_end"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/poppins_medium"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="16dp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Business Plan Draft"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_dark"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/poppins_medium"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    android:paddingLeft="16dp"/>
 
                 <ProgressBar
                     android:id="@+id/progressService"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
+                    android:layout_width="360dp"
                     android:layout_height="8dp"
                     android:max="100"
                     android:progress="25"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_marginBottom="8dp"
+                    app:cardCornerRadius="32dp"
+                    android:background="@color/text_light"
+                    android:padding="8dp"
+                    android:layout_gravity="center"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Submitted • Deadline: 25.08.2025"
-                    android:textColor="#666666"
+                    android:paddingLeft="16dp"
+                    android:textColor="@color/text_faded"
                     android:textSize="12sp"
                     android:fontFamily="@font/poppins" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <!-- Request Service CTA -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRequestService"
-            android:layout_width="match_parent"
+            android:layout_width="376dp"
             android:layout_height="55dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/white"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/btn_login"
             android:fontFamily="@font/poppins_sembold"
             android:text="Request a Service"
-            android:textColor="@color/primary_blue"
+            android:textColor="@color/gradient_end"
             android:textSize="18sp"
             app:cornerRadius="50dp"
-            app:strokeWidth="1px" />
+            app:backgroundTint="@null"/>
 
         <!-- Notifications -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="#ffffff"
-            app:cardCornerRadius="12dp"
-            app:contentPadding="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorOutline"
-            >
+
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:orientation="vertical">
+                android:layout_width="376dp"
+                android:layout_height="384dp"
+                android:layout_margin="24dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
 
                 <TextView
                     android:id="@+id/tvNotifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
+                    android:paddingTop="24dp"
+                    android:paddingLeft="18dp"
+                    android:textStyle="bold"
                     android:fontFamily="@font/poppins_medium"
                     android:text="Notifications"
-                    android:textColor="@color/primary_blue"
+                    android:textColor="@color/gradient_end"
                     android:textSize="20sp" />
 
                 <!-- Missing Documents -->
                 <LinearLayout
                     android:id="@+id/btnMissingDocuments"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_width="344dp"
+                    android:layout_height="48dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
+                    android:paddingTop="8dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:gravity="center_vertical"
+                    android:layout_gravity="center_horizontal"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="@drawable/ripple_white_rounded"
@@ -190,7 +186,7 @@
                         android:text="Missing Documents"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        android:fontFamily="@font/poppins"/>
+                        android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
@@ -201,13 +197,14 @@
                 <!-- Feedback -->
                 <LinearLayout
                     android:id="@+id/btnFeedback"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_width="344dp"
+                    android:layout_height="48dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
+                    android:paddingTop="8dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:gravity="center_vertical"
+                    android:layout_gravity="center_horizontal"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="@drawable/ripple_white_rounded"
@@ -232,7 +229,7 @@
                         android:text="Feedback"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        android:fontFamily="@font/poppins"/>
+                        android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
@@ -243,13 +240,14 @@
                 <!-- New Messages -->
                 <LinearLayout
                     android:id="@+id/btnNewMessages"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_width="344dp"
+                    android:layout_height="48dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
+                    android:paddingTop="8dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:gravity="center_vertical"
+                    android:layout_gravity="center_horizontal"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="@drawable/ripple_white_rounded"
@@ -274,7 +272,7 @@
                         android:text="New Messages"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        android:fontFamily="@font/poppins"/>
+                        android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
@@ -285,17 +283,18 @@
                 <!-- Rate your consultant -->
                 <LinearLayout
                     android:id="@+id/btnRateConsultant"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_width="344dp"
+                    android:layout_height="48dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
+                    android:paddingTop="8dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:gravity="center_vertical"
+                    android:layout_gravity="center_horizontal"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="@drawable/ripple_white_rounded"
-                    android:contentDescription="Rate your consultant"
+                    android:contentDescription="Rate your Consultant"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -316,7 +315,7 @@
                         android:text="Rate your consultant"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        android:fontFamily="@font/poppins"/>
+                        android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
@@ -327,17 +326,18 @@
                 <!-- Status update -->
                 <LinearLayout
                     android:id="@+id/btnStatusUpdate"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginBottom="0dp"
+                    android:layout_width="344dp"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
+                    android:paddingTop="8dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:gravity="center_vertical"
+                    android:layout_gravity="center_horizontal"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="@drawable/ripple_white_rounded"
-                    android:contentDescription="Status update"
+                    android:contentDescription="Status Update"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -358,7 +358,7 @@
                         android:text="Status update"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        android:fontFamily="@font/poppins"/>
+                        android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
@@ -367,79 +367,59 @@
                 </LinearLayout>
 
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <!-- AI Assistant -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="AI Assistant"
-            android:textColor="@color/primary_blue"
+            android:textColor="@color/gradient_end"
             android:textSize="20sp"
-            android:fontFamily="@font/poppins_medium"
-            android:layout_gravity="center"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_gravity="center_horizontal"
             android:layout_marginBottom="12dp" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="124dp"
-            android:layout_height="121dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="27dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorOutline"
-            >
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="156dp"
+                android:layout_height="156dp"
                 android:padding="16dp"
-                android:gravity="center"
-                android:background="@color/white"
-                android:orientation="vertical">
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/card_neumorphic_background"                android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/ivAssistant"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    app:srcCompat="@drawable/ai_logo"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/card_neumorphic_background"                    app:srcCompat="@drawable/ai_logo"
                     android:scaleType="centerInside"
                     android:adjustViewBounds="true"
-                    android:backgroundTint="@color/white"
                     app:tint="@null"
                     android:contentDescription="AI Assistant" />
 
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <!-- Service Quote -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@color/white"
-            app:cardBackgroundColor="#ffffff"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorOutline"
-            app:contentPadding="16dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:orientation="vertical">
+                android:layout_width="376dp"
+                android:layout_height="200dp"
+                android:layout_margin="24dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
+                    android:paddingTop="16dp"
+                    android:paddingLeft="16dp"
                     android:fontFamily="@font/poppins_medium"
                     android:text="Service Quote"
-                    android:textColor="@color/primary_blue"
+                    android:textColor="@color/gradient_end"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -447,9 +427,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
+                    android:paddingLeft="16dp"
                     android:fontFamily="@font/poppins_medium"
                     android:text="Business Plan Draft"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_dark"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -457,8 +438,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
+                    android:paddingLeft="16dp"
                     android:text="Total: R6500 • Deadline: 25.08.2025"
-                    android:textColor="#666666"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="@color/text_faded"
                     android:textSize="12sp" />
 
                 <LinearLayout
@@ -471,49 +454,45 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAccept"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_gradient_blue"
-                        android:fontFamily="@font/poppins"
+                        android:background="@drawable/btn_register"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Accept"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/text_light"
                         android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp"
+                        app:cornerRadius="50dp"
                         android:stateListAnimator="@null"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadPDF"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_gradient_blue"
-                        android:fontFamily="@font/poppins"
+                        android:background="@drawable/btn_register"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Download"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/text_light"
                         android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp"
+                        app:cornerRadius="50dp"
                         android:stateListAnimator="@null"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnRequestReview"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/button_gradient_blue"
-                        android:fontFamily="@font/poppins"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/btn_register"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Review"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/text_light"
                         android:textSize="12sp"
                         app:backgroundTint="@null"
-                        app:cornerRadius="20dp"
+                        app:cornerRadius="50dp"
                         android:stateListAnimator="@null"/>
                 </LinearLayout>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
