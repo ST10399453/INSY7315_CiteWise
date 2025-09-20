@@ -13,7 +13,7 @@
     </style>
 
     <style name="BottomNavActiveIndicator">
-        <item name="android:color">@color/primary_blue</item>
+        <item name="android:color">@color/gradient_middle</item>
         <item name="android:alpha">0.12</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
     </style>
