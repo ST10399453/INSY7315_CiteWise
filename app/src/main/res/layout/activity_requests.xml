@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="@color/main_background">
 
     <!-- Header -->
     <TextView
@@ -12,42 +12,43 @@
         android:layout_height="wrap_content"
         android:text="View all requests - 1"
         android:textSize="16sp"
-        android:textColor="#888888"
-        android:padding="24dp"
+        android:textColor="@color/text_faded"
+        android:paddingTop="40dp"
+        android:paddingLeft="24dp"
         android:layout_gravity="start" />
 
     <!-- Main Content Card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="24dp">
+    <LinearLayout
+        android:layout_width="376dp"
+        android:layout_height="360dp"
+        android:layout_margin="24dp"
+        android:background="@drawable/card_neumorphic_background"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        app:cardCornerRadius="32dp">
 
             <!-- Service Request Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingLeft="16dp"
+                android:fontFamily="@font/poppins_bold"
                 android:text="Service Request"
                 android:textSize="24sp"
-                android:textColor="#333333"
+                android:textColor="@color/gradient_end"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
             <!-- Description Text -->
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="370dp"
                 android:layout_height="wrap_content"
-                android:text="Comments will on your projects allow others.\nYou can receive them if you make changes from the comments."
-                android:textSize="14sp"
-                android:textColor="#666666"
+                android:paddingLeft="16dp"
+                android:fontFamily="@font/poppins"
+                android:text="Comments will appear on your projects allow others.\nYou can review them if you make changes from the comments."
+                android:textSize="12sp"
+                android:textColor="@color/text_faded"
                 android:lineSpacingExtra="4dp"
                 android:layout_marginBottom="32dp" />
 
@@ -73,9 +74,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="View all requests"
                         android:textSize="16sp"
-                        android:textColor="#333333" />
+                        android:textColor="@color/text_dark" />
 
                     <ImageView
                         android:layout_width="24dp"
@@ -101,9 +103,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Recent request progress"
                         android:textSize="16sp"
-                        android:textColor="#333333" />
+                        android:textColor="@color/text_dark" />
 
                     <ImageView
                         android:layout_width="24dp"
@@ -129,9 +132,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
                         android:text="Request a service"
                         android:textSize="16sp"
-                        android:textColor="#333333" />
+                        android:textColor="@color/text_dark" />
 
                     <ImageView
                         android:layout_width="24dp"
@@ -145,14 +149,13 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
-
     <!-- Bottom Navigation -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="72dp"
+        android:layout_marginTop="176dp"
         android:orientation="horizontal"
-        android:background="#FFFFFF"
+        android:background="@drawable/card_neumorphic_background"
         android:elevation="8dp"
         android:gravity="center">
 
