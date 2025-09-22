@@ -1,10 +1,460 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/main_background"
+    android:fillViewport="true"
+    android:padding="8dp"
+    android:paddingBottom="0dp"
     tools:context=".StudentProfileSettingsActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp">
+
+    <TextView
+        android:id="@+id/tvProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Profile"
+        android:textColor="@color/gradient_end"
+        android:textSize="36sp"
+        android:fontFamily="@font/poppins_extra_bold"
+        android:textStyle="bold" />
+    </LinearLayout>
+        <!-- Role toggle -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOverview"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overview"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/elements_background"
+                android:backgroundTint="@color/gradient_end" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnProfileSettings"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/gradient_end"
+                app:strokeColor="@color/gradient_end"
+                app:strokeWidth="2dp" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <LinearLayout
+        android:layout_width="376dp"
+        android:layout_height="72dp"
+        android:layout_margin="24dp"
+        android:background="@drawable/card_neumorphic_background"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical"
+        app:cardCornerRadius="32dp">
+
+        <!-- Student Name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:paddingLeft="19dp"
+            android:fontFamily="@font/poppins_bold"
+            android:text="Connor van Buuren"
+            android:textSize="24sp"
+            android:textColor="@color/gradient_end"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+    </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="376dp"
+            android:layout_height="304dp"
+            android:background="@drawable/card_neumorphic_background"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            app:cardCornerRadius="32dp">
+
+            <!-- Service Request Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingLeft="19dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Account Information"
+                android:textSize="24sp"
+                android:textColor="@color/gradient_end"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+
+                <!-- Academic Level -->
+                <LinearLayout
+                    android:id="@+id/layoutAcademicLevel"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Academic level"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_dark" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="Navigate" />
+
+                </LinearLayout>
+
+                <!-- Recent request progress -->
+                <LinearLayout
+                    android:id="@+id/layoutFieldOfStudy"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Field of study"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_dark" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="Navigate" />
+
+                </LinearLayout>
+
+                <!-- Institution -->
+                <LinearLayout
+                    android:id="@+id/layoutInstitution"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Institution"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_dark" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="Navigate" />
+
+                </LinearLayout>
+
+            <!-- Student email -->
+            <LinearLayout
+                android:id="@+id/layoutEmail"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="Email address"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_dark" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    android:contentDescription="Navigate" />
+
+            </LinearLayout>
+
+            </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="376dp"
+            android:layout_height="272dp"
+            android:layout_margin="24dp"
+            android:background="@drawable/card_neumorphic_background"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            app:cardCornerRadius="32dp">
+
+            <!-- Student Name -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingLeft="19dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Service request history"
+                android:textSize="24sp"
+                android:textColor="@color/gradient_end"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="336dp"
+                android:layout_height="48dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="336dp"
+                android:layout_height="48dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="336dp"
+                android:layout_height="48dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="376dp"
+            android:layout_height="160dp"
+            android:background="@drawable/card_neumorphic_background"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            app:cardCornerRadius="32dp">
+
+
+            <LinearLayout
+                android:layout_width="336dp"
+                android:layout_height="48dp"
+                android:layout_margin="16dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
+
+                <LinearLayout
+                    android:id="@+id/layoutNotificationPreferences"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:background="@drawable/btn_register"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Notification Preferences"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_light" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="Navigate" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="336dp"
+                android:layout_height="48dp"
+                android:layout_margin="8dp"
+                android:background="@drawable/card_neumorphic_background"
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical"
+                app:cardCornerRadius="32dp">
+
+                <LinearLayout
+                    android:id="@+id/layoutLanguagePreferences"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:background="@drawable/btn_register"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="Language Preferences"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_light" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:contentDescription="Navigate" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_margin="16dp"
+            android:background="@drawable/btn_login"
+            android:fontFamily="@font/poppins_bold"
+            android:paddingTop="10dp"
+            android:text="LOG OUT"
+            android:textAllCaps="true"
+            android:textColor="@color/text_dark"
+            app:backgroundTint="@null"/>
+
+        <!-- Bottom Navigation -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_neumorphic_background"
+            android:elevation="8dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/navHome"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_home"
+                android:scaleType="centerInside"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Home" />
+
+            <ImageView
+                android:id="@+id/navMessage"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_messages"
+                android:scaleType="centerInside"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Phone" />
+
+            <ImageView
+                android:id="@+id/navTrends"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_trends"
+                android:scaleType="centerInside"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Messages" />
+
+            <ImageView
+                android:id="@+id/navCalendar"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_calendar"
+                android:scaleType="centerInside"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Calendar" />
+
+            <ImageView
+                android:id="@+id/navProfile"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_profile"
+                android:scaleType="centerInside"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Profile" />
+
+        </LinearLayout>
+
+        </LinearLayout>
+
+
+</androidx.core.widget.NestedScrollView>

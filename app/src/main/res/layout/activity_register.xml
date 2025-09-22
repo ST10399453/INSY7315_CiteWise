@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/cardContainer"
         android:layout_width="0dp"
-        android:layout_height="680dp"
+        android:layout_height="664dp"
         android:layout_margin="24dp"
         android:background="@drawable/card_neumorphic_background"
         android:gravity="center_horizontal"
@@ -25,11 +25,10 @@
             android:id="@+id/tvHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="32dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="32dp"
             android:fontFamily="@font/poppins_bold"
             android:text="Create an Account"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gradient_end"
             android:textSize="24sp"
             android:textStyle="bold"/>
 
@@ -294,14 +293,35 @@
             android:enabled="false"/>
 
         <!-- Already have an account -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tvGoLogin"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:text="Already have an account?  Log In"
-            android:textColor="@color/gradient_middle"
-            android:fontFamily="@font/poppins_medium"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginHorizontal="56dp">
+            <TextView
+                android:id="@+id/tvGoLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins"
+                android:text="Already have an account? "
+                android:textColor="@color/text_dark"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvGoSignUp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_sembold"
+                android:text=" Login"
+                android:textColor="@color/gradient_middle"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -35,15 +35,30 @@
 
 
     <!-- Reset Password -->
-<string name="reset_password_title">Reset Password</string>
-<string name="reset_password_subtitle">Enter your email address and we’ll send you a reset link.</string>
-<string name="reset_via_email">Email</string>
-<string name="reset_via_sms">SMS</string>
-<string name="phone_number">Phone number</string>
-<string name="send_reset_link">Send reset link</string>
-<string name="send_code">Send code</string>
-<string name="verification_code">Verification code</string>
-<string name="new_password">New Password</string>
-<string name="confirm_new_password">Confirm New Password</string>
-<string name="verify_and_set_password">Verify and Set Password</string>
+    <string name="reset_password_title">Reset Password</string>
+    <string name="reset_password_subtitle">Enter your email address and we’ll send you a reset link.</string>
+    <string name="reset_via_email">Email</string>
+    <string name="reset_via_sms">SMS</string>
+    <string name="phone_number">Phone number</string>
+    <string name="send_reset_link">Send reset link</string>
+    <string name="send_code">Send code</string>
+    <string name="verification_code">Verification code</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="verify_and_set_password">Verify and Set Password</string>
+
+    <string-array name="services_array">
+        <item>Proofreading &amp; Editing</item>
+        <item>Formatting &amp; Referencing</item>
+        <item>Data Analysis Support</item>
+        <item>Research/Methodology Coaching</item>
+        <item>Translation</item>
+    </string-array>
+
+    <string-array name="urgency_array">
+        <item>High</item>
+        <item>Medium</item>
+        <item>Low</item>
+    </string-array>
+
     </resources>
