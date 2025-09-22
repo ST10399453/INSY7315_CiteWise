@@ -1,71 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background"
-    android:fillViewport="true"
-    android:padding="8dp"
-    android:paddingBottom="0dp">
+    android:background="@color/main_background">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+    <!-- Scrollable content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:padding="8dp"
+        android:paddingBottom="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp">
+            android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="65dp"
-                android:layout_height="65dp"
-                android:src="@drawable/logo"
-                android:contentDescription="App Logo" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <!-- give it an id -->
-            <ImageButton
-                android:id="@+id/btnMenu"
-                android:layout_width="32dp"
-                android:layout_height="26dp"
-                android:src="@drawable/hamburger"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Menu" />
-        </LinearLayout>
-
-        <!-- Greeting (start as 'Hi') -->
-        <TextView
-            android:id="@+id/tvGreeting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="22dp"
-            android:text="Hi, "
-            android:textColor="@color/gradient_end"
-            android:textSize="36sp"
-            android:fontFamily="@font/poppins_extra_bold"
-            android:textStyle="bold"/>
-
-        <!-- Service Request Progress -->
-
+            <!-- Header -->
             <LinearLayout
-                android:layout_width="376dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="65dp"
+                    android:layout_height="65dp"
+                    android:src="@drawable/logo"
+                    android:contentDescription="App Logo" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <!-- give it an id -->
+                <ImageButton
+                    android:id="@+id/btnMenu"
+                    android:layout_width="32dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/hamburger"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Menu" />
+            </LinearLayout>
+
+            <!-- Greeting (start as 'Hi') -->
+            <TextView
+                android:id="@+id/tvGreeting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="22dp"
+                android:text="Hi, "
+                android:textColor="@color/gradient_end"
+                android:textSize="36sp"
+                android:fontFamily="@font/poppins_extra_bold"
+                android:textStyle="bold"/>
+
+            <!-- Service Request Progress -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:layout_margin="24dp"
                 android:background="@drawable/card_neumorphic_background"
                 android:layout_gravity="center_horizontal"
-                android:orientation="vertical"
-                app:cardCornerRadius="32dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -93,12 +101,12 @@
                 <ProgressBar
                     android:id="@+id/progressService"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="360dp"
+                    android:layout_width="match_parent"
                     android:layout_height="8dp"
                     android:max="100"
                     android:progress="25"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
-                    app:cardCornerRadius="32dp"
                     android:background="@color/text_light"
                     android:padding="8dp"
                     android:layout_gravity="center"/>
@@ -113,31 +121,29 @@
                     android:fontFamily="@font/poppins" />
             </LinearLayout>
 
-        <!-- Request Service CTA -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRequestService"
-            android:layout_width="376dp"
-            android:layout_height="55dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/btn_login"
-            android:fontFamily="@font/poppins_sembold"
-            android:text="Request a Service"
-            android:textColor="@color/gradient_end"
-            android:textSize="18sp"
-            app:cornerRadius="50dp"
-            app:backgroundTint="@null"/>
+            <!-- Request Service CTA -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRequestService"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginHorizontal="24dp"
+                android:background="@drawable/btn_login"
+                android:fontFamily="@font/poppins_sembold"
+                android:text="Request a Service"
+                android:textColor="@color/gradient_end"
+                android:textSize="18sp"
+                app:cornerRadius="50dp"
+                app:backgroundTint="@null"/>
 
-        <!-- Notifications -->
-
-
+            <!-- Notifications -->
             <LinearLayout
-                android:layout_width="376dp"
-                android:layout_height="384dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="24dp"
                 android:background="@drawable/card_neumorphic_background"
                 android:layout_gravity="center_horizontal"
-                android:orientation="vertical"
-                app:cardCornerRadius="32dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvNotifications"
@@ -155,8 +161,9 @@
                 <!-- Missing Documents -->
                 <LinearLayout
                     android:id="@+id/btnMissingDocuments"
-                    android:layout_width="344dp"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
                     android:paddingTop="8dp"
@@ -198,8 +205,9 @@
                 <!-- Feedback -->
                 <LinearLayout
                     android:id="@+id/btnFeedback"
-                    android:layout_width="344dp"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
                     android:paddingTop="8dp"
@@ -241,8 +249,9 @@
                 <!-- New Messages -->
                 <LinearLayout
                     android:id="@+id/btnNewMessages"
-                    android:layout_width="344dp"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
                     android:paddingTop="8dp"
@@ -284,8 +293,9 @@
                 <!-- Rate your consultant -->
                 <LinearLayout
                     android:id="@+id/btnRateConsultant"
-                    android:layout_width="344dp"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
                     android:paddingTop="8dp"
@@ -327,8 +337,9 @@
                 <!-- Status update -->
                 <LinearLayout
                     android:id="@+id/btnStatusUpdate"
-                    android:layout_width="344dp"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
+                    android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
                     android:paddingTop="8dp"
@@ -369,48 +380,46 @@
 
             </LinearLayout>
 
-        <!-- AI Assistant -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="AI Assistant"
-            android:textColor="@color/gradient_end"
-            android:textSize="20sp"
-            android:fontFamily="@font/poppins_bold"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="12dp" />
-
+            <!-- AI Assistant -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI Assistant"
+                android:textColor="@color/gradient_end"
+                android:textSize="20sp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="12dp" />
 
             <LinearLayout
                 android:layout_width="156dp"
                 android:layout_height="156dp"
                 android:padding="16dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/card_neumorphic_background"                android:orientation="vertical">
+                android:background="@drawable/card_neumorphic_background"
+                android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/ivAssistant"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:background="@drawable/card_neumorphic_background"                    app:srcCompat="@drawable/ai_logo"
+                    android:background="@drawable/card_neumorphic_background"
+                    app:srcCompat="@drawable/ai_logo"
                     android:scaleType="centerInside"
                     android:adjustViewBounds="true"
                     app:tint="@null"
                     android:contentDescription="AI Assistant" />
-
             </LinearLayout>
 
-        <!-- Service Quote -->
-
+            <!-- Service Quote -->
             <LinearLayout
-                android:layout_width="376dp"
-                android:layout_height="200dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="24dp"
                 android:background="@drawable/card_neumorphic_background"
                 android:layout_gravity="center_horizontal"
-                android:orientation="vertical"
-                app:cardCornerRadius="32dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -495,5 +504,18 @@
                         android:stateListAnimator="@null"/>
                 </LinearLayout>
             </LinearLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom navigation anchored to bottom -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
