@@ -1,16 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@android:id/background">
-        <shape android:color="@color/text_light"/>
-        <corners android:radius="16dp"/>
+    <item android:left="2dp" android:top="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <solid android:color="@color/light_highlight" />
+        </shape>
     </item>
 
-    <item android:id="@android:id/progress">
+    <item android:right="2dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <solid android:color="@color/dark_shadow" />
+        </shape>
+    </item>
+    <item android:id="@android:id/background"
+        android:right="2dp"
+        android:bottom="2dp"
+        android:left="2dp"
+        android:top="2dp">
+        <shape>
+            <gradient android:startColor="@color/elements_background"
+                android:centerColor="@color/progress_background"
+                android:endColor="@color/elements_background"/>
+            <corners android:radius="24dp"/>
+        </shape>
+    </item>
+
+    <item android:id="@android:id/progress"
+        android:right="4dp"
+        android:bottom="4dp"
+        android:left="4dp"
+        android:top="4dp">
         <clip>
-            <shape>
-                <solid android:color="@color/gradient_end"/>
-                <corners android:radius="16dp"/>
-            </shape>
+            <scale android:scaleWidth="100%">
+                <shape>
+                    <gradient android:startColor="@color/gradient_start"
+                        android:centerColor="@color/gradient_middle"
+                        android:endColor="@color/gradient_end"/>
+                    <corners android:radius="24dp"/>
+                    <size android:height="16dp"/>
+                </shape>
+            </scale>
+
         </clip>
     </item>
 

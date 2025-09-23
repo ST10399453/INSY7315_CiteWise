@@ -47,14 +47,14 @@
             <ProgressBar
                 android:id="@+id/progressService"
                 style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="312dp"
-                android:layout_height="16dp"
+                android:layout_width="304dp"
+                android:layout_height="24dp"
                 android:max="100"
                 android:progress="75"
                 android:progressDrawable="@drawable/custom_progress_bar"
                 android:layout_marginBottom="24dp"
-                android:padding="8dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:elevation="4dp"/>
 
 
             <TextView

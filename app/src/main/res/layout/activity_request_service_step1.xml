@@ -24,40 +24,38 @@
             android:id="@+id/tvHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="32dp"
+            android:layout_marginTop="32dp"
             android:layout_marginBottom="8dp"
             android:fontFamily="@font/poppins_bold"
-            android:text="Request a Service"
+            android:text="Step 1"
             android:textColor="@color/gradient_end"
             android:textSize="24sp"
             android:textStyle="bold">
         </TextView>
-        
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_sembold"
+            android:layout_gravity="center_horizontal"
+            android:text="Select a service"
+            android:textSize="19sp"
+            android:textColor="@color/text_dark"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="16dp" />
+
         <ProgressBar
             android:id="@+id/progressService"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="304dp"
-            android:layout_height="16dp"
+            android:layout_height="24dp"
             android:max="100"
             android:progress="25"
-            android:progressTint="@color/gradient_end"
-            android:progressBackgroundTint="@color/text_light"
-            android:layout_marginBottom="16dp"
-            android:background="@color/text_light"
-            android:padding="8dp"
-            android:layout_gravity="center"/>
+            android:progressDrawable="@drawable/custom_progress_bar"
+            android:layout_marginBottom="24dp"
+            android:layout_gravity="center"
+            android:elevation="4dp"/>
 
-        <TextView
-            android:layout_width="272dp"
-            android:layout_height="wrap_content"
-            android:paddingLeft="32dp"
-            android:fontFamily="@font/poppins_medium"
-            android:layout_gravity="left"
-            android:text="Step 1 :  Select a service"
-            android:textSize="19sp"
-            android:textColor="@color/text_dark"
-            android:lineSpacingExtra="4dp"
-            android:layout_marginBottom="32dp" />
 
             <Spinner
                 android:id="@+id/serviceSpinner"
