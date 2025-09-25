@@ -31,7 +31,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="16dp">
 
                 <ImageView
                     android:layout_width="65dp"
@@ -67,61 +67,60 @@
                 android:textStyle="bold"/>
 
             <!-- Service Request Progress -->
+
+            <!-- Request Service CTA -->
+
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_width="360dp"
+                android:layout_height="160dp"
+                android:layout_gravity="center_horizontal"
                 android:layout_margin="24dp"
                 android:background="@drawable/card_neumorphic_background"
-                android:layout_gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins_sembold"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="16dp"
                     android:text="Service Request Progress"
                     android:textColor="@color/gradient_end"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppins_medium"
-                    android:layout_marginBottom="8dp"
-                    android:paddingLeft="16dp"
-                    android:paddingTop="16dp"/>
+                    android:textSize="24sp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:paddingLeft="16dp"
                     android:text="Business Plan Draft"
                     android:textColor="@color/text_dark"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppins_medium"
-                    android:layout_marginBottom="8dp"
-                    android:paddingLeft="16dp"/>
+                    android:textSize="16sp" />
 
                 <ProgressBar
                     android:id="@+id/progressService"
                     style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:max="100"
-                    android:progress="25"
-                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="328dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center"
                     android:layout_marginBottom="8dp"
-                    android:background="@color/text_light"
-                    android:padding="8dp"
-                    android:layout_gravity="center"/>
+                    android:elevation="4dp"
+                    android:max="100"
+                    android:progress="75"
+                    android:progressDrawable="@drawable/custom_progress_bar" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Submitted • Deadline: 25.08.2025"
+                    android:fontFamily="@font/poppins"
                     android:paddingLeft="16dp"
+                    android:text="Submitted  •  Deadline: 25.08.2025"
                     android:textColor="@color/text_faded"
-                    android:textSize="12sp"
-                    android:fontFamily="@font/poppins" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Request Service CTA -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRequestService"
                 android:layout_width="match_parent"
@@ -132,14 +131,15 @@
                 android:fontFamily="@font/poppins_sembold"
                 android:text="Request a Service"
                 android:textColor="@color/gradient_end"
-                android:textSize="18sp"
+                android:textSize="16sp"
+                android:textAllCaps="true"
                 app:cornerRadius="50dp"
                 app:backgroundTint="@null"/>
 
             <!-- Notifications -->
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="360dp"
+                android:layout_height="370dp"
                 android:layout_margin="24dp"
                 android:background="@drawable/card_neumorphic_background"
                 android:layout_gravity="center_horizontal"
@@ -149,14 +149,13 @@
                     android:id="@+id/tvNotifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="8dp"
                     android:paddingTop="24dp"
-                    android:paddingLeft="18dp"
-                    android:textStyle="bold"
-                    android:fontFamily="@font/poppins_medium"
+                    android:paddingLeft="24dp"
+                    android:fontFamily="@font/poppins_sembold"
                     android:text="Notifications"
                     android:textColor="@color/gradient_end"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
 
                 <!-- Missing Documents -->
                 <LinearLayout
@@ -166,7 +165,7 @@
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:layout_gravity="center_horizontal"
@@ -176,30 +175,28 @@
                     android:contentDescription="Missing Documents"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/warning"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Missing Documents"
                         android:textColor="@android:color/white"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3.5"/>
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/warning"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white"
+                        android:padding="1dp"/>
+
                 </LinearLayout>
 
                 <!-- Feedback -->
@@ -210,7 +207,7 @@
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:layout_gravity="center_horizontal"
@@ -220,30 +217,27 @@
                     android:contentDescription="Feedback"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/edit"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Feedback"
                         android:textColor="@android:color/white"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3.5"/>
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/edit"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white"
+                        android:padding="2dp"/>
+
                 </LinearLayout>
 
                 <!-- New Messages -->
@@ -254,7 +248,7 @@
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:layout_gravity="center_horizontal"
@@ -264,30 +258,26 @@
                     android:contentDescription="New Messages"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/comment"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="New Messages"
                         android:textColor="@android:color/white"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3.5"/>
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/comment"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white"
+                        android:padding="1dp"/>
                 </LinearLayout>
 
                 <!-- Rate your consultant -->
@@ -298,7 +288,7 @@
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:layout_gravity="center_horizontal"
@@ -308,30 +298,25 @@
                     android:contentDescription="Rate your Consultant"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/rating"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rate your consultant"
                         android:textColor="@android:color/white"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3.5"/>
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/rating"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white" />
                 </LinearLayout>
 
                 <!-- Status update -->
@@ -342,7 +327,7 @@
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
                     android:layout_gravity="center_horizontal"
@@ -352,30 +337,26 @@
                     android:contentDescription="Status Update"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/recycle"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Status update"
                         android:textColor="@android:color/white"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:fontFamily="@font/poppins_medium"/>
 
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:layout_weight="1"/>
+                        android:layout_weight="3.5"/>
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/recycle"
+                        android:contentDescription="@null"
+                        app:tint="@android:color/white"
+                        android:padding="2dp"/>
                 </LinearLayout>
 
             </LinearLayout>
@@ -386,7 +367,7 @@
                 android:layout_height="wrap_content"
                 android:text="AI Assistant"
                 android:textColor="@color/gradient_end"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:fontFamily="@font/poppins_bold"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="12dp" />
@@ -404,7 +385,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:background="@drawable/card_neumorphic_background"
+                    android:background="@color/elements_background"
                     app:srcCompat="@drawable/ai_logo"
                     android:scaleType="centerInside"
                     android:adjustViewBounds="true"
@@ -415,7 +396,7 @@
             <!-- Service Quote -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="200dp"
                 android:layout_margin="24dp"
                 android:background="@drawable/card_neumorphic_background"
                 android:layout_gravity="center_horizontal"
@@ -424,53 +405,78 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
                     android:paddingTop="16dp"
                     android:paddingLeft="16dp"
-                    android:fontFamily="@font/poppins_medium"
+                    android:fontFamily="@font/poppins_sembold"
                     android:text="Service Quote"
                     android:textColor="@color/gradient_end"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="24sp" />
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:layout_marginRight="16dp"
+                            android:paddingTop="8dp"
+                            android:paddingLeft="16dp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:text="Business Plan Draft"
+                            android:textColor="@color/text_dark"
+                            android:textSize="16sp"/>
+
+                        <LinearLayout
+                            android:layout_width="148dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@drawable/btn_login"
+                            android:layout_gravity="center_horizontal"
+                            android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            android:layout_gravity="center_horizontal"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="4dp"
+                            android:text="Total: R6500"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/gradient_middle"
+                            android:textSize="20sp" />
+                        </LinearLayout>
+                    </LinearLayout>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:paddingLeft="16dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Business Plan Draft"
-                    android:textColor="@color/text_dark"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:paddingLeft="16dp"
-                    android:text="Total: R6500 • Deadline: 25.08.2025"
+                    android:layout_marginBottom="8dp"
+                    android:paddingLeft="208dp"
                     android:fontFamily="@font/poppins"
+                    android:text="Deadline: 26/11/2025"
                     android:textColor="@color/text_faded"
-                    android:textSize="12sp" />
-
+                    android:textSize="12sp"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center"
+                    android:gravity="center_horizontal"
+                    android:layout_gravity="center_horizontal"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAccept"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
                         android:background="@drawable/btn_register"
-                        android:fontFamily="@font/poppins_medium"
+                        android:fontFamily="@font/poppins_bold"
                         android:text="Accept"
                         android:textColor="@color/text_light"
                         android:textSize="12sp"
+                        android:textAllCaps="true"
                         app:backgroundTint="@null"
                         app:cornerRadius="50dp"
                         android:stateListAnimator="@null"/>
@@ -479,12 +485,13 @@
                         android:id="@+id/btnDownloadPDF"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginRight="8dp"
                         android:background="@drawable/btn_register"
-                        android:fontFamily="@font/poppins_medium"
+                        android:fontFamily="@font/poppins_bold"
                         android:text="Download"
                         android:textColor="@color/text_light"
                         android:textSize="12sp"
+                        android:textAllCaps="true"
                         app:backgroundTint="@null"
                         app:cornerRadius="50dp"
                         android:stateListAnimator="@null"/>
@@ -493,12 +500,12 @@
                         android:id="@+id/btnRequestReview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
                         android:background="@drawable/btn_register"
-                        android:fontFamily="@font/poppins_medium"
+                        android:fontFamily="@font/poppins_bold"
                         android:text="Review"
                         android:textColor="@color/text_light"
                         android:textSize="12sp"
+                        android:textAllCaps="true"
                         app:backgroundTint="@null"
                         app:cornerRadius="50dp"
                         android:stateListAnimator="@null"/>
@@ -511,8 +518,9 @@
     <!-- Bottom navigation anchored to bottom -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="360dp"
+        android:layout_height="64dp"
+        android:background="@drawable/btn_login"
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

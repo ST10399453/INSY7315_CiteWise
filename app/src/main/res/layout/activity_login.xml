@@ -6,12 +6,11 @@
     android:background="@color/main_background"
     tools:context=".LoginActivity">
 
-
     <!-- Scrollable content -->
     <LinearLayout
         android:id="@+id/cardContainer"
         android:layout_width="0dp"
-        android:layout_height="672dp"
+        android:layout_height="656dp"
         android:layout_margin="24dp"
         android:background="@drawable/card_neumorphic_background"
         android:gravity="center_horizontal"
@@ -22,6 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Subtitle -->
         <ImageView
             android:id="@+id/logo"
             android:layout_width="80dp"
@@ -29,9 +29,8 @@
             android:layout_margin="16dp"
             android:layout_marginTop="128dp"
             android:contentDescription="Logo"
-            android:src="@drawable/logo"/>
+            android:src="@drawable/logo" />
 
-        <!-- Subtitle -->
         <TextView
             android:id="@+id/tvLoginTitle"
             android:layout_width="wrap_content"
@@ -40,7 +39,7 @@
             android:layout_marginBottom="8dp"
             android:fontFamily="@font/poppins_bold"
             android:text="Login"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gradient_end"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -49,8 +48,7 @@
             android:id="@+id/tvEmailLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginHorizontal="24dp"
             android:fontFamily="@font/poppins"
             android:labelFor="@id/etEmail"
@@ -62,12 +60,12 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
-                android:layout_width="336dp"
+                android:layout_width="328dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
                 android:layout_margin="8dp"
                 android:layout_marginBottom="8dp"
-                android:background="@drawable/btn_login"
+                android:background="@drawable/text_field"
                 android:fontFamily="@font/poppins"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp"
@@ -84,7 +82,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
             android:layout_marginHorizontal="24dp"
             android:fontFamily="@font/poppins"
             android:labelFor="@id/etPassword"
@@ -92,23 +89,35 @@
             android:textColor="@color/text_dark"
             android:textSize="14sp" />
 
-        <!-- Password input -->
+        <!-- Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="328dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center"
+            android:hint="Password"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/text_faded"
+            app:errorIconDrawable="@null">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
-                android:layout_width="336dp"
+                android:layout_width="328dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
                 android:layout_margin="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/btn_login"
-                android:fontFamily="@font/poppins_bold"
+                android:layout_gravity="center"
+                android:background="@drawable/text_field"
+                android:fontFamily="@font/poppins"
                 android:paddingTop="12dp"
                 android:paddingBottom="12dp"
-                android:paddingHorizontal="20dp"
-                android:drawableEnd="@drawable/ic_calendar"
                 android:inputType="textEmailAddress"
-                android:textSize="14sp"
-                android:textColor="@color/text_dark" />
+                android:paddingHorizontal="20dp"
+                android:textColor="@color/text_faded"
+                android:textSize="14sp"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -127,8 +136,7 @@
                 android:text="Remember Me"
                 android:textColor="@color/text_dark"
                 android:textColorLink="@color/text_dark"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textSize="13sp"/>
 
 
 
@@ -142,7 +150,7 @@
                 android:fontFamily="@font/poppins_medium"
                 android:text="Forgot Password"
                 android:textColor="@color/gradient_middle"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:padding="16dp"
                 android:layout_marginStart="8dp"/>
     </LinearLayout>
@@ -161,6 +169,7 @@
             android:text="LOGIN"
             android:textAllCaps="true"
             android:textColor="@color/text_light"
+            android:textSize="16sp"
             app:backgroundTint="@null"/>
 
         <!-- "Or continue with" -->
@@ -168,8 +177,8 @@
             android:id="@+id/tvOrContinue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:fontFamily="@font/poppins"
             android:text="or continue with"
             android:textColor="@color/text_dark"
@@ -180,8 +189,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginHorizontal="112dp"
-        android:layout_marginBottom="10dp">
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="96dp"
+        android:layout_marginBottom="16dp">
 
 
         <!-- Social logins -->
@@ -193,7 +203,6 @@
                 android:layout_height="48dp"
                 android:layout_margin="6dp"
                 android:contentDescription="google"
-                android:padding="10dp"
                 android:src="@drawable/ic_google" />
 
             <ImageView
@@ -222,6 +231,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:layout_gravity="center"
         android:layout_marginHorizontal="112dp">
             <TextView
                 android:id="@+id/tvNewUserLabel"
@@ -230,7 +240,7 @@
                 android:fontFamily="@font/poppins"
                 android:text="New User? "
                 android:textColor="@color/text_dark"
-                android:textSize="16sp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tvGoSignUp"
@@ -238,8 +248,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_sembold"
                 android:text=" Register"
-                android:textColor="@color/gradient_middle"
-                android:textSize="16sp" />
+                android:textColor="@color/gradient_end"
+                android:textSize="14sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
