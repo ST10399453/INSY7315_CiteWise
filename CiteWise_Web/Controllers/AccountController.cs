@@ -85,6 +85,11 @@ namespace CiteWise_Web.Controllers
                 return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
             }
 
+            HttpContext.Session.SetString("UserName", profile.FirstName);
+            //MIGHT NEED TO SUE THESE LATER
+            //HttpContext.Session.SetString("UserEmail", profile.Email);
+            //HttpContext.Session.SetString("UserRole", profile.Role);
+
             // ✅ Profile exists → redirect by role
             if (profile.Role == "Student")
                 return RedirectToAction("StudentDashboard", "Dashboard");
@@ -94,6 +99,20 @@ namespace CiteWise_Web.Controllers
             // fallback
             return RedirectToAction("Login");
         }
+
+        // ----------------------
+        // LOGOUT
+        // ----------------------
+        //ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING
+        public IActionResult Logout()
+        {
+            // Clear all session values
+            HttpContext.Session.Clear();
+
+            // Redirect to home (or login page)
+            return RedirectToAction("Index", "Home");
+        }
+        //ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING
 
     }
 }

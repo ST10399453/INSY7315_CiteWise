@@ -40,28 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
         window.addEventListener("resize", setStageHeight);
     }
 
-
-
     // -------------------------
     // Sidebar collapse/expand toggle
     // -------------------------
-    //const toggleBtn = document.querySelector(".toggle-btn");
-    //const sidebar = document.querySelector(".sidebar");
-    //const topbar = document.querySelector(".topbar");
-
-    //if (toggleBtn && sidebar) {
-    //    toggleBtn.addEventListener("click", () => {
-    //        sidebar.classList.toggle("collapsed");
-
-    //        // Adjust topbar position when sidebar collapses/expands
-    //        if (sidebar.classList.contains("collapsed")) {
-    //            topbar.style.left = "80px";
-    //        } else {
-    //            topbar.style.left = "220px";
-    //        }
-    //    });
-    //}
-    // Sidebar collapse/expand toggle
     const toggleBtn = document.querySelector(".toggle-btn");
     const sidebar = document.querySelector(".sidebar");
 

@@ -47,14 +47,20 @@
             <div class="toggle-btn">
                 <img src="~/icons/menu_sidebar.svg" alt="Sidebar expand & collapse" />
             </div>
-            <h2 class="topbar-name"><span>Hi Akhi</span></h2>
+            <h2 class="topbar-name">
+                <span>Hi @(Context.Session.GetString("UserName") ?? "Guest")</span>
+            </h2>
+
         </div>
 
         <div class="topbar-right">
             <i class="fa-regular fa-bell icon"></i>
-            <a asp-controller="Home" asp-action="Register">
-                <img src="https://via.placeholder.com/40" alt="PP">
+            @* ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING *@
+            <a asp-controller="Account" asp-action="Logout" title="Logout">
+                <img src="https://via.placeholder.com/40" alt="Logout">
             </a>
+            @* ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING *@
+
         </div>
     </div>
     <div class="container">
@@ -62,13 +68,6 @@
             @RenderBody()
         </main>
     </div>
-
-    @* <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - CiteWise_Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
-
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
