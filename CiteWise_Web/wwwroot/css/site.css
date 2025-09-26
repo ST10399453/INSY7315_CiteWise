@@ -1,4 +1,4 @@
-/*@media (min-width: 768px) {
+@media (min-width: 768px) {
   html {
     font-size: 16px;
   }
@@ -17,10 +17,10 @@ html {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
-}*/
+}
 
 
-/*body {
+body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #F5F5F5 ;
@@ -89,9 +89,9 @@ html {
 }
 
         .sidebar a:hover, .sidebar a.active {
-            background-color: rgba(202, 212, 245, 0.75);*/
-            /*color: #1a3cff;*/
-        /*}
+            background-color: rgba(202, 212, 245, 0.75);
+            color: #1a3cff;
+        }
 
         .sidebar a i {
             color: #0027B2;
@@ -102,8 +102,8 @@ html {
         }
 
 .topbar {
-    margin-left: 8px;*/ /* moves name closer to sidebar */
-    /*height: 80px;
+    margin-left: 8px;  
+    height: 80px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -119,11 +119,11 @@ html {
 }
 
 .topbar-left {
-    display: flex;*/ /* make children inline */
-    /*align-items: center;*/ /* vertically center everything */
-    /*gap: 0px;*/
-    /*margin-left: px;*/ /* moves name closer to sidebar */
-/*}
+    display: flex; 
+    align-items: center;   
+    gap: 0px;
+/*    margin-left: px;  */
+}
 
     .topbar-left span {
         font-size: 18px;
@@ -144,8 +144,8 @@ html {
 .topbar-right {
     display: flex;
     align-items: center;
-    margin-right: 40px;*/ /* moves bell icon more left */
-/*}
+    margin-right: 40px;  /*moves bell icon more left */*/
+}
 
 .topbar .icon {
     margin-left: 10px;
@@ -160,12 +160,12 @@ html {
     border-radius: 50%;
     object-fit: cover;
     margin-left: 15px; 
-}*/
+}
 
-/* Toggle button (top-right inside sidebar) */
-/*.toggle-btn {
-    margin-left: 16px;*/ /* space from left screen edge */
-    /*width: 28px;
+
+.toggle-btn {
+    margin-left: 16px; 
+    width: 28px;
     height: 28px;
     display: flex;
     align-items: center;
@@ -179,43 +179,43 @@ html {
     }
 
 .topbar-name {
-    margin-left: 40px;*/ /* gap between icon and name */
-/*}*/
+    margin-left: 40px; 
+}
 
-/* Collapsed sidebar */
-/*.sidebar.collapsed {
-    transform: translateX(-100%);*/ /* slide it out of view */
-    /*transition: transform 0.3s ease;
-}*/
+ Collapsed sidebar 
+.sidebar.collapsed {
+    transform: translateX(-100%); 
+    transition: transform 0.3s ease;
+}
 
-    /* Hide only the text, not the whole link */
-    /*.sidebar.collapsed h2,
+    
+    .sidebar.collapsed h2,
     .sidebar.collapsed a span {
         display: none;
-    }*/
+    }
 
-    /* Keep icons centered when collapsed */
-    /*.sidebar.collapsed .sidebar-icon {
+     Keep icons centered when collapsed 
+    .sidebar.collapsed .sidebar-icon {
         margin: 0 auto;
         display: block;
     }
 
     .sidebar.collapsed ~ .topbar {
         left: 0;
-    }*/
+    }
 
-/*@media (min-width: 768px) {
+@media (min-width: 768px) {
   html {
     font-size: 16px;
   }
-}*/
+}
 
-/*html {
+html {
     position: relative;
     min-height: 100%;
-}*/
+}
 
-/*body {
+body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #F5F5F5;
@@ -323,13 +323,13 @@ html {
 }
 
     .toggle-btn img {
-        width: 28px;*/ /* keep icon proportional */
-        /*height: auto;
+        width: 28px;  
+        height: auto;
     }
 
 .topbar-name {
-    margin-left: 36px;*/ /* gap between icon and name */
-/*}
+    margin-left: 36px;  /*gap between icon and name */
+}
 
 .topbar-left h2 span {
     color: #0027B2;
@@ -359,12 +359,12 @@ html {
     border-radius: 50%;
     object-fit: cover;
     margin-left: 15px;
-}*/
+}
 
-/* Collapsed sidebar */
-/*.sidebar.collapsed {
-    transform: translateX(-100%);*/ /* slide it out of view */
-    /*transition: transform 0.3s ease;
+
+.sidebar.collapsed {
+    transform: translateX(-100%); 
+    transition: transform 0.3s ease;
 }
 
     .sidebar.collapsed h2,
@@ -379,4 +379,4 @@ html {
 
     .sidebar.collapsed ~ .topbar {
         left: 0;
-    }*/
+    }
