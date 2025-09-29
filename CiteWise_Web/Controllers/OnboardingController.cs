@@ -69,13 +69,13 @@ namespace CiteWise_Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var profile = new UserProfile
-            {
-                Role = "Student",
-                Language = model.Language,
-                Institution = model.Institution,
-                FieldOfStudy = model.FieldOfStudy
-            };
+            //var profile = new UserProfile
+            //{
+            //    Role = "Student",
+            //    Language = model.Language,
+            //    Institution = model.Institution,
+            //    FieldOfStudy = model.FieldOfStudy
+            //};
 
             var updates = new Dictionary<string, object>
             {
@@ -87,6 +87,10 @@ namespace CiteWise_Web.Controllers
 
             await _firebaseService.UpdateUserProfileAsync(model.Uid, model.IdToken, updates);
 
+            var profile = await _firebaseService.GetUserProfileAsync(model.Uid, model.IdToken);
+
+            // ✅ Set session so name appears in topbar
+            HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
 
             return RedirectToAction("StudentDashboard", "Dashboard"); // student dashboard
         }
@@ -111,12 +115,12 @@ namespace CiteWise_Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var profile = new UserProfile
-            {
-                Role = "Consultant",
-                Language = model.Language,
-                Specialisation = model.Specialisation
-            };
+            //var profile = new UserProfile
+            //{
+            //    Role = "Consultant",
+            //    Language = model.Language,
+            //    Specialisation = model.Specialisation
+            //};
 
             var updates = new Dictionary<string, object>
             {
@@ -127,6 +131,9 @@ namespace CiteWise_Web.Controllers
 
             await _firebaseService.UpdateUserProfileAsync(model.Uid, model.IdToken, updates);
 
+            var profile = await _firebaseService.GetUserProfileAsync(model.Uid, model.IdToken);
+
+            HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
 
             return RedirectToAction("ConsultantDashboard", "Dashboard");
         }
