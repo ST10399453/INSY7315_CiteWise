@@ -21,6 +21,7 @@ import com.google.firebase.FirebaseTooManyRequestsException
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 
 
 class ForgotPasswordActivity : AppCompatActivity() {
@@ -42,7 +43,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
             insets
         }
 
-        tilEmail = findViewById(R.id.tilEmail)
         etEmail  = findViewById(R.id.etEmail)
         btnSend  = findViewById(R.id.btnSendEmailLink)
 
