@@ -2,12 +2,21 @@
 
 <h2>Login</h2>
 
+@* <h2>Login with Google</h2>
+
+<button id="btnGoogleLogin">Sign in with Google</button>
+
+<!-- Firebase Compat SDK -->
+<!-- 🔴 BUG SOURCE: compat SDK is used (old version) instead of modular v9 -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script src="~/js/firebase-login.js"></script> <!-- Custom JS --> *@
+
 <form asp-action="Login" method="post">
-     <div asp-validation-summary="All" class="text-danger">
-     </div> 
+    <div asp-validation-summary="All" class="text-danger"></div>
 
-     <div>
-
+    <div>
         <label asp-for="Email"></label>
         <input asp-for="Email" />
         <span asp-validation-for="Email"></span>
@@ -20,6 +29,9 @@
     </div>
 
     <button type="submit">Login</button>
+    <p class="mt-2">
+        <a asp-action="ForgotPassword" asp-controller="Account">Forgot your password?</a>
+    </p>
 </form>
 
 <button class="btn-google">

@@ -17,6 +17,7 @@ wwwroot\img\Growth.png
 wwwroot\img\main_circle.png
 wwwroot\img\Network.png
 wwwroot\js\Landing.js
+wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
@@ -77,7 +78,6 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\js\site.js
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\CiteWise_Logo.ico
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\Landing.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingHome.css
