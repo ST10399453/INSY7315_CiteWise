@@ -1,15 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ConsultantDashboardActivity">
+    android:background="@color/main_background">
 
-    <TextView android:layout_height="match_parent"
+    <!-- Scrollable content -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:padding="8dp"
+        android:paddingBottom="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_margin="12dp"
-        android:text="User is Logged in"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:src="@drawable/logo"
+            android:contentDescription="App Logo" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- give it an id -->
+        <ImageButton
+            android:id="@+id/btnMenu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/hamburger"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Menu" />
+    </LinearLayout>
+    <!-- Greeting (start as 'Hi') -->
+    <TextView
+        android:id="@+id/tvGreeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="22dp"
+        android:text="Hi, "
+        android:textColor="@color/gradient_end"
+        android:textSize="36sp"
+        android:fontFamily="@font/poppins_extra_bold"
+        android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/tvAssignedTasks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Assigned to me"
+                android:textColor="@color/gradient_end"
+                android:textSize="24sp"
+                android:fontFamily="@font/poppins_bold" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOverview"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overview"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/elements_background"
+                android:backgroundTint="@color/gradient_end" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnProfileSettings"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="@color/gradient_end"
+                app:strokeColor="@color/gradient_end"
+                app:strokeWidth="2dp" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Assigned to Me"
+                android:textSize="24dp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/gradient_end"
+                android:layout_marginBottom="16dp"/>
+
+            <RadioGroup
+                android:id="@+id/urgencyFilterGroup"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:background="@drawable/custom_progress_bar"
+                android:weightSum="4">
+
+                <RadioButton
+                    android:id="@+id/filterAll"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="All"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:background="@drawable/radio_button_selector"
+                    android:textColor="@drawable/radio_text_color"
+                    android:checked="true"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textSize="16dp"/>
+
+                <RadioButton
+                    android:id="@+id/filterUrgent"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Urgent"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:background="@drawable/radio_button_selector"
+                    android:textColor="@drawable/radio_text_color"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textSize="16dp"/>
+
+                <RadioButton
+                    android:id="@+id/filterMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Medium"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:background="@drawable/radio_button_selector"
+                    android:textColor="@drawable/radio_text_color"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textSize="16dp"/>
+
+                <RadioButton
+                    android:id="@+id/filterLow"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Low"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:background="@drawable/radio_button_selector"
+                    android:textColor="@drawable/radio_text_color"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textSize="16dp"/>
+            </RadioGroup>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tasksRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom navigation anchored to bottom -->
+<com.google.android.material.bottomnavigation.BottomNavigationView
+android:id="@+id/bottomNav"
+android:layout_width="360dp"
+android:layout_height="64dp"
+android:background="@drawable/btn_login"
+app:menu="@menu/bottom_nav_menu"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
