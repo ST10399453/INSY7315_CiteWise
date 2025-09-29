@@ -16,6 +16,8 @@ import com.google.android.material.textview.MaterialTextView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.database
+import androidx.activity.enableEdgeToEdge
+
 
 class RegisterActivity : AppCompatActivity() {
 

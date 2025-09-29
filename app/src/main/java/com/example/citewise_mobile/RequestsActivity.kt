@@ -8,6 +8,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
