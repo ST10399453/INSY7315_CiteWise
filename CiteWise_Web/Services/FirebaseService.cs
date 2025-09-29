@@ -76,6 +76,34 @@ namespace CiteWise_Web.Services
             return JsonConvert.DeserializeObject<FirebaseAuthResponse>(result);
         }
 
+        //SEND PASSWORD RESET EMAIL 
+        public async Task<bool> SendPasswordResetEmailAsync(string email)
+        {
+            using var client = GetClient();
+
+            var data = new
+            {
+                requestType = "PASSWORD_RESET",
+                email
+            };
+
+            var json = JsonConvert.SerializeObject(data);
+
+            var response = await client.PostAsync(
+                $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDwPulYyuQA-CqcFCuXwY05_gxm-PZ7P1M",
+                new StringContent(json, Encoding.UTF8, "application/json")
+            );
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true; // Email sent successfully
+            }
+
+            throw new Exception($"Password reset failed: {result}");
+        }
+
 
         // -------------------------------
         // SAVE/UPDATE USER PROFILE

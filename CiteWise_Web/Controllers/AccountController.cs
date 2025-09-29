@@ -100,6 +100,35 @@ namespace CiteWise_Web.Controllers
             return RedirectToAction("Login");
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        //FORGOT PASSWORD  
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError("", "Email is required.");
+                return View();
+            }
+
+            try
+            {
+                await _firebaseService.SendPasswordResetEmailAsync(email);
+                ViewBag.Message = "Password reset link has been sent to your email.";
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Error: {ex.Message}");
+            }
+
+            return View();
+        }
+
         // ----------------------
         // LOGOUT
         // ----------------------
