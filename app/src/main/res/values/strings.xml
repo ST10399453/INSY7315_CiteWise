@@ -46,6 +46,7 @@
     <string name="new_password">New Password</string>
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="verify_and_set_password">Verify and Set Password</string>
+    <string name="continue_with_google">CONTINUE WITH GOOGLE</string>
 
     <string-array name="services_array">
         <item>Proofreading &amp; Editing</item>

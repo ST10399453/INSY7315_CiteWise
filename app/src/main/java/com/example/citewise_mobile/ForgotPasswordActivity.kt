@@ -3,33 +3,27 @@ package com.example.citewise_mobile
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Patterns
-import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat.enableEdgeToEdge
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.FirebaseTooManyRequestsException
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
-import androidx.core.view.WindowCompat.enableEdgeToEdge
-
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
-    private lateinit var tilEmail: TextInputLayout
     private lateinit var etEmail: TextInputEditText
     private lateinit var btnSend: MaterialButton
-
     private val auth by lazy { FirebaseAuth.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,74 +31,66 @@ class ForgotPasswordActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_forgot_password)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-            insets
+        // Apply system bar insets to the root (safe if the id isn't present)
+        runCatching {
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+                val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                insets
+            }
         }
 
-        etEmail  = findViewById(R.id.etEmail)
-        btnSend  = findViewById(R.id.btnSendEmailLink)
+        etEmail = findViewById(R.id.etEmail)
+        btnSend = findViewById(R.id.btnSendEmailLink)
 
         // Prefill if provided
         intent.getStringExtra("email")?.let { etEmail.setText(it) }
 
-        // Revalidate on change
+        // Live validation
         etEmail.addTextChangedListener(afterTextChanged = {
-            tilEmail.error = null
-            tilEmail.helperText = null
+            etEmail.error = null
             revalidate()
         })
-        // Initial state
         revalidate()
 
         btnSend.setOnClickListener {
             val email = etEmail.text?.toString()?.trim().orEmpty()
-
-            tilEmail.error = null
-            tilEmail.helperText = null
+            etEmail.error = null
 
             if (!isValidEmail(email)) {
-                tilEmail.error = "Enter a valid email"
+                etEmail.error = "Enter a valid email"
+                etEmail.requestFocus()
                 return@setOnClickListener
             }
 
             hideKeyboard()
 
-
             auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener { task ->
-
                     if (task.isSuccessful) {
-                        // Let the user know it can take a bit, and to check Spam/Junk
-                        tilEmail.helperText =
-                            "Reset link sent to $email. It may take a few minutes — please also check your Spam/Junk folder."
                         Toast.makeText(
                             this,
-                            "Reset link sent. Check your inbox (and Spam/Junk).",
+                            "Reset link sent to $email. Check your inbox (and Spam/Junk).",
                             Toast.LENGTH_LONG
                         ).show()
 
-                        // Wait 5 seconds, then go back to Login
+                        // Return to Login after a short delay
                         Handler(Looper.getMainLooper()).postDelayed({
-                            startActivity(
-                                Intent(this, LoginActivity::class.java)
-                            )
+                            startActivity(Intent(this, LoginActivity::class.java))
                             finish()
-                        }, 5000)
+                        }, 1500)
                     } else {
                         val ex = task.exception
-                        tilEmail.error = when (ex) {
+                        val msg = when (ex) {
                             is FirebaseAuthInvalidUserException ->
                                 "No account found with that email"
                             is FirebaseTooManyRequestsException ->
                                 "Too many requests. Please try again later"
                             else -> ex?.localizedMessage ?: "Failed to send reset link"
                         }
+                        etEmail.error = msg
                     }
                 }
-
-
         }
     }
 
@@ -121,6 +107,4 @@ class ForgotPasswordActivity : AppCompatActivity() {
             imm.hideSoftInputFromWindow(v.windowToken, 0)
         }
     }
-
-
 }

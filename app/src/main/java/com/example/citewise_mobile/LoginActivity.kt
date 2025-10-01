@@ -4,15 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
-import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageButton
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat.enableEdgeToEdge
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -35,12 +31,11 @@ class LoginActivity : AppCompatActivity() {
 
     private val auth = com.google.firebase.Firebase.auth
 
-    private lateinit var tilEmail: TextInputLayout
-    private lateinit var tilPassword: TextInputLayout
+    //Removed tilEmail on purpose; we show email errors directly on etEmail
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: MaterialButton
-    private lateinit var btnGoogle: ImageButton
+    private lateinit var btnGoogleLogin: View
     private lateinit var tvForgot: MaterialTextView
     private lateinit var tvGoSignUp: MaterialTextView
 
@@ -48,25 +43,20 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
+
         // Bind views
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
-        btnGoogle = findViewById(R.id.btnGoogle)
+        btnGoogleLogin = findViewById(R.id.btnGoogleLogin)
         tvForgot = findViewById(R.id.tvForgot)
         tvGoSignUp = findViewById(R.id.tvGoSignUp)
 
-        // Always enable the button; we handle validation on click
         btnLogin.isEnabled = true
 
         // Clear errors while typing
-        etEmail.addTextChangedListener {
-            tilEmail.error = null
-            tilEmail.helperText = null
-        }
-        etPassword.addTextChangedListener {
-            tilPassword.error = null
-        }
+        etEmail.addTextChangedListener { etEmail.error = null }
+        etPassword.addTextChangedListener { etPassword.error = null }
 
         // Email/password login
         btnLogin.setOnClickListener { tryEmailPasswordLogin() }
@@ -86,13 +76,13 @@ class LoginActivity : AppCompatActivity() {
             )
         }
 
-        // Sign up
+        // Go to Register
         tvGoSignUp.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
         // Google Sign-In
-        btnGoogle.setOnClickListener { signInWithGoogle() }
+        btnGoogleLogin.setOnClickListener { signInWithGoogle() }
     }
 
     // ---------------- Email/Password ----------------
@@ -100,48 +90,51 @@ class LoginActivity : AppCompatActivity() {
         val email = etEmail.text?.toString()?.trim().orEmpty()
         val pass = etPassword.text?.toString().orEmpty()
 
-        tilEmail.error = null
-        tilEmail.helperText = null
-        tilPassword.error = null
+        // Clear old errors
+        etEmail.error = null
+        etPassword.error = null
 
-        // Explicit empty + validity checks
+        // Validation
         if (email.isEmpty()) {
-            tilEmail.error = "Email is required"
+            etEmail.error = "Email is required"
             etEmail.requestFocus()
             return
         }
         if (!isValidEmail(email)) {
-            tilEmail.error = "Enter a valid email address"
+            etEmail.error = "Enter a valid email address"
             etEmail.requestFocus()
             return
         }
         if (pass.isEmpty()) {
-            tilPassword.error = "Password is required"
+            etPassword.error = "Password is required"
             etPassword.requestFocus()
             return
         }
         if (pass.length < 6) {
-            tilPassword.error = "Password must be at least 6 characters"
+            etPassword.error = "Password must be at least 6 characters"
             etPassword.requestFocus()
             return
         }
 
         hideKeyboard()
 
-        auth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(this) { task ->
-            if (task.isSuccessful) {
-                routeByRole()
-            } else {
-                tilPassword.error = task.exception?.localizedMessage ?: "Login failed"
+        auth.signInWithEmailAndPassword(email, pass)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    routeByRole()
+                } else {
+                    etPassword.error = task.exception?.localizedMessage ?: "Login failed"
+                }
             }
-        }
     }
 
     // ---------------- Google Sign-In ----------------
     private fun signInWithGoogle() {
         val serverClientId = getString(R.string.default_web_client_id)
         val googleOption = GetSignInWithGoogleOption.Builder(serverClientId).build()
-        val request = GetCredentialRequest.Builder().addCredentialOption(googleOption).build()
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleOption)
+            .build()
         val cm = CredentialManager.create(this)
 
         lifecycleScope.launch {
@@ -149,9 +142,9 @@ class LoginActivity : AppCompatActivity() {
                 val result = cm.getCredential(this@LoginActivity, request)
                 handleGoogleCredential(result.credential)
             } catch (e: GetCredentialException) {
-                tilPassword.error = "Google sign-in Aborted"
+                etPassword.error = "Google sign-in aborted"
             } catch (t: Throwable) {
-                tilPassword.error = t.localizedMessage ?: "Google sign-in failed"
+                etPassword.error = t.localizedMessage ?: "Google sign-in failed"
             }
         }
     }
@@ -166,13 +159,13 @@ class LoginActivity : AppCompatActivity() {
             auth.signInWithCredential(firebaseCredential)
                 .addOnCompleteListener(this) { task ->
                     if (!task.isSuccessful) {
-                        tilPassword.error = task.exception?.localizedMessage ?: "Google sign-in failed"
+                        etPassword.error = task.exception?.localizedMessage ?: "Google sign-in failed"
                         return@addOnCompleteListener
                     }
                     handleFirstTimeGoogleUserOrRoute()
                 }
         } else {
-            tilPassword.error = "Selected credential is not a Google account"
+            etPassword.error = "Selected credential is not a Google account"
         }
     }
 
@@ -181,13 +174,16 @@ class LoginActivity : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().reference.child("users").child(uid)
         ref.get().addOnCompleteListener { t ->
             if (!t.isSuccessful) {
-                tilPassword.error = t.exception?.localizedMessage ?: "Could not verify account"
+                etPassword.error = t.exception?.localizedMessage ?: "Could not verify account"
                 return@addOnCompleteListener
             }
             if (t.result?.exists() == true) {
                 routeByRole()
             } else {
-                startActivity(Intent(this, RegisterActivity::class.java).putExtra("mode", "google"))
+                startActivity(
+                    Intent(this, RegisterActivity::class.java)
+                        .putExtra("mode", "google")
+                )
                 finish()
             }
         }
@@ -198,7 +194,8 @@ class LoginActivity : AppCompatActivity() {
         val uid = auth.currentUser?.uid ?: run {
             startActivity(Intent(this, LoginActivity::class.java)); finish(); return
         }
-        val ref = FirebaseDatabase.getInstance().reference.child("users").child(uid).child("role")
+        val ref = FirebaseDatabase.getInstance().reference
+            .child("users").child(uid).child("role")
         ref.get().addOnCompleteListener { t ->
             val role = t.result?.getValue(String::class.java)?.lowercase() ?: "student"
             when (role) {

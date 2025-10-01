@@ -11,13 +11,10 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.database
-import androidx.activity.enableEdgeToEdge
-
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -31,29 +28,23 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var sectionStudent: View
     private lateinit var sectionConsultant: View
 
-    // Inputs (common)
-    private lateinit var tilEmail: TextInputLayout
-    private lateinit var tilPassword: TextInputLayout
-    private lateinit var tilConfirmPassword: TextInputLayout
+    // Inputs (no TextInputLayout anywhere)
     private lateinit var etFirst: TextInputEditText
     private lateinit var etSur: TextInputEditText
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPass: TextInputEditText
     private lateinit var etPassConfirm: TextInputEditText
-
-    // Role-specific
-    private lateinit var etFieldOfStudy: TextInputEditText       // student
-    private lateinit var etSpecialisation: TextInputEditText     // consultant
+    private lateinit var etFieldOfStudy: TextInputEditText     // student
+    private lateinit var etSpecialisation: TextInputEditText   // consultant
 
     // Actions / progress
     private lateinit var btnSign: MaterialButton
-    private lateinit var progress: LinearProgressIndicator
     private lateinit var tvGoLogin: MaterialTextView
 
     // Mode (if launched for Google profile completion)
     private var isGoogleMode: Boolean = false
 
-    // Optional: seed admins by email (keep if you still want it)
+    // Optional: seed admins by email
     private val adminSeedEmails = setOf(
         "admin@citewise.com",
         "you@example.com"
@@ -65,7 +56,6 @@ class RegisterActivity : AppCompatActivity() {
 
         isGoogleMode = intent.getStringExtra("mode")?.equals("google", ignoreCase = true) == true
 
-        // Bind views
         toggle = findViewById(R.id.toggleAccountType)
         btnStudent = findViewById(R.id.btnStudent)
         btnConsultant = findViewById(R.id.btnConsultant)
@@ -77,11 +67,6 @@ class RegisterActivity : AppCompatActivity() {
         etEmail = findViewById(R.id.etEmail)
         etPass = findViewById(R.id.etPassword)
         etPassConfirm = findViewById(R.id.etConfirmPassword)
-
-        tilEmail = findViewById(R.id.tilEmail)
-        tilPassword = findViewById(R.id.tilPassword)
-        tilConfirmPassword = findViewById(R.id.tilConfirmPassword)
-
         etFieldOfStudy = findViewById(R.id.etFieldOfStudy)
         etSpecialisation = findViewById(R.id.etSpecialisation)
 
@@ -92,13 +77,13 @@ class RegisterActivity : AppCompatActivity() {
         toggle.check(btnStudent.id)
         showRole("student")
 
+        // Let selectors drive appearance; only swap sections here
         toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
             when (checkedId) {
-                btnStudent.id -> showRole("student")
-                btnConsultant.id -> showRole("consultant")
+                R.id.btnStudent -> showRole("student")
+                R.id.btnConsultant -> showRole("consultant")
             }
-            revalidate()
         }
 
         // Revalidate on input changes
@@ -118,15 +103,13 @@ class RegisterActivity : AppCompatActivity() {
             etFirst.setText(name.substringBeforeLast(" "))
             etSur.setText(name.substringAfterLast(" ").takeIf { it != name } ?: "")
 
-            tilEmail.isEnabled = false
             etEmail.isEnabled = false
-            tilPassword.isVisible = false
-            tilConfirmPassword.isVisible = false
+            etPass.isVisible = false
+            etPassConfirm.isVisible = false
         } else {
-            tilEmail.isEnabled = true
             etEmail.isEnabled = true
-            tilPassword.isVisible = true
-            tilConfirmPassword.isVisible = true
+            etPass.isVisible = true
+            etPassConfirm.isVisible = true
         }
 
         // Actions
@@ -151,17 +134,20 @@ class RegisterActivity : AppCompatActivity() {
     private fun showRole(role: String) {
         sectionStudent.visibility = if (role == "student") View.VISIBLE else View.GONE
         sectionConsultant.visibility = if (role == "consultant") View.VISIBLE else View.GONE
+        // Also revalidate because required fields change by role
+        revalidate()
     }
 
+    /** Validate inputs and enable/disable the Sign Up button. */
     private fun revalidate() {
-        // clear previous
-        tilEmail.error = null
-        tilPassword.error = null
-        tilConfirmPassword.error = null
+        // Clear previous inline errors
+        etEmail.error = null
+        etPass.error = null
+        etPassConfirm.error = null
 
         val firstOk = etFirst.text?.isNotBlank() == true
         val surOk   = etSur.text?.isNotBlank() == true
-        val emailOk = validEmail(etEmail.text?.toString())
+        val emailOk = isValidEmail(etEmail.text?.toString())
 
         val p1 = etPass.text?.toString().orEmpty()
         val p2 = etPassConfirm.text?.toString().orEmpty()
@@ -169,22 +155,11 @@ class RegisterActivity : AppCompatActivity() {
         val pwOk = if (isGoogleMode) {
             true
         } else {
-            // Don't show errors until the user starts typing
-            if (p1.isEmpty() && p2.isEmpty()) {
-                false
-            } else {
-                var ok = true
-                if (p1.length < 6) {
-                    tilPassword.error = "At least 6 characters"
-                    ok = false
-                }
-                // Only show mismatch once confirm has something
-                if (p2.isNotEmpty() && p1 != p2) {
-                    tilConfirmPassword.error = "Passwords do not match"
-                    ok = false
-                }
-                ok
-            }
+            var ok = true
+            if (p1.isEmpty() || p2.isEmpty()) ok = false
+            if (p1.isNotEmpty() && p1.length < 6) { etPass.error = "At least 6 characters"; ok = false }
+            if (p2.isNotEmpty() && p1 != p2) { etPassConfirm.error = "Passwords do not match"; ok = false }
+            ok
         }
 
         val roleOk = when (roleFromToggle()) {
@@ -193,13 +168,10 @@ class RegisterActivity : AppCompatActivity() {
             else -> false
         }
 
-        // Require both password fields filled (in email mode) before enabling
-        val passwordsFilled = isGoogleMode || (p1.isNotEmpty() && p2.isNotEmpty())
-
-        btnSign.isEnabled = firstOk && surOk && emailOk && passwordsFilled && pwOk && roleOk
+        btnSign.isEnabled = firstOk && surOk && emailOk && pwOk && roleOk
     }
 
-    private fun validEmail(v: String?): Boolean =
+    private fun isValidEmail(v: String?): Boolean =
         !v.isNullOrBlank() && Patterns.EMAIL_ADDRESS.matcher(v).matches()
 
     // ---------------- Email/password flow ----------------
@@ -213,14 +185,12 @@ class RegisterActivity : AppCompatActivity() {
         val chosenRole = roleFromToggle()
         val finalRole = if (adminSeedEmails.contains(email.lowercase())) "admin" else chosenRole
 
-        progress.visibility = View.VISIBLE
-        btnSign.isEnabled = false
+        setLoading(true)
 
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(this) { task ->
             if (!task.isSuccessful) {
-                progress.visibility = View.GONE
-                btnSign.isEnabled = true
-                tilPassword.error = task.exception?.localizedMessage ?: "Register failed"
+                setLoading(false)
+                etPass.error = task.exception?.localizedMessage ?: "Register failed"
                 return@addOnCompleteListener
             }
 
@@ -236,14 +206,12 @@ class RegisterActivity : AppCompatActivity() {
             )
 
             when (finalRole) {
-                "student" -> profile["fieldOfStudy"] = etFieldOfStudy.text?.toString()?.trim().orEmpty()
+                "student"    -> profile["fieldOfStudy"] = etFieldOfStudy.text?.toString()?.trim().orEmpty()
                 "consultant" -> profile["specialisation"] = etSpecialisation.text?.toString()?.trim().orEmpty()
-                "admin" -> { /* nothing extra */ }
             }
 
             db.reference.child("users").child(uid).setValue(profile).addOnCompleteListener {
-                progress.visibility = View.GONE
-                btnSign.isEnabled = true
+                setLoading(false)
                 if (it.isSuccessful) routeByRole(finalRole)
             }
         }
@@ -266,8 +234,7 @@ class RegisterActivity : AppCompatActivity() {
         val chosenRole = roleFromToggle()
         val finalRole = if (adminSeedEmails.contains(email.lowercase())) "admin" else chosenRole
 
-        progress.visibility = View.VISIBLE
-        btnSign.isEnabled = false
+        setLoading(true)
 
         val ref = db.reference.child("users").child(uid)
         ref.get().addOnSuccessListener { snap ->
@@ -279,33 +246,32 @@ class RegisterActivity : AppCompatActivity() {
                 "role" to finalRole,
                 "updatedAt" to System.currentTimeMillis()
             )
-            if (!snap.exists()) {
-                profile["createdAt"] = System.currentTimeMillis()
-            }
+            if (!snap.exists()) profile["createdAt"] = System.currentTimeMillis()
 
             when (finalRole) {
-                "student" -> profile["fieldOfStudy"] = etFieldOfStudy.text?.toString()?.trim().orEmpty()
+                "student"    -> profile["fieldOfStudy"] = etFieldOfStudy.text?.toString()?.trim().orEmpty()
                 "consultant" -> profile["specialisation"] = etSpecialisation.text?.toString()?.trim().orEmpty()
-                "admin" -> { /* nothing extra */ }
             }
 
             ref.updateChildren(profile as Map<String, Any>).addOnCompleteListener { done ->
-                progress.visibility = View.GONE
-                btnSign.isEnabled = true
+                setLoading(false)
                 if (done.isSuccessful) routeByRole(finalRole)
             }
         }.addOnFailureListener {
-            progress.visibility = View.GONE
-            btnSign.isEnabled = true
+            setLoading(false)
         }
+    }
+
+    private fun setLoading(loading: Boolean) {
+        btnSign.isEnabled = !loading
     }
 
     private fun routeByRole(role: String) {
         when (role.lowercase()) {
-            "student" -> startActivity(Intent(this, StudentDashboardActivity::class.java))
+            "student"    -> startActivity(Intent(this, StudentDashboardActivity::class.java))
             "consultant" -> startActivity(Intent(this, ConsultantDashboardActivity::class.java))
-            "admin" -> startActivity(Intent(this, AdminDashboardActivity::class.java))
-            else -> startActivity(Intent(this, StudentDashboardActivity::class.java))
+            "admin"      -> startActivity(Intent(this, AdminDashboardActivity::class.java))
+            else         -> startActivity(Intent(this, StudentDashboardActivity::class.java))
         }
         finish()
     }
