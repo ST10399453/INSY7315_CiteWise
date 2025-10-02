@@ -1,4 +1,4 @@
-@media (min-width: 768px) {
+/*@media (min-width: 768px) {
   html {
     font-size: 16px;
   }
@@ -121,9 +121,9 @@ body {
 .topbar-left {
     display: flex; 
     align-items: center;   
-    gap: 0px;
+    gap: 0px;*/
 /*    margin-left: px;  */
-}
+/*}
 
     .topbar-left span {
         font-size: 18px;
@@ -144,8 +144,8 @@ body {
 .topbar-right {
     display: flex;
     align-items: center;
-    margin-right: 40px;  /*moves bell icon more left */*/
-}
+    margin-right: 40px;*/  /*moves bell icon more left */
+/*}
 
 .topbar .icon {
     margin-left: 10px;
@@ -328,8 +328,8 @@ body {
     }
 
 .topbar-name {
-    margin-left: 36px;  /*gap between icon and name */
-}
+    margin-left: 36px;*/  /*gap between icon and name */
+/*}
 
 .topbar-left h2 span {
     color: #0027B2;
@@ -379,4 +379,4 @@ body {
 
     .sidebar.collapsed ~ .topbar {
         left: 0;
-    }
+    }*/

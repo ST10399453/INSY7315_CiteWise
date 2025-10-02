@@ -6,39 +6,39 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------------------------
     // Login/Register toggle
     // -------------------------
-    const toggle = document.getElementById("filter");
-    const loginPanel = document.getElementById("loginForm");
-    const registerPanel = document.getElementById("registerForm");
-    const stage = document.getElementById("formsStage");
+    //const toggle = document.getElementById("filter");
+    //const loginPanel = document.getElementById("loginForm");
+    //const registerPanel = document.getElementById("registerForm");
+    //const stage = document.getElementById("formsStage");
 
-    if (toggle && loginPanel && registerPanel && stage) {
-        // set stage height to the active panel's content height (smooth)
-        function setStageHeight() {
-            const active = toggle.checked ? registerPanel : loginPanel;
-            // use the actual content height
-            const height = active.scrollHeight;
-            stage.style.height = height + "px";
-        }
+    //if (toggle && loginPanel && registerPanel && stage) {
+    //    // set stage height to the active panel's content height (smooth)
+    //    function setStageHeight() {
+    //        const active = toggle.checked ? registerPanel : loginPanel;
+    //        // use the actual content height
+    //        const height = active.scrollHeight;
+    //        stage.style.height = height + "px";
+    //    }
 
-        // apply stage class (controls slide direction via CSS)
-        function updateStage() {
-            stage.classList.toggle("show-register", toggle.checked);
-            setStageHeight();
-        }
+    //    // apply stage class (controls slide direction via CSS)
+    //    function updateStage() {
+    //        stage.classList.toggle("show-register", toggle.checked);
+    //        setStageHeight();
+    //    }
 
-        // prevent initial CSS animation: set height without transition then enable transitions
-        stage.style.transition = "none";
-        updateStage();
-        // force reflow then enable transitions (avoid jump on load)
-        requestAnimationFrame(() => {
-            stage.style.transition = "";
-        });
+    //    // prevent initial CSS animation: set height without transition then enable transitions
+    //    stage.style.transition = "none";
+    //    updateStage();
+    //    // force reflow then enable transitions (avoid jump on load)
+    //    requestAnimationFrame(() => {
+    //        stage.style.transition = "";
+    //    });
 
-        // handle the toggle
-        toggle.addEventListener("change", updateStage);
-        // handle window resize (recalc heights)
-        window.addEventListener("resize", setStageHeight);
-    }
+    //    // handle the toggle
+    //    toggle.addEventListener("change", updateStage);
+    //    // handle window resize (recalc heights)
+    //    window.addEventListener("resize", setStageHeight);
+    //}
 
     // -------------------------
     // Sidebar collapse/expand toggle

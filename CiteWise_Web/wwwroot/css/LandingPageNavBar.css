@@ -52,8 +52,8 @@
 
         .nav-links a:hover {
             color: #0027B2;
-            transform: translateY(-4px);
-            font-size: 20px;
+            transform: translateY(-3px) scale(1.1); /* scales text slightly */
+            font-size: 18px; /* keep original size to avoid container shift */
         }
 
 /* Right actions */

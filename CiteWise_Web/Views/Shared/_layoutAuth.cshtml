@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CiteWise_Web</title>
     <script type="importmap"></script>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/MainApplicationNavBar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/register.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -14,6 +14,10 @@
         <div class="logo-container">
             <img src="~/img/CiteWise_Logo.jpg" alt="CiteWise Logo" class="sidebar-logo" />
             <h2>iteWise</h2>
+
+            <div class="toggle-btn">
+                <img src="~/icons/menu_sidebar.svg" alt="Sidebar expand & collapse" />
+            </div>
         </div>
 
         <a href="#">
@@ -44,23 +48,16 @@
 
     <div class="topbar">
         <div class="topbar-left">
-            <div class="toggle-btn">
-                <img src="~/icons/menu_sidebar.svg" alt="Sidebar expand & collapse" />
-            </div>
             <h2 class="topbar-name">
                 <span>Hi @(Context.Session.GetString("UserName") ?? "Guest")</span>
             </h2>
-
         </div>
 
         <div class="topbar-right">
             <i class="fa-regular fa-bell icon"></i>
-            @* ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING *@
             <a asp-controller="Account" asp-action="Logout" title="Logout">
                 <img src="https://via.placeholder.com/40" alt="Logout">
             </a>
-            @* ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING *@
-
         </div>
     </div>
     <div class="container">
