@@ -118,7 +118,7 @@ body {
 
 /* ---------------- Topbar ---------------- */
 .topbar {
-    height: 80px;
+    height: 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -204,4 +204,20 @@ body {
 .sidebar .logo-divider {
     border-top: 2px solid #C1C8DF; 
     margin: 0 16px; 
+}
+
+
+.logo-divider {
+    position: fixed;
+    top: 85px;
+    left: 265px;
+    right: 15px;
+    border-top: 2px solid #C1C8DF;
+    margin: 0;
+}
+
+/* When sidebar collapses */
+.sidebar.collapsed ~ .topbar + .logo-divider,
+.sidebar.collapsed + .topbar + .logo-divider {
+    left: 85px; /* match your collapsed sidebar width */
 }

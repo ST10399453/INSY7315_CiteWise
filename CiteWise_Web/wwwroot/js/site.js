@@ -58,4 +58,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+
+    // -------------------------
+    // Topbar Hide on Scroll
+    // -------------------------
+    const topbar = document.querySelector(".topbar");
+    let lastScrollY = window.scrollY;
+
+    if (topbar) {
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > lastScrollY) {
+                // Scrolling DOWN → hide topbar
+                topbar.classList.add("hidden");
+            } else {
+                // Scrolling UP → show topbar
+                topbar.classList.remove("hidden");
+            }
+
+            // Optional: Shadow effect when scrolling
+           
+
+            lastScrollY = window.scrollY;
+        });
+    }
+
 });

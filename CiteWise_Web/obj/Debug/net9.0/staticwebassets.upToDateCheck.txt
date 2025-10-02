@@ -1,7 +1,6 @@
 wwwroot\CiteWise_Logo.ico
 wwwroot\css\LandingPage.css
 wwwroot\css\LandingPageNavBar.css
-wwwroot\css\MainApplicationNavBar.css
 wwwroot\css\register.css
 wwwroot\css\site.css
 wwwroot\favicon.ico
@@ -18,7 +17,6 @@ wwwroot\img\Growth.png
 wwwroot\img\main_circle.png
 wwwroot\img\Network.png
 wwwroot\js\Landing.js
-wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
@@ -79,11 +77,12 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\css\MainApplicationNavBar.css
 wwwroot\css\StudentDashboard.css
+wwwroot\js\site.js
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\CiteWise_Logo.ico
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingPage.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingPageNavBar.css
-C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\MainApplicationNavBar.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\register.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\site.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\favicon.ico
@@ -93,7 +92,6 @@ C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\icon
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\Profile.svg
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\Resources.svg
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\Landing.js
-C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\site.js
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
@@ -153,4 +151,6 @@ C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\dist\jquery.slim.min.js
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\dist\jquery.slim.min.map
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\LICENSE.txt
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\MainApplicationNavBar.css
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\StudentDashboard.css
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\site.js

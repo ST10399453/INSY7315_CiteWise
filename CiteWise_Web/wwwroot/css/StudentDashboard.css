@@ -1,12 +1,22 @@
 ﻿
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
 .dashboard-container {
-    margin-left: 260px;
-    padding: 100px 40px;
-    transition: margin-left 0.3s ease; 
+    position: fixed; /* make it a scrollable region */
+    top: 80px;
+    left: 260px; /* full sidebar width */
+    right: 0;
+    bottom: 0;
+    padding: 20px 40px;
+    overflow-y: auto; /* ENABLES SCROLL */
+    box-sizing: border-box;
 }
 
 body.sidebar-collapsed .dashboard-container {
-    margin-left: 80px;
+    left: 80px; /* when sidebar collapses */
 }
 
     .dashboard-container h2 {
@@ -21,6 +31,21 @@ body.sidebar-collapsed .dashboard-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 25px;
+}
+
+
+.request-list {
+    max-height: 200px; /* Adjust as needed */
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+.request-item {
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #f8f8f8;
 }
 
 
