@@ -3,5 +3,5 @@
     <!-- selected -->
     <item android:color="@color/gradient_middle" android:state_checked="true"/>
     <!-- default -->
-    <item android:color="@android:color/black"/>
+    <item android:color="@android:color/transparent"/>
 </selector>
