@@ -53,7 +53,7 @@
             android:name=".RequestServiceStep2Activity"
             android:exported="false" />
         <activity
-            android:name=".RequestServiceStep1Activity"
+            android:name=".RequestServiceStepsActivity"
             android:exported="false" />
         <activity
             android:name=".RequestDetailsActivity"

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background track -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <solid android:color="#4F65FCE1" /> <!-- faint track -->
+            <corners android:radius="50dp" />
+        </shape>
+    </item>
+
+    <!-- Progress fill -->
+    <item android:id="@android:id/progress">
+        <scale android:scaleWidth="1.0" android:scaleGravity="left">
+            <shape android:shape="rectangle">
+                <solid android:color="@color/gradient_end" />
+                <corners android:radius="50dp" />
+            </shape>
+        </scale>
+    </item>
+
+</layer-list>

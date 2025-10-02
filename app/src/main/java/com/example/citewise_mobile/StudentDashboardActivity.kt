@@ -9,36 +9,45 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
 class StudentDashboardActivity : BaseActivity() {
 
-    @SuppressLint("MissingInflatedId") // we inflate the child layout manually below
+    private lateinit var btnRequestService: MaterialButton
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1) Base shell with bottom nav + content container
+        // 1) Base shell
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
-        // 2) Inflate the dashboard layout *into* the base content container
+        // 2) Inflate child INTO base container
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
         val childRoot = layoutInflater.inflate(
             R.layout.activity_student_dashboard,
             baseContent,
-            /* attachToRoot = */ true
+            true
         )
 
-        // 3) Bottom nav wiring (this view lives in activity_base)
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        setupBottomNav(bottomNav, R.id.nav_dashboard)
-
-        // 4) Views from the *child* layout — look them up from childRoot
+        // 3) Now find views from the child layout
+        btnRequestService = childRoot.findViewById(R.id.btnRequestService)
         val tvGreeting = childRoot.findViewById<TextView>(R.id.tvGreeting)
         val btnMenu    = childRoot.findViewById<ImageButton>(R.id.btnMenu)
 
-        // --- Greeting: "Hi <firstName>" ---
+        // 4) Wire bottom nav (lives in activity_base)
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        setupBottomNav(bottomNav, R.id.nav_dashboard)
+
+        // 5) Button -> Step 1 screen
+        btnRequestService.setOnClickListener {
+            startActivity(Intent(this, RequestServiceStepsActivity::class.java))
+        }
+
+        // 6) Greeting
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             FirebaseDatabase.getInstance().reference
@@ -53,7 +62,7 @@ class StudentDashboardActivity : BaseActivity() {
             tvGreeting.text = "Hi"
         }
 
-        // --- Overflow / sign-out menu ---
+        // 7) Overflow / sign out
         btnMenu.setOnClickListener { anchor ->
             val popup = PopupMenu(this, anchor)
             MenuInflater(this).inflate(R.menu.menu_dashboard_overflow, popup.menu)

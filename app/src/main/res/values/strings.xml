@@ -62,4 +62,52 @@
         <item>Low</item>
     </string-array>
 
-    </resources>
+    <!-- Service Request flow -->
+    <string name="request_service">Request a service</string>
+
+    <!-- Step headers -->
+    <string name="step_1">Step 1</string>
+    <string name="step_2">Step 2</string>
+    <string name="step_3">Step 3</string>
+    <string name="step_4">Step 4</string>
+    <string name="step_done">All set</string>
+
+    <!-- Common CTA -->
+    <string name="next">NEXT</string>
+    <string name="done">DONE</string>
+    <string name="skip_for_now">Skip for now</string>
+
+    <!-- Step 1 -->
+    <string name="select_a_service">Select a service</string>
+    <string name="select_service_first">Please select a service</string>
+
+    <!-- Step 2 -->
+    <string name="fill_additional_information">Fill out additional information</string>
+    <string name="enter_additional_information">enter additional information</string>
+
+    <!-- Step 3 -->
+    <string name="upload_your_documents">Upload your documents</string>
+    <string name="document_name">Document name</string>
+    <string name="document_name_hint">Document name</string>
+    <string name="attach_file">Attach file</string>
+    <string name="choose_file">CHOOSE FILE</string>
+    <string name="no_file_selected">No file selected</string>
+    <string name="file_selected">File selected</string>
+    <string name="choose_file_first">Please choose a file to upload</string>
+    <string name="enter_document_name">Please enter a document name</string>
+
+    <!-- Step 4 -->
+    <string name="level_of_urgency">Level of urgency</string>
+    <string name="deadline">Deadline</string>
+    <string name="select_a_date">Select a date</string>
+    <string name="select_urgency">Please select urgency</string>
+    <string name="select_deadline">Please select a deadline date</string>
+
+    <!-- Success -->
+    <string name="your_request_submitted">Your request has been submitted</string>
+    <string name="quotation_note">A quotation will be generated after submission.</string>
+    <string name="not_signed_in">User Not Signed In</string>
+    <string name="uploading">Uploading...</string>
+
+
+</resources>
