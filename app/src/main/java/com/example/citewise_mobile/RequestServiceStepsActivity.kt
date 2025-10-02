@@ -19,16 +19,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.citewise_mobile.data.ServicePriority
+import com.example.citewise_mobile.data.ServiceReview
+import com.example.citewise_mobile.data.ServiceType
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.Blob
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class RequestServiceStepsActivity : AppCompatActivity() {
 
@@ -51,7 +56,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private lateinit var etDocName: TextInputEditText
     private lateinit var btnAttachFile: MaterialButton
     private lateinit var tvFileName: TextView
-    private lateinit var progressUpload: ProgressBar   // <-- NEW
+    private lateinit var progressUpload: ProgressBar
     private var pickedFileUri: Uri? = null
 
     // Step 4
@@ -70,9 +75,8 @@ class RequestServiceStepsActivity : AppCompatActivity() {
 
     // Firebase
     private val firestore by lazy { FirebaseFirestore.getInstance() }
-    private val rtdb by lazy { FirebaseDatabase.getInstance() }
 
-    // Firestore blob headroom
+    // keep doc size under Firestore ~1MiB limit (allow headroom)
     private val MAX_FIRESTORE_BLOB_BYTES = 900 * 1024 // 900 KB
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,13 +84,14 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_request_services)
 
+        // edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root)) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
 
-        // documents-only picker
+        // documents-only picker with persistable permission
         pickDocLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if (uri != null) {
                 try {
@@ -157,16 +162,16 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private fun setupListeners() {
         btnNext.setOnClickListener {
             when (currentStep) {
-                0 -> {
+                0 -> { // Step 1
                     if (serviceSpinner.selectedItem == null) {
                         toast(getString(R.string.select_service_first)); return@setOnClickListener
                     }
                     selectedService = services[serviceSpinner.selectedItemPosition]
                 }
-                1 -> {
+                1 -> { // Step 2
                     additionalInfo = etAdditionalInfo.text?.toString()?.trim()
                 }
-                2 -> {
+                2 -> { // Step 3 (validate only)
                     docName = etDocName.text?.toString()?.trim()
                     if (pickedFileUri == null) {
                         toast(getString(R.string.choose_file_first)); return@setOnClickListener
@@ -174,11 +179,19 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                     if (docName.isNullOrEmpty()) {
                         toast(getString(R.string.enter_document_name)); return@setOnClickListener
                     }
-                    setLoading(true) // <-- show small loader
-                    uploadToFirestoreAndMirror(
+                }
+                3 -> { // Step 4 -> SAVE EVERYTHING
+                    urgencyLevel = urgencySpinner.selectedItem?.toString()
+                    deadlineText = etDeadline.text?.toString()
+                    if (urgencyLevel.isNullOrEmpty()) {
+                        toast(getString(R.string.select_urgency)); return@setOnClickListener
+                    }
+                    val deadlineTs = parseDeadlineOrNull(deadlineText)
+                    setLoading(true)
+                    saveAllAtEnd(deadlineTs,
                         onSuccess = {
                             setLoading(false)
-                            goNextStep()
+                            goNextStep() // success screen
                         },
                         onError = { msg ->
                             setLoading(false)
@@ -186,16 +199,6 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                         }
                     )
                     return@setOnClickListener
-                }
-                3 -> {
-                    urgencyLevel = urgencySpinner.selectedItem?.toString()
-                    deadlineText = etDeadline.text?.toString()
-                    if (urgencyLevel.isNullOrEmpty()) {
-                        toast(getString(R.string.select_urgency)); return@setOnClickListener
-                    }
-                    if (deadlineText.isNullOrEmpty()) {
-                        toast(getString(R.string.select_deadline)); return@setOnClickListener
-                    }
                 }
             }
             goNextStep()
@@ -271,7 +274,6 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
     private fun setLoading(isLoading: Boolean) {
-        // disable actions and show the tiny loader right under the file name
         btnNext.isEnabled = !isLoading
         btnAttachFile.isEnabled = !isLoading
         progressUpload.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -282,9 +284,10 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         }
     }
 
-    // ===== Firestore + Realtime DB integration =====
+    // ===== Final save (Documents + serviceReviews) =====
 
-    private fun uploadToFirestoreAndMirror(
+    private fun saveAllAtEnd(
+        deadlineTs: Timestamp?,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
@@ -292,9 +295,9 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
             ?: return onError(getString(R.string.not_signed_in))
 
+        // read bytes & sanity check size
         val bytes = try { readAllBytes(uri, MAX_FIRESTORE_BLOB_BYTES + 1) }
         catch (e: Exception) { return onError("Failed to read file: ${e.message}") }
-
         if (bytes.size > MAX_FIRESTORE_BLOB_BYTES) {
             return onError("File is too large for Firestore (>${MAX_FIRESTORE_BLOB_BYTES / 1024} KB).")
         }
@@ -302,6 +305,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         val name = displayNameFromUri(uri) ?: (docName ?: "document")
         val mime = contentResolver.getType(uri) ?: "application/octet-stream"
 
+        // 1) Create the document (file + all step fields)
         val docData = hashMapOf(
             "uid" to uid,
             "service" to (selectedService ?: ""),
@@ -310,7 +314,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
             "mimeType" to mime,
             "content" to Blob.fromBytes(bytes),
             "urgency" to (urgencyLevel ?: ""),
-            "deadline" to (deadlineText ?: ""),
+            "deadline" to deadlineTs, // Timestamp? -> null if not provided
             "uploadedAt" to FieldValue.serverTimestamp(),
             "status" to "submitted"
         )
@@ -318,23 +322,23 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         firestore.collection("Documents")
             .add(docData)
             .addOnSuccessListener { docRef ->
-                val docId = docRef.id
-                val summary = mapOf(
-                    "docName" to name,
-                    "service" to (selectedService ?: ""),
-                    "status" to "submitted",
-                    "uploadedAt" to System.currentTimeMillis()
+                // 2) Create the service review linked to that document
+                val review = ServiceReview(
+                    userId = uid,
+                    documentId = docRef.id,
+                    consultantId = null,
+                    serviceType = mapServiceType(selectedService),
+                    description = additionalInfo.orEmpty(),
+                    priority = mapPriority(urgencyLevel),
+                    deadline = deadlineTs,
+                    createdAt = null // set via serverTimestamp() below
                 )
-                rtdb.reference.child("users").child(uid)
-                    .child("documents").child(docId)
-                    .setValue(summary)
+                firestore.collection("ServiceReviews")
+                    .add(review.toMapWithServerTimestamp())
                     .addOnSuccessListener { onSuccess() }
-                    .addOnFailureListener { e ->
-                        docRef.delete()
-                        onError("Failed to index request: ${e.message}")
-                    }
+                    .addOnFailureListener { e -> onError(e.message ?: "Failed to create review") }
             }
-            .addOnFailureListener { e -> onError("Firestore write failed: ${e.message}") }
+            .addOnFailureListener { e -> onError(e.message ?: "Failed to create document") }
     }
 
     // ===== Helpers =====
@@ -378,4 +382,45 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         }
         return buffer.toByteArray()
     }
+
+    private fun parseDeadlineOrNull(text: String?): Timestamp? {
+        if (text.isNullOrBlank()) return null
+        // expects dd/MM/yyyy
+        return try {
+            val parts = text.trim().split("/")
+            val d = parts[0].toInt()
+            val m = parts[1].toInt() - 1
+            val y = parts[2].toInt()
+            val cal = Calendar.getInstance(Locale.getDefault()).apply {
+                set(Calendar.YEAR, y)
+                set(Calendar.MONTH, m)
+                set(Calendar.DAY_OF_MONTH, d)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            Timestamp(Date(cal.timeInMillis))
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun mapPriority(uiValue: String?): ServicePriority =
+        when (uiValue?.trim()?.lowercase(Locale.getDefault())) {
+            "high" -> ServicePriority.HIGH
+            "medium" -> ServicePriority.MEDIUM
+            "low" -> ServicePriority.LOW
+            else -> ServicePriority.MEDIUM
+        }
+
+    private fun mapServiceType(uiValue: String?): ServiceType =
+        when (uiValue?.trim()?.lowercase(Locale.getDefault())) {
+            "proofreading & editing", "proofreading", "editing" -> ServiceType.PROOFREADING_EDITING
+            "formatting & referencing", "formatting", "referencing" -> ServiceType.FORMATTING_REFERENCING
+            "data analysis support", "data analysis" -> ServiceType.DATA_ANALYSIS_SUPPORT
+            "research/methodology coaching", "research", "methodology" -> ServiceType.RESEARCH_METHODOLOGY_COACHING
+            "translation" -> ServiceType.TRANSLATION
+            else -> ServiceType.OTHER
+        }
 }
