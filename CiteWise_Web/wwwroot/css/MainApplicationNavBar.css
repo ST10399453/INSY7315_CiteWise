@@ -31,14 +31,14 @@ body {
 .logo-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* logo left, toggle right */
-    padding: 16px 6px 24px; /* remove top/bottom padding */
-    height: 56px; /* same visual height as menu items (16+24+16) */
+    justify-content: space-between; 
+    padding: 16px 6px 24px; 
+    height: 56px;
 }
 
     /* Toggle button inside logo container */
     .logo-container .toggle-btn {
-        margin: 0; /* remove margin-top */
+        margin: 0;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -59,9 +59,10 @@ body {
 .sidebar h2 {
     color: #0027B2;
     font-family: 'Poppins', sans-serif;
-    font-size: 30px;
+    font-size: 28px;
     font-weight: 800;
     letter-spacing: 0.96px;
+    margin-left: -20px;
 }
 
 .sidebar a {
@@ -105,7 +106,7 @@ body {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    margin-left: auto; /* right-align inside logo container */
+    margin-left: auto;
     margin-top: 8px;
 }
 
@@ -125,7 +126,7 @@ body {
     position: fixed;
     top: 24px;
     right: 0;
-    left: 288px; /* same as sidebar width */
+    left: 260px; /* same as sidebar width */
     background: transparent;
     border-bottom: none;
     z-index: 10;
@@ -140,9 +141,8 @@ body {
     .topbar-left h2 span {
         color: #0027B2;
         font-family: 'Poppins', sans-serif;
-        font-size: 30px;
+        font-size: 28px;
         font-weight: 800;
-        line-height: 175%;
         letter-spacing: 0.36px;
     }
 
@@ -170,20 +170,17 @@ body {
 /* ---------------- Collapsed Sidebar ---------------- */
 /* Collapsed sidebar: show icons only */
 .sidebar.collapsed {
-    width: 80px; /* show only icons */
+    width: 80px;
 }
-
-    /* Hide sidebar text and main logo */
     .sidebar.collapsed h2,
     .sidebar.collapsed .sidebar-logo,
     .sidebar.collapsed a span {
         display: none;
     }
 
-    /* Keep toggle/menu icon visible and centered */
     .sidebar.collapsed .logo-container {
         justify-content: center;
-        height: 56px; /* same as menu icons container */
+        height: 56px; 
     }
 
     .sidebar.collapsed .toggle-btn {
@@ -191,18 +188,20 @@ body {
     }
 
         .sidebar.collapsed .toggle-btn img {
-            width: 24px; /* adjust size */
+            width: 24px; 
             height: 24px;
         }
 
-    /* Keep menu icons centered */
     .sidebar.collapsed .sidebar-icon {
         margin: 0 auto;
         display: block;
     }
 
-    /* Shift topbar to match collapsed sidebar */
     .sidebar.collapsed ~ .topbar {
         left: 80px;
     }
 
+.sidebar .logo-divider {
+    border-top: 2px solid #C1C8DF; 
+    margin: 0 16px; 
+}
