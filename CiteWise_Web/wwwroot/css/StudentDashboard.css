@@ -19,13 +19,13 @@ body.sidebar-collapsed .dashboard-container {
     left: 80px; /* when sidebar collapses */
 }
 
-    .dashboard-container h2 {
+/*    .dashboard-container h2 {
         font-family: 'Poppins', sans-serif;
         font-size: 28px;
         font-weight: 700;
         margin-bottom: 30px;
         color: #0027B2;
-    }
+    }*/
 
 .dashboard-grid {
     display: grid;
@@ -33,7 +33,7 @@ body.sidebar-collapsed .dashboard-container {
     grid-gap: 25px;
 }
 
-
+/*REQUEST BLOCK*/
 .request-list {
     max-height: 200px; /* Adjust as needed */
     overflow-y: auto;
@@ -41,32 +41,45 @@ body.sidebar-collapsed .dashboard-container {
 }
 
 .request-item {
-    padding: 10px;
-    border: 1px solid #eee;
-    border-radius: 10px;
+    padding: 16px;
+    border: 2px solid #eeee;
     margin-bottom: 10px;
-    background: #f8f8f8;
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(230, 232, 238, 0.4) 0%, rgba(210, 214, 222, 0.4) 100%);
+    backdrop-filter: blur(2px);
 }
 
 
-.dashboard-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+.request-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 175%;
+}
+
+.priority-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
     font-family: 'Poppins', sans-serif;
 }
 
-    .dashboard-card h3 {
-        font-size: 20px;
-        margin-bottom: 15px;
-        color: #0027B2;
+    .priority-badge.low {
+        background: #BAFFCD;
+        color: #333;
     }
-
-
-.progress-box {
-    margin-bottom: 15px;
-}
 
 .progress-bar {
     width: 100%;
@@ -74,7 +87,7 @@ body.sidebar-collapsed .dashboard-container {
     border-radius: 8px;
     background: #E0E0E0;
     overflow: hidden;
-    margin: 10px 0;
+    margin: 16px 0;
 }
 
 .progress {
@@ -83,10 +96,41 @@ body.sidebar-collapsed .dashboard-container {
     border-radius: 8px;
 }
 
-.progress-info {
-    font-size: 14px;
-    color: #666;
+
+.request-footer {
+    display: flex;
+    justify-content: space-between;
 }
+
+.status-pill {
+    background: linear-gradient(180deg, #FFF 99.99%, #DADADA 100%);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    box-shadow: 1px 2px 4px 0 #B3BBD7 inset;
+}
+
+
+
+
+
+
+
+
+.dashboard-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
+    border: 2px solid #FFF;
+}
+
+    .dashboard-card h3 {
+        font-size: 22px;
+        margin-bottom: 15px;
+        color: #0027B2;
+        font-family: 'Poppins', sans-serif;
+    }
 
 
 .notification-list {
