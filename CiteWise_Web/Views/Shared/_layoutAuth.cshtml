@@ -47,19 +47,19 @@
     </div>
 
     <div class="topbar">
-        <div class="topbar-left">
-            <h2 class="topbar-name">
-                <span>Hi @(Context.Session.GetString("UserName") ?? "Guest")</span>
-            </h2>
-        </div>
-
-        <div class="topbar-right">
-            <i class="fa-regular fa-bell icon"></i>
-            <a asp-controller="Account" asp-action="Logout" title="Logout">
-                <img src="https://via.placeholder.com/40" alt="Logout">
-            </a>
-        </div>
+    <div class="topbar-left">
+        <h2 class="topbar-name">
+            <span>Hi @(Context.Session.GetString("UserName") ?? "Guest")</span>
+        </h2>
     </div>
+
+    <div class="topbar-right">
+        <i class="fa-regular fa-bell icon"></i>
+        <a asp-controller="Account" asp-action="Logout" title="Logout">
+            <img src="https://via.placeholder.com/40" alt="Logout">
+        </a>
+    </div>
+</div>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
