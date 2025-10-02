@@ -11,7 +11,7 @@ builder.Services.AddSingleton<FirebaseService>();
 builder.Services.AddDistributedMemoryCache(); // Required for session
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // optional
+    options.IdleTimeout = TimeSpan.FromMinutes(10); // optional
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

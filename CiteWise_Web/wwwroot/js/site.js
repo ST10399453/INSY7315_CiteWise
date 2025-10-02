@@ -40,15 +40,21 @@ document.addEventListener("DOMContentLoaded", () => {
     //    window.addEventListener("resize", setStageHeight);
     //}
 
+
+
+
+
     // -------------------------
     // Sidebar collapse/expand toggle
     // -------------------------
     const toggleBtn = document.querySelector(".toggle-btn");
+    const body = document.querySelector("body")
     const sidebar = document.querySelector(".sidebar");
 
     if (toggleBtn && sidebar) {
         toggleBtn.addEventListener("click", () => {
             sidebar.classList.toggle("collapsed");
+            body.classList.toggle("sidebar-collapsed");
         });
     }
 
