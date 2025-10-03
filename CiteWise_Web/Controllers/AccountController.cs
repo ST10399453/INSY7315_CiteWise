@@ -40,17 +40,25 @@ namespace CiteWise_Web.Controllers
             // 2. Save basic user profile in Firebase DB
             var profile = new UserProfile
             {
+                Uid = authResponse.LocalId,
                 FirstName = model.FirstName,
                 Surname = model.Surname,
                 Email = model.Email,
                 Role = "Pending" // default until onboarding
             };
 
-            await _firebaseService.SaveUserProfileAsync(authResponse.LocalId, authResponse.IdToken, profile);
+            await _firebaseService.SaveUserProfileAsync(profile.Uid, authResponse.IdToken, profile);
 
             // 3. Redirect to Onboarding (first login)
             return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
 
+
+            //optional chnage for redirecting and saving token
+            ////////
+            //HttpContext.Session.SetString("Uid", profile.Uid);
+
+            //return RedirectToAction("SelectRole", "Onboarding");
+            ////
         }
 
         // ----------------------

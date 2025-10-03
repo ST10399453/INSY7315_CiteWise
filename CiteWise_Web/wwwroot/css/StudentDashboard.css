@@ -5,19 +5,20 @@ html, body {
 }
 
 .dashboard-container {
-    position: fixed; /* make it a scrollable region */
+    position: fixed; 
     top: 80px;
-    left: 260px; /* full sidebar width */
+    left: 260px; 
     right: 0;
     bottom: 0;
     padding: 20px 40px;
-    overflow-y: auto; /* ENABLES SCROLL */
+    overflow-y: auto; 
     box-sizing: border-box;
 }
 
 body.sidebar-collapsed .dashboard-container {
     left: 80px; /* when sidebar collapses */
 }
+
 
 /*    .dashboard-container h2 {
         font-family: 'Poppins', sans-serif;
@@ -109,13 +110,6 @@ body.sidebar-collapsed .dashboard-container {
     font-size: 12px;
     box-shadow: 1px 2px 4px 0 #B3BBD7 inset;
 }
-
-
-
-
-
-
-
 
 .dashboard-card {
     background: #fff;

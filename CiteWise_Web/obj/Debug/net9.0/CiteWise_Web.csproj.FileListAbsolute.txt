@@ -231,4 +231,16 @@ C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\ne
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ed26068xmw-1blqrkafqb.gz
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-0gdeugpv3w.gz
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\h65zcjptqy-wi5om0gu4r.gz
-C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-ejhnwspxck.gz
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-75xiw1llue.gz
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Api.CommonProtos.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Api.Gax.Grpc.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Cloud.Firestore.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Cloud.Firestore.V1.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Cloud.Location.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.LongRunning.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Google.Protobuf.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Grpc.Auth.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Grpc.Core.Api.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Grpc.Net.Client.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Grpc.Net.Common.dll
+C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\System.Linq.Async.dll

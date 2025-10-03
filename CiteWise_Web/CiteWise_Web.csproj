@@ -8,9 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="Firebase.Auth" Version="1.0.0" />
-    <PackageReference Include="FirebaseAdmin" Version="3.3.0" />
+    <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
     <PackageReference Include="FirebaseDatabase.net" Version="5.0.0" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.71.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.10.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.3.0" />
   </ItemGroup>
 
