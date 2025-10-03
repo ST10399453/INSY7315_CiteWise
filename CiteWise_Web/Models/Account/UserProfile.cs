@@ -1,4 +1,4 @@
-﻿namespace CiteWise_Web.Models
+﻿namespace CiteWise_Web.Models.Account
 {
     public class UserProfile
     {

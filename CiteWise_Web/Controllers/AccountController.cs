@@ -1,4 +1,5 @@
 ﻿using CiteWise_Web.Models;
+using CiteWise_Web.Models.Account;
 using CiteWise_Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,12 +24,11 @@ namespace CiteWise_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(UserModel model)
+        public async Task<IActionResult> Register(RegisterModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            // 1. Register user in Firebase Auth
             var authResponse = await _firebaseService.RegisterUserAsync(model.Email, model.Password);
 
             if (authResponse == null || string.IsNullOrEmpty(authResponse.LocalId))
@@ -37,19 +37,17 @@ namespace CiteWise_Web.Controllers
                 return View(model);
             }
 
-            // 2. Save basic user profile in Firebase DB
             var profile = new UserProfile
             {
                 Uid = authResponse.LocalId,
                 FirstName = model.FirstName,
                 Surname = model.Surname,
                 Email = model.Email,
-                Role = "Pending" // default until onboarding
+                Role = "Pending"
             };
 
             await _firebaseService.SaveUserProfileAsync(profile.Uid, authResponse.IdToken, profile);
 
-            // 3. Redirect to Onboarding (first login)
             return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
 
 
@@ -84,7 +82,6 @@ namespace CiteWise_Web.Controllers
                 return View(model);
             }
 
-            // ✅ Fetch profile from DB
             var profile = await _firebaseService.GetUserProfileAsync(authResponse.LocalId, authResponse.IdToken);
 
             if (profile == null || string.IsNullOrEmpty(profile.Role) || profile.Role == "Pending")
@@ -100,9 +97,9 @@ namespace CiteWise_Web.Controllers
 
             // ✅ Profile exists → redirect by role
             if (profile.Role == "Student")
-                return RedirectToAction("StudentDashboard", "Dashboard");
+                return RedirectToAction("StudentDashboard", "Student");
             else if (profile.Role == "Consultant")
-                return RedirectToAction("ConsultantDashboard", "Dashboard");
+                return RedirectToAction("ConsultantDashboard", "Consultant");
 
             // fallback
             return RedirectToAction("Login");

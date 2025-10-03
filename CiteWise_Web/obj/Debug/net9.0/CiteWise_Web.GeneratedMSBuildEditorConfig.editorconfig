@@ -32,20 +32,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Dashboard/AdminDashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEFkbWluRGFzaGJvYXJkLmNzaHRtbA==
+[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Admin/AdminDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQWRtaW5EYXNoYm9hcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Dashboard/ConsultantDashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXENvbnN1bHRhbnREYXNoYm9hcmQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Dashboard/StudentDashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN0dWRlbnREYXNoYm9hcmQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Dashboard/StudentServiceRequest.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN0dWRlbnRTZXJ2aWNlUmVxdWVzdC5jc2h0bWw=
+[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Consultant/ConsultantDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29uc3VsdGFudFxDb25zdWx0YW50RGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Home/Index.cshtml]
@@ -86,6 +78,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Student/StudentDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFxTdHVkZW50RGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/Student/StudentServiceRequest.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFxTdHVkZW50U2VydmljZVJlcXVlc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/akhil/AndroidStudioProjects/INSY7315_CiteWise/CiteWise_Web/Views/_ViewImports.cshtml]

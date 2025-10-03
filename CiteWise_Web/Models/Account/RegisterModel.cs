@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CiteWise_Web.Models
+namespace CiteWise_Web.Models.Account
 {
-    public class UserModel //Change to RegistrationModel
+    public class RegisterModel //Change to RegistrationModel
     {
         //[Required]
         [Display(Name = "First Name")]

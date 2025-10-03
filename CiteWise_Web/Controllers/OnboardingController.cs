@@ -1,4 +1,4 @@
-﻿using CiteWise_Web.Models;
+﻿using CiteWise_Web.Models.Account;
 using CiteWise_Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -92,7 +92,7 @@ namespace CiteWise_Web.Controllers
             // ✅ Set session so name appears in topbar
             HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
 
-            return RedirectToAction("StudentDashboard", "Dashboard"); // student dashboard
+            return RedirectToAction("StudentDashboard", "Student"); // student dashboard
         }
 
         // ----------------------
@@ -135,7 +135,7 @@ namespace CiteWise_Web.Controllers
 
             HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
 
-            return RedirectToAction("ConsultantDashboard", "Dashboard");
+            return RedirectToAction("ConsultantDashboard", "Consultant");
         }
     }
 }

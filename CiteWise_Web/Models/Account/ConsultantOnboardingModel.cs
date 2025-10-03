@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CiteWise_Web.Models
+namespace CiteWise_Web.Models.Account
 {
     public class ConsultantOnboardingModel
     {
