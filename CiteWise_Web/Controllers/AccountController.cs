@@ -86,32 +86,31 @@ namespace CiteWise_Web.Controllers
 
             if (profile == null || string.IsNullOrEmpty(profile.Role) || profile.Role == "Pending")
             {
-                // No profile yet → redirect to SelectRole
                 return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
             }
 
             HttpContext.Session.SetString("UserName", profile.FirstName);
-            //MIGHT NEED TO SUE THESE LATER
-            //HttpContext.Session.SetString("UserEmail", profile.Email);
-            //HttpContext.Session.SetString("UserRole", profile.Role);
+            HttpContext.Session.SetString("UserUid", profile.Uid);
+            HttpContext.Session.SetString("UserRole", profile.Role);
 
-            // ✅ Profile exists → redirect by role
             if (profile.Role == "Student")
                 return RedirectToAction("StudentDashboard", "Student");
             else if (profile.Role == "Consultant")
                 return RedirectToAction("ConsultantDashboard", "Consultant");
 
-            // fallback
             return RedirectToAction("Login");
         }
 
+
+        // ----------------------
+        // FORGOT PASSWORD
+        // ----------------------
         [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        //FORGOT PASSWORD  
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(string email)
         {
@@ -147,6 +146,5 @@ namespace CiteWise_Web.Controllers
             return RedirectToAction("Index", "Home");
         }
         //ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING
-
     }
 }

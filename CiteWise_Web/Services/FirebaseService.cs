@@ -1,5 +1,6 @@
 ﻿using CiteWise_Web.Models;
 using CiteWise_Web.Models.Account;
+using CiteWise_Web.Models.ServiceRequest;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -159,5 +160,75 @@ namespace CiteWise_Web.Services
             return JsonConvert.DeserializeObject<UserProfile>(json);
         }
 
+        // -------------------------------
+        // SAVE DOCUMENT TO FIRESTORE
+        // -------------------------------
+
+        public async Task<string> SaveDocumentToFirestoreAsync(DocumentModel doc, string idToken)
+        {
+            using var client = new HttpClient();
+
+            var firestoreDoc = new
+            {
+                fields = new
+                {
+                    uid = new { stringValue = doc.UID },
+                    docName = new { stringValue = doc.DocName },
+                    mimeType = new { stringValue = doc.MimeType },
+                    additionalInfo = new { stringValue = doc.AdditionalInfo ?? "" },
+                    service = new { stringValue = doc.Service ?? "" },
+                    urgency = new { stringValue = doc.Urgency ?? "" },
+                    deadline = doc.Deadline.HasValue
+            ? new { timestampValue = doc.Deadline.Value.ToDateTime().ToString("o") }
+            : null,
+                    uploadedAt = new { timestampValue = doc.UploadedAt.ToDateTime().ToString("o") },
+                    status = new { stringValue = doc.Status }
+                }
+            };
+
+
+            var json = JsonConvert.SerializeObject(firestoreDoc);
+
+            var response = await client.PostAsync(
+                $"https://firestore.googleapis.com/v1/projects/budgetapp-fbcbf/databases/(default)/documents/Documents",
+                new StringContent(json, Encoding.UTF8, "application/json"));
+
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
+            return result;
+        }
+
+
+        // -------------------------------
+        // SAVE SERVICE INFO TO FIRESTORE
+        // -------------------------------
+        public async Task SaveServiceReviewAsync(ServiceReviewModel review)
+        {
+            using var client = new HttpClient();
+
+            var firestoreDoc = new
+            {
+                fields = new
+                {
+                    userId = new { stringValue = review.UID },
+                    documentId = new { stringValue = review.DocumentId },
+                    consultantId = new { stringValue = review.ConsultantId ?? "" },
+                    serviceType = new { stringValue = review.ServiceType ?? "" },
+                    description = new { stringValue = review.Description ?? "" },
+                    priority = new { stringValue = review.Priority ?? "" },
+                    deadline = review.Deadline != null? new { timestampValue = review.Deadline.Value.ToDateTime().ToString("o") }: null,
+                    createdAt = new { timestampValue = review.CreatedAt.ToDateTime().ToString("o") }
+                }
+            };
+
+            var json = JsonConvert.SerializeObject(firestoreDoc);
+
+            var response = await client.PostAsync(
+                $"https://firestore.googleapis.com/v1/projects/budgetapp-fbcbf/databases/(default)/documents/ServiceReviews",
+                new StringContent(json, Encoding.UTF8, "application/json")
+            );
+
+            response.EnsureSuccessStatusCode();
+        }
     }
 }

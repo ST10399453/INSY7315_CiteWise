@@ -154,6 +154,7 @@ body.sidebar-collapsed .dashboard-container {
     font-size: 14px;
     font-weight: 500;
     margin-top: 10px;
+    text-decoration: none;
 }
 
     .btn:hover {
