@@ -3,6 +3,8 @@ using CiteWise_Web.Services;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CiteWise_Web.Controllers
 {
@@ -59,7 +61,9 @@ namespace CiteWise_Web.Controllers
             // Save document
             string docResult = await _firebaseService.SaveDocumentToFirestoreAsync(document, uid);
 
-            var docId = docResult.Split('/').Last();
+            var jsonObj = JsonConvert.DeserializeObject<JObject>(docResult);
+            var fullPath = jsonObj?["name"]?.ToString();
+            var docId = fullPath?.Split('/').Last(); 
 
             // Create service review thats links to the document saved
             var review = new ServiceReviewModel

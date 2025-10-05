@@ -1,61 +1,61 @@
 ﻿@model CiteWise_Web.Models.ServiceRequest.ServiceRequest
-
 @{
     Layout = "_LayoutAuth";
 }
 
+<div class="wizard-container p-5 bg-white rounded-3 shadow-lg">
+    <h2 class="mb-4 text-center">Submit Service Request</h2>
 
-<h2>Submit Service Request</h2>
+    <form asp-action="StudentServiceRequest" method="post" enctype="multipart/form-data">
 
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
+        <!-- STEP 1: SERVICE REQUEST -->
+        <div id="step1" class="wizard-step">
+            <h4>Step 1: Select Service</h4>
+            <select asp-for="SelectedService" class="form-control mb-3">
+                <option value="">-- Select a Service --</option>
+                <option value="Formatting & Referencing">Formatting & Referencing</option>
+                <option value="Research/Methodology Coaching">Research/Methodology Coaching</option>
+                <option value="Language Editing">Language Editing</option>
+            </select>
+            <button type="button" class="btn btn-primary float-end" onclick="nextStep(2)">Next</button>
+        </div>
 
-<form asp-action="StudentServiceRequest" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label for="SelectedService">Service</label>
-        <select asp-for="SelectedService" class="form-control" required>
-            <option value="">-- Select Service --</option>
-            <option>Proofreading & Editing</option>
-            <option>Formatting & Referencing</option>
-            <option>Data Analysis Support</option>
-            <option>Research Methodology Coaching</option>
-            <option>Translation</option>
-            <option>Other</option>
-        </select>
-        <span asp-validation-for="SelectedService" class="text-danger"></span>
-    </div>
+        <!-- STEP 2: ADDITIONAL INFO -->
+        <div id="step2" class="wizard-step" style="display:none;">
+            <h4>Step 2: Additional Information</h4>
+            <textarea asp-for="AdditionalInfo" class="form-control mb-3" rows="4"
+                      placeholder="Provide any specific instructions or details about your request"></textarea>
+            <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Back</button>
+            <button type="button" class="btn btn-primary float-end" onclick="nextStep(3)">Next</button>
+        </div>
 
-    <div class="form-group">
-        <label for="AdditionalInfo">Additional Information</label>
-        <textarea asp-for="AdditionalInfo" class="form-control"></textarea>
-        <span asp-validation-for="AdditionalInfo" class="text-danger"></span>
-    </div>
+        <!-- STEP 3: UPLOAD DOCUMENT -->
+        <div id="step3" class="wizard-step" style="display:none;">
+            <h4>Step 3: Upload Your Document</h4>
+            <input asp-for="Documents" type="file" class="form-control mb-3" />
+            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Back</button>
+            <button type="button" class="btn btn-primary float-end" onclick="nextStep(4)">Next</button>
+        </div>
 
-    <div class="form-group">
-        <label for="Documents">Upload Document</label>
-        <input type="file" asp-for="Documents" class="form-control" required />
-        <span asp-validation-for="Documents" class="text-danger"></span>
-    </div>
+        <!-- STEP 4: DEADLINE & URGENCY -->
+        <div id="step4" class="wizard-step" style="display:none;">
+            <h4>Step 4: Set Deadline & Urgency</h4>
 
-    <div class="form-group">
-        <label for="Urgency">Urgency</label><br />
-        <input type="radio" asp-for="Urgency" value="Low" /> Low
-        <input type="radio" asp-for="Urgency" value="Medium" /> Medium
-        <input type="radio" asp-for="Urgency" value="High" /> High
-        <span asp-validation-for="Urgency" class="text-danger"></span>
-    </div>
+            <label class="form-label">Deadline</label>
+            <input asp-for="Deadline" type="date" class="form-control mb-3" />
 
-    <div class="form-group">
-        <label for="Deadline">Deadline (optional)</label>
-        <input type="date" asp-for="Deadline" class="form-control" />
-        <span asp-validation-for="Deadline" class="text-danger"></span>
-    </div>
+            <label class="form-label">Urgency Level</label>
+            <select asp-for="Urgency" class="form-control mb-3">
+                <option value="">-- Select Urgency --</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
 
-    <button type="submit" class="btn btn-primary mt-2">Submit Request</button>
-</form>
+            <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Back</button>
+            <button type="submit" class="btn btn-success float-end">Submit Request</button>
+        </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+    </form>
+</div>
+
