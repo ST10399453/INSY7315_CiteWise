@@ -35,6 +35,10 @@
                                 </button>
                             </div>
                             <span asp-validation-for="Password" class="text-danger"></span>
+
+                            <div class="forgot-password">
+                                <a asp-area="" asp-controller="Account" asp-action="ForgotPassword">Forgot Password?</a>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn-primary">Login</button>
