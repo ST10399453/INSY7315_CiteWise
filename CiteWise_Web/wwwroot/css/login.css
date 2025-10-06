@@ -1,38 +1,38 @@
 /* Center login card */
-.login-container {
+/*.login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     background: linear-gradient(135deg, #007BFF, #6610f2);
-}
+}*/
 
 /* Card styling */
-.login-card {
+/*.login-card {
     background: #fff;
     border-radius: 12px;
     padding: 30px;
     width: 400px;
     max-width: 100%;
     box-shadow: 0px 5px 20px rgba(0,0,0,0.2);
-}
+}*/
 
 /* Logo */
-.logo {
+/*.logo {
     width: 120px;
     margin-bottom: 15px;
-}
+}*/
 
 /* Inputs */
-.form-control {
+/*.form-control {
     border-radius: 8px;
     padding: 10px;
     border: 1px solid #ddd;
     font-size: 14px;
-}
+}*/
 
 /* Buttons */
-.btn-primary {
+/*.btn-primary {
     background: #007BFF;
     border: none;
     border-radius: 8px;
@@ -43,26 +43,26 @@
 
     .btn-primary:hover {
         background: #0056b3;
-    }
+    }*/
 
 /* Links */
-.forgot-link, .register-link {
+/*.forgot-link, .register-link {
     color: #007BFF;
     text-decoration: none;
 }
 
     .forgot-link:hover, .register-link:hover {
         text-decoration: underline;
-    }
+    }*/
 
 /* OR text */
-.or-text {
+/*.or-text {
     color: #666;
     font-size: 14px;
-}
+}*/
 
 /* Social icons */
-.social-icon {
+/*.social-icon {
     width: 40px;
     height: 40px;
     cursor: pointer;
@@ -122,5 +122,5 @@ margin-bottom: 10px;
 .reset-container p {
 margin-bottom: 20px;
 color: #555;
-}
+}*/
 

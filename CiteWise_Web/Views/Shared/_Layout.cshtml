@@ -12,26 +12,29 @@
 </head>
 <body>
     <header>
-        <nav class="custom-navbar">
-            <!-- Logo -->
-            <div class="logo">
-                <img src="~/CiteWise_Logo.ico" alt="Company Logo" />
-                <h2><span>CiteWise</span></h2>
-            </div>
+        @if (!(ViewData["HideLayoutElements"] as bool? ?? false))
+        {
+            <nav class="custom-navbar">
+                <!-- Logo -->
+                <div class="logo">
+                    <img src="~/CiteWise_Logo.ico" alt="Company Logo" />
+                    <h2><span>CiteWise</span></h2>
+                </div>
 
-            <!-- Center menu -->
-            <div class="nav-links" id="navLinks">
-                <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                <a asp-area="" asp-controller="Home" asp-action="Privacy">Services</a>
-                <a asp-area="" asp-controller="Home" asp-action="Privacy">Contact Us</a>
-                <a href="#">About us</a>
-            </div>
+                <!-- Center menu -->
+                <div class="nav-links" id="navLinks">
+                    <a asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Services</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Contact Us</a>
+                    <a href="#">About us</a>
+                </div>
 
-            <!-- Right actions -->
-            <div class="actions">
-                <button class="menu" id="menu" aria-label="Open Menu">☰</button>
-            </div>
-        </nav>
+                <!-- Right actions -->
+                <div class="actions">
+                    <button class="menu" id="menu" aria-label="Open Menu">☰</button>
+                </div>
+            </nav>
+        }
     </header>
 
 

@@ -1,28 +1,19 @@
-﻿/* page + white box */
-/*body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f7f9fc;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-left: 224px;
-    padding-top: 120px;
-    box-sizing: border-box;
-    min-height: 100vh;
-}
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-
-.register-page {
+﻿.register-page {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     width: 100%;
+    margin-top: 36px;
+    margin-bottom: 36px;
+}
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 80px;
+
 }
 
 .register-container {
@@ -35,24 +26,177 @@
     border-bottom-left-radius: 20px;
     border: 1px solid #FFF;
     box-shadow: -4px -2px 9.4px -1px #FFF, 0 7px 18.9px -5px #C1C8DF inset, 5px 6px 15.8px -6px #C7CDE2;
-    width: 450px;
-    max-width: 100%;
-}*/
+    width: 390px;
+    display: flex;
+    flex-direction: column;
 
-/* toggle inside white box */
-/*.toggle-container {
+}
+
+.logo-header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* center horizontally */
+    margin-bottom: 16px;
+}
+
+    .logo-header .logo {
+        width: 60px; /* smaller size to fit next to name */
+        height: auto;
+    }
+
+    .logo-header .app-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: 30px;
+        color: #0027B2;
+        margin: 0;
+    }
+
+.register-container h2.heading {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    color: #0027B2;
+    margin: 8px 0 24px 0;
+}
+
+
+.register-form .form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* Optional: add spacing between form groups */
+.register-form .form-group {
+    margin-bottom: 14px;
+    text-align: left;
+}
+
+    /* Labels above inputs with spacing */
+    .register-form .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        color: #333;
+    }
+
+
+/* Buttons (keep your existing styles) */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: #0027B2;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
+    margin-top: 6px;
+}
+
+.btn-google {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    display: flex;
+    font-size: 16px;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
+    margin-top: 16px;
+}
+
+    .btn-google img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .btn-google:hover {
+        background: #f2f2f2;
+    }
+
+/* Simple divider line */
+.divider-line {
+    border-top: 2px solid #C1C8DF;
+    margin: 16px 16px;
+}
+
+/* Already have an account link */
+.login-link {
+    text-align: center;
+    margin-top: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #333;
+}
+
+    .login-link a {
+        color: #0027B2;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+
+
+
+.text-danger {
+    color: #D32F2F; /* or your preferred red */
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    margin-top: 4px;
+    display: block;
+}
+
+.password-field {
+    position: relative;
+}
+
+    .password-field .toggle-password {
+        position: absolute;
+        top: 55%;
+        right: 12px;
+        color: #0027B2;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+        .password-field .toggle-password img {
+            width: 20px;
+            height: 20px;
+        }
+
+
+/* toggle inside white box 
+.toggle-container {
     display: flex;
     justify-content: center;
     margin-bottom: 18px;
 }*/
 
-/*    DONT NOT CHNAGE THE STYLING BELOW*/
-/*.switch {
+/*    DONT NOT CHNAGE THE STYLING BELOW
+.switch {
     --_switch-bg-clr: #E3E6F1;
     --_switch-padding: 4px;
-    --_slider-bg-clr: #0027B2;*/ /* slider color unchecked */
-    /*--_slider-bg-clr-on: #0027B2;*/ /* slider color checked */
-    /*--_slider-txt-clr: #ffffff;
+    --_slider-bg-clr: #0027B2;  
+    --_slider-bg-clr-on: #0027B2;  
+    --_slider-txt-clr: #ffffff;
     --_label-padding: 1rem 2rem;
     --_switch-easing: cubic-bezier( 0.47, 1.64, 0.41, 0.8 );
     color: white;
@@ -60,9 +204,9 @@
     display: flex;
     justify-content: center;
     position: relative;
-    border-radius: 9999px;*/
-/*    border: 2px solid #0027B2;*/
-    /*cursor: pointer;
+    border-radius: 9999px;
+    border: 2px solid #0027B2;
+    cursor: pointer;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     position: relative;
@@ -94,24 +238,24 @@
         position: absolute;
         border-radius: inherit;
         transition: inset 150ms ease-in-out;
-    }*/
-    /* switch slider */
-    /*.switch::before {
+    }
+     switch slider 
+    .switch::before {
         background-color: var(--_slider-bg-clr);
         inset: var(--_switch-padding) 50% var(--_switch-padding) var(--_switch-padding);
         transition: inset 500ms var(--_switch-easing), background-color 500ms ease-in-out;
         z-index: -1;
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.3);
-    }*/
-    /* switch bg color */
-    /*.switch::after {
+    }
+     switch bg color 
+    .switch::after {
         background-color: var(--_switch-bg-clr);
         inset: 0;
         z-index: -2;
         border: 2px solid #0027B2;
-    }*/
-    /* switch hover & focus */
-    /*.switch:focus-within::after {
+    }
+     switch hover & focus 
+    .switch:focus-within::after {
         inset: -0.25rem;
     }
 
@@ -120,46 +264,46 @@
         opacity: 1;
         transition-delay: 0ms;
         transition-duration: 100ms;
-    }*/
-    /* switch hover */
-    /*.switch:has(input:checked):hover::before {
+    }
+     switch hover 
+    .switch:has(input:checked):hover::before {
         inset: var(--_switch-padding) var(--_switch-padding) var(--_switch-padding) 45%;
     }
 
     .switch:has(input:not(:checked)):hover::before {
         inset: var(--_switch-padding) 45% var(--_switch-padding) var(--_switch-padding);
-    }*/
-    /* checked - move slider to right */
-    /*.switch:has(input:checked)::before {
+    }
+     checked - move slider to right 
+    .switch:has(input:checked)::before {
         background-color: var(--_slider-bg-clr-on);
         inset: var(--_switch-padding) var(--_switch-padding) var(--_switch-padding) 50%;
-    }*/
-    /* checked - set opacity */
-    /*.switch > span:last-of-type,
+    }
+     checked - set opacity 
+    .switch > span:last-of-type,
     .switch > input:checked + span:first-of-type {
         opacity: 0.75;
     }
 
     .switch > input:checked ~ span:last-of-type {
         opacity: 1;
-    }*/
+    }
 
-/*    DO NOT CHNANGE THE ABOVE STYLING*/
-
-
+    DO NOT CHNANGE THE ABOVE STYLING
 
 
-/*.forms-stage {
+
+
+.forms-stage {
     position: relative;
     width: 100%;
     overflow: hidden;
-    transition: height 360ms cubic-bezier(.22,1,.36,1);*/
-/*    height: 420px;*/
-    /*height: 0;
-}*/
+    transition: height 360ms cubic-bezier(.22,1,.36,1);
+    height: 420px;
+    height: 0;
+}
 
-/* panels */
-/*.form-panel {
+ panels 
+.form-panel {
     position: absolute;
     top: 0;
     left: 0;
@@ -252,9 +396,3 @@
         background: #f2f2f2;
     }
 
-.divider {
-    text-align: center;
-    color: #888;
-    margin: 12px 0;
-    font-size: 14px;
-}*/
