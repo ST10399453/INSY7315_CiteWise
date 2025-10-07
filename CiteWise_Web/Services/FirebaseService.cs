@@ -3,6 +3,8 @@ using CiteWise_Web.Models.Account;
 using CiteWise_Web.Models.ServiceRequest;
 using Newtonsoft.Json;
 using System.Text;
+using Google.Cloud.Firestore;
+using System.Linq;
 
 namespace CiteWise_Web.Services
 {
@@ -229,6 +231,61 @@ namespace CiteWise_Web.Services
             );
 
             response.EnsureSuccessStatusCode();
+        }
+
+        // ----- GET ALL SERVICE REVIEWS ------------------
+        // GET ALL SERVICE REVIEWS
+        public async Task<List<ServiceReviewModel>> GetAllServiceReviewsAsync()
+        {
+            using var client = new HttpClient();
+            var response = await client.GetAsync(
+                "https://firestore.googleapis.com/v1/projects/budgetapp-fbcbf/databases/(default)/documents/ServiceReviews"
+            );
+
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+
+            var result = new List<ServiceReviewModel>();
+
+            dynamic firestoreResponse = JsonConvert.DeserializeObject(json);
+
+            if (firestoreResponse.documents != null)
+            {
+                foreach (var doc in firestoreResponse.documents)
+                {
+                    var fields = doc.fields;
+
+                    // Get ReviewId safely without using LINQ
+                    var nameParts = doc.name.ToString().Split('/');
+                    var reviewId = nameParts[nameParts.Length - 1];
+
+                    // Convert timestamps to Firestore Timestamp
+                    Timestamp? deadline = null;
+                    if (fields.deadline != null && fields.deadline.timestampValue != null)
+                    {
+                        deadline = Timestamp.FromDateTime(DateTime.Parse(fields.deadline.timestampValue.ToString()).ToUniversalTime());
+                    }
+
+                    Timestamp createdAt = Timestamp.FromDateTime(DateTime.Parse(fields.createdAt.timestampValue.ToString()).ToUniversalTime());
+
+                    var review = new ServiceReviewModel
+                    {
+                        ReviewId = reviewId,
+                        UID = fields.userId?.stringValue,
+                        DocumentId = fields.documentId?.stringValue,
+                        ConsultantId = fields.consultantId?.stringValue,
+                        ServiceType = fields.serviceType?.stringValue,
+                        Description = fields.description?.stringValue,
+                        Priority = fields.priority?.stringValue,
+                        Deadline = deadline,
+                        CreatedAt = createdAt
+                    };
+
+                    result.Add(review);
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -1,6 +1,62 @@
-﻿@{
+﻿@model List<CiteWise_Web.Models.ServiceRequest.ServiceReviewModel>
+
+@{
     Layout = "_LayoutAuth";
 }
 
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Consultant Dashboard</h2>
 
-<h2>Consultant Dashboard</h2>
+    <div class="card shadow p-4 rounded-3">
+        <h4 class="mb-3">Service Requests</h4>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-info">
+                No service requests found.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>User ID</th>
+                            <th>Document ID</th>
+                            <th>Service Type</th>
+                            <th>Description</th>
+                            <th>Priority</th>
+                            <th>Deadline</th>
+                            <th>Created At</th>
+                            <th>Consultant ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var req in Model)
+                        {
+                            <tr>
+                                <td>@(req.UID ?? "-")</td>
+                                <td>@(req.DocumentId ?? "-")</td>
+                                <td>@(req.ServiceType ?? "-")</td>
+                                <td>@(req.Description ?? "-")</td>
+                                <td>
+                                    <span class="badge bg-@(
+                                          req.Priority?.ToLower() == "high" ? "danger" :
+                                          req.Priority?.ToLower() == "medium" ? "warning text-dark" :
+                                          "secondary"
+                                                                                )">
+                                    @(req.Priority ?? "-")
+                                </span>
+                            </td>
+                            <td>@(req.Deadline != null ? req.Deadline.Value.ToDateTime().ToString("yyyy-MM-dd HH:mm") : "-")</td>
+                            <td>@req.CreatedAt.ToDateTime().ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@(req.ConsultantId ?? "-")</td>
+                        </tr>
+                                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

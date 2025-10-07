@@ -4,19 +4,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CiteWise_Web.Controllers
 {
-    public class ConsultantController : Controller
+    public class RequestsController : Controller
     {
         private readonly FirebaseService _firebaseService;
 
-        public ConsultantController(FirebaseService firebaseService)
+        public RequestsController(FirebaseService firebaseService)
         {
             _firebaseService = firebaseService;
         }
 
-        public async Task<IActionResult> ConsultantDashboard()
+        public async Task<IActionResult> Index()
         {
-            var reviews = await _firebaseService.GetAllServiceReviewsAsync();
-            return View(reviews);
+            var requests = await _firebaseService.GetAllServiceReviewsAsync();
+            return View(requests);
         }
     }
 }
