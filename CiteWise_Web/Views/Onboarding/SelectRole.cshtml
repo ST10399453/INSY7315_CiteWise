@@ -1,25 +1,46 @@
 ﻿@using CiteWise_Web.Models.Account
 @model RoleSelectionModel
 
-<h2>Select Your Role</h2>
+@{
+    ViewData["HideLayoutElements"] = true;
+}
 
-<form asp-action="SelectRole" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Uid" />
-    <input type="hidden" asp-for="IdToken" />
+<div class="register-page">
+    <div class="register-container">
+        <div class="logo-header">
+            <img src="~/img/CiteWise_Logo.jpg" alt="CiteWise Logo" class="logo" />
+            <h2 class="app-name">iteWise</h2>
+        </div>
 
-    <div>
-        <label asp-for="Role"></label>
-        <select asp-for="Role">
-            <option value="">-- Select Role --</option>
-            <option value="Student">Student</option>
-            <option value="Consultant">Consultant</option>
-        </select>
-        <span asp-validation-for="Role"></span>
+        <h2 class="heading">Select your Role</h2>
+
+        <div class="register">
+            <div class="forms-stage show-register">
+                <div class="form-panel register-panel">
+                    <form asp-action="SelectRole" method="post" class="register-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Uid" />
+                        <input type="hidden" asp-for="IdToken" />
+
+                        <div class="form-group">
+                            @* <label asp-for="Role"></label> *@
+                            <select asp-for="Role" class="form-input">
+                                <option value="">-- Select Role --</option>
+                                <option value="Student">Student</option>
+                                <option value="Consultant">Consultant</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Continue</button>
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
     </div>
-
-    <button type="submit">Continue</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

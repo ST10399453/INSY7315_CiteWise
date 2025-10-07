@@ -1,34 +1,50 @@
 ﻿@using CiteWise_Web.Models.Account
 @model StudentOnboardingModel
 
-<h2>Student Onboarding</h2>
+@{
+    ViewData["HideLayoutElements"] = true;
+}
 
-<form asp-action="Student" method="post">
-    @Html.AntiForgeryToken()
+<div class="register-page">
+    <div class="register-container">
+        <div class="logo-header">
+            <img src="~/img/CiteWise_Logo.jpg" alt="CiteWise Logo" class="logo" />
+            <h2 class="app-name">iteWise</h2>
+        </div>
 
-    <input type="hidden" asp-for="Uid" />
-    <input type="hidden" asp-for="IdToken" />
+        <h2 class="heading">Student Onboarding</h2>
 
-    <div>
-        <label asp-for="Language"></label>
-        <input asp-for="Language" />
-        <span asp-validation-for="Language"></span>
+        <div class="register">
+            <div class="forms-stage show-register">
+                <div class="form-panel register-panel">                   
+                    <form asp-action="Student" method="post" class="register-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Uid" />
+                        <input type="hidden" asp-for="IdToken" />
+                        <div class="form-group">
+                            <label asp-for="Language"></label>
+                            <input asp-for="Language" class="form-input" />
+                            <span asp-validation-for="Language" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Institution"></label>
+                            <input asp-for="Institution" class="form-input" />
+                            <span asp-validation-for="Institution" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="FieldOfStudy"></label>
+                            <input asp-for="FieldOfStudy" class="form-input" />
+                            <span asp-validation-for="FieldOfStudy" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div>
-        <label asp-for="Institution"></label>
-        <input asp-for="Institution" />
-        <span asp-validation-for="Institution"></span>
-    </div>
-
-    <div>
-        <label asp-for="FieldOfStudy"></label>
-        <input asp-for="FieldOfStudy" />
-        <span asp-validation-for="FieldOfStudy"></span>
-    </div>
-
-    <button type="submit">Save</button>
-</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
