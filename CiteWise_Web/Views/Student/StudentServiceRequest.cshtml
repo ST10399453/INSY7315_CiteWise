@@ -3,59 +3,142 @@
     Layout = "_LayoutAuth";
 }
 
-<div class="wizard-container p-5 bg-white rounded-3 shadow-lg">
-    <h2 class="mb-4 text-center">Submit Service Request</h2>
-
-    <form asp-action="StudentServiceRequest" method="post" enctype="multipart/form-data">
-
-        <!-- STEP 1: SERVICE REQUEST -->
-        <div id="step1" class="wizard-step">
-            <h4>Step 1: Select Service</h4>
-            <select asp-for="SelectedService" class="form-control mb-3">
-                <option value="">-- Select a Service --</option>
-                <option value="Formatting & Referencing">Formatting & Referencing</option>
-                <option value="Research/Methodology Coaching">Research/Methodology Coaching</option>
-                <option value="Language Editing">Language Editing</option>
-            </select>
-            <button type="button" class="btn btn-primary float-end" onclick="nextStep(2)">Next</button>
+<div class="studentbody">
+    <div class="centered">
+        <h2 class="page-title">Request a Service</h2>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 25%;"></div>
         </div>
 
-        <!-- STEP 2: ADDITIONAL INFO -->
-        <div id="step2" class="wizard-step" style="display:none;">
-            <h4>Step 2: Additional Information</h4>
-            <textarea asp-for="AdditionalInfo" class="form-control mb-3" rows="4"
-                      placeholder="Provide any specific instructions or details about your request"></textarea>
-            <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Back</button>
-            <button type="button" class="btn btn-primary float-end" onclick="nextStep(3)">Next</button>
+        <div class="studentcard">
+            <form asp-action="StudentServiceRequest" method="post" enctype="multipart/form-data" class="register-form">
+
+                @* STEP 1 *@
+                <div id="step1">
+                    <h3>Step 1: Select a service</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="radio" asp-for="SelectedService" value="Proofreading & Editing" />Proofreading & Editing
+                        </label><br>
+                        <label>
+                            <input type="radio" asp-for="SelectedService" value="Formatting & Referencing" />Formatting & Referencing
+                        </label><br>
+                        <label>
+                            <input type="radio" asp-for="SelectedService" value="Data Analysis Support" />Data Analysis Support
+                        </label><br>
+                        <label>
+                            <input type="radio" asp-for="SelectedService" value="Research/Methodology Coaching" />Research/Methodology Coaching                
+                        </label><br>
+                        <label>
+                            <input type="radio" asp-for="SelectedService" value="Translation" />Translation                  
+                        </label><br>
+                        <span asp-validation-for="SelectedService" class="text-danger"></span>
+                        @* <button type="button" class="btn btn-primary float-end" onclick="nextStep(2)">Next</button> *@
+                     </div>
+                    <div class="button-container">
+                        <button type="button" class="btn-next" onclick="nextStep(2)">Next</button>
+                    </div>
+                </div>
+
+                @* STEP 2 *@
+                <div id="step2" style="display:none">
+                    <h3>Step 2: Fill out any additional information</h3>
+                    <textarea asp-for="AdditionalInfo" rows="7" class="custom-textarea"  placeholder="Additional info..."></textarea>
+                    <div class="button-container">
+                        <button type="button" class="btn-next" onclick="nextStep(3)">Next</button>
+                    </div>
+                    @* ADD PREVIOUS BTN *@
+                </div>
+
+                @* STEP 3 *@
+                <div id="step3" style="display:none">
+                    <h3>Step 3: Upload Your Document</h3>
+                    <div class="form-group">
+                    <input asp-for="Documents" type="file" class="form-control mb-3" />
+                    <span asp-validation-for="Documents" class="text-danger"></span>
+                    </div>
+                    <div class="button-container">
+                        <button type="button" class="btn-next" onclick="nextStep(4)">Next</button>
+                    </div>
+                </div>
+
+                @* STEP 4 *@
+                <div id="step4" style="display:none">
+                    <h3>Step 4: Level of Urgency</h3>
+                    <div class="form-group">
+                    <label>Enter Deadline</label>
+                        <input asp-for="Deadline" type="date" class="form-input" />
+                        <span asp-validation-for="Deadline" class="text-danger"></span>
+                    </div>
+                    
+                    <br/>
+                    <div class="form-group">
+                        <label>Urgency Level</label>
+                        <select asp-for="Urgency" class="form-input">
+                            <option value="">-- Select Urgency --</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="Urgency" class="text-danger"></span>
+                    <div class="button-container">
+                        <button type="submit" class="btn-next">Submit</button>
+                    </div>
+                </div>
+            </form>
         </div>
-
-        <!-- STEP 3: UPLOAD DOCUMENT -->
-        <div id="step3" class="wizard-step" style="display:none;">
-            <h4>Step 3: Upload Your Document</h4>
-            <input asp-for="Documents" type="file" class="form-control mb-3" />
-            <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Back</button>
-            <button type="button" class="btn btn-primary float-end" onclick="nextStep(4)">Next</button>
-        </div>
-
-        <!-- STEP 4: DEADLINE & URGENCY -->
-        <div id="step4" class="wizard-step" style="display:none;">
-            <h4>Step 4: Set Deadline & Urgency</h4>
-
-            <label class="form-label">Deadline</label>
-            <input asp-for="Deadline" type="date" class="form-control mb-3" />
-
-            <label class="form-label">Urgency Level</label>
-            <select asp-for="Urgency" class="form-control mb-3">
-                <option value="">-- Select Urgency --</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-            </select>
-
-            <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Back</button>
-            <button type="submit" class="btn btn-success float-end">Submit Request</button>
-        </div>
-
-    </form>
+    </div>
 </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 
+
+@* <!-- STEP 2: ADDITIONAL INFO -->
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Back</button>
+                </div>
+
+                <!-- STEP 3: UPLOAD DOCUMENT -->
+                <div id="step3" class="wizard-step" style="display:none;">
+                    <h4>Step 3: Upload Your Document</h4>
+                    <input asp-for="Documents" type="file" class="form-control mb-3" />
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Back</button>
+                    <button type="button" class="btn btn-primary float-end" onclick="nextStep(4)">Next</button>
+                </div>
+
+                                @* <div id="step3" style="display:none">
+                    <h3>Step 3: Upload Your Document</h3>
+                    <div class="file-upload">
+                        <label for="Documents" class="file-upload-label">
+                            <img src="/icons/file_upload.svg" alt="Upload Icon" class="upload-icon" /> *@
+@* <span>Select a file</span> *@
+@*         </label>
+                        <p>Select a file </p>
+                        <input asp-for="Documents" type="file" />
+                    </div>
+
+                    <div class="button-container">
+                        <button type="button" class="btn-next" onclick="nextStep(4)">Next</button>
+                    </div>
+                </div>
+
+
+                <!-- STEP 4: DEADLINE & URGENCY -->
+                <div id="step4" class="wizard-step" style="display:none;">
+                    <h4>Step 4: Set Deadline & Urgency</h4>
+
+                    <label class="form-label">Deadline</label>
+                    <input asp-for="Deadline" type="date" class="form-control mb-3" />
+
+                    <label class="form-label">Urgency Level</label>
+                    <select asp-for="Urgency" class="form-control mb-3">
+                        <option value="">-- Select Urgency --</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Back</button>
+                    <button type="submit" class="btn btn-success float-end">Submit Request</button>
+                </div> *@
