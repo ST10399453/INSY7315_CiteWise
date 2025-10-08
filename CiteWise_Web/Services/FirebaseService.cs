@@ -4,7 +4,7 @@ using CiteWise_Web.Models.ServiceRequest;
 using Newtonsoft.Json;
 using System.Text;
 using Google.Cloud.Firestore;
-using System.Linq;
+
 
 namespace CiteWise_Web.Services
 {
@@ -255,7 +255,7 @@ namespace CiteWise_Web.Services
                 {
                     var fields = doc.fields;
 
-                    // Get ReviewId safely without using LINQ
+                   
                     var nameParts = doc.name.ToString().Split('/');
                     var reviewId = nameParts[nameParts.Length - 1];
 

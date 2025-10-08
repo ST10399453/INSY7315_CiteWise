@@ -1,0 +1,66 @@
+﻿@model List<CiteWise_Web.Models.ServiceRequest.ServiceReviewModel>
+@{
+    
+    Layout = "_LayoutAuth";  
+}
+
+<div class="dashboard-container">
+   
+
+    
+    <a href="@Url.Action("ConsultantDashboard", "Consultant")" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+
+  
+    @if (Model != null && Model.Any())
+    {
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th>Service Type</th>
+                    <th>Description</th>
+                    <th>Priority</th>
+                    <th>Deadline</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var review in Model)
+                {
+                    <tr>
+                        
+                        <td>@review.UID</td>
+
+                        <td>@review.ServiceType</td>
+
+                        <td>@review.Description</td>
+
+                        <td>@review.Priority</td>
+
+                      
+                        <td>
+                            @(review.Deadline.HasValue
+                                                ? review.Deadline.Value.ToDateTime().ToString("dd MMM yyyy")
+                                                : "—")
+                </td>
+
+                        
+                        <td>@review.CreatedAt.ToDateTime().ToString("dd MMM yyyy")</td>
+
+                       
+                        <td>
+                            <button class="btn btn-primary">View</button>
+                        </td>
+                    </tr>
+                        }
+            </tbody>
+        </table>
+    }
+    else
+    {
+       
+        <div class="no-data">
+            <p>No service requests found.</p>
+        </div>
+    }
+</div>

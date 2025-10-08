@@ -1,62 +1,91 @@
-﻿@model List<CiteWise_Web.Models.ServiceRequest.ServiceReviewModel>
-
-@{
+﻿@{
+    ViewData["Title"] = "Consultant Dashboard";
     Layout = "_LayoutAuth";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4 text-center">Consultant Dashboard</h2>
+<div class="dashboard-container">
+    <h2>Consultant Dashboard</h2>
 
-    <div class="card shadow p-4 rounded-3">
-        <h4 class="mb-3">Service Requests</h4>
+    <div class="dashboard-grid">
 
-        @if (Model == null || !Model.Any())
-        {
-            <div class="alert alert-info">
-                No service requests found.
+        <!-- Overview Cards -->
+        <div class="dashboard-card">
+            <h3>My Tasks</h3>
+            <p><strong>5 Active Projects</strong></p>
+            <p>2 Deadlines this week</p>
+            <p>1 Pending Quotation</p>
+        </div>
+
+        <!-- Assigned Students -->
+        <div class="dashboard-card">
+            <h3>Assigned Students</h3>
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Connor</td>
+                        <td>Proofreading</td>
+                        <td>In Progress</td>
+                        <td>12 Oct 2025</td>
+                        <td>
+                           <a asp-controller="Consultant" asp-action="RetrieveRequest" class="btn btn-primary">
+                               Open
+                           </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Akhilesh</td>
+                        <td>Data Analysis</td>
+                        <td>Awaiting Feedback</td>
+                        <td>15 Oct 2025</td>
+                        <td>
+                            <a asp-controller="Consultant" asp-action="RetrieveRequest" class="btn btn-primary">
+                                Open
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- File Management -->
+        <div class="dashboard-card">
+            <h3>File Management</h3>
+            <p>Upload annotated document:</p>
+            <input type="file" class="file-upload" />
+            <button class="btn">Upload</button>
+            <p class="mt-2"><a href="#">Download latest student submission</a></p>
+        </div>
+
+        <!-- Quotation Handling -->
+        <div class="dashboard-card">
+            <h3>Quotation Requests</h3>
+            <p><strong>Student:</strong> Ethan Huntley</p>
+            <p><strong>Service:</strong> Data Analysis</p>
+            <p><strong>Suggested Quote:</strong> R650.00</p>
+            <div class="btn-group">
+                <button class="btn">Approve</button>
+                <button class="btn btn-secondary">Revise</button>
             </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-striped align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>User ID</th>
-                            <th>Document ID</th>
-                            <th>Service Type</th>
-                            <th>Description</th>
-                            <th>Priority</th>
-                            <th>Deadline</th>
-                            <th>Created At</th>
-                            <th>Consultant ID</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var req in Model)
-                        {
-                            <tr>
-                                <td>@(req.UID ?? "-")</td>
-                                <td>@(req.DocumentId ?? "-")</td>
-                                <td>@(req.ServiceType ?? "-")</td>
-                                <td>@(req.Description ?? "-")</td>
-                                <td>
-                                    <span class="badge bg-@(
-                                          req.Priority?.ToLower() == "high" ? "danger" :
-                                          req.Priority?.ToLower() == "medium" ? "warning text-dark" :
-                                          "secondary"
-                                                                                )">
-                                    @(req.Priority ?? "-")
-                                </span>
-                            </td>
-                            <td>@(req.Deadline != null ? req.Deadline.Value.ToDateTime().ToString("yyyy-MM-dd HH:mm") : "-")</td>
-                            <td>@req.CreatedAt.ToDateTime().ToString("yyyy-MM-dd HH:mm")</td>
-                            <td>@(req.ConsultantId ?? "-")</td>
-                        </tr>
-                                        }
-                    </tbody>
-                </table>
-            </div>
-        }
+        </div>
+
+        <!-- Messages -->
+        <div class="dashboard-card">
+            <h3>Messages</h3>
+            <ul class="message-list">
+                <li><strong>Erin:</strong> Thanks for the feedback!</li>
+                <li><strong>Alicia:</strong> Uploaded my draft.</li>
+            </ul>
+            <button class="btn">Go to Messages</button>
+        </div>
+
     </div>
 </div>
