@@ -4,7 +4,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import multer from 'multer';
 import { body, param, query, validationResult } from 'express-validator';
+
 import { checkAuth } from './auth/checkAuth.js';
 import {
   createRequest,
@@ -17,26 +19,48 @@ import {
   transitionCancel,
 } from './db/dbManager.js';
 
+import {
+  ensureR2Bucket,
+  ensureAzureContainer,
+  uploadToR2,
+  uploadToAzure,
+  newFileId,
+  safeName,
+} from './storage.js';
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Health
-app.get('/', (_req, res) => res.send('CiteWise API is running (Firebase-only).'));
+// Multer memory storage for multipart/form-data
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Validation helper
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 function bailIfInvalid(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 }
 
-// 1) POST /requests — Create (Submitted)
+// ─────────────────────────────────────────────────────────────────────────────
+// Routes
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Health
+app.get('/', (_req, res) =>
+  res.send('CiteWise API is running (uploads: Cloudflare R2 + Azure Blob).')
+);
+
+// 1) POST /requests — Create (Submitted) via MULTIPART: file + fields
+//    Android sends: file, documentName, serviceType, description, priority, deadline?
 app.post(
   '/requests',
   checkAuth,
-  body('documentId').isString().notEmpty(),
+  upload.single('file'),
+  body('documentName').isString().notEmpty(),
   body('serviceType').isString().isIn([
     'PROOFREADING_EDITING',
     'FORMATTING_REFERENCING',
@@ -47,24 +71,65 @@ app.post(
   ]),
   body('description').isString().notEmpty(),
   body('priority').isString().isIn(['LOW', 'MEDIUM', 'HIGH']),
-  body('deadline').optional(),
+  body('deadline').optional().isString(),
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
+      if (!req.file) return res.status(400).json({ message: 'file is required' });
+
+      const {
+        documentName,
+        serviceType,
+        description,
+        priority,
+        deadline = null,
+      } = req.body;
+
+      const mime = req.file.mimetype || 'application/octet-stream';
+      const size = req.file.size || (req.file.buffer?.length ?? 0);
+      const fileId = newFileId();
+      const cleanName = safeName(documentName);
+      const objectPath = `uploads/${fileId}/${cleanName}`;
+
+      // Upload to both clouds in parallel
+      const [r2Meta, azureMeta] = await Promise.all([
+        uploadToR2({ key: objectPath, body: req.file.buffer, contentType: mime }),
+        uploadToAzure({ blobPath: objectPath, body: req.file.buffer, contentType: mime }),
+      ]);
+
+      // Assemble Firestore payload
       const payload = {
         userId: req.user.uid,
-        documentId: req.body.documentId,
         consultantId: null,
-        serviceType: req.body.serviceType,
-        description: req.body.description,
-        priority: req.body.priority,
-        deadline: req.body.deadline ?? null,
+        serviceType,
+        description,
+        priority,
+        deadline: deadline || null,
+        status: 'Submitted',
+        file: {
+          fileId,
+          originalName: documentName,
+          mimeType: mime,
+          size,
+        },
+        storage: {
+          cloudflare: r2Meta, // { bucket, key, url? }
+          azure: azureMeta,   // { container, blob, url? }
+        },
       };
-      const out = await createRequest(payload);
-      res.status(201).json(out);
+
+      // Persist via DB manager
+      const created = await createRequest(payload);
+
+      // Return DTO
+      return res.status(201).json({
+        ...created,
+        documentId: fileId, // logical document id (shared across providers)
+        storage: payload.storage,
+      });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ message: err.message });
+      return res.status(500).json({ message: err.message });
     }
   }
 );
@@ -90,16 +155,21 @@ app.get(
 );
 
 // 3) GET /requests/:id — details
-app.get('/requests/:id', checkAuth, param('id').isString(), async (req, res) => {
-  const v = bailIfInvalid(req, res); if (v) return v;
-  try {
-    const out = await getRequestById(req.params.id);
-    res.json(out);
-  } catch (err) {
-    console.error(err);
-    res.status(404).json({ message: err.message });
+app.get(
+  '/requests/:id',
+  checkAuth,
+  param('id').isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const out = await getRequestById(req.params.id);
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(404).json({ message: err.message });
+    }
   }
-});
+);
 
 // 4) POST /requests/:id/assign — Admin only (Submitted|Pending → Assigned)
 app.post(
@@ -107,7 +177,7 @@ app.post(
   checkAuth,
   param('id').isString(),
   body('consultantId').isString().notEmpty(),
-  body('deadline').optional(),
+  body('deadline').optional().isString(),
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
@@ -132,7 +202,7 @@ app.put(
   checkAuth,
   param('id').isString(),
   body('consultantId').optional().isString(),
-  body('deadline').optional(),
+  body('deadline').optional().isString(),
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
@@ -226,5 +296,19 @@ app.post(
   }
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Startup: ensure storage, then boot server
+// ─────────────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8081;
-app.listen(PORT, () => console.log(`Server listening on :${PORT}`));
+
+(async function boot() {
+  try {
+    await ensureR2Bucket();
+    await ensureAzureContainer();
+
+    app.listen(PORT, () => console.log(`Server listening on :${PORT}`));
+  } catch (err) {
+    console.error('Startup failed:', err);
+    process.exit(1);
+  }
+})();
