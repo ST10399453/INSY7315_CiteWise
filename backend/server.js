@@ -303,9 +303,12 @@ const PORT = process.env.PORT || 8081;
 
 (async function boot() {
   try {
-    await ensureR2Bucket();
-    await ensureAzureContainer();
-
+        if (process.env.SKIP_STORAGE_INIT === '1') {
+      console.log('[BOOT] SKIP_STORAGE_INIT=1 → skipping R2/Azure container checks');
+    } else {
+      await ensureR2Bucket();
+      await ensureAzureContainer();
+    }
     app.listen(PORT, () => console.log(`Server listening on :${PORT}`));
   } catch (err) {
     console.error('Startup failed:', err);
