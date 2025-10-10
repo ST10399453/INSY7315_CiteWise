@@ -15,24 +15,22 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v3-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
-            - v3-backend-deps-{{ arch }}-{{ .Branch }}
-            - v3-backend-deps-{{ arch }}
+            - v4-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
+            - v4-backend-deps-{{ arch }}-{{ .Branch }}
+            - v4-backend-deps-{{ arch }}
       - run:
           name: Install deps in backend/
           working_directory: backend
           command: |
             node -v
             npm -v
-            echo "---- ls backend ----"
+            echo "---- backend listing ----"
             ls -la
             echo "---- package.json ----"
             cat package.json || true
-            echo "---- npm scripts ----"
-            npm run || true
             npm install
       - save_cache:
-          key: v3-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
+          key: v4-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
           paths:
             - ~/.npm
             - ~/project/backend/node_modules
@@ -82,46 +80,27 @@ jobs:
     steps:
       - checkout
       - install_backend_deps
-
       - run:
-          name: Start API in background (write backend/server.log)
+          name: Start API (background) and log to backend/server.log
           working_directory: backend
           command: |
             set -eu
-
-            # Make integration startup resilient to missing external services
             export PORT="${PORT:-8081}"
-            export SKIP_STORAGE_INIT=1
+            export SKIP_STORAGE_INIT=1  # safe to keep in CI
 
-            # If you didn't set real Firebase vars in CircleCI, inject minimal dummies
-            if [ -z "${FIREBASE_PROJECT_ID:-}" ]; then
-              export FIREBASE_PROJECT_ID=dummy
-            fi
-            if [ -z "${FIREBASE_SERVICE_ACCOUNT_JSON:-}" ]; then
-              export FIREBASE_SERVICE_ACCOUNT_JSON='{"type":"service_account","project_id":"dummy","private_key_id":"x","private_key":"-----BEGIN PRIVATE KEY-----\\nMIIBdummy\\n-----END PRIVATE KEY-----\\n","client_email":"dummy@dummy.iam.gserviceaccount.com","client_id":"0","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/dummy"}'
-            fi
-
-            echo "PORT=$PORT"
-            echo "SKIP_STORAGE_INIT=$SKIP_STORAGE_INIT"
-            echo "FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-<unset>}"
-            echo "Starting server..."
-
-            # Ensure log file exists
             : > server.log
 
-            # Choose start command: prefer "dev", else "start", else node server.js
+            # Prefer dev, else start, else node server.js
             if npm run | grep -qE "^[[:space:]]*dev"; then
               ( npm run dev >> server.log 2>&1 ) & echo $! > server.pid
             elif npm run | grep -qE "^[[:space:]]*start"; then
               ( npm start >> server.log 2>&1 ) & echo $! > server.pid
             else
-              # Fallback requires server.js at backend/server.js
               ( node server.js >> server.log 2>&1 ) & echo $! > server.pid
             fi
 
             sleep 1
-            echo "Spawned PID: $(cat server.pid)"
-            echo "---- first 50 log lines ----"
+            echo "PID: $(cat server.pid)"
             head -n 50 server.log || true
 
       - run:
@@ -135,17 +114,14 @@ jobs:
                 echo "Server healthy (HTTP 200) after $i s"
                 exit 0
               fi
-              # if process died, fail early and print logs
               if [ -f server.pid ] && ! kill -0 "$(cat server.pid)" 2>/dev/null; then
                 echo "Server process exited early."
-                echo "---- tail server.log ----"
                 tail -n 300 server.log || true
                 exit 1
               fi
               sleep 1
             done
             echo "Server did not become healthy in time"
-            echo "---- tail server.log ----"
             tail -n 300 server.log || true
             exit 1
 
