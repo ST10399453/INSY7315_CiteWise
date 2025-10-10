@@ -26,6 +26,10 @@ import {
   uploadToAzure,
   newFileId,
   safeName,
+  r2SignedUrl,
+  azureSasUrl,
+  streamFromR2,
+  streamFromAzure,
 } from './blobs/storage.js';
 
 dotenv.config();
@@ -44,6 +48,15 @@ function bailIfInvalid(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 }
+
+function canAccessRequest(doc, user) {
+  if (!doc || !user) return false;
+  const isOwner = doc.userId === user.uid;
+  const isConsultant = doc.consultantId && doc.consultantId === user.uid;
+  const isAdmin = Boolean(user.claims?.role === 'admin' || user.claims?.admin === true);
+  return isOwner || isConsultant || isAdmin;
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Routes
@@ -295,6 +308,83 @@ app.post(
     }
   }
 );
+
+// GET /requests/:id/download?provider=r2|azure&disposition=inline|attachment&expires=900
+app.get('/requests/:id/download', checkAuth, async (req, res) => {
+  try {
+    const reqDoc = await getRequestById(req.params.id);
+    if (!reqDoc) return res.status(404).json({ message: 'Request not found' });
+    if (!canAccessRequest(reqDoc, req.user)) return res.status(403).json({ message: 'Forbidden' });
+
+    const provider = (req.query.provider || 'r2').toLowerCase();
+    const disposition = (req.query.disposition || 'inline').toLowerCase(); // or 'attachment'
+    const expires = Math.max(60, Math.min(3600 * 2, parseInt(req.query.expires || '900', 10))); // clamp 1m-2h
+    const filename = reqDoc?.file?.originalName || 'document';
+
+    let url, ttl;
+    if (provider === 'azure') {
+      url = await azureSasUrl({
+        container: reqDoc.storage.azure.container,
+        blob: reqDoc.storage.azure.blob,
+        expiresMinutes: Math.ceil(expires / 60),
+      });
+      // (Azure SAS doesn't encode disposition by default; preview works via content-type)
+      ttl = Math.ceil(expires / 60) * 60;
+    } else {
+      // R2/S3 can embed content-disposition in the presign
+      url = await r2SignedUrl({
+        bucket: reqDoc.storage.cloudflare.bucket,
+        key: reqDoc.storage.cloudflare.key,
+        expiresSeconds: expires,
+        disposition,
+        filename,
+      });
+      ttl = expires;
+    }
+
+    res.json({ url, expiresInSeconds: ttl, provider });
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ message: e.message });
+  }
+});
+
+
+// GET /requests/:id/file?provider=r2|azure&disposition=inline|attachment
+app.get('/requests/:id/file', checkAuth, async (req, res) => {
+  try {
+    const reqDoc = await getRequestById(req.params.id);
+    if (!reqDoc) return res.status(404).json({ message: 'Request not found' });
+    if (!canAccessRequest(reqDoc, req.user)) return res.status(403).json({ message: 'Forbidden' });
+
+    const provider = (req.query.provider || 'r2').toLowerCase();
+    const disposition = (req.query.disposition || 'inline').toLowerCase();
+    const filename = reqDoc?.file?.originalName || 'document';
+
+    let meta;
+    if (provider === 'azure') {
+      meta = await streamFromAzure({
+        container: reqDoc.storage.azure.container,
+        blob: reqDoc.storage.azure.blob,
+      });
+    } else {
+      meta = await streamFromR2({
+        bucket: reqDoc.storage.cloudflare.bucket,
+        key: reqDoc.storage.cloudflare.key,
+      });
+    }
+
+    res.setHeader('Content-Type', meta.contentType);
+    if (meta.contentLength) res.setHeader('Content-Length', String(meta.contentLength));
+    res.setHeader('Content-Disposition', `${disposition}; filename="${encodeURIComponent(filename)}"`);
+
+    meta.stream.pipe(res);
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ message: e.message });
+  }
+});
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Startup: ensure storage, then boot server

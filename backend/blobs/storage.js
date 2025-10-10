@@ -1,108 +1,142 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// File: storage.js
-// Purpose: Storage helpers for Cloudflare R2 (S3-compatible) + Azure Blob
-// ─────────────────────────────────────────────────────────────────────────────
+// backend/blobs/storage.js
+import crypto from 'crypto';
+
+// ---------- Cloudflare R2 (S3-compatible) ----------
 import {
   S3Client,
   PutObjectCommand,
+  GetObjectCommand,
   HeadBucketCommand,
   CreateBucketCommand,
 } from '@aws-sdk/client-s3';
-import { BlobServiceClient } from '@azure/storage-blob';
-import crypto from 'crypto';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-// ---------- R2 (S3-compatible) client ----------
-export const r2 = new S3Client({
+// ---------- Azure Blob ----------
+import {
+  BlobServiceClient,
+  StorageSharedKeyCredential,
+  generateBlobSASQueryParameters,
+  BlobSASPermissions,
+  SASProtocol,
+} from '@azure/storage-blob';
+
+const R2_ENDPOINT = process.env.R2_ENDPOINT;           // e.g. https://<accountid>.r2.cloudflarestorage.com
+const R2_BUCKET   = process.env.R2_BUCKET;              // e.g. citewise
+const r2 = new S3Client({
   region: 'auto',
-  endpoint: process.env.R2_ENDPOINT, // e.g. https://<accountid>.r2.cloudflarestorage.com
+  endpoint: R2_ENDPOINT,
   credentials: {
     accessKeyId: process.env.R2_ACCESS_KEY_ID,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
 });
 
-export const R2_BUCKET = process.env.R2_BUCKET;
-export const R2_PUBLIC_BASE = process.env.R2_PUBLIC_BASE || null; // optional public domain (r2.dev / worker / CDN)
+const AZURE_CONN = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_CONTAINER = process.env.AZURE_BLOB_CONTAINER; // e.g. citewise
+const azure = BlobServiceClient.fromConnectionString(AZURE_CONN);
 
-// ---------- Azure client ----------
-export const azureBlob = BlobServiceClient.fromConnectionString(
-  process.env.AZURE_STORAGE_CONNECTION_STRING
-);
-export const AZURE_CONTAINER = process.env.AZURE_BLOB_CONTAINER;
-export const AZURE_PUBLIC_BASE = process.env.AZURE_PUBLIC_BASE || null; // optional public base URL
-
-// ---------- Utils ----------
+// ---------- Utilities ----------
 export function newFileId() {
   return crypto.randomUUID();
 }
 
-export function safeName(name) {
-  return String(name || 'upload.bin').replace(/[^\w.\-]/g, '_');
+export function safeName(name = 'file') {
+  return name.replace(/[^\w.\- ]+/g, '_').trim().slice(0, 180) || 'file';
 }
 
-// ---------- Startup ensure functions ----------
+// (Optional) called at boot when not skipped
 export async function ensureR2Bucket() {
-  if (!R2_BUCKET) throw new Error('R2_BUCKET is not set');
+  if (!R2_BUCKET) throw new Error('R2_BUCKET not set');
   try {
     await r2.send(new HeadBucketCommand({ Bucket: R2_BUCKET }));
-    console.log(`[R2] Bucket exists: ${R2_BUCKET}`);
-  } catch (err) {
-    const status = err?.$metadata?.httpStatusCode;
-    if (status === 404) {
-      try {
-        await r2.send(new CreateBucketCommand({ Bucket: R2_BUCKET }));
-        console.log(`[R2] Bucket created: ${R2_BUCKET}`);
-      } catch (createErr) {
-        console.error(`[R2] Failed to create bucket ${R2_BUCKET}:`, createErr);
-        throw createErr;
-      }
-    } else if (status === 403) {
-      console.warn(`[R2] HeadBucket 403 for ${R2_BUCKET}. It may exist, but your key lacks permission.`);
-    } else {
-      console.error(`[R2] HeadBucket error for ${R2_BUCKET}:`, err);
-      throw err;
-    }
+  } catch {
+    await r2.send(new CreateBucketCommand({ Bucket: R2_BUCKET }));
   }
 }
 
 export async function ensureAzureContainer() {
-  if (!AZURE_CONTAINER) throw new Error('AZURE_BLOB_CONTAINER is not set');
-  const container = azureBlob.getContainerClient(AZURE_CONTAINER);
-  const res = await container.createIfNotExists();
-  if (res?.succeeded) {
-    console.log(`[Azure] Container created: ${AZURE_CONTAINER}`);
-  } else {
-    console.log(`[Azure] Container exists: ${AZURE_CONTAINER}`);
-  }
+  if (!AZURE_CONTAINER) throw new Error('AZURE_BLOB_CONTAINER not set');
+  const containerClient = azure.getContainerClient(AZURE_CONTAINER);
+  await containerClient.createIfNotExists();
 }
 
-// ---------- Per-request upload helpers ----------
+// ---------- Uploads ----------
 export async function uploadToR2({ key, body, contentType }) {
-  await r2.send(
-    new PutObjectCommand({
-      Bucket: R2_BUCKET,
-      Key: key,
-      Body: body,
-      ContentType: contentType,
-    })
-  );
-  return {
-    bucket: R2_BUCKET,
-    key,
-    url: R2_PUBLIC_BASE ? `${R2_PUBLIC_BASE}/${key}` : null,
-  };
+  await r2.send(new PutObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+    Body: body,
+    ContentType: contentType,
+  }));
+  return { bucket: R2_BUCKET, key };
 }
 
 export async function uploadToAzure({ blobPath, body, contentType }) {
-  const containerClient = azureBlob.getContainerClient(AZURE_CONTAINER);
+  const containerClient = azure.getContainerClient(AZURE_CONTAINER);
   await containerClient.createIfNotExists();
   const blockBlob = containerClient.getBlockBlobClient(blobPath);
-  await blockBlob.uploadData(body, {
-    blobHTTPHeaders: { blobContentType: contentType },
+  await blockBlob.uploadData(body, { blobHTTPHeaders: { blobContentType: contentType } });
+  return { container: AZURE_CONTAINER, blob: blobPath };
+}
+
+// ---------- Signed URLs (Download/Preview) ----------
+export async function r2SignedUrl({ bucket, key, expiresSeconds = 900, disposition, filename }) {
+  const cmd = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    ...(disposition && filename
+      ? { ResponseContentDisposition: `${disposition}; filename="${encodeURIComponent(filename)}"` }
+      : {}),
   });
+  return getSignedUrl(r2, cmd, { expiresIn: expiresSeconds });
+}
+
+function parseAzureConn(cs) {
+  // "DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;EndpointSuffix=core.windows.net"
+  const entries = Object.fromEntries(
+    cs.split(';').filter(Boolean).map(kv => kv.split('='))
+  );
+  return { accountName: entries.AccountName, accountKey: entries.AccountKey };
+}
+
+export async function azureSasUrl({ container, blob, expiresMinutes = 15 }) {
+  const { accountName, accountKey } = parseAzureConn(AZURE_CONN);
+  const cred = new StorageSharedKeyCredential(accountName, accountKey);
+  const now = new Date();
+  const exp = new Date(now.getTime() + expiresMinutes * 60 * 1000);
+
+  const sas = generateBlobSASQueryParameters({
+    containerName: container,
+    blobName: blob,
+    permissions: BlobSASPermissions.parse('r'), // read only
+    startsOn: new Date(now.getTime() - 60 * 1000), // 1 min clock skew
+    expiresOn: exp,
+    protocol: SASProtocol.Https,
+  }, cred).toString();
+
+  const containerClient = azure.getContainerClient(container);
+  const blobClient = containerClient.getBlobClient(blob);
+  return `${blobClient.url}?${sas}`;
+}
+
+// ---------- Streaming (pipe through your API) ----------
+export async function streamFromR2({ bucket, key }) {
+  const res = await r2.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+  // res.Body is a Node stream
   return {
-    container: AZURE_CONTAINER,
-    blob: blobPath,
-    url: AZURE_PUBLIC_BASE ? `${AZURE_PUBLIC_BASE}/${blobPath}` : null,
+    stream: res.Body,
+    contentType: res.ContentType || 'application/octet-stream',
+    contentLength: res.ContentLength,
+  };
+}
+
+export async function streamFromAzure({ container, blob }) {
+  const containerClient = azure.getContainerClient(container);
+  const blobClient = containerClient.getBlockBlobClient(blob);
+  const resp = await blobClient.download();
+  return {
+    stream: resp.readableStreamBody,
+    contentType: resp.contentType || 'application/octet-stream',
+    contentLength: resp.contentLength,
   };
 }
