@@ -1,37 +1,31 @@
-import { admin, db } from '../db/firebaseAdmin.js';
-
-// Reads role from RTDB at /users/{uid}/role
-export async function getUserRole(uid) {
-  const snap = await rtdb.ref(`/users/${uid}/role`).get();
-  return snap.exists() ? snap.val() : undefined;
-}
+// auth/checkAuth.js
+import admin from '../firebaseAdmin.js';
 
 export async function checkAuth(req, res, next) {
   try {
     const h = req.headers.authorization || '';
-    if (!h.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Missing or invalid Authorization header' });
-    }
-    const token = h.split(' ')[1];
-    const decoded = await admin.auth().verifyIdToken(token);
-    const role = await getUserRole(decoded.uid);
+    const m = h.match(/^Bearer (.+)$/i);
+    if (!m) return res.status(401).json({ message: 'Missing Bearer token' });
 
-    req.user = { ...decoded, role };
-    next();
-  } catch (e) {
-    console.error('Auth error', e);
+    const idToken = m[1];
+    // verify and get claims
+    const decoded = await admin.auth().verifyIdToken(idToken, true);
+
+    // Optional: lock to the expected project issuer
+    const expectedIss = `https://securetoken.google.com/${process.env.FIREBASE_PROJECT_ID}`;
+    if (decoded.iss !== expectedIss || decoded.aud !== process.env.FIREBASE_PROJECT_ID) {
+      console.error('[AUTH] Issuer/Audience mismatch', { iss: decoded.iss, aud: decoded.aud, expectedIss, expectedAud: process.env.FIREBASE_PROJECT_ID });
+      return res.status(401).json({ message: 'Token not for this Firebase project' });
+    }
+
+    req.user = { uid: decoded.uid, email: decoded.email || null, claims: decoded };
+    return next();
+  } catch (err) {
+    console.error('[AUTH] verifyIdToken failed', {
+      code: err.code,
+      message: err.message,
+      name: err.name,
+    });
     return res.status(401).json({ message: 'Unauthorized' });
   }
 }
-
-// export async function checkAuth(req, res, next) {
-//   // TEMPORARY AUTH BYPASS FOR TESTING ONLY
-//   // Simulate a logged-in student user
-//   req.user = {
-//     uid: 'cgKio13iN0Rt4c9pd4GdNJTJtEj2', // example UID from your Realtime DB
-//     role: 'student',
-//     email: 'ethan.huntley@gmail.com'
-//   };
-//   return next();
-// }
-
