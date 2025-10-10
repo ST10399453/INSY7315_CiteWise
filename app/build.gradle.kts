@@ -56,5 +56,24 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.database.ktx)
     implementation(libs.material.v1130)
-    implementation("androidx.transition:transition:1.6.0")
+    implementation(libs.androidx.transition)
+    implementation(libs.okhttp)
+
+    // Retrofit + Gson
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
+
+// Kotlin Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
+// LiveData (Lifecycle KTX)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    implementation(libs.logging.interceptor)
+
+
+
 }

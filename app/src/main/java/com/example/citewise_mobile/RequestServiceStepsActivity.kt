@@ -1,3 +1,4 @@
+// app/src/main/java/com/example/citewise_mobile/RequestServiceStepsActivity.kt
 package com.example.citewise_mobile
 
 import android.animation.ObjectAnimator
@@ -19,21 +20,23 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.citewise_mobile.data.ServicePriority
-import com.example.citewise_mobile.data.ServiceReview
-import com.example.citewise_mobile.data.ServiceType
+import androidx.lifecycle.lifecycleScope
+import com.example.citewise_mobile.api.RetrofitInstance
+import com.example.citewise_mobile.api.ServicePriority
+import com.example.citewise_mobile.api.ServiceType
+import com.example.citewise_mobile.data.NetResult
+import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.Blob
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 class RequestServiceStepsActivity : AppCompatActivity() {
 
@@ -73,11 +76,8 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     // SAF OpenDocument (documents only)
     private lateinit var pickDocLauncher: ActivityResultLauncher<Array<String>>
 
-    // Firebase
-    private val firestore by lazy { FirebaseFirestore.getInstance() }
-
-    // keep doc size under Firestore ~1MiB limit (allow headroom)
-    private val MAX_FIRESTORE_BLOB_BYTES = 900 * 1024 // 900 KB
+    // Repository (Retrofit)
+    private val repo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -180,15 +180,14 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                         toast(getString(R.string.enter_document_name)); return@setOnClickListener
                     }
                 }
-                3 -> { // Step 4 -> SAVE EVERYTHING
+                3 -> { // Step 4 -> SEND TO API
                     urgencyLevel = urgencySpinner.selectedItem?.toString()
                     deadlineText = etDeadline.text?.toString()
                     if (urgencyLevel.isNullOrEmpty()) {
                         toast(getString(R.string.select_urgency)); return@setOnClickListener
                     }
-                    val deadlineTs = parseDeadlineOrNull(deadlineText)
                     setLoading(true)
-                    saveAllAtEnd(deadlineTs,
+                    sendToApi(
                         onSuccess = {
                             setLoading(false)
                             goNextStep() // success screen
@@ -284,64 +283,47 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         }
     }
 
-    // ===== Final save (Documents + serviceReviews) =====
+    // ======= API integration (single multipart) =======
 
-    private fun saveAllAtEnd(
-        deadlineTs: Timestamp?,
+    private fun sendToApi(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         val uri = pickedFileUri ?: return onError(getString(R.string.choose_file_first))
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-            ?: return onError(getString(R.string.not_signed_in))
-
-        // read bytes & sanity check size
-        val bytes = try { readAllBytes(uri, MAX_FIRESTORE_BLOB_BYTES + 1) }
-        catch (e: Exception) { return onError("Failed to read file: ${e.message}") }
-        if (bytes.size > MAX_FIRESTORE_BLOB_BYTES) {
-            return onError("File is too large for Firestore (>${MAX_FIRESTORE_BLOB_BYTES / 1024} KB).")
-        }
-
         val name = displayNameFromUri(uri) ?: (docName ?: "document")
         val mime = contentResolver.getType(uri) ?: "application/octet-stream"
+        val description = (etAdditionalInfo.text?.toString()?.trim()).orEmpty()
 
-        // 1) Create the document (file + all step fields)
-        val docData = hashMapOf(
-            "uid" to uid,
-            "service" to (selectedService ?: ""),
-            "additionalInfo" to (additionalInfo ?: ""),
-            "docName" to name,
-            "mimeType" to mime,
-            "content" to Blob.fromBytes(bytes),
-            "urgency" to (urgencyLevel ?: ""),
-            "deadline" to deadlineTs, // Timestamp? -> null if not provided
-            "uploadedAt" to FieldValue.serverTimestamp(),
-            "status" to "submitted"
-        )
+        val serviceTypeEnum = mapServiceType(selectedService)       // enum -> name
+        val priorityEnum = mapPriority(urgencyLevel)
+        val deadlineIso = parseDeadlineIsoOrNull(deadlineText)
 
-        firestore.collection("Documents")
-            .add(docData)
-            .addOnSuccessListener { docRef ->
-                // 2) Create the service review linked to that document
-                val review = ServiceReview(
-                    userId = uid,
-                    documentId = docRef.id,
-                    consultantId = null,
-                    serviceType = mapServiceType(selectedService),
-                    description = additionalInfo.orEmpty(),
-                    priority = mapPriority(urgencyLevel),
-                    deadline = deadlineTs,
-                    createdAt = null // set via serverTimestamp() below
-                )
-                firestore.collection("ServiceReviews")
-                    .add(review.toMapWithServerTimestamp())
-                    .addOnSuccessListener { onSuccess() }
-                    .addOnFailureListener { e -> onError(e.message ?: "Failed to create review") }
+        val fileForUpload = try { copyUriToTempFile(uri, name) }
+        catch (e: Exception) { return onError("Failed to stage file: ${e.message}") }
+
+        lifecycleScope.launch {
+            when (val res = repo.createRequestMultipart(
+                file = fileForUpload,
+                mime = mime,
+                documentName = name,
+                serviceType = serviceTypeEnum.name,
+                description = description,
+                priority = priorityEnum.name,
+                deadlineIso = deadlineIso
+            )) {
+                is NetResult.Ok -> {
+                    fileForUpload.delete()
+                    onSuccess()
+                }
+                is NetResult.Err -> {
+                    fileForUpload.delete()
+                    onError(res.message)
+                }
             }
-            .addOnFailureListener { e -> onError(e.message ?: "Failed to create document") }
+        }
     }
 
-    // ===== Helpers =====
+    // ===== Helpers (UI parsing, file staging) =====
 
     private fun allowedMimeTypes() = arrayOf(
         "application/pdf",
@@ -363,35 +345,24 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         return null
     }
 
-    private fun readAllBytes(uri: Uri, hardLimit: Int): ByteArray {
+    private fun copyUriToTempFile(uri: Uri, displayName: String): File {
+        val safeName = if (displayName.isBlank()) "upload.bin" else displayName
+        val outFile = File(cacheDir, safeName)
         contentResolver.openInputStream(uri)?.use { input ->
-            return readAll(input, hardLimit)
-        }
-        throw IllegalStateException("Cannot open input stream for URI")
+            FileOutputStream(outFile).use { out -> input.copyTo(out) }
+        } ?: throw IllegalStateException("Cannot open stream for URI")
+        return outFile
     }
 
-    private fun readAll(input: InputStream, hardLimit: Int): ByteArray {
-        val buffer = ByteArrayOutputStream()
-        val temp = ByteArray(16 * 1024)
-        var read: Int
-        var total = 0
-        while (input.read(temp).also { read = it } != -1) {
-            total += read
-            if (total > hardLimit) break
-            buffer.write(temp, 0, read)
-        }
-        return buffer.toByteArray()
-    }
-
-    private fun parseDeadlineOrNull(text: String?): Timestamp? {
+    // expects dd/MM/yyyy in UI; returns ISO-8601 Z (UTC) at 00:00:00
+    private fun parseDeadlineIsoOrNull(text: String?): String? {
         if (text.isNullOrBlank()) return null
-        // expects dd/MM/yyyy
         return try {
             val parts = text.trim().split("/")
             val d = parts[0].toInt()
             val m = parts[1].toInt() - 1
             val y = parts[2].toInt()
-            val cal = Calendar.getInstance(Locale.getDefault()).apply {
+            val cal = Calendar.getInstance().apply {
                 set(Calendar.YEAR, y)
                 set(Calendar.MONTH, m)
                 set(Calendar.DAY_OF_MONTH, d)
@@ -399,8 +370,13 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
+                timeZone = TimeZone.getTimeZone("UTC")
             }
-            Timestamp(Date(cal.timeInMillis))
+            val date = Date(cal.timeInMillis)
+            val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            fmt.format(date)
         } catch (_: Exception) {
             null
         }
