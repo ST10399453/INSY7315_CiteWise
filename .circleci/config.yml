@@ -11,78 +11,88 @@ executors:
       NODE_ENV: test
 
 commands:
-  install_deps:
+  install_backend_deps:
     steps:
       - restore_cache:
           keys:
-            - v1-deps-{{ arch }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
-            - v1-deps-{{ arch }}-{{ .Branch }}
-            - v1-deps-{{ arch }}
+            - v2-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
+            - v2-backend-deps-{{ arch }}-{{ .Branch }}
+            - v2-backend-deps-{{ arch }}
       - run:
-          name: Install (npm ci)
+          name: Install deps in backend/
+          working_directory: backend
           command: |
-            if [ -f package-lock.json ]; then
-              npm ci
-            else
-              npm install
-            fi
+            npm install
       - save_cache:
-          key: v1-deps-{{ arch }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          key: v2-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
           paths:
             - ~/.npm
-            - ~/project/node_modules
+            - ~/project/backend/node_modules
 
 jobs:
   lint:
     executor: node_20
+    working_directory: ~/project   # checkout repo at root
     steps:
       - checkout
-      - install_deps
       - run:
-          name: Lint
+          name: Sanity list
+          command: |
+            pwd
+            ls -la
+            echo "---- backend ----"
+            ls -la backend
+      - install_backend_deps
+      - run:
+          name: Lint (if script exists)
+          working_directory: backend
           command: |
             if npm run | grep -q " lint"; then
               npm run lint
             else
-              echo "No lint script found; skipping."
+              echo "No lint script; skipping."
             fi
 
   test:
     executor: node_20
+    working_directory: ~/project
     steps:
       - checkout
-      - install_deps
+      - install_backend_deps
       - run:
-          name: Unit tests
+          name: Unit tests (if script exists)
+          working_directory: backend
           command: |
             if npm run | grep -q " test"; then
               npm test -- --ci --reporters=default || npm test
             else
-              echo "No test script found; skipping."
+              echo "No test script; skipping."
             fi
       - store_test_results:
-          path: test-results
+          path: backend/test-results
           when: always
       - store_artifacts:
-          path: coverage
+          path: backend/coverage
           when: always
 
   integration:
     executor: node_20
+    working_directory: ~/project
     steps:
       - checkout
-      - install_deps
+      - install_backend_deps
       - run:
-          name: Start API (background)
+          name: Start API (npm run dev) in background
+          working_directory: backend
           command: |
             export PORT="${PORT:-8081}"
-            npm start & echo $! > server.pid
+            npm run dev & echo $! > server.pid
 
-            # wait for server
-            for i in $(seq 1 40); do
+            # wait for port
+            for i in $(seq 1 60); do
               sleep 1
-              nc -z localhost "$PORT" && echo "Server up" && break
-              [ "$i" -eq 40 ] && echo "Server did not start" && exit 1
+              nc -z localhost "$PORT" && echo "Server up on $PORT" && break
+              [ "$i" -eq 60 ] && echo "Server did not start" && exit 1
             done
       - run:
           name: Health check
@@ -90,6 +100,7 @@ jobs:
             curl -fsS "http://localhost:${PORT:-8081}/" | tee /tmp/health.txt
       - run:
           name: Stop API
+          working_directory: backend
           command: |
             kill "$(cat server.pid)" || true
       - store_artifacts:
