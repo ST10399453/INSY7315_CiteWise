@@ -32,7 +32,7 @@ commands:
 jobs:
   lint:
     executor: node_20
-    working_directory: ~/project   # checkout repo at root
+    working_directory: ~/project
     steps:
       - checkout
       - run:
@@ -82,29 +82,53 @@ jobs:
       - checkout
       - install_backend_deps
       - run:
-          name: Start API (npm run dev) in background
+          name: Start API (background) + log to file
           working_directory: backend
           command: |
             export PORT="${PORT:-8081}"
-            npm run dev & echo $! > server.pid
+            export SKIP_STORAGE_INIT=1     # ← skip external storage checks in CI
 
-            # wait for port
-            for i in $(seq 1 60); do
-              sleep 1
-              nc -z localhost "$PORT" && echo "Server up on $PORT" && break
-              [ "$i" -eq 60 ] && echo "Server did not start" && exit 1
-            done
+            # If your code requires Firebase vars at import time, stub minimal dummies.
+            # Prefer setting real secrets in CircleCI project settings for true integration.
+            if [ -z "${FIREBASE_PROJECT_ID:-}" ]; then
+              export FIREBASE_PROJECT_ID=dummy
+            fi
+            if [ -z "${FIREBASE_SERVICE_ACCOUNT_JSON:-}" ]; then
+              export FIREBASE_SERVICE_ACCOUNT_JSON='{"type":"service_account","project_id":"dummy","private_key_id":"x","private_key":"-----BEGIN PRIVATE KEY-----\\nMIIBdummy\\n-----END PRIVATE KEY-----\\n","client_email":"dummy@dummy.iam.gserviceaccount.com","client_id":"0","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/dummy"}'
+            fi
+
+            # Start the dev server and tee logs
+            npm run dev 2>&1 | tee server.log & echo $! > server.pid
       - run:
-          name: Health check
+          name: Wait for health (HTTP 200)
+          working_directory: backend
+          command: |
+            export PORT="${PORT:-8081}"
+            for i in $(seq 1 60); do
+              code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}/" || true)
+              if [ "$code" = "200" ]; then
+                echo "Server healthy (HTTP 200)"
+                exit 0
+              fi
+              sleep 1
+            done
+            echo "Server did not become healthy in time"
+            echo "----- server.log (tail) -----"
+            tail -n 200 server.log || true
+            exit 1
+      - run:
+          name: Health check (store response)
           command: |
             curl -fsS "http://localhost:${PORT:-8081}/" | tee /tmp/health.txt
       - run:
           name: Stop API
           working_directory: backend
           command: |
-            kill "$(cat server.pid)" || true
+            if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
       - store_artifacts:
           path: /tmp/health.txt
+      - store_artifacts:
+          path: backend/server.log
 
 workflows:
   version: 2
