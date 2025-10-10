@@ -1,4 +1,4 @@
-// src/db/firebaseAdmin.js
+// backend/db/firebaseAdmin.js
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 
@@ -8,8 +8,7 @@ function parseServiceAccountFromEnv() {
   let raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (!raw) {
     throw new Error(
-      'FIREBASE_SERVICE_ACCOUNT_JSON is not set. ' +
-      'Set it to the FULL service account JSON (single line).'
+      'FIREBASE_SERVICE_ACCOUNT_JSON is not set. Set it to the FULL service account JSON (single line).'
     );
   }
 
@@ -24,10 +23,9 @@ function parseServiceAccountFromEnv() {
   let svc;
   try {
     svc = JSON.parse(raw);
-  } catch (e) {
+  } catch {
     throw new Error(
-      'Failed to JSON.parse(FIREBASE_SERVICE_ACCOUNT_JSON). ' +
-      'Ensure it is valid JSON (no trailing commas, properly escaped quotes).'
+      'Failed to JSON.parse(FIREBASE_SERVICE_ACCOUNT_JSON). Ensure it is valid JSON (no trailing commas, properly escaped quotes).'
     );
   }
 
@@ -58,16 +56,13 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
   });
   resolvedProjectId = serviceAccount.project_id;
 } else {
-  // Fallback to ADC if you run on GCP with a bound service account
+  // Fallback to ADC if running on GCP with a bound service account
   credential = admin.credential.applicationDefault();
   resolvedProjectId = process.env.FIREBASE_PROJECT_ID || undefined;
 }
 
 const configuredProjectId = process.env.FIREBASE_PROJECT_ID || resolvedProjectId;
-
 if (!configuredProjectId) {
-  // You can allow this if you never check iss/aud in checkAuth,
-  // but it’s safer to be explicit.
   throw new Error(
     'FIREBASE_PROJECT_ID is not set, and could not be inferred from the service account JSON.'
   );
@@ -83,10 +78,13 @@ if (!admin.apps.length) {
 
 // Firestore instance & settings
 const db = admin.firestore();
-// Avoid errors when writing optional fields as undefined
 db.settings({ ignoreUndefinedProperties: true });
 
-// Export both admin and helpers
+// Helpers
 const auth = admin.auth();
 
+// Named exports
 export { admin, auth, db, configuredProjectId as FIREBASE_PROJECT_ID };
+
+// Default export (so `import admin from '../db/firebaseAdmin.js'` works too)
+export default admin;

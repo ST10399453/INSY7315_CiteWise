@@ -26,7 +26,7 @@ import {
   uploadToAzure,
   newFileId,
   safeName,
-} from './storage.js';
+} from './blobs/storage.js';
 
 dotenv.config();
 

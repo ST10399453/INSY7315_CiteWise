@@ -1,5 +1,5 @@
 // auth/checkAuth.js
-import admin from '../firebaseAdmin.js';
+import admin from '../db/firebaseAdmin.js';
 
 /**
  * Verifies Firebase ID token from `Authorization: Bearer <token>`.
