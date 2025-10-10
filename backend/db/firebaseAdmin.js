@@ -7,48 +7,86 @@ dotenv.config();
 function parseServiceAccountFromEnv() {
   let raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (!raw) {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not set');
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT_JSON is not set. ' +
+      'Set it to the FULL service account JSON (single line).'
+    );
   }
 
-  // Some shells wrap the JSON in quotes; strip a single leading/trailing quote if present.
-  if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+  // Some platforms wrap the JSON in quotes; strip once if present.
+  if (
+    (raw.startsWith('"') && raw.endsWith('"')) ||
+    (raw.startsWith("'") && raw.endsWith("'"))
+  ) {
     raw = raw.slice(1, -1);
   }
 
-  const svc = JSON.parse(raw);
-
-  // Convert escaped newlines into real newlines for PEM correctness
-  if (svc.private_key && typeof svc.private_key === 'string') {
-    svc.private_key = svc.private_key.replace(/\\n/g, '\n');
-  } else {
-    throw new Error('private_key missing from FIREBASE_SERVICE_ACCOUNT_JSON');
+  let svc;
+  try {
+    svc = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(
+      'Failed to JSON.parse(FIREBASE_SERVICE_ACCOUNT_JSON). ' +
+      'Ensure it is valid JSON (no trailing commas, properly escaped quotes).'
+    );
   }
 
+  if (!svc.private_key || typeof svc.private_key !== 'string') {
+    throw new Error('private_key missing from FIREBASE_SERVICE_ACCOUNT_JSON');
+  }
+  if (!svc.client_email) {
+    throw new Error('client_email missing from FIREBASE_SERVICE_ACCOUNT_JSON');
+  }
+  if (!svc.project_id) {
+    throw new Error('project_id missing from FIREBASE_SERVICE_ACCOUNT_JSON');
+  }
+
+  // Convert escaped newlines into real newlines for PEM correctness
+  svc.private_key = svc.private_key.replace(/\\n/g, '\n');
   return svc;
 }
 
 let credential;
+let resolvedProjectId;
 
 if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
   const serviceAccount = parseServiceAccountFromEnv();
-  // Use the object directly — no file path, no temp files
   credential = admin.credential.cert({
     projectId: serviceAccount.project_id,
     clientEmail: serviceAccount.client_email,
     privateKey: serviceAccount.private_key,
   });
+  resolvedProjectId = serviceAccount.project_id;
 } else {
-  // Fallback (won’t be used in your case)
+  // Fallback to ADC if you run on GCP with a bound service account
   credential = admin.credential.applicationDefault();
+  resolvedProjectId = process.env.FIREBASE_PROJECT_ID || undefined;
+}
+
+const configuredProjectId = process.env.FIREBASE_PROJECT_ID || resolvedProjectId;
+
+if (!configuredProjectId) {
+  // You can allow this if you never check iss/aud in checkAuth,
+  // but it’s safer to be explicit.
+  throw new Error(
+    'FIREBASE_PROJECT_ID is not set, and could not be inferred from the service account JSON.'
+  );
 }
 
 if (!admin.apps.length) {
   admin.initializeApp({
     credential,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    databaseURL: process.env.FIREBASE_RTDB_URL,
+    projectId: configuredProjectId,
+    databaseURL: process.env.FIREBASE_RTDB_URL, // optional
   });
 }
 
+// Firestore instance & settings
 const db = admin.firestore();
-export { admin, db };
+// Avoid errors when writing optional fields as undefined
+db.settings({ ignoreUndefinedProperties: true });
+
+// Export both admin and helpers
+const auth = admin.auth();
+
+export { admin, auth, db, configuredProjectId as FIREBASE_PROJECT_ID };
