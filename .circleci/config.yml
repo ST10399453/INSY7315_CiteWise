@@ -1,0 +1,106 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+executors:
+  node_20:
+    docker:
+      - image: cimg/node:20.17
+    environment:
+      NODE_ENV: test
+
+commands:
+  install_deps:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-deps-{{ arch }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
+            - v1-deps-{{ arch }}-{{ .Branch }}
+            - v1-deps-{{ arch }}
+      - run:
+          name: Install (npm ci)
+          command: |
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+      - save_cache:
+          key: v1-deps-{{ arch }}-{{ .Branch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+            - ~/project/node_modules
+
+jobs:
+  lint:
+    executor: node_20
+    steps:
+      - checkout
+      - install_deps
+      - run:
+          name: Lint
+          command: |
+            if npm run | grep -q " lint"; then
+              npm run lint
+            else
+              echo "No lint script found; skipping."
+            fi
+
+  test:
+    executor: node_20
+    steps:
+      - checkout
+      - install_deps
+      - run:
+          name: Unit tests
+          command: |
+            if npm run | grep -q " test"; then
+              npm test -- --ci --reporters=default || npm test
+            else
+              echo "No test script found; skipping."
+            fi
+      - store_test_results:
+          path: test-results
+          when: always
+      - store_artifacts:
+          path: coverage
+          when: always
+
+  integration:
+    executor: node_20
+    steps:
+      - checkout
+      - install_deps
+      - run:
+          name: Start API (background)
+          command: |
+            export PORT="${PORT:-8081}"
+            npm start & echo $! > server.pid
+
+            # wait for server
+            for i in $(seq 1 40); do
+              sleep 1
+              nc -z localhost "$PORT" && echo "Server up" && break
+              [ "$i" -eq 40 ] && echo "Server did not start" && exit 1
+            done
+      - run:
+          name: Health check
+          command: |
+            curl -fsS "http://localhost:${PORT:-8081}/" | tee /tmp/health.txt
+      - run:
+          name: Stop API
+          command: |
+            kill "$(cat server.pid)" || true
+      - store_artifacts:
+          path: /tmp/health.txt
+
+workflows:
+  version: 2
+  ci_only:
+    jobs:
+      - lint
+      - test:
+          requires: [lint]
+      - integration:
+          requires: [test]
