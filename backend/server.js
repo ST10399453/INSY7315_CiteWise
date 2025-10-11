@@ -154,11 +154,13 @@ app.get(
   query('status').optional().isString(),
   query('userId').optional().isString(),
   query('consultantId').optional().isString(),
+  query('sort').optional().isString(),   // "updatedAt" | "createdAt"
+  query('dir').optional().isString(),    // "asc" | "desc"
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
-      const { status, userId, consultantId } = req.query;
-      const out = await getRequests({ status, userId, consultantId });
+      const { status, userId, consultantId, sort, dir } = req.query;
+      const out = await getRequests({ status, userId, consultantId, sort, dir });
       res.json(out);
     } catch (err) {
       console.error(err);
@@ -393,7 +395,7 @@ const PORT = process.env.PORT || 8081;
 
 (async function boot() {
   try {
-        if (process.env.SKIP_STORAGE_INIT === '1') {
+    if (process.env.SKIP_STORAGE_INIT === '1') {
       console.log('[BOOT] SKIP_STORAGE_INIT=1 → skipping R2/Azure container checks');
     } else {
       await ensureR2Bucket();

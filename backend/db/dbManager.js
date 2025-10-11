@@ -18,14 +18,28 @@ export async function createRequest(data) {
   return { id: doc.id, status: 'Submitted' };
 }
 
-export async function getRequests(filters = {}) {
-  let q = db.collection(COLLECTION);
-  if (filters.status) q = q.where('status', '==', filters.status);
-  if (filters.userId) q = q.where('userId', '==', filters.userId);
-  if (filters.consultantId) q = q.where('consultantId', '==', filters.consultantId);
-  const snap = await q.orderBy('createdAt', 'desc').get();
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+export async function getRequests({ status, userId, consultantId, sort, dir }) {
+  let q = firestore.collection('ServiceReviews');
+
+  if (userId)       q = q.where('userId', '==', userId);
+  if (consultantId) q = q.where('consultantId', '==', consultantId);
+  if (status)       q = q.where('status', '==', status);
+
+  // Apply order only if client asked for it
+  if (sort === 'updatedAt' || sort === 'createdAt') {
+    const direction = (String(dir || 'desc').toLowerCase() === 'asc') ? 'asc' : 'desc';
+    try {
+      q = q.orderBy(sort, direction);
+    } catch (e) {
+      // If the index is missing, skip ordering so we still return data
+      console.warn('[getRequests] orderBy failed (likely missing index). Returning unordered.', e.message);
+    }
+  }
+
+  const snap = await q.get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
+
 
 export async function getRequestById(id) {
   const ref = db.collection(COLLECTION).doc(id);
