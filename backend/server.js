@@ -148,26 +148,20 @@ app.post(
 );
 
 // 2) GET /requests — list (filter by status, userId, consultantId)
-app.get(
-  '/requests',
-  checkAuth,
-  query('status').optional().isString(),
-  query('userId').optional().isString(),
-  query('consultantId').optional().isString(),
-  query('sort').optional().isString(),   // "updatedAt" | "createdAt"
-  query('dir').optional().isString(),    // "asc" | "desc"
-  async (req, res) => {
-    const v = bailIfInvalid(req, res); if (v) return v;
-    try {
-      const { status, userId, consultantId, sort, dir } = req.query;
-      const out = await getRequests({ status, userId, consultantId, sort, dir });
-      res.json(out);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: err.message });
-    }
+// server.js, GET /requests
+app.get('/requests', checkAuth, async (req, res) => {
+  try {
+    const status = req.query.status ?? null;
+    const userId = (req.query.userId ?? req.user?.uid) || null;
+    const consultantId = req.query.consultantId ?? null;
+
+    const out = await getRequests({ status, userId, consultantId });
+    res.json(out);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
-);
+});
 
 // 3) GET /requests/:id — details
 app.get(
