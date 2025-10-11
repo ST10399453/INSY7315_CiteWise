@@ -123,14 +123,15 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- NEW: loading spinner shown while fetching -->
-            <ProgressBar
-                android:id="@+id/progressRequests"
-                style="?android:attr/progressBarStyleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:visibility="gone" />
-
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+    android:id="@+id/progressRequests"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+    app:indicatorSize="40dp"
+    app:trackThickness="4dp"
+    app:indeterminate="true"
+    android:visibility="gone"/>
             <!-- NEW: empty state shown when there are no requests -->
             <TextView
                 android:id="@+id/emptyRequests"
