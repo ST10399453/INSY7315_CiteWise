@@ -15,31 +15,35 @@ export async function createRequest(data) {
     createdAt: TS(),
     updatedAt: TS(),
   });
-  return { id: doc.id, status: 'Submitted' };
+  // Return what we actually stored
+  return { id: doc.id, status: 'Pending' };
 }
 
 export async function getRequests({ status, userId, consultantId, sort, dir }) {
-  let q = firestore.collection('ServiceReviews');
+  let q = db.collection(COLLECTION);
 
   if (userId)       q = q.where('userId', '==', userId);
   if (consultantId) q = q.where('consultantId', '==', consultantId);
   if (status)       q = q.where('status', '==', status);
 
-  // Apply order only if client asked for it
+  // Optional ordering (may require composite index depending on filters)
   if (sort === 'updatedAt' || sort === 'createdAt') {
-    const direction = (String(dir || 'desc').toLowerCase() === 'asc') ? 'asc' : 'desc';
+    const direction =
+      String(dir || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
     try {
       q = q.orderBy(sort, direction);
     } catch (e) {
-      // If the index is missing, skip ordering so we still return data
-      console.warn('[getRequests] orderBy failed (likely missing index). Returning unordered.', e.message);
+      // If missing index, return without ordering rather than hard-failing
+      console.warn(
+        '[getRequests] orderBy failed (likely missing index). Returning unordered.',
+        e.message
+      );
     }
   }
 
   const snap = await q.get();
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
-
 
 export async function getRequestById(id) {
   const ref = db.collection(COLLECTION).doc(id);
@@ -49,7 +53,13 @@ export async function getRequestById(id) {
 }
 
 // ── Transitions ──────────────────────────────────────────────────────────────
-export async function transitionAssign({ id, consultantId, deadline = null, allowUpdate = false, actor }) {
+export async function transitionAssign({
+  id,
+  consultantId,
+  deadline = null,
+  allowUpdate = false,
+  actor,
+}) {
   const ref = db.collection(COLLECTION).doc(id);
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
@@ -57,7 +67,8 @@ export async function transitionAssign({ id, consultantId, deadline = null, allo
     const r = snap.data();
 
     if (allowUpdate) {
-      if (r.status !== 'Assigned') throw new Error('Can only update when status is Assigned');
+      if (r.status !== 'Assigned')
+        throw new Error('Can only update when status is Assigned');
       const updates = {
         ...(consultantId ? { consultantId } : {}),
         ...(deadline !== undefined ? { deadline } : {}),
@@ -91,7 +102,8 @@ export async function transitionStartReview({ id, actor }) {
     if (!snap.exists) throw new Error('Request not found');
     const r = snap.data();
 
-    if (r.status !== 'Assigned') throw new Error('Only Assigned requests can move to In Review');
+    if (r.status !== 'Assigned')
+      throw new Error('Only Assigned requests can move to In Review');
 
     const actorId = actor.uid;
     const role = actor.role;
@@ -105,14 +117,20 @@ export async function transitionStartReview({ id, actor }) {
   });
 }
 
-export async function transitionSubmitReview({ id, outcome, feedback = null, actor }) {
+export async function transitionSubmitReview({
+  id,
+  outcome,
+  feedback = null,
+  actor,
+}) {
   const ref = db.collection(COLLECTION).doc(id);
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists) throw new Error('Request not found');
     const r = snap.data();
 
-    if (r.status !== 'In Review') throw new Error('Only In Review requests can be completed');
+    if (r.status !== 'In Review')
+      throw new Error('Only In Review requests can be completed');
     const actorId = actor.uid;
     const role = actor.role;
     if (!(role === 'admin' || r.consultantId === actorId)) {
@@ -125,7 +143,11 @@ export async function transitionSubmitReview({ id, outcome, feedback = null, act
     else if (outcome === 'fail') nextStatus = 'Failed';
     else throw new Error('Invalid outcome');
 
-    const updates = { status: nextStatus, feedback: feedback ?? null, updatedAt: TS() };
+    const updates = {
+      status: nextStatus,
+      feedback: feedback ?? null,
+      updatedAt: TS(),
+    };
     tx.update(ref, updates);
     return { id, ...r, ...updates };
   });
@@ -138,7 +160,8 @@ export async function transitionResubmit({ id, actor }) {
     if (!snap.exists) throw new Error('Request not found');
     const r = snap.data();
 
-    if (r.status !== 'Pending') throw new Error('Only Pending requests can be resubmitted');
+    if (r.status !== 'Pending')
+      throw new Error('Only Pending requests can be resubmitted');
     if (!(actor.role === 'admin' || actor.uid === r.userId)) {
       throw new Error('Only owner (student) or admin can resubmit');
     }
