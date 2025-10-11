@@ -32,6 +32,7 @@ interface ServiceReviewsApi {
         @Query("consultantId") consultantId: String? = null
     ): Response<List<ServiceRequestDto>>
 
+
     // 3) Details — GET /requests/{id}
     @GET("/requests/{id}")
     suspend fun getRequest(

@@ -24,9 +24,9 @@ data class ServiceRequestDto(
     val serviceType: ServiceType? = null,
     val description: String? = null,
     val priority: ServicePriority? = null,
-    val deadline: String? = null,     // ISO-8601
-    val createdAt: String? = null,
-    val updatedAt: String? = null,
+    val deadline: FlexTime? = null,     // ISO-8601
+    val createdAt: FlexTime? = null,
+    val updatedAt: FlexTime? = null,
     val feedback: String? = null
 )
 

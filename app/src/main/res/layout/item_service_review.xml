@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardCornerRadius="20dp"
+    app:cardUseCompatPadding="true"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/card_neumorphic_background"
+        android:padding="16dp"
+        android:clipToPadding="false">
+
+        <!-- Title = ServiceType enum -->
+        <TextView
+            android:id="@+id/tvServiceTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SERVICE TYPE"
+            android:textSize="16sp"
+            android:textColor="@color/gradient_end"
+            android:fontFamily="@font/poppins_bold"
+            android:ellipsize="end"
+            android:maxLines="1"/>
+
+        <!-- Date + Last Updated -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvCreatedDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Created: 2025-08-25"
+                android:textSize="12sp"
+                android:textColor="@color/text_faded"
+                android:fontFamily="@font/poppins"/>
+
+            <TextView
+                android:id="@+id/tvUpdated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Updated: 2025-09-02"
+                android:textSize="12sp"
+                android:textColor="@color/text_faded"
+                android:fontFamily="@font/poppins"/>
+        </LinearLayout>
+
+        <!-- Status chip -->
+        <TextView
+            android:id="@+id/tvStatusChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:layout_marginTop="8dp"
+            android:text="In Progress"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/gradient_middle"
+            android:fontFamily="@font/poppins_bold"
+            android:background="@drawable/btn_login"/>
+
+        <!-- Staged progress bar (determinate) -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressStage"
+            style="?attr/linearProgressIndicatorStyle"
+            android:layout_width="match_parent"
+            android:layout_height="12dp"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="0" />
+
+        <!-- Stage labels -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Submitted"
+                android:textSize="10sp"
+                android:textColor="@color/text_faded"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="In Progress"
+                android:textSize="10sp"
+                android:textColor="@color/text_faded"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Awaiting Feedback"
+                android:textSize="10sp"
+                android:textColor="@color/text_faded"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="Complete"
+                android:textSize="10sp"
+                android:textColor="@color/text_faded"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

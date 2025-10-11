@@ -31,7 +31,8 @@ object RetrofitInstance {
     private val gson by lazy {
         GsonBuilder()
             .setLenient()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            // We handle mixed date shapes via FlexTimeAdapter instead of setDateFormat
+            .registerTypeAdapter(FlexTime::class.java, FlexTimeAdapter())
             .create()
     }
 

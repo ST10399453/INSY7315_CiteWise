@@ -74,6 +74,8 @@ dependencies {
 
     implementation(libs.logging.interceptor)
 
-
+    implementation("com.google.android.material:material:<latest>")
+    implementation("androidx.recyclerview:recyclerview:<latest>")
+    implementation("androidx.viewpager2:viewpager2:<latest>")
 
 }

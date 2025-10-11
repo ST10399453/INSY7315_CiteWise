@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="vp_page_padding">24dp</dimen>
+    <dimen name="vp_page_margin">12dp</dimen>
+</resources>

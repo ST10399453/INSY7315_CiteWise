@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/data/ServiceReviewsRepository.kt
 package com.example.citewise_mobile.data
 
 import com.example.citewise_mobile.api.ServiceRequestDto
@@ -45,6 +44,19 @@ class ServiceReviewsRepository(
         )
     }
 
+    /** List requests for the current user id. */
+    suspend fun listMyRequests(
+        status: String? = null,
+        userId: String?
+    ): NetResult<List<ServiceRequestDto>> = safe {
+        if (userId.isNullOrBlank()) return@safe Response.success(emptyList())
+        api.listRequests(
+            status = status,
+            userId = userId,
+            consultantId = null
+        )
+    }
+
     // ---- helpers ----
     private fun String.toRb(): RequestBody =
         toRequestBody("text/plain".toMediaTypeOrNull())
@@ -55,13 +67,16 @@ class ServiceReviewsRepository(
                 val resp = block()
                 if (resp.isSuccessful) {
                     val body = resp.body()
+                    android.util.Log.d("API", "success code=${resp.code()} body=$body")
                     if (body != null) NetResult.Ok(body)
                     else NetResult.Err("Empty response body", resp.code())
                 } else {
                     val err = resp.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                    android.util.Log.w("API", "error code=${resp.code()} err=$err")
                     NetResult.Err(err ?: "HTTP ${resp.code()}", resp.code())
                 }
             } catch (e: Exception) {
+                android.util.Log.e("API", "exception=${e.message}", e)
                 NetResult.Err(e.message ?: "Network error")
             }
         }
