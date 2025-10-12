@@ -9,6 +9,13 @@ import {
   getRequestById,
   transitionAssign,
 } from './db/dbManager.js';
+import {
+  transitionAssign,
+  transitionStartReview,
+  transitionSubmitReview,
+  transitionResubmit,
+  transitionCancel,
+} from './db/dbManager.js';
 
 dotenv.config();
 
@@ -119,12 +126,112 @@ app.post(
   }
 );
 
-// 5) PUT /requests/:id/assign — Admin only
+// 5) PUT /requests/:id/assign — Admin only (update existing assignment)
+app.put(
+  '/requests/:id/assign',
+  checkAuth,
+  param('id').isString(),
+  body('consultantId').optional().isString(),
+  body('deadline').optional(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const out = await transitionAssign({
+        id: req.params.id,
+        consultantId: req.body.consultantId ?? null,
+        deadline: req.body.deadline ?? null,
+        allowUpdate: true, // indicates it's an update
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
 
 // 6) POST /requests/:id/start-review — Consultant
+app.post(
+  '/requests/:id/start-review',
+  checkAuth,
+  param('id').isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const out = await transitionStartReview({
+        id: req.params.id,
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
 
 // 7) POST /requests/:id/review — Consultant outcome
+app.post(
+  '/requests/:id/review',
+  checkAuth,
+  param('id').isString(),
+  body('outcome').isString().isIn(['approve', 'reject', 'fail']),
+  body('feedback').optional().isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const out = await transitionSubmitReview({
+        id: req.params.id,
+        outcome: req.body.outcome,
+        feedback: req.body.feedback ?? null,
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
 
-// 8) POST /requests/:id/resubmit — Student 
+// 8) POST /requests/:id/resubmit — Student
+app.post(
+  '/requests/:id/resubmit',
+  checkAuth,
+  param('id').isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const out = await transitionResubmit({
+        id: req.params.id,
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
 
 // 9) POST /requests/:id/cancel — cancel anytime
+app.post(
+  '/requests/:id/cancel',
+  checkAuth,
+  param('id').isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const out = await transitionCancel({
+        id: req.params.id,
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
