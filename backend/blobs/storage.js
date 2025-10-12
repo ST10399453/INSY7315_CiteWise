@@ -80,7 +80,7 @@ export async function uploadToAzure({ blobPath, body, contentType }) {
 }
 
 // ---------- Signed URLs (Download/Preview) ----------
-export async function r2SignedUrl({ bucket, key, expiresSeconds = 900, disposition, filename }) {
+export async function r2SignedUrl({ bucket, key, expiresSeconds = 900, disposition, filename }) { //Temporary connection
   const cmd = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
@@ -99,7 +99,7 @@ function parseAzureConn(cs) {
   return { accountName: entries.AccountName, accountKey: entries.AccountKey };
 }
 
-export async function azureSasUrl({ container, blob, expiresMinutes = 15 }) {
+export async function azureSasUrl({ container, blob, expiresMinutes = 15 }) { //Creates temporary connection
   const { accountName, accountKey } = parseAzureConn(AZURE_CONN);
   const cred = new StorageSharedKeyCredential(accountName, accountKey);
   const now = new Date();
