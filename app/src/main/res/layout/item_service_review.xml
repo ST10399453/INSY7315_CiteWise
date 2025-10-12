@@ -2,16 +2,20 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/serviceCard"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="8dp"
     app:cardCornerRadius="20dp"
     app:cardUseCompatPadding="true"
+    app:cardPreventCornerOverlap="true"
     app:cardBackgroundColor="@android:color/transparent"
     app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/card_neumorphic_background"
         android:padding="16dp"
@@ -29,7 +33,7 @@
             android:ellipsize="end"
             android:maxLines="1"/>
 
-        <!-- Date + Last Updated -->
+        <!-- Dates -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,15 +76,19 @@
             android:fontFamily="@font/poppins_bold"
             android:background="@drawable/btn_login"/>
 
-        <!-- Staged progress bar (determinate) -->
+        <!-- Staged progress (Material LPI, BLUE) -->
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progressStage"
             style="?attr/linearProgressIndicatorStyle"
             android:layout_width="match_parent"
-            android:layout_height="12dp"
+            android:layout_height="8dp"
             android:layout_marginTop="10dp"
             android:max="100"
-            android:progress="0" />
+            android:progress="50"
+            app:indicatorColor="@color/gradient_middle"
+            app:trackColor="@color/text_light"
+            app:trackThickness="8dp"
+            app:indicatorInset="0dp" />
 
         <!-- Stage labels -->
         <LinearLayout
@@ -125,6 +133,5 @@
                 android:textSize="10sp"
                 android:textColor="@color/text_faded"/>
         </LinearLayout>
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

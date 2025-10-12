@@ -108,6 +108,7 @@
     <string name="quotation_note">A quotation will be generated after submission.</string>
     <string name="not_signed_in">User Not Signed In</string>
     <string name="uploading">Uploading...</string>
+    <string name="my_requests_title_default">No requests</string>
 
 
 </resources>
