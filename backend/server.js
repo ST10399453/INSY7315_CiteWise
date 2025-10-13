@@ -1,3 +1,4 @@
+// server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -53,7 +54,9 @@ function canAccessRequest(doc, user) {
   if (!doc || !user) return false;
   const isOwner = doc.userId === user.uid;
   const isConsultant = doc.consultantId && doc.consultantId === user.uid;
-  const isAdmin = Boolean(user.claims?.role === "admin" || user.claims?.admin === true);
+  const isAdmin = Boolean(
+    user.claims?.role === "admin" || user.claims?.admin === true
+  );
   return isOwner || isConsultant || isAdmin;
 }
 
@@ -64,9 +67,8 @@ app.get("/", (_req, res) =>
   res.send("CiteWise API is running (uploads: Cloudflare R2 + Azure Blob).")
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 1. Create request (POST /requests)
-// ─────────────────────────────────────────────────────────────────────────────
+// 1) Create request (multipart)
+// Android sends: file, documentName, serviceType, description, priority, deadline?
 app.post(
   "/requests",
   checkAuth,
@@ -90,21 +92,34 @@ app.post(
     if (v) return v;
 
     try {
-      if (!req.file) return res.status(400).json({ message: "file is required" });
+      if (!req.file)
+        return res.status(400).json({ message: "file is required" });
 
-      const { documentName, serviceType, description, priority, deadline = null } = req.body;
+      const {
+        documentName,
+        serviceType,
+        description,
+        priority,
+        deadline = null,
+      } = req.body;
+
       const mime = req.file.mimetype || "application/octet-stream";
       const size = req.file.size || req.file.buffer?.length || 0;
-
       const fileId = newFileId();
       const cleanName = safeName(documentName);
       const objectPath = `uploads/${fileId}/${cleanName}`;
 
+      // Upload to both clouds in parallel
       const [r2Meta, azureMeta] = await Promise.all([
         uploadToR2({ key: objectPath, body: req.file.buffer, contentType: mime }),
-        uploadToAzure({ blobPath: objectPath, body: req.file.buffer, contentType: mime }),
+        uploadToAzure({
+          blobPath: objectPath,
+          body: req.file.buffer,
+          contentType: mime,
+        }),
       ]);
 
+      // Firestore payload
       const payload = {
         userId: req.user.uid,
         consultantId: null,
@@ -113,7 +128,7 @@ app.post(
         priority,
         deadline: deadline || null,
         status: "Submitted",
-        documentId: fileId, // ✅ root-level field
+        documentId: fileId, // ✅ root-level
         file: {
           fileId,
           originalName: documentName,
@@ -121,8 +136,8 @@ app.post(
           size,
         },
         storage: {
-          cloudflare: r2Meta,
-          azure: azureMeta,
+          cloudflare: r2Meta, // { bucket, key }
+          azure: azureMeta, // { container, blob }
         },
       };
 
@@ -139,17 +154,181 @@ app.post(
   }
 );
 
+// 2) List requests
+app.get("/requests", checkAuth, async (req, res) => {
+  try {
+    const status = req.query.status ?? null;
+    const userId = (req.query.userId ?? req.user?.uid) || null;
+    const consultantId = req.query.consultantId ?? null;
+    const sort = req.query.sort ?? undefined;
+    const dir = req.query.dir ?? undefined;
+
+    const out = await getRequests({ status, userId, consultantId, sort, dir });
+    res.json(out);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// 3) Request details
+app.get("/requests/:id", checkAuth, param("id").isString(), async (req, res) => {
+  const v = bailIfInvalid(req, res);
+  if (v) return v;
+  try {
+    const out = await getRequestById(req.params.id);
+    res.json(out);
+  } catch (err) {
+    console.error(err);
+    res.status(404).json({ message: err.message });
+  }
+});
+
+// 4) Assign
+app.post(
+  "/requests/:id/assign",
+  checkAuth,
+  param("id").isString(),
+  body("consultantId").isString().notEmpty(),
+  body("deadline").optional().isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+    try {
+      const out = await transitionAssign({
+        id: req.params.id,
+        consultantId: req.body.consultantId,
+        deadline: req.body.deadline ?? null,
+        allowUpdate: false,
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
+// 5) Update assignment
+app.put(
+  "/requests/:id/assign",
+  checkAuth,
+  param("id").isString(),
+  body("consultantId").optional().isString(),
+  body("deadline").optional().isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+    try {
+      const out = await transitionAssign({
+        id: req.params.id,
+        consultantId: req.body.consultantId ?? null,
+        deadline: req.body.deadline ?? null,
+        allowUpdate: true,
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
+// 6) Start review
+app.post(
+  "/requests/:id/start-review",
+  checkAuth,
+  param("id").isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+    try {
+      const out = await transitionStartReview({ id: req.params.id, actor: req.user });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
+// 7) Submit review
+app.post(
+  "/requests/:id/review",
+  checkAuth,
+  param("id").isString(),
+  body("outcome").isIn(["approve", "reject", "fail"]),
+  body("feedback").optional().isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+    try {
+      const out = await transitionSubmitReview({
+        id: req.params.id,
+        outcome: req.body.outcome,
+        feedback: req.body.feedback ?? null,
+        actor: req.user,
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
+// 8) Resubmit (Pending → Assigned)
+app.post(
+  "/requests/:id/resubmit",
+  checkAuth,
+  param("id").isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+    try {
+      const out = await transitionResubmit({ id: req.params.id, actor: req.user });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
+// 9) Cancel
+app.post(
+  "/requests/:id/cancel",
+  checkAuth,
+  param("id").isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+    try {
+      const out = await transitionCancel({ id: req.params.id, actor: req.user });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Downloads
+// Document download/stream by documentId (file.fileId)
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Signed URL (good for external opening/downloading)
 app.get("/documents/:documentId/download", checkAuth, async (req, res) => {
   try {
     const reqDoc = await getRequestByDocumentId(req.params.documentId);
     if (!reqDoc) return res.status(404).json({ message: "Document not found" });
-    if (!canAccessRequest(reqDoc, req.user)) return res.status(403).json({ message: "Forbidden" });
+    if (!canAccessRequest(reqDoc, req.user))
+      return res.status(403).json({ message: "Forbidden" });
 
-    const provider = (req.query.provider || "r2").toLowerCase();
-    const disposition = (req.query.disposition || "inline").toLowerCase();
+    const provider = (req.query.provider || "r2").toLowerCase(); // "r2" | "azure"
+    const disposition = (req.query.disposition || "inline").toLowerCase(); // "inline" | "attachment"
     const expires = Math.max(60, Math.min(7200, parseInt(req.query.expires || "900", 10)));
     const filename = reqDoc?.file?.originalName || "document";
 
@@ -173,6 +352,44 @@ app.get("/documents/:documentId/download", checkAuth, async (req, res) => {
     }
 
     res.json({ url, expiresInSeconds: ttl, provider });
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ message: e.message });
+  }
+});
+
+app.get("/documents/:documentId/file", checkAuth, async (req, res) => {
+  try {
+    const reqDoc = await getRequestByDocumentId(req.params.documentId);
+    if (!reqDoc) return res.status(404).json({ message: "Document not found" });
+    if (!canAccessRequest(reqDoc, req.user))
+      return res.status(403).json({ message: "Forbidden" });
+
+    const provider = (req.query.provider || "r2").toLowerCase(); // "r2" | "azure"
+    const disposition = (req.query.disposition || "inline").toLowerCase();
+    const filename = reqDoc?.file?.originalName || "document";
+
+    const meta =
+      provider === "azure"
+        ? await streamFromAzure({
+            container: reqDoc.storage.azure.container,
+            blob: reqDoc.storage.azure.blob,
+          })
+        : await streamFromR2({
+            bucket: reqDoc.storage.cloudflare.bucket,
+            key: reqDoc.storage.cloudflare.key,
+          });
+
+    res.setHeader("Content-Type", meta.contentType || "application/octet-stream");
+    if (meta.contentLength) {
+      res.setHeader("Content-Length", String(meta.contentLength));
+    }
+    res.setHeader(
+      "Content-Disposition",
+      `${disposition}; filename="${encodeURIComponent(filename)}"`
+    );
+
+    meta.stream.pipe(res);
   } catch (e) {
     console.error(e);
     res.status(400).json({ message: e.message });
