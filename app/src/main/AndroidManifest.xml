@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".CiteWiseApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -13,6 +16,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CiteWise_Mobile"
         tools:targetApi="31">
+        <activity
+            android:name=".TaskDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ServiceReviewsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ServiceReviewsListActivity"
+            android:exported="false" />
         <activity
             android:name=".AdminProfileSettingsActivity"
             android:exported="false" />
@@ -42,15 +54,6 @@
             android:exported="false" />
         <activity
             android:name=".RequestServiceSuccessActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RequestServiceStep4Activity"
-            android:exported="false" />
-        <activity
-            android:name=".RequestServiceStep3Activity"
-            android:exported="false" />
-        <activity
-            android:name=".RequestServiceStep2Activity"
             android:exported="false" />
         <activity
             android:name=".RequestServiceStepsActivity"
@@ -88,6 +91,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <meta-data
             android:name="preloaded_fonts"

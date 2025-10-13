@@ -47,21 +47,7 @@
             android:fontFamily="@font/poppins"
             android:textColor="@color/text_faded"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDone"
-            android:layout_width="320dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="12dp"
-            android:layout_margin="8dp"
-            android:background="@drawable/btn_register"
-            android:fontFamily="@font/poppins_bold"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="Done"
-            android:textAllCaps="true"
-            android:textSize="16sp"
-            android:textColor="@color/text_light"
-            app:backgroundTint="@null"/>
+
     </LinearLayout>
 
 

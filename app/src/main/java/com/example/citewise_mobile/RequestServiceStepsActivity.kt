@@ -21,17 +21,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceType
-import com.example.citewise_mobile.data.NetResult
-import com.example.citewise_mobile.data.ServiceReviewsRepository
+import com.example.citewise_mobile.offline.LocalRepos
+import com.example.citewise_mobile.offline.RequestsSyncWorker
+import com.example.citewise_mobile.offline.ServiceRequestEntity
+import com.example.citewise_mobile.offline.SyncState
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -53,6 +54,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private lateinit var services: List<String>
 
     // Step 2
+    private lateinit var etServiceTitle: TextInputEditText
     private lateinit var etAdditionalInfo: TextInputEditText
 
     // Step 3
@@ -68,6 +70,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
 
     // Cached state
     private var selectedService: String? = null
+    private var serviceTitle: String? = null
     private var additionalInfo: String? = null
     private var docName: String? = null
     private var urgencyLevel: String? = null
@@ -76,8 +79,8 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     // SAF OpenDocument (documents only)
     private lateinit var pickDocLauncher: ActivityResultLauncher<Array<String>>
 
-    // Repository (Retrofit)
-    private val repo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
+    // Local Room access
+    private val localRepos by lazy { LocalRepos(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -132,6 +135,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         serviceSpinner = findViewById(R.id.serviceSpinner)
 
         // Step 2
+        etServiceTitle   = findViewById(R.id.etServiceTitle)
         etAdditionalInfo = findViewById(R.id.etAdditionalInfo)
 
         // Step 3
@@ -168,8 +172,12 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                     }
                     selectedService = services[serviceSpinner.selectedItemPosition]
                 }
-                1 -> { // Step 2
+                1 -> { // Step 2 – capture TITLE + DESCRIPTION
+                    serviceTitle = etServiceTitle.text?.toString()?.trim()
                     additionalInfo = etAdditionalInfo.text?.toString()?.trim()
+                    if (serviceTitle.isNullOrEmpty()) {
+                        toast(getString(R.string.enter_service_title)); return@setOnClickListener
+                    }
                 }
                 2 -> { // Step 3 (validate only)
                     docName = etDocName.text?.toString()?.trim()
@@ -180,14 +188,14 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                         toast(getString(R.string.enter_document_name)); return@setOnClickListener
                     }
                 }
-                3 -> { // Step 4 -> SEND TO API
+                3 -> { // Step 4 -> SAVE LOCALLY & SYNC VIA WORKER
                     urgencyLevel = urgencySpinner.selectedItem?.toString()
                     deadlineText = etDeadline.text?.toString()
                     if (urgencyLevel.isNullOrEmpty()) {
                         toast(getString(R.string.select_urgency)); return@setOnClickListener
                     }
                     setLoading(true)
-                    sendToApi(
+                    sendToLocalDb(
                         onSuccess = {
                             setLoading(false)
                             goNextStep() // success screen
@@ -283,42 +291,51 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         }
     }
 
-    // ======= API integration (single multipart) =======
+    // ======= OFFLINE-FIRST SAVE (Room) + SYNC TRIGGER =======
 
-    private fun sendToApi(
+    private fun sendToLocalDb(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         val uri = pickedFileUri ?: return onError(getString(R.string.choose_file_first))
         val name = displayNameFromUri(uri) ?: (docName ?: "document")
-        val mime = contentResolver.getType(uri) ?: "application/octet-stream"
-        val description = (etAdditionalInfo.text?.toString()?.trim()).orEmpty()
 
-        val serviceTypeEnum = mapServiceType(selectedService)       // enum -> name
+        // Title & description from Step 2
+        val title = (serviceTitle ?: etServiceTitle.text?.toString()?.trim()).orEmpty()
+        val description = (additionalInfo ?: etAdditionalInfo.text?.toString()?.trim()).orEmpty()
+
+        val serviceTypeEnum = mapServiceType(selectedService)
         val priorityEnum = mapPriority(urgencyLevel)
         val deadlineIso = parseDeadlineIsoOrNull(deadlineText)
 
-        val fileForUpload = try { copyUriToTempFile(uri, name) }
+        val staged = try { copyUriToTempFile(uri, name) }
         catch (e: Exception) { return onError("Failed to stage file: ${e.message}") }
 
+        // Current Firebase user → we’ll use this to resolve first name later
+        val myUid = FirebaseAuth.getInstance().currentUser?.uid
+
         lifecycleScope.launch {
-            when (val res = repo.createRequestMultipart(
-                file = fileForUpload,
-                mime = mime,
-                documentName = name,
-                serviceType = serviceTypeEnum.name,
-                description = description,
-                priority = priorityEnum.name,
-                deadlineIso = deadlineIso
-            )) {
-                is NetResult.Ok -> {
-                    fileForUpload.delete()
-                    onSuccess()
-                }
-                is NetResult.Err -> {
-                    fileForUpload.delete()
-                    onError(res.message)
-                }
+            try {
+                val entity = ServiceRequestEntity(
+                    documentName = name,
+                    serviceType  = serviceTypeEnum.name,
+                    title        = title,
+                    description  = description,
+                    priority     = priorityEnum.name,
+                    deadlineIso  = deadlineIso,
+                    filePath     = staged.absolutePath,
+                    status       = "pending",
+                    syncState    = SyncState.PENDING_UPLOAD,
+                    userId       = myUid
+                )
+                localRepos.requests.insert(entity)
+
+                // Trigger immediate upload via WorkManager
+                RequestsSyncWorker.oneShot(this@RequestServiceStepsActivity)
+
+                onSuccess()
+            } catch (t: Throwable) {
+                onError(t.message ?: "Failed to save locally")
             }
         }
     }
@@ -348,9 +365,8 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private fun copyUriToTempFile(uri: Uri, displayName: String): File {
         val safeName = if (displayName.isBlank()) "upload.bin" else displayName
         val outFile = File(cacheDir, safeName)
-        contentResolver.openInputStream(uri)?.use { input ->
-            FileOutputStream(outFile).use { out -> input.copyTo(out) }
-        } ?: throw IllegalStateException("Cannot open stream for URI")
+        contentResolver.openInputStream(uri)?.use { input -> FileOutputStream(outFile).use { out -> input.copyTo(out) } }
+            ?: throw IllegalStateException("Cannot open stream for URI")
         return outFile
     }
 

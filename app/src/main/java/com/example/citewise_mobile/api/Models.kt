@@ -1,6 +1,8 @@
 package com.example.citewise_mobile.api
 
-enum class ServiceType {
+import java.io.Serializable
+
+enum class ServiceType : Serializable {
     PROOFREADING_EDITING,
     FORMATTING_REFERENCING,
     DATA_ANALYSIS_SUPPORT,
@@ -9,12 +11,8 @@ enum class ServiceType {
     OTHER
 }
 
-enum class ServicePriority { LOW, MEDIUM, HIGH }
+enum class ServicePriority : Serializable { LOW, MEDIUM, HIGH }
 
-/**
- * Server response after creating/fetching a request.
- * Match these to your backend fields if they differ.
- */
 data class ServiceRequestDto(
     val id: String? = null,
     val status: String? = null,
@@ -22,18 +20,25 @@ data class ServiceRequestDto(
     val userId: String? = null,
     val consultantId: String? = null,
     val serviceType: ServiceType? = null,
+    val title: String? = null,
     val description: String? = null,
     val priority: ServicePriority? = null,
-    val deadline: FlexTime? = null,     // ISO-8601
+    val deadline: FlexTime? = null,
     val createdAt: FlexTime? = null,
     val updatedAt: FlexTime? = null,
-    val feedback: String? = null
-)
+    val feedback: String? = null,
+    val studentName: String? = null,
+    val originalFileName: String? = null,
+    val originalFileUrl: String? = null,
+    val feedbackFileName: String? = null,
+    val feedbackFileUrl: String? = null
+) : Serializable
 
-// Small request payloads for assignment/review ops
+// ---- Small request payloads ----
+
 data class AssignRequestPayload(
     val consultantId: String,
-    val deadline: String? = null
+    val deadline: String? = null // ISO-8601 string
 )
 
 data class UpdateAssignmentPayload(
@@ -42,6 +47,6 @@ data class UpdateAssignmentPayload(
 )
 
 data class SubmitReviewPayload(
-    val outcome: String,        // "approve" | "reject" | "fail" (align with backend)
+    val outcome: String,        // "approve" | "reject" | "fail"
     val feedback: String? = null
 )

@@ -126,6 +126,30 @@
             android:progressDrawable="@drawable/custom_progress_bar_small"
             android:layout_marginBottom="12dp"/>
 
+        <!-- Added title field label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/service_title"
+            android:textColor="@color/text_dark"
+            android:fontFamily="@font/poppins_medium"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Added title input field with id etServiceTitle -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etServiceTitle"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/text_field"
+            android:hint="@string/enter_service_title"
+            android:fontFamily="@font/poppins"
+            android:paddingHorizontal="16dp"
+            android:textColor="@color/text_dark"
+            android:textColorHint="@color/text_dark"
+            android:textSize="14sp"
+            android:layout_marginBottom="16dp"/>
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etAdditionalInfo"
             android:layout_width="match_parent"

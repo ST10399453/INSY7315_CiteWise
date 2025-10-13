@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -74,8 +75,16 @@ dependencies {
 
     implementation(libs.logging.interceptor)
 
-    implementation("com.google.android.material:material:<latest>")
-    implementation("androidx.recyclerview:recyclerview:<latest>")
-    implementation("androidx.viewpager2:viewpager2:<latest>")
+    implementation(libs.material.vlatest)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.viewpager2)
+
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
+
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.androidx.work.runtime.ktx)
+
 
 }

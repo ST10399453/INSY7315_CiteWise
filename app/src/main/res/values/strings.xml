@@ -1,4 +1,3 @@
-
 <resources>
     <string name="app_name">CiteWise</string>
 
@@ -11,8 +10,8 @@
 
     <!-- Languages -->
     <string-array name="languages">
-    <item>English</item>
-    <item>isiZulu</item>
+        <item>English</item>
+        <item>isiZulu</item>
     </string-array>
 
     <string name="login_title">Log In</string>
@@ -109,6 +108,8 @@
     <string name="not_signed_in">User Not Signed In</string>
     <string name="uploading">Uploading...</string>
     <string name="my_requests_title_default">No requests</string>
+    <string name="enter_service_title">Enter Service Title</string>
+    <string name="service_title">Service Title</string>
 
 
 </resources>

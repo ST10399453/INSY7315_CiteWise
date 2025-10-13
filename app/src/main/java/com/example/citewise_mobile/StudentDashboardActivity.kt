@@ -234,8 +234,11 @@ class StudentDashboardActivity : BaseActivity() {
         if (items.isEmpty()) {
             showEmpty()
         } else {
-            rvRequests.adapter = ServiceReviewAdapter(items)
+            rvRequests.adapter = ServiceReviewAdapter(items) { clicked ->
+
+            }
             showHasRequests(items.size)
         }
     }
+
 }

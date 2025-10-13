@@ -57,4 +57,6 @@ object RetrofitInstance {
     }
 
     val api: ServiceReviewsApi by lazy { retrofit.create(ServiceReviewsApi::class.java) }
+    val documentsApi: DocumentsApi by lazy { retrofit.create(DocumentsApi::class.java) }
+    val messagesApi: MessagesApi by lazy { retrofit.create(MessagesApi::class.java) }
 }
