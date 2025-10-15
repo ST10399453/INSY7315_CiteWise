@@ -1,3 +1,4 @@
+// app/src/main/java/com/example/citewise_mobile/StudentDashboardActivity.kt
 package com.example.citewise_mobile
 
 import android.annotation.SuppressLint
@@ -9,25 +10,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.example.citewise_mobile.api.RetrofitInstance
-import com.example.citewise_mobile.api.ServiceRequestDto
-import com.example.citewise_mobile.data.NetResult
-import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.example.citewise_mobile.adapters.ServiceReviewAdapter
+import com.example.citewise_mobile.api.ServiceRequestDto
+import com.example.citewise_mobile.offline.LocalRepos
+import com.example.citewise_mobile.offline.RequestsPullWorker
+import com.example.citewise_mobile.offline.ServiceRequestEntity
+import com.example.citewise_mobile.offline.toServiceRequestDto
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
+import java.util.concurrent.TimeUnit
 
 class StudentDashboardActivity : BaseActivity() {
 
@@ -40,8 +42,16 @@ class StudentDashboardActivity : BaseActivity() {
     private lateinit var progressRequests: CircularProgressIndicator
     private lateinit var emptyRequests: View
 
-    private val repo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
-    private val db by lazy { FirebaseFirestore.getInstance() }
+    // Offline-first
+    private val local by lazy { LocalRepos(this) }
+
+    // Adapter data
+    private val items = mutableListOf<ServiceRequestDto>()
+    private lateinit var adapter: ServiceReviewAdapter
+
+    // Dashboard shows recent items
+    private val RECENT_DAYS = 7L
+    private val MAX_ITEMS = 10
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -143,12 +153,35 @@ class StudentDashboardActivity : BaseActivity() {
                 if (pos == 0) outRect.left = spacePx
             }
         })
+
+        // 9) Adapter (click opens TaskDetailsActivity)
+        adapter = ServiceReviewAdapter(items) { clicked ->
+            startActivity(
+                Intent(this, TaskDetailsActivity::class.java)
+                    .putExtra(TaskDetailsActivity.EXTRA_REQUEST, clicked)
+            )
+        }
+        rvRequests.adapter = adapter
+
+        // 10) CORRECT repeatOnLifecycle usage — launch ONCE here; it auto-starts/stops with STARTED state
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                showLoading()
+                local.requests.observeAll().collectLatest { entities ->
+                    val list = mapRecent(entities)
+                    items.clear()
+                    items.addAll(list)
+                    adapter.notifyDataSetChanged()
+                    if (items.isEmpty()) showEmpty() else showHasRequests(items.size)
+                }
+            }
+        }
     }
 
     override fun onStart() {
         super.onStart()
-        showLoading()
-        loadFromApiPrimary()
+        // Trigger background refresh; UI is already bound to Room via repeatOnLifecycle above
+        RequestsPullWorker.oneShot(this)
     }
 
     // --- state helpers ---
@@ -172,73 +205,13 @@ class StudentDashboardActivity : BaseActivity() {
         tvMyRequests.text = "My Requests ($count)"
     }
 
-    /** PRIMARY: Load from Render API using the signed-in Firebase user. */
-    private fun loadFromApiPrimary(status: String? = null) {
-        lifecycleScope.launch {
-            try {
-                val uid = FirebaseAuth.getInstance().currentUser?.uid
-                val res = withTimeout(15_000L) { repo.listMyRequests(status, uid) }
-                when (res) {
-                    is NetResult.Ok  -> {
-                        if (res.data.isNotEmpty()) bindRequests(res.data)
-                        else loadFromFirestoreFallback()
-                    }
-                    is NetResult.Err -> loadFromFirestoreFallback()
-                }
-            } catch (_: TimeoutCancellationException) {
-                loadFromFirestoreFallback()
-            } catch (_: Throwable) {
-                loadFromFirestoreFallback()
-            }
-        }
+    /** Recent items updated within RECENT_DAYS, limited to MAX_ITEMS. */
+    private fun mapRecent(entities: List<ServiceRequestEntity>): List<ServiceRequestDto> {
+        val cutoff = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(RECENT_DAYS)
+        return entities
+            .filter { it.updatedAt >= cutoff }
+            .sortedByDescending { it.updatedAt }
+            .take(MAX_ITEMS)
+            .map { it.toServiceRequestDto() }
     }
-
-    /** SECONDARY: Firestore fallback to ServiceReviews for the signed-in user. */
-    private fun loadFromFirestoreFallback() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
-            bindRequests(emptyList())
-            return
-        }
-
-        db.collection("ServiceReviews")
-            .whereEqualTo("userId", uid)
-            .orderBy("updatedAt", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { snap ->
-                val list = snap.documents.map { doc ->
-                    val d = doc.data ?: emptyMap<String, Any?>()
-                    ServiceRequestDto(
-                        id           = doc.id,
-                        status       = d["status"] as? String,
-                        documentId   = (d["documentId"] as? String) ?: (d["fileId"] as? String),
-                        userId       = d["userId"] as? String,
-                        consultantId = d["consultantId"] as? String,
-                        serviceType  = null,   // unknown from fallback → adapter can show "Other"
-                        description  = d["description"] as? String,
-                        priority     = null,
-                        deadline     = null,
-                        createdAt    = null,
-                        updatedAt    = null,
-                        feedback     = d["feedback"] as? String
-                    )
-                }
-                bindRequests(list)
-            }
-            .addOnFailureListener {
-                bindRequests(emptyList())
-            }
-    }
-
-    /** Bind list to horizontal RecyclerView. */
-    private fun bindRequests(items: List<ServiceRequestDto>) {
-        if (items.isEmpty()) {
-            showEmpty()
-        } else {
-            rvRequests.adapter = ServiceReviewAdapter(items) { clicked ->
-
-            }
-            showHasRequests(items.size)
-        }
-    }
-
 }

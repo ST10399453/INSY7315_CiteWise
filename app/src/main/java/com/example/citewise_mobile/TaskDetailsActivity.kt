@@ -1,7 +1,8 @@
-// app/src/main/java/com/example/citewise_mobile/TaskDetailsActivity.kt
 package com.example.citewise_mobile
 
+import android.app.DownloadManager
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -12,13 +13,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceRequestDto
 import com.example.citewise_mobile.api.ServiceType
 import com.example.citewise_mobile.api.toUiDate
 import com.example.citewise_mobile.data.DocumentsRepository
 import com.example.citewise_mobile.data.NetResult
-import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.offline.LocalRepos
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -26,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.net.URLConnection
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -36,8 +38,10 @@ class TaskDetailsActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_REQUEST = "extra_request"
-        // Must match your <provider> authority in AndroidManifest.xml
-        private const val FILE_PROVIDER_AUTH = "com.example.citewise_mobile.fileprovider"
+    }
+
+    private val fileProviderAuthority: String by lazy {
+        "${applicationContext.packageName}.fileprovider"
     }
 
     private lateinit var btnBack: ImageButton
@@ -54,12 +58,11 @@ class TaskDetailsActivity : AppCompatActivity() {
     private lateinit var rowFeedbackFile: View
     private lateinit var btnDownloadStudentFile: MaterialButton
     private lateinit var btnDownloadFeedbackFile: MaterialButton
-    private lateinit var btnViewStudentFile: MaterialButton // NEW: view inline
+    private lateinit var btnViewStudentFile: MaterialButton
 
     private lateinit var tvDescription: TextView
     private lateinit var progressStage: LinearProgressIndicator
 
-    // Local DB + documents
     private val localRepos by lazy { LocalRepos(this) }
     private val docsRepo by lazy { DocumentsRepository(RetrofitInstance.documentsApi, applicationContext) }
 
@@ -87,9 +90,6 @@ class TaskDetailsActivity : AppCompatActivity() {
         rowFeedbackFile = findViewById(R.id.rowFeedbackFile)
         btnDownloadStudentFile = findViewById(R.id.btnDownloadStudentFile)
         btnDownloadFeedbackFile = findViewById(R.id.btnDownloadFeedbackFile)
-
-        // If you added a “View PDF” button to the row layout, bind it here.
-        // Otherwise you can reuse Download button’s click for view as well.
         btnViewStudentFile = findViewById(R.id.btnViewStudentFile)
 
         // Additional info
@@ -98,16 +98,15 @@ class TaskDetailsActivity : AppCompatActivity() {
         // Progress
         progressStage = findViewById(R.id.progressStage)
 
-        // Retrieve the passed object
-        val req = intent.getSerializableExtra(EXTRA_REQUEST) as? ServiceRequestDto
-        if (req != null) bindRequest(req)
+        // Get request from Intent
+        (intent.getSerializableExtra(EXTRA_REQUEST) as? ServiceRequestDto)?.let { bindRequest(it) }
     }
 
     private fun bindRequest(req: ServiceRequestDto) {
         // Priority chip
         chipPriority.text = req.priority?.toPretty() ?: "—"
 
-        // Project title: prefer Service Title → Description → Category → fallback
+        // Title
         tvProjectName.text = when {
             !req.title.isNullOrBlank() -> req.title
             !req.description.isNullOrBlank() -> req.description
@@ -115,19 +114,13 @@ class TaskDetailsActivity : AppCompatActivity() {
             else -> "Untitled Project"
         }
 
-        // Deadline — prefer Firestore (FlexTime) → fallback to local Room deadlineIso
-        val deadlineFromFire = req.deadline?.toUiDate()
-        tvDeadline.text = deadlineFromFire ?: "—"
-        tvStudentAndDeadline.text = "Student     ${deadlineFromFire ?: "—"}"
+        // Deadline (prefer remote, fallback to local Room)
+        val deadlineFromRemote = req.deadline?.toUiDate()
+        tvDeadline.text = deadlineFromRemote ?: "—"
+        tvStudentAndDeadline.text = "Student     ${deadlineFromRemote ?: "—"}"
 
         lifecycleScope.launch(Dispatchers.IO) {
-            // 1) fallback to Room deadlineIso if Firestore missing
-            val finalDeadline = if (deadlineFromFire == null) {
-                val deadlineIso = tryFindLocalDeadlineIso(req)
-                isoToUiDate(deadlineIso) ?: "—"
-            } else deadlineFromFire
-
-            // 2) Student first name
+            val finalDeadline = deadlineFromRemote ?: isoToUiDate(tryFindLocalDeadlineIso(req)) ?: "—"
             val firstName = tryFindFirstName(req)
 
             withContext(Dispatchers.Main) {
@@ -136,10 +129,10 @@ class TaskDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // Service section
+        // Service
         tvServiceName.text = req.serviceType?.toPretty() ?: "Other"
 
-        // Files
+        // Files block
         val hasFeedback = !req.feedbackFileUrl.isNullOrEmpty()
         tvFilesCount.text = if (hasFeedback) "2" else "1"
 
@@ -147,29 +140,34 @@ class TaskDetailsActivity : AppCompatActivity() {
         tvFeedbackFileName.text = req.feedbackFileName ?: "Feedback/Annotated File"
         rowFeedbackFile.visibility = if (hasFeedback) View.VISIBLE else View.GONE
 
-        // DOWNLOAD original (streams through API → saves to app storage)
+        // Download (public Downloads via DownloadManager)
         btnDownloadStudentFile.setOnClickListener {
-            val docId = req.documentId
-            if (docId.isNullOrBlank()) {
-                toast("Document not available yet.")
-                return@setOnClickListener
+            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
+            val fileName = req.originalFileName ?: "$docId"
+            lifecycleScope.launch(Dispatchers.IO) {
+                when (val s = docsRepo.getSignedUrl(docId)) {
+                    is NetResult.Ok -> withContext(Dispatchers.Main) {
+                        enqueueSystemDownload(s.data, fileName)
+                    }
+                    is NetResult.Err -> withContext(Dispatchers.Main) {
+                        // fallback: save privately if signed URL not available
+                        when (val saved = docsRepo.downloadToDisk(docId, fileName)) {
+                            is NetResult.Ok -> toast("Saved to ${saved.data.absolutePath}")
+                            is NetResult.Err -> toast("Download failed: ${saved.message}")
+                        }
+                    }
+                }
             }
-            val fileName = req.originalFileName ?: "$docId.pdf"
-            downloadAndMaybeOpen(docId, fileName, openAfter = false)
         }
 
-        // VIEW original (download silently then open with FileProvider)
+        // View (save to app Downloads then in-app viewer)
         btnViewStudentFile.setOnClickListener {
-            val docId = req.documentId
-            if (docId.isNullOrBlank()) {
-                toast("Document not available yet.")
-                return@setOnClickListener
-            }
-            val fileName = req.originalFileName ?: "$docId.pdf"
-            downloadAndMaybeOpen(docId, fileName, openAfter = true)
+            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
+            val fileName = req.originalFileName ?: "$docId"
+            downloadAndOpenInApp(docId, fileName)
         }
 
-        // Download feedback if you have a direct URL; otherwise you could mirror student logic if you also store a feedback documentId
+        // Download feedback (direct URL if provided)
         btnDownloadFeedbackFile.setOnClickListener {
             val url = req.feedbackFileUrl
             if (url.isNullOrBlank()) {
@@ -179,22 +177,22 @@ class TaskDetailsActivity : AppCompatActivity() {
             openUrl(url)
         }
 
-        // Description (additional info)
-        tvDescription.text = req.description?.takeIf { it.isNotBlank() }
-            ?: "No additional information provided."
+        // Description
+        tvDescription.text = req.description?.takeIf { it.isNotBlank() } ?: "No additional information provided."
 
-        // Progress bar
-        val progress = statusToProgress(req.status.orEmpty())
-        progressStage.setProgressCompat(progress, true)
+        // Progress
+        progressStage.setProgressCompat(statusToProgress(req.status.orEmpty()), true)
     }
 
-    /** Download document (via DocumentsRepository → /documents/{id}/file) and optionally open it. */
-    private fun downloadAndMaybeOpen(documentId: String, preferredName: String, openAfter: Boolean) {
+    /** Download privately then open in in-app viewer. */
+    private fun downloadAndOpenInApp(documentId: String, preferredName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             when (val result = docsRepo.downloadToDisk(documentId, preferredName)) {
                 is NetResult.Ok -> withContext(Dispatchers.Main) {
-                    val file = result.data // <- use .data (fixes unresolved 'value')
-                    if (openAfter) openPdf(file) else toast("Saved to ${file.absolutePath}")
+                    val file = result.data
+                    val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
+                        .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
+                    startActivity(intent)
                 }
                 is NetResult.Err -> withContext(Dispatchers.Main) {
                     toast("Download failed: ${result.message}")
@@ -203,14 +201,26 @@ class TaskDetailsActivity : AppCompatActivity() {
         }
     }
 
-    /** Try to find a user first name from local Room by userId, fallback to DTO.studentName, else "Student". */
+    /** System Downloads via DownloadManager (public, visible, notification). */
+    private fun enqueueSystemDownload(url: String, fileName: String) {
+        val req = DownloadManager.Request(Uri.parse(url))
+            .setTitle(fileName)
+            .setDescription("Downloading…")
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_DOWNLOADS, fileName)
+            .setAllowedOverMetered(true)
+            .setAllowedOverRoaming(true)
+
+        val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        dm.enqueue(req)
+        toast("Downloading to system Downloads…")
+    }
+
+    /** Look up first name from local DB → DTO fallback → "Student". */
     private suspend fun tryFindFirstName(req: ServiceRequestDto): String = withContext(Dispatchers.IO) {
         val uid = req.userId
         if (!uid.isNullOrBlank()) {
-            val user = runCatching {
-                // If you add a direct DAO: localRepos.users.getById(uid)
-                localRepos.users.getAll().firstOrNull { it.uid == uid }
-            }.getOrNull()
+            val user = runCatching { localRepos.users.getAll().firstOrNull { it.uid == uid } }.getOrNull()
             val fromDb = user?.firstName?.takeIf { it.isNotBlank() }
             if (!fromDb.isNullOrBlank()) return@withContext fromDb
         }
@@ -218,22 +228,17 @@ class TaskDetailsActivity : AppCompatActivity() {
         return@withContext fromDto ?: "Student"
     }
 
-    /** Try to get deadlineIso from Room ServiceRequestEntity via remoteId, else by documentId. */
+    /** Try Room.deadlineIso by remoteId, else by documentId. */
     private suspend fun tryFindLocalDeadlineIso(req: ServiceRequestDto): String? = withContext(Dispatchers.IO) {
-        val remoteId = req.id
-        val byRemote = if (!remoteId.isNullOrBlank()) {
-            runCatching { localRepos.requests.findByRemoteId(remoteId) }.getOrNull()
-        } else null
-
+        val byRemote = req.id?.let { runCatching { localRepos.requests.findByRemoteId(it) }.getOrNull() }
         byRemote?.deadlineIso ?: run {
-            val docId = req.documentId
-            if (docId.isNullOrBlank()) return@run null
+            val docId = req.documentId ?: return@run null
             val all = runCatching { localRepos.requests.getAll() }.getOrNull().orEmpty()
             all.firstOrNull { it.documentId == docId }?.deadlineIso
         }
     }
 
-    /** Convert ISO-8601 Z (yyyy-MM-dd'T'HH:mm:ss'Z') → yyyy-MM-dd for UI. */
+    /** Convert ISO-8601 Z to yyyy-MM-dd for UI. */
     private fun isoToUiDate(iso: String?): String? {
         if (iso.isNullOrBlank()) return null
         val src = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
@@ -248,17 +253,18 @@ class TaskDetailsActivity : AppCompatActivity() {
         }
     }
 
-    /** Open a downloaded PDF using FileProvider (works with scoped storage). */
-    private fun openPdf(file: File) {
+    /** (Optional legacy) open with external app by MIME. */
+    private fun openFile(file: File) {
         try {
-            val uri: Uri = FileProvider.getUriForFile(this, FILE_PROVIDER_AUTH, file)
+            val uri: Uri = FileProvider.getUriForFile(this, fileProviderAuthority, file)
+            val mime = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
             val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "application/pdf")
+                setDataAndType(uri, mime)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             startActivity(intent)
         } catch (_: ActivityNotFoundException) {
-            toast("No PDF viewer installed.")
+            toast("No app installed to open ${file.extension.uppercase(Locale.ROOT)} files.")
         } catch (t: Throwable) {
             toast("Unable to open file: ${t.message}")
         }
@@ -266,10 +272,9 @@ class TaskDetailsActivity : AppCompatActivity() {
 
     private fun openUrl(url: String) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (_: Throwable) {
-            toast("No app can handle this link")
+            toast("No app can handle this link.")
         }
     }
 
@@ -290,7 +295,7 @@ class TaskDetailsActivity : AppCompatActivity() {
         ServiceType.OTHER -> "Other"
     }
 
-    private fun statusToProgress(status: String): Int = when (status.trim().lowercase()) {
+    private fun statusToProgress(status: String): Int = when (status.trim().lowercase(Locale.ROOT)) {
         "submitted", "pending" -> 25
         "assigned", "in_progress", "in progress" -> 50
         "feedback", "awaiting_feedback", "feedback ready" -> 75

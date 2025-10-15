@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <files-path name="docs" path="documents/" />
-    <cache-path name="cache" path="." />
-    <external-files-path name="ext_docs" path="Documents/" />
+    <!-- App-specific external Downloads/CiteWise -->
+    <external-files-path
+        name="downloads"
+        path="Download/CiteWise/" />
+
+    <!-- internal files if ever used -->
+    <files-path
+        name="internal_docs"
+        path="docs/" />
 </paths>

@@ -23,7 +23,7 @@ class ServiceReviewAdapter(
         val statusDonut: CircularProgressIndicator = view.findViewById(R.id.statusDonut)
         val ivChevron: ImageView = view.findViewById(R.id.ivChevron)
         val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
-        val tvStage: TextView = view.findViewById(R.id.tvStage)
+        //val tvStage: TextView = view.findViewById(R.id.tvStage)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -57,8 +57,8 @@ class ServiceReviewAdapter(
         }
 
         // Stage pill (shows status in friendly form)
-        h.tvStage.text = item.status?.replace("_", " ")?.lowercase()?.replaceFirstChar { it.uppercase() }
-            ?: "Pending"
+//        h.tvStage.text = item.status?.replace("_", " ")?.lowercase()?.replaceFirstChar { it.uppercase() }
+//            ?: "Pending"
 
         // Root click
         h.root.setOnClickListener { onItemClick(item) }
