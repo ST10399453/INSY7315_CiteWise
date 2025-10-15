@@ -60,6 +60,10 @@ function canAccessRequest(doc, user) {
   return isOwner || isConsultant || isAdmin;
 }
 
+function isAdmin(user) {
+  return Boolean(user?.claims?.role === "admin" || user?.claims?.admin === true);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Routes
 // ─────────────────────────────────────────────────────────────────────────────
@@ -397,6 +401,184 @@ app.get("/documents/:documentId/file", checkAuth, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// NEW: Resources — Create / List / Signed URL / Stream
+// (bucket directory is called "resources")
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Create resource (admin only)
+app.post(
+  "/resources",
+  checkAuth,
+  upload.single("file"),
+  body("name").isString().notEmpty(),
+  body("faculty").isString().notEmpty(),
+  body("category").isString().isIn(["WRITING_GUIDE", "TEMPLATE", "AI_USAGE"]),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+
+    try {
+      if (!isAdmin(req.user)) return res.status(403).json({ message: "Forbidden" });
+      if (!req.file) return res.status(400).json({ message: "file is required" });
+
+      const { name, faculty, category } = req.body;
+      const id = newFileId();
+      const clean = safeName(name);
+      const mime = req.file.mimetype || "application/pdf";
+      const size = req.file.size || req.file.buffer?.length || 0;
+
+      // directory name is 'resources'
+      const r2Key = `resources/${id}/${clean}${mime === "application/pdf" ? ".pdf" : ""}`;
+      const azBlob = r2Key;
+
+      const [r2Meta, azureMeta] = await Promise.all([
+        uploadToR2({ key: r2Key, body: req.file.buffer, contentType: mime }),
+        uploadToAzure({ blobPath: azBlob, body: req.file.buffer, contentType: mime }),
+      ]);
+
+      const doc = {
+        id,
+        name,
+        faculty,
+        category,
+        mimeType: mime,
+        size,
+        storage: {
+          r2: { bucket: r2Meta.bucket, key: r2Meta.key },
+          azure: { container: azureMeta.container, blob: azureMeta.blob },
+        },
+        visibility: "students",
+        createdBy: req.user.uid,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      await fsdb.collection("resources").doc(id).set(doc);
+
+      res.status(201).json({
+        id: doc.id,
+        name: doc.name,
+        faculty: doc.faculty,
+        category: doc.category,
+        mimeType: doc.mimeType,
+        size: doc.size,
+        updatedAt: doc.updatedAt,
+      });
+    } catch (e) {
+      console.error(e);
+      res.status(400).json({ message: e.message });
+    }
+  }
+);
+
+// List resources (students; filters + sort)
+app.get("/resources", checkAuth, async (req, res) => {
+  try {
+    const { faculty, visibility, q, sort = "date", dir = "desc" } = req.query;
+
+    let ref = fsdb.collection("resources");
+    if (faculty) ref = ref.where("faculty", "==", String(faculty));
+    if (visibility && visibility !== "all") ref = ref.where("visibility", "==", String(visibility));
+
+    const snap = await ref.get();
+    let items = snap.docs.map(d => d.data());
+
+    if (q) {
+      const needle = String(q).toLowerCase();
+      items = items.filter(x => (x.name || "").toLowerCase().includes(needle));
+    }
+
+    items.sort((a, b) => {
+      if (sort === "alpha") {
+        const A = (a.name || "").toLowerCase();
+        const B = (b.name || "").toLowerCase();
+        return A.localeCompare(B) * (dir === "desc" ? -1 : 1);
+      }
+      // default: date
+      const diff = (b.updatedAt || 0) - (a.updatedAt || 0);
+      return (dir === "desc" ? diff : -diff);
+    });
+
+    res.json(items.map(x => ({
+      id: x.id,
+      name: x.name,
+      faculty: x.faculty,
+      category: x.category,
+      mimeType: x.mimeType,
+      size: x.size,
+      updatedAt: x.updatedAt,
+    })));
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ message: e.message });
+  }
+});
+
+// Signed URL for a resource
+app.get("/resources/:id/download", checkAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const disposition = String(req.query.disposition || "inline").toLowerCase();
+    const provider = String(req.query.provider || "r2").toLowerCase(); // r2 | azure
+    const expires = Math.max(60, Math.min(7200, parseInt(req.query.expires || "900", 10)));
+
+    const docSnap = await fsdb.collection("resources").doc(id).get();
+    if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
+    const doc = docSnap.data();
+
+    let url, ttl;
+    if (provider === "azure" && doc.storage?.azure) {
+      url = await azureSasUrl({
+        container: doc.storage.azure.container,
+        blob: doc.storage.azure.blob,
+        expiresMinutes: Math.ceil(expires / 60),
+      });
+      ttl = Math.ceil(expires / 60) * 60;
+    } else {
+      url = await r2SignedUrl({
+        bucket: doc.storage.r2.bucket,
+        key: doc.storage.r2.key,
+        expiresSeconds: expires,
+        disposition,
+        filename: doc.name || "resource",
+      });
+      ttl = expires;
+    }
+
+    res.json({ url, expiresInSeconds: ttl, provider });
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ message: e.message });
+  }
+});
+
+// Optional: stream resource through API
+app.get("/resources/:id/file", checkAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const provider = String(req.query.provider || "r2").toLowerCase();
+    const disposition = String(req.query.disposition || "inline").toLowerCase();
+
+    const docSnap = await fsdb.collection("resources").doc(id).get();
+    if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
+    const doc = docSnap.data();
+
+    const filename = doc.name || "resource";
+    const meta = provider === "azure"
+      ? await streamFromAzure({ container: doc.storage.azure.container, blob: doc.storage.azure.blob })
+      : await streamFromR2({ bucket: doc.storage.r2.bucket, key: doc.storage.r2.key });
+
+    res.setHeader("Content-Type", meta.contentType || doc.mimeType || "application/octet-stream");
+    if (meta.contentLength) res.setHeader("Content-Length", String(meta.contentLength));
+    res.setHeader("Content-Disposition", `${disposition}; filename="${encodeURIComponent(filename)}"`);
+    meta.stream.pipe(res);
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ message: e.message });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Startup
 // ─────────────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8081;
@@ -409,6 +591,7 @@ const PORT = process.env.PORT || 8081;
       await ensureR2Bucket();
       await ensureAzureContainer();
     }
+    // directory in bucket is called "resources"
     app.listen(PORT, () => console.log(`Server listening on :${PORT}`));
   } catch (err) {
     console.error("Startup failed:", err);
