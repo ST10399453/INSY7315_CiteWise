@@ -24,7 +24,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="back"
+                android:contentDescription="Back"
                 android:src="@drawable/ic_chevron_left"
                 app:tint="@color/gradient_end"
                 android:layout_alignParentStart="true"
@@ -101,7 +101,7 @@
                     android:id="@+id/tvStudentAndDeadline"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Student name     Deadline"
+                    android:text="Student name"
                     android:textSize="12sp"
                     android:textColor="@color/text_faded"
                     android:fontFamily="@font/poppins"
@@ -131,9 +131,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Service"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textColor="@color/text_faded"
-                    android:fontFamily="@font/poppins_medium" />
+                    android:fontFamily="sans-serif-medium" />
 
                 <TextView
                     android:id="@+id/tvServiceName"
@@ -176,7 +176,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Files"
-                        android:textSize="14sp"
+                        android:textSize="16sp"
                         android:textColor="@color/text_faded"
                         android:fontFamily="@font/poppins_medium" />
 
@@ -216,29 +216,27 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewStudentFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="40dp"
                         android:layout_height="36dp"
-                        android:text="View"
-                        android:textAllCaps="false"
-                        android:textColor="@color/gradient_middle"
+                        android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
                         app:icon="@drawable/ic_eye"
-                        app:iconGravity="textStart"
-                        app:iconPadding="8dp"
-                        android:layout_marginEnd="8dp" />
+                        app:iconTint="@color/text_dark"
+                        app:iconSize="18dp"
+                        android:contentDescription="View" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadStudentFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="40dp"
                         android:layout_height="36dp"
-                        android:text="Download"
-                        android:textAllCaps="false"
-                        android:textColor="@color/gradient_middle"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
                         app:icon="@drawable/ic_download"
-                        app:iconGravity="textStart"
-                        app:iconPadding="8dp" />
+                        app:iconTint="@color/text_dark"
+                        app:iconSize="18dp"
+                        android:contentDescription="Download" />
                 </LinearLayout>
 
                 <!-- Feedback/annotated file line (optional) -->
@@ -265,29 +263,27 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewFeedbackFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="40dp"
                         android:layout_height="36dp"
-                        android:text="View"
-                        android:textAllCaps="false"
-                        android:textColor="@color/gradient_middle"
+                        android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
                         app:icon="@drawable/ic_eye"
-                        app:iconGravity="textStart"
-                        app:iconPadding="8dp"
-                        android:layout_marginEnd="8dp" />
+                        app:iconTint="@color/text_dark"
+                        app:iconSize="18dp"
+                        android:contentDescription="View" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadFeedbackFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="40dp"
                         android:layout_height="36dp"
-                        android:text="Download"
-                        android:textAllCaps="false"
-                        android:textColor="@color/gradient_middle"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
                         app:icon="@drawable/ic_download"
-                        app:iconGravity="textStart"
-                        app:iconPadding="8dp" />
+                        app:iconTint="@color/text_dark"
+                        app:iconSize="18dp"
+                        android:contentDescription="Download" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -330,6 +326,209 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Quote -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="18dp"
+            app:cardUseCompatPadding="true"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_neumorphic_background"
+                android:padding="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quote"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_faded"
+                    android:fontFamily="@font/poppins_medium" />
+
+                <!-- Metrics row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_soft"
+                        android:padding="10dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Word count"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded" />
+
+                        <TextView
+                            android:id="@+id/tvWordCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_dark"
+                            android:fontFamily="@font/poppins_medium" />
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="1dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_soft"
+                        android:padding="10dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cost per word"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded" />
+
+                        <TextView
+                            android:id="@+id/tvCostPerWord"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_dark"
+                            android:fontFamily="@font/poppins_medium" />
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="1dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_soft"
+                        android:padding="10dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Urgency increase"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded" />
+
+                        <TextView
+                            android:id="@+id/tvUrgencyIncrease"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_dark"
+                            android:fontFamily="@font/poppins_medium" />
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="8dp"
+                        android:layout_height="1dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_soft"
+                        android:padding="10dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded" />
+
+                        <TextView
+                            android:id="@+id/tvTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_dark"
+                            android:fontFamily="@font/poppins_bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Action buttons WITH text -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAcceptQuote"
+                        style="@style/Widget.MaterialComponents.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:backgroundTint="@color/gradient_middle"
+                        android:text="Accept"
+                        android:textAllCaps="false"
+                        android:textColor="@android:color/white"
+                        app:cornerRadius="18dp"
+                        android:textSize="10dp"
+                        app:icon="@drawable/ic_check"
+                        app:iconTint="@android:color/white"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDeclineQuote"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:text="Decline"
+                        android:textSize="10dp"
+                        android:textAllCaps="false"
+                        android:textColor="@color/gradient_middle"
+                        app:strokeColor="@color/gradient_middle"
+                        app:icon="@drawable/ic_close"
+                        app:iconTint="@color/gradient_middle"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRequestReview"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:text="Query"
+                        android:textSize="10dp"
+                        android:textAllCaps="false"
+                        android:textColor="@color/gradient_middle"
+                        app:strokeColor="@color/gradient_middle"
+                        app:icon="@drawable/ic_edit"
+                        app:iconTint="@color/gradient_middle"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Progress -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -337,7 +536,8 @@
             app:cardCornerRadius="18dp"
             app:cardUseCompatPadding="true"
             app:cardBackgroundColor="@android:color/transparent"
-            app:strokeWidth="0dp">
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -377,7 +577,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Submitted"
+                        android:text="Request Submitted"
                         android:textSize="11sp"
                         android:textColor="@color/text_faded" />
 
@@ -386,7 +586,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:text="In Progress"
+                        android:text="Work in Progress"
                         android:textSize="11sp"
                         android:textColor="@color/text_faded" />
 
@@ -411,8 +611,83 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Consultant -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="18dp"
+            app:cardUseCompatPadding="true"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_neumorphic_background"
+                android:padding="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Consultant"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_faded"
+                    android:fontFamily="@font/poppins_medium" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/imgConsultantAvatar"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_avatar_placeholder"
+                        android:background="@drawable/bg_circle_soft"
+                        android:contentDescription="Avatar" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+
+                        <TextView
+                            android:id="@+id/tvConsultantName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Name"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_dark"
+                            android:fontFamily="@font/poppins_medium" />
+
+                        <TextView
+                            android:id="@+id/tvConsultantAvailability"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Availability"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded" />
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/btnChatConsultant"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Message"
+                        android:src="@drawable/ic_chat"
+                        app:tint="@color/text_dark" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <View
             android:layout_width="match_parent"
-            android:layout_height="24dp"/>
+            android:layout_height="24dp" />
     </LinearLayout>
 </ScrollView>

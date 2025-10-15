@@ -125,7 +125,7 @@ class TaskDetailsActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 tvDeadline.text = finalDeadline
-                tvStudentAndDeadline.text = "$firstName     $finalDeadline"
+                tvStudentAndDeadline.text = "$firstName"
             }
         }
 
