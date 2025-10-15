@@ -54,9 +54,7 @@ function canAccessRequest(doc, user) {
   if (!doc || !user) return false;
   const isOwner = doc.userId === user.uid;
   const isConsultant = doc.consultantId && doc.consultantId === user.uid;
-  const isAdmin = Boolean(
-    user.claims?.role === "admin" || user.claims?.admin === true
-  );
+  const isAdmin = Boolean(user.claims?.role === "admin" || user.claims?.admin === true);
   return isOwner || isConsultant || isAdmin;
 }
 
@@ -72,7 +70,6 @@ app.get("/", (_req, res) =>
 );
 
 // 1) Create request (multipart)
-// Android sends: file, documentName, serviceType, description, priority, deadline?
 app.post(
   "/requests",
   checkAuth,
@@ -96,16 +93,9 @@ app.post(
     if (v) return v;
 
     try {
-      if (!req.file)
-        return res.status(400).json({ message: "file is required" });
+      if (!req.file) return res.status(400).json({ message: "file is required" });
 
-      const {
-        documentName,
-        serviceType,
-        description,
-        priority,
-        deadline = null,
-      } = req.body;
+      const { documentName, serviceType, description, priority, deadline = null } = req.body;
 
       const mime = req.file.mimetype || "application/octet-stream";
       const size = req.file.size || req.file.buffer?.length || 0;
@@ -116,11 +106,7 @@ app.post(
       // Upload to both clouds in parallel
       const [r2Meta, azureMeta] = await Promise.all([
         uploadToR2({ key: objectPath, body: req.file.buffer, contentType: mime }),
-        uploadToAzure({
-          blobPath: objectPath,
-          body: req.file.buffer,
-          contentType: mime,
-        }),
+        uploadToAzure({ blobPath: objectPath, body: req.file.buffer, contentType: mime }),
       ]);
 
       // Firestore payload
@@ -132,7 +118,7 @@ app.post(
         priority,
         deadline: deadline || null,
         status: "Submitted",
-        documentId: fileId, 
+        documentId: fileId,
         file: {
           fileId,
           originalName: documentName,
@@ -362,6 +348,7 @@ app.get("/documents/:documentId/download", checkAuth, async (req, res) => {
   }
 });
 
+// Stream bytes (for in-app viewer)
 app.get("/documents/:documentId/file", checkAuth, async (req, res) => {
   try {
     const reqDoc = await getRequestByDocumentId(req.params.documentId);
@@ -401,8 +388,8 @@ app.get("/documents/:documentId/file", checkAuth, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// NEW: Resources — Create / List / Signed URL / Stream
-// (bucket directory is called "resources")
+// RESOURCES — Create / List / Signed URL / Stream
+// (bucket directory is "resources")
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Create resource (admin only)
@@ -427,27 +414,25 @@ app.post(
       const mime = req.file.mimetype || "application/pdf";
       const size = req.file.size || req.file.buffer?.length || 0;
 
-      // directory name is 'resources'
-      const r2Key = `resources/${id}/${clean}${mime === "application/pdf" ? ".pdf" : ""}`;
-      const azBlob = r2Key;
+      const objectKey = `resources/${id}/${clean}`;
 
       const [r2Meta, azureMeta] = await Promise.all([
-        uploadToR2({ key: r2Key, body: req.file.buffer, contentType: mime }),
-        uploadToAzure({ blobPath: azBlob, body: req.file.buffer, contentType: mime }),
+        uploadToR2({ key: objectKey, body: req.file.buffer, contentType: mime }),
+        uploadToAzure({ blobPath: objectKey, body: req.file.buffer, contentType: mime }),
       ]);
 
       const doc = {
         id,
-        name,
+        name: clean,
         faculty,
         category,
         mimeType: mime,
         size,
+        visibility: "students", // default
         storage: {
-          r2: { bucket: r2Meta.bucket, key: r2Meta.key },
-          azure: { container: azureMeta.container, blob: azureMeta.blob },
+          cloudflare: r2Meta, // { bucket, key }
+          azure: azureMeta,   // { container, blob }
         },
-        visibility: "students",
         createdBy: req.user.uid,
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -471,115 +456,158 @@ app.post(
   }
 );
 
-// List resources (students; filters + sort)
-app.get("/resources", checkAuth, async (req, res) => {
-  try {
-    const { faculty, visibility, q, sort = "date", dir = "desc" } = req.query;
+// List resources (filters + sort)
+app.get(
+  "/resources",
+  checkAuth,
+  query("faculty").optional().isString(),
+  query("visibility").optional().isString().isIn(["all", "students", "admins"]),
+  query("q").optional().isString(),
+  query("sort").optional().isString().isIn(["alpha", "date"]),
+  query("dir").optional().isString().isIn(["asc", "desc"]),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
 
-    let ref = fsdb.collection("resources");
-    if (faculty) ref = ref.where("faculty", "==", String(faculty));
-    if (visibility && visibility !== "all") ref = ref.where("visibility", "==", String(visibility));
+    try {
+      const { faculty, visibility, q, sort = "date", dir = "desc" } = req.query;
 
-    const snap = await ref.get();
-    let items = snap.docs.map(d => d.data());
+      let ref = fsdb.collection("resources");
+      if (faculty) ref = ref.where("faculty", "==", String(faculty));
+      if (visibility && visibility !== "all") ref = ref.where("visibility", "==", String(visibility));
 
-    if (q) {
-      const needle = String(q).toLowerCase();
-      items = items.filter(x => (x.name || "").toLowerCase().includes(needle));
-    }
+      const snap = await ref.get();
+      let items = snap.docs.map(d => d.data());
 
-    items.sort((a, b) => {
-      if (sort === "alpha") {
-        const A = (a.name || "").toLowerCase();
-        const B = (b.name || "").toLowerCase();
-        return A.localeCompare(B) * (dir === "desc" ? -1 : 1);
+      if (q) {
+        const needle = String(q).toLowerCase();
+        items = items.filter(x => (x.name || "").toLowerCase().includes(needle));
       }
-      // default: date
-      const diff = (b.updatedAt || 0) - (a.updatedAt || 0);
-      return (dir === "desc" ? diff : -diff);
-    });
 
-    res.json(items.map(x => ({
-      id: x.id,
-      name: x.name,
-      faculty: x.faculty,
-      category: x.category,
-      mimeType: x.mimeType,
-      size: x.size,
-      updatedAt: x.updatedAt,
-    })));
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ message: e.message });
+      items.sort((a, b) => {
+        if (sort === "alpha") {
+          const A = (a.name || "").toLowerCase();
+          const B = (b.name || "").toLowerCase();
+          const cmp = A.localeCompare(B);
+          return dir === "asc" ? cmp : -cmp;
+        }
+        const A = a.updatedAt || 0;
+        const B = b.updatedAt || 0;
+        return dir === "asc" ? A - B : B - A;
+      });
+
+      res.json(
+        items.map(x => ({
+          id: x.id,
+          name: x.name,
+          faculty: x.faculty,
+          category: x.category,
+          mimeType: x.mimeType,
+          size: x.size,
+          updatedAt: x.updatedAt,
+        }))
+      );
+    } catch (e) {
+      console.error(e);
+      res.status(400).json({ message: e.message });
+    }
   }
-});
+);
 
 // Signed URL for a resource
-app.get("/resources/:id/download", checkAuth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const disposition = String(req.query.disposition || "inline").toLowerCase();
-    const provider = String(req.query.provider || "r2").toLowerCase(); // r2 | azure
-    const expires = Math.max(60, Math.min(7200, parseInt(req.query.expires || "900", 10)));
+app.get(
+  "/resources/:id/download",
+  checkAuth,
+  param("id").isString(),
+  query("provider").optional().isString().isIn(["r2", "azure"]),
+  query("disposition").optional().isString().isIn(["inline", "attachment"]),
+  query("expires").optional().isInt({ min: 60, max: 7200 }),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
 
-    const docSnap = await fsdb.collection("resources").doc(id).get();
-    if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
-    const doc = docSnap.data();
+    try {
+      const { id } = req.params;
+      const provider = String(req.query.provider || "r2").toLowerCase();
+      const disposition = String(req.query.disposition || "inline").toLowerCase();
+      const expires = Math.max(60, Math.min(7200, parseInt(req.query.expires || "900", 10)));
 
-    let url, ttl;
-    if (provider === "azure" && doc.storage?.azure) {
-      url = await azureSasUrl({
-        container: doc.storage.azure.container,
-        blob: doc.storage.azure.blob,
-        expiresMinutes: Math.ceil(expires / 60),
-      });
-      ttl = Math.ceil(expires / 60) * 60;
-    } else {
-      url = await r2SignedUrl({
-        bucket: doc.storage.r2.bucket,
-        key: doc.storage.r2.key,
-        expiresSeconds: expires,
-        disposition,
-        filename: doc.name || "resource",
-      });
-      ttl = expires;
+      const docSnap = await fsdb.collection("resources").doc(id).get();
+      if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
+      const doc = docSnap.data();
+
+      let url, ttl;
+      if (provider === "azure" && doc.storage?.azure) {
+        url = await azureSasUrl({
+          container: doc.storage.azure.container,
+          blob: doc.storage.azure.blob,
+          expiresMinutes: Math.ceil(expires / 60),
+        });
+        ttl = Math.ceil(expires / 60) * 60;
+      } else {
+        url = await r2SignedUrl({
+          bucket: doc.storage.cloudflare.bucket,
+          key: doc.storage.cloudflare.key,
+          expiresSeconds: expires,
+          disposition,
+          filename: doc.name || "resource",
+        });
+        ttl = expires;
+      }
+
+      res.json({ url, expiresInSeconds: ttl, provider });
+    } catch (e) {
+      console.error(e);
+      res.status(400).json({ message: e.message });
     }
-
-    res.json({ url, expiresInSeconds: ttl, provider });
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ message: e.message });
   }
-});
+);
 
-// Optional: stream resource through API
-app.get("/resources/:id/file", checkAuth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const provider = String(req.query.provider || "r2").toLowerCase();
-    const disposition = String(req.query.disposition || "inline").toLowerCase();
+// Stream resource via API (for in-app viewer)
+app.get(
+  "/resources/:id/file",
+  checkAuth,
+  param("id").isString(),
+  query("provider").optional().isString().isIn(["r2", "azure"]),
+  query("disposition").optional().isString().isIn(["inline", "attachment"]),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
 
-    const docSnap = await fsdb.collection("resources").doc(id).get();
-    if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
-    const doc = docSnap.data();
+    try {
+      const { id } = req.params;
+      const provider = String(req.query.provider || "r2").toLowerCase();
+      const disposition = String(req.query.disposition || "inline").toLowerCase();
 
-    const filename = doc.name || "resource";
-    const meta = provider === "azure"
-      ? await streamFromAzure({ container: doc.storage.azure.container, blob: doc.storage.azure.blob })
-      : await streamFromR2({ bucket: doc.storage.r2.bucket, key: doc.storage.r2.key });
+      const docSnap = await fsdb.collection("resources").doc(id).get();
+      if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
+      const doc = docSnap.data();
 
-    res.setHeader("Content-Type", meta.contentType || doc.mimeType || "application/octet-stream");
-    if (meta.contentLength) res.setHeader("Content-Length", String(meta.contentLength));
-    res.setHeader("Content-Disposition", `${disposition}; filename="${encodeURIComponent(filename)}"`);
-    meta.stream.pipe(res);
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ message: e.message });
+      const filename = doc.name || "resource";
+      const meta =
+        provider === "azure"
+          ? await streamFromAzure({
+              container: doc.storage.azure.container,
+              blob: doc.storage.azure.blob,
+            })
+          : await streamFromR2({
+              bucket: doc.storage.cloudflare.bucket,
+              key: doc.storage.cloudflare.key,
+            });
+
+      res.setHeader("Content-Type", meta.contentType || doc.mimeType || "application/octet-stream");
+      if (meta.contentLength) res.setHeader("Content-Length", String(meta.contentLength));
+      res.setHeader("Content-Disposition", `${disposition}; filename="${encodeURIComponent(filename)}"`);
+      meta.stream.pipe(res);
+    } catch (e) {
+      console.error(e);
+      res.status(400).json({ message: e.message });
+    }
   }
-});
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Startup
+/** Startup */
 // ─────────────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8081;
 
