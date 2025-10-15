@@ -456,6 +456,56 @@ app.post(
   }
 );
 
+
+// // TEMP: Allow open access for testing (no auth)
+// app.post(
+//   "/resources",
+//   upload.single("file"),
+//   body("name").isString().notEmpty(),
+//   body("faculty").isString().notEmpty(),
+//   body("category").isString().isIn(["WRITING_GUIDE", "TEMPLATE", "AI_USAGE"]),
+//   async (req, res) => {
+//     try {
+//       // Skip isAdmin check
+//       if (!req.file) return res.status(400).json({ message: "file is required" });
+
+//       const { name, faculty, category } = req.body;
+//       const id = newFileId();
+//       const clean = safeName(name);
+//       const mime = req.file.mimetype || "application/pdf";
+//       const size = req.file.size || req.file.buffer?.length || 0;
+
+//       const objectKey = `resources/${id}/${clean}`;
+//       const [r2Meta, azureMeta] = await Promise.all([
+//         uploadToR2({ key: objectKey, body: req.file.buffer, contentType: mime }),
+//         uploadToAzure({ blobPath: objectKey, body: req.file.buffer, contentType: mime }),
+//       ]);
+
+//       const doc = {
+//         id,
+//         name: clean,
+//         faculty,
+//         category,
+//         mimeType: mime,
+//         size,
+//         visibility: "students",
+//         storage: { cloudflare: r2Meta, azure: azureMeta },
+//         createdBy: "test-user",
+//         createdAt: Date.now(),
+//         updatedAt: Date.now(),
+//       };
+
+//       await fsdb.collection("resources").doc(id).set(doc);
+
+//       res.status(201).json(doc);
+//     } catch (e) {
+//       console.error(e);
+//       res.status(400).json({ message: e.message });
+//     }
+//   }
+// );
+
+
 // List resources (filters + sort)
 app.get(
   "/resources",
