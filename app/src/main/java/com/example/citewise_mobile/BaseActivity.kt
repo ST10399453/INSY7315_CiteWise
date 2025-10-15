@@ -84,7 +84,7 @@ open class BaseActivity : AppCompatActivity() {
                 R.id.nav_request   -> launchTop(ServiceRequestActivity::class.java)
                 R.id.nav_resources -> {
                     // TODO replace when you add ResourcesActivity
-                    launchTop(ServiceRequestActivity::class.java)
+                    launchTop(ResourcesActivity::class.java)
                 }
                 R.id.nav_messages  -> launchTop(ChatsActivity::class.java)
                 R.id.nav_profile   -> launchTop(getProfileActivityClass())

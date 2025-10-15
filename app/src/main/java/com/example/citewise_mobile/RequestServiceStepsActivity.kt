@@ -213,7 +213,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
 
         btnAttachFile.setOnClickListener { pickDocLauncher.launch(allowedMimeTypes()) }
         etDeadline.setOnClickListener { showDatePicker() }
-        findViewById<MaterialButton>(R.id.btnDone)?.setOnClickListener { finish() }
+
     }
 
     private fun goNextStep() {
