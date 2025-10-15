@@ -14,7 +14,9 @@ private fun epochToIsoUTC(epochMillis: Long?): String? =
     epochMillis?.let { isoFmt.format(Date(it)) }
 
 /** Map server → local. We keep server truth for status/documentId/etc. */
-fun ServiceRequestDto.toEntityPreservingLocal(localFallback: ServiceRequestEntity? = null): ServiceRequestEntity {
+fun ServiceRequestDto.toEntityPreservingLocal(
+    localFallback: ServiceRequestEntity? = null
+): ServiceRequestEntity {
     val docName = localFallback?.documentName ?: (documentId ?: "document")
     val svcType = serviceType?.name ?: (localFallback?.serviceType ?: "OTHER")
     val desc    = description ?: (localFallback?.description ?: "")
@@ -33,7 +35,7 @@ fun ServiceRequestDto.toEntityPreservingLocal(localFallback: ServiceRequestEntit
         syncState    = SyncState.SYNCED
     )).copy(
         remoteId    = id,
-        documentId  = documentId, // <-- preserve server documentId
+        documentId  = documentId, // preserve server documentId
         status      = status ?: localFallback?.status ?: "submitted",
         serviceType = svcType,
         description = desc,

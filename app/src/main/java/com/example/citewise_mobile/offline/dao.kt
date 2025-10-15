@@ -44,15 +44,15 @@ interface ServiceRequestDao {
             } else {
                 val merged = existing.copy(
                     remoteId     = entity.remoteId,
-                    userId       = entity.userId ?: existing.userId,       // ✅ keep userId
+                    userId       = entity.userId ?: existing.userId,
                     consultantId = entity.consultantId ?: existing.consultantId,
                     status       = entity.status,
                     serviceType  = entity.serviceType,
-                    title        = entity.title ?: existing.title,          // ✅ keep title
+                    title        = entity.title ?: existing.title,
                     description  = entity.description,
                     priority     = entity.priority,
                     deadlineIso  = entity.deadlineIso,
-                    documentId   = entity.documentId ?: existing.documentId, // ✅ server GUID
+                    documentId   = entity.documentId ?: existing.documentId,
                     filePath     = existing.filePath ?: entity.filePath,
                     syncState    = SyncState.SYNCED,
                     updatedAt    = System.currentTimeMillis(),
@@ -128,4 +128,11 @@ interface DocumentDao {
 
     @Query("SELECT * FROM documents WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): DocumentEntity?
+
+    @Query("SELECT * FROM documents ORDER BY fileName COLLATE NOCASE ASC")
+    suspend fun getAllAlpha(): List<DocumentEntity>
+
+    @Query("SELECT * FROM documents ORDER BY updatedAt DESC")
+    suspend fun getAllByDate(): List<DocumentEntity>
+
 }

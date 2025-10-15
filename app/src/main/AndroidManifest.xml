@@ -29,13 +29,7 @@
             android:name=".ServiceReviewsActivity"
             android:exported="false" />
         <activity
-            android:name=".ServiceReviewsListActivity"
-            android:exported="false" />
-        <activity
             android:name=".AdminProfileSettingsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AdminUploadResourcesActivity"
             android:exported="false" />
         <activity
             android:name=".ConsultantProfileSettingsActivity"

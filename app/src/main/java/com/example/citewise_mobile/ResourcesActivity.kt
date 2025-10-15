@@ -1,178 +1,212 @@
 package com.example.citewise_mobile
 
-import android.content.Context
-import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.os.Build
+import DocumentsAdapter
+import android.app.DownloadManager
+import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
+import android.os.Environment
 import android.view.View
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.citewise_mobile.api.ResourcesViewModel
+import com.example.citewise_mobile.api.RetrofitInstance
+import com.example.citewise_mobile.data.DocumentsRepository
 import com.example.citewise_mobile.databinding.ActivityResourcesBinding
+import com.example.citewise_mobile.offline.DocumentEntity
+import com.example.citewise_mobile.offline.LocalRepos
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 
-/**
- * ResourcesActivity
- *
- * - Detects network connectivity and toggles between:
- *      • Online: shows the documents RecyclerView
- *      • Offline: shows a retry/“no internet” state
- * - Uses ViewBinding for activity_resources.xml
- * - Safe across API levels (M+ capabilities, pre-M fallback)
- *
- * Requires in AndroidManifest:
- * <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
- */
-class ResourcesActivity : AppCompatActivity() {
+class ResourcesActivity : BaseActivity() {
 
     private lateinit var binding: ActivityResourcesBinding
-    private lateinit var connectivityManager: ConnectivityManager
-    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private lateinit var vm: ResourcesViewModel
+    private lateinit var adapter: DocumentsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        binding = ActivityResourcesBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // 1) Use shared base layout (bottom nav, etc.)
+        setContentView(R.layout.activity_base)
+        applyInsets(R.id.main)
 
-        // Apply system bar insets to the top-level container (fallback to root if @id/main is absent)
-        val insetTarget: View = findViewById(R.id.main) ?: binding.root
-        ViewCompat.setOnApplyWindowInsetsListener(insetTarget) { v, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-            insets
+        // 2) Inflate resources screen into baseContent
+        val baseContent = findViewById<ViewGroup>(R.id.baseContent)
+        val content = layoutInflater.inflate(R.layout.activity_resources, baseContent, false)
+        binding = ActivityResourcesBinding.bind(content)
+        baseContent.addView(content)
+
+        // 3) Bottom nav like ServiceRequestActivity
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        setupBottomNav(bottomNav, R.id.nav_resources)
+
+        // 4) Set up UI
+        setupViewModel()
+        setupRecycler()
+        setupSearch()
+        setupSpinners()   // NEW: replaces toggle sort + ACT fields
+        setupAdminFab()
+
+        vm.refresh()
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Setup
+    // ─────────────────────────────────────────────────────────────────────────
+    private fun setupViewModel() {
+        val localRepos = LocalRepos(applicationContext)
+        val docsRepo = DocumentsRepository(RetrofitInstance.documentsApi, applicationContext)
+        val factory = ResourcesViewModel.Factory(
+            api = RetrofitInstance.documentsApi,
+            localRepos = localRepos,
+            docsRepo = docsRepo
+        )
+        vm = ViewModelProvider(this, factory)[ResourcesViewModel::class.java]
+    }
+
+    private fun setupRecycler() {
+        adapter = DocumentsAdapter(
+            onOverflow = ::showOverflow,
+            onOpen = ::openDocument   // tap = download
+        )
+        binding.rvDocuments.layoutManager = GridLayoutManager(this, 2)
+        binding.rvDocuments.adapter = adapter
+
+        lifecycleScope.launch {
+            vm.items.collect { list -> adapter.submitList(list) }
         }
+    }
 
-        connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private fun setupSearch() {
+        binding.etSearch.addTextChangedListener(SimpleTextWatcher { text ->
+            vm.setQuery(text)
+        })
+    }
 
-        // Retry button -> re-check connectivity or open Internet Settings panel
-        binding.btnRetry.setOnClickListener {
-            if (isConnected()) {
-                showOnline()
-                reloadData()
-            } else {
-                // Try to open the system Internet connectivity panel (Android 10+)
-                runCatching {
-                    startActivity(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
-                }.onFailure {
-                    Snackbar.make(binding.root, "Still offline. Check your connection.", Snackbar.LENGTH_SHORT).show()
+    private fun setupSpinners() {
+        // You can swap these for string-array resources if you have them.
+        val visibilityOptions = listOf("All", "Public", "Private")
+        val facultyOptions = listOf("All", "Engineering", "Science", "Humanities", "Business")
+        val sortOptions = listOf("Newest first", "Oldest first", "A–Z", "Z–A")
+
+        fun spinnerAdapter(items: List<String>) =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
+
+        binding.actVisibility.adapter = spinnerAdapter(visibilityOptions)
+        binding.actFaculty.adapter = spinnerAdapter(facultyOptions)
+        binding.actSort.adapter = spinnerAdapter(sortOptions)
+
+        // Avoid firing on initial selection
+        var ready = false
+        binding.actSort.post { ready = true }
+
+        binding.actVisibility.onItemSelected { _, pos ->
+            if (pos >= 0) vm.refresh() // hook to backend visibility if needed
+        }
+        binding.actFaculty.onItemSelected { _, _ ->
+            vm.setFaculty(binding.actFaculty.selectedItem?.toString())
+        }
+        binding.actSort.onItemSelected { _, pos ->
+            if (!ready) return@onItemSelected
+            when (pos) {
+                0 -> vm.setSort("date")     // Newest first
+                1 -> vm.setSort("date_asc") // Oldest first
+                2 -> vm.setSort("alpha")    // A–Z
+                3 -> vm.setSort("alpha_desc")
+            }
+        }
+        // Defaults
+        binding.actVisibility.setSelection(0)
+        binding.actFaculty.setSelection(0)
+        binding.actSort.setSelection(0)
+    }
+
+    private fun setupAdminFab() {
+        if (isAdmin()) binding.fabAdd.visibility = View.VISIBLE
+        binding.fabAdd.setOnClickListener {
+            AdminAddResourceBottomSheet().show(supportFragmentManager, "addResource")
+        }
+    }
+
+    private fun isAdmin(): Boolean = false
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Actions
+    // ─────────────────────────────────────────────────────────────────────────
+    private fun showOverflow(doc: DocumentEntity, anchor: View) {
+        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
+        popup.inflate(R.menu.menu_document_item) // only action_download inside
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_download -> { downloadExternal(doc); true }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    private fun openDocument(doc: DocumentEntity) = downloadExternal(doc)
+
+    private fun downloadExternal(doc: DocumentEntity) {
+        lifecycleScope.launch {
+            try {
+                val resp = RetrofitInstance.documentsApi.resourceSignedUrl(
+                    id = doc.id,
+                    disposition = "attachment",
+                    provider = null
+                )
+                if (!resp.isSuccessful) {
+                    Snackbar.make(binding.root, "Download link failed: ${resp.code()}", Snackbar.LENGTH_LONG).show()
+                    return@launch
                 }
-            }
-        }
-
-        // Initial state
-        if (isConnected()) {
-            showOnline()
-            reloadData()
-        } else {
-            showOffline()
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        registerNetworkListener()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unregisterNetworkListener()
-    }
-
-    /**
-     * Show content for online state.
-     */
-    private fun showOnline() {
-        binding.rvDocuments.visibility = View.VISIBLE
-        binding.stateNoInternet.visibility = View.GONE
-    }
-
-    /**
-     * Show content for offline state.
-     */
-    private fun showOffline() {
-        binding.rvDocuments.visibility = View.GONE
-        binding.stateNoInternet.visibility = View.VISIBLE
-    }
-
-    /**
-     * Determine whether device has validated internet connectivity.
-     */
-    private fun isConnected(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val active = connectivityManager.activeNetwork ?: return false
-            val caps = connectivityManager.getNetworkCapabilities(active) ?: return false
-            val hasTransport =
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                        caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
-                        caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
-            val hasInternet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            val validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            hasTransport && hasInternet && validated
-        } else {
-            @Suppress("DEPRECATION")
-            connectivityManager.activeNetworkInfo?.isConnected == true
-        }
-    }
-
-    /**
-     * Register a network listener that updates UI as connectivity changes.
-     */
-    private fun registerNetworkListener() {
-        networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                runOnUiThread {
-                    showOnline()
-                    // Optionally only reload if we came from offline -> online
-                    reloadData()
+                val url = resp.body()?.url
+                if (url.isNullOrBlank()) {
+                    Snackbar.make(binding.root, "Empty download URL", Snackbar.LENGTH_LONG).show()
+                    return@launch
                 }
-            }
 
-            override fun onLost(network: Network) {
-                runOnUiThread { showOffline() }
+                val dm = getSystemService(DownloadManager::class.java)
+                val req = DownloadManager.Request(Uri.parse(url))
+                    .setTitle(doc.fileName)
+                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    .setAllowedOverMetered(true)
+                    .setDestinationInExternalPublicDir(
+                        Environment.DIRECTORY_DOWNLOADS,
+                        "CiteWise/${doc.fileName}"
+                    )
+                dm.enqueue(req)
+                Snackbar.make(binding.root, "Downloading…", Snackbar.LENGTH_SHORT).show()
+            } catch (t: Throwable) {
+                Snackbar.make(binding.root, "Download failed: ${t.message}", Snackbar.LENGTH_LONG).show()
             }
-
-            override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
-                runOnUiThread {
-                    if (isConnected()) showOnline() else showOffline()
-                }
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connectivityManager.registerDefaultNetworkCallback(networkCallback!!)
-        } else {
-            val request = NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build()
-            connectivityManager.registerNetworkCallback(request, networkCallback!!)
         }
     }
+}
 
-    /**
-     * Unregister the previously registered network listener.
-     */
-    private fun unregisterNetworkListener() {
-        networkCallback?.let {
-            runCatching { connectivityManager.unregisterNetworkCallback(it) }
-            networkCallback = null
-        }
+/** Tiny helper to reduce TextWatcher boilerplate. */
+private class SimpleTextWatcher(
+    val onChange: (String) -> Unit
+) : android.text.TextWatcher {
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    override fun afterTextChanged(s: android.text.Editable?) {}
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+        onChange(s?.toString().orEmpty())
     }
+}
 
-    /**
-     * Hook to (re)load your documents for the RecyclerView.
-     * Call your ViewModel/Repository here.
-     */
-    private fun reloadData() {
-        // TODO: viewModel.loadDocuments() or trigger your adapter data refresh here.
-        // Example:
-        // viewModel.refresh(query = binding.etSearch.text?.toString(), ...)
+/** Extension to keep Spinner listeners tidy. */
+private inline fun android.widget.Spinner.onItemSelected(
+    crossinline block: (parent: AdapterView<*>, position: Int) -> Unit
+) {
+    onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(
+            parent: AdapterView<*>, view: View?, position: Int, id: Long
+        ) = block(parent, position)
+        override fun onNothingSelected(parent: AdapterView<*>) = Unit
     }
 }

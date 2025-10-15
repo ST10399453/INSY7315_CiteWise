@@ -1,211 +1,289 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="24dp"
-    tools:context=".ResourcesActivity">
+    android:background="@color/main_background"
+    android:paddingTop="32dp"
+    android:paddingBottom="20dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:text="Resources"
+        android:fontFamily="@font/poppins_sembold"
+        android:textColor="@color/gradient_end"
+        android:textSize="20sp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Heading card: copied style -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardContainer"
+    <!-- Subheading -->
+    <TextView
+        android:id="@+id/tvSub"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Browse, filter and download helpful documents."
+        android:textColor="@color/text_faded"
+        android:fontFamily="@font/poppins"
+        android:textSize="12sp"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Card container -->
+    <LinearLayout
+        android:id="@+id/cardContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/card_neumorphic_background"
+        android:padding="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintTop_toBottomOf="@id/tvSub"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Search label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search documents"
+            android:textColor="@color/text_dark"
+            android:fontFamily="@font/poppins_medium"
+            android:textSize="12sp"
+            android:layout_marginBottom="6dp"/>
+
+        <!-- Search field -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/text_field"
+            android:hint="Type to search"
+            android:fontFamily="@font/poppins"
+            android:paddingHorizontal="16dp"
+            android:imeOptions="actionSearch"
+            android:singleLine="true"
+            android:textColor="@color/text_dark"
+            android:textColorHint="@color/text_dark"
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Filters row -->
+        <LinearLayout
+            android:id="@+id/rowFilters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:cardUseCompatPadding="false"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp"
-            android:backgroundTint="@color/main_background"
-            app:cardPreventCornerOverlap="false">
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_marginTop="4dp">
 
+            <!-- Visibility -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:background="@drawable/card_neumorphic_background">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-                <!-- Title (same style) -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:fontFamily="@font/poppins_bold"
-                    android:text="Resources"
-                    android:textColor="@color/gradient_end"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="4dp"/>
-
-                <!-- Description -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins"
-                    android:lineSpacingExtra="4dp"
-                    android:text="Browse, filter and search documents. Preview or download from the grid below."
-                    android:textAlignment="center"
-                    android:gravity="center_horizontal"
-                    android:textColor="@color/text_faded"
+                    android:text="Visibility"
+                    android:textColor="@color/text_dark"
+                    android:fontFamily="@font/poppins_medium"
                     android:textSize="12sp"
-                    android:paddingBottom="16dp"/>
+                    android:layout_marginBottom="6dp"/>
 
-                <View
+                <Spinner
+                    android:id="@+id/actVisibility"
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#1A000000"
-                    android:layout_marginBottom="12dp"/>
-
-                <!-- Search -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilSearch"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Search documents"
-                    app:endIconMode="clear_text">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSearch"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeOptions="actionSearch"
-                        android:singleLine="true"
-                        tools:text="thesis proposal" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Filters row: Visibility, Faculty, Sort -->
-                <LinearLayout
-                    android:id="@+id/rowFilters"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="8dp">
-
-                    <!-- Visibility -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilVisibility"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="Visibility"
-                        app:endIconMode="dropdown_menu">
-
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/actVisibility"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            tools:text="All"
-                            android:inputType="none" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
-
-                    <!-- Faculty -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilFaculty"
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="Faculty"
-                        app:endIconMode="dropdown_menu">
-
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/actFaculty"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            tools:text="Engineering"
-                            android:inputType="none" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
-
-                    <!-- Sort by date uploaded -->
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/toggleSort"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnSortNewest"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Newest" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnSortOldest"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Oldest" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-                </LinearLayout>
+                    android:layout_height="48dp"
+                    android:background="@drawable/btn_login"
+                    android:popupBackground="@drawable/bg_spinner_popup_white"
+                    android:paddingLeft="8dp"/>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Grid (outside the card for more space) -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvDocuments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:spanCount="2"
-            tools:listitem="@layout/item_document_card" />
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="1dp"/>
 
-        <!-- Offline state (overlay-style section; keep hidden by default) -->
-        <LinearLayout
-            android:id="@+id/stateNoInternet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="24dp"
-            android:visibility="gone">
-
-            <ImageView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/ic_signal_off"
-                android:contentDescription="No internet" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Faculty -->
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="No internet connection"
-                android:textSize="16sp"
-                android:paddingTop="12dp" />
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Faculty"
+                    android:textColor="@color/text_dark"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="6dp"/>
+
+                <Spinner
+                    android:id="@+id/actFaculty"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/btn_login"
+                    android:popupBackground="@drawable/bg_spinner_popup_white"
+                    android:paddingLeft="8dp"/>
+            </LinearLayout>
+
+            <Space
+                android:layout_width="12dp"
+                android:layout_height="1dp"/>
+
+            <!-- Sort -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sort"
+                    android:textColor="@color/text_dark"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="6dp"/>
+
+                <Spinner
+                    android:id="@+id/actSort"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/btn_login"
+                    android:popupBackground="@drawable/bg_spinner_popup_white"
+                    android:paddingLeft="8dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Optional chips row (filters quick picks) - safe widths -->
+        <LinearLayout
+            android:id="@+id/quickChipsRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:gravity="start">
+
+            <!-- Keep simple buttons to avoid ChipGroup width crash -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipAll"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="All"
+                android:textAllCaps="false"
+                android:textColor="@color/text_dark"
+                android:background="@drawable/btn_login"
+                app:backgroundTint="@null"
+                android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRetry"
+                android:id="@+id/chipPdf"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Retry" />
+                android:layout_height="40dp"
+                android:text="PDF"
+                android:textAllCaps="false"
+                android:textColor="@color/text_dark"
+                android:background="@drawable/btn_login"
+                app:backgroundTint="@null"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chipDocs"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Docs"
+                android:textAllCaps="false"
+                android:textColor="@color/text_dark"
+                android:background="@drawable/btn_login"
+                app:backgroundTint="@null"/>
         </LinearLayout>
 
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+
+    <!-- Grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvDocuments"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/cardContainer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_document_card" />
+
+    <!-- Offline/empty state -->
+    <LinearLayout
+        android:id="@+id/stateNoInternet"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        app:layout_constraintTop_toTopOf="@id/rvDocuments"
+        app:layout_constraintBottom_toBottomOf="@id/rvDocuments"
+        app:layout_constraintStart_toStartOf="@id/rvDocuments"
+        app:layout_constraintEnd_toEndOf="@id/rvDocuments">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_signal_off"
+            android:contentDescription="No internet"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No internet connection"
+            android:textColor="@color/text_dark"
+            android:textSize="16sp"
+            android:layout_marginTop="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Retry"
+            android:textAllCaps="false"
+            android:textColor="@color/text_dark"
+            android:background="@drawable/btn_login"
+            app:backgroundTint="@null"
+            android:layout_marginTop="12dp"/>
+    </LinearLayout>
+
+    <!-- Admin add FAB (hidden if not admin) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add"
+        android:contentDescription="Add resource"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
