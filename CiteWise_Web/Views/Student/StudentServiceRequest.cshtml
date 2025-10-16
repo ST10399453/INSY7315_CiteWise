@@ -7,7 +7,7 @@
     <div class="centered">
         <h2 class="page-title">Request a Service</h2>
         <div class="progress-bar">
-            <div class="progress-fill" style="width: 25%;"></div>
+            <div class="progress-fill" style="width: 0%;"></div>
         </div>
 
         <div class="studentcard">
@@ -32,7 +32,7 @@
                         <label>
                             <input type="radio" asp-for="SelectedService" value="Translation" />Translation                  
                         </label><br>
-                        <span asp-validation-for="SelectedService" class="text-danger"></span>
+                        <span asp-validation-for="SelectedService" class="text-dangers"></span>
                         @* <button type="button" class="btn btn-primary float-end" onclick="nextStep(2)">Next</button> *@
                      </div>
                     <div class="button-container">
@@ -55,7 +55,7 @@
                     <h3>Step 3: Upload Your Document</h3>
                     <div class="form-group">
                     <input asp-for="Documents" type="file" class="form-control mb-3" />
-                    <span asp-validation-for="Documents" class="text-danger"></span>
+                    <span asp-validation-for="Documents" class="text-dangers"></span>
                     </div>
                     <div class="button-container">
                         <button type="button" class="btn-next" onclick="nextStep(4)">Next</button>
@@ -68,7 +68,7 @@
                     <div class="form-group">
                     <label>Enter Deadline</label>
                         <input asp-for="Deadline" type="date" class="form-input" />
-                        <span asp-validation-for="Deadline" class="text-danger"></span>
+                        <span asp-validation-for="Deadline" class="text-dangers"></span>
                     </div>
                     
                     <br/>
@@ -81,7 +81,7 @@
                             <option value="High">High</option>
                         </select>
                     </div>
-                    <span asp-validation-for="Urgency" class="text-danger"></span>
+                    <span asp-validation-for="Urgency" class="text-dangers"></span>
                     <div class="button-container">
                         <button type="submit" class="btn-next">Submit</button>
                     </div>
