@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CiteWise_Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a5bff69357b54e720ac5845ebf9450c30426415f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a878a8a3d0ecc7c539e3b6fdb57cd058a652113e")]
 [assembly: System.Reflection.AssemblyProductAttribute("CiteWise_Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CiteWise_Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

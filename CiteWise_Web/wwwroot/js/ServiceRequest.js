@@ -87,3 +87,15 @@ function nextStep(step) {
 $("input[name='Deadline'], select[name='Urgency']").on("change input", function () {
     updateProgress();
 });
+
+document.getElementById('documentUpload').addEventListener('change', function (e) {
+    const fileNameDisplay = document.getElementById('selectedFileName');
+    const fileName = e.target.files[0]?.name;
+
+    if (fileName) {
+        fileNameDisplay.textContent = fileName;
+        fileNameDisplay.classList.add('show');
+    } else {
+        fileNameDisplay.classList.remove('show');
+    }
+});

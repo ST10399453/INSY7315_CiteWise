@@ -1,6 +1,0 @@
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\auth.css
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\Dashboard.css
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\Hero.css
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\navbar.css
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\sidebar.css
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\student-form.css

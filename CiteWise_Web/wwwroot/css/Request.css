@@ -82,6 +82,24 @@ body.sidebar-collapsed {
         margin-bottom: 12px;
     }
 
+    .studentcard .form-group input[type="radio"] {
+        width: 18px; 
+        height: 18px; 
+        accent-color: #0027B2; 
+        vertical-align: middle; 
+        margin: 0 10px 0 0; 
+        flex-shrink: 0; 
+    }
+
+    .studentcard .form-group label {
+        display: flex;
+        align-items: center;
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #000;
+        margin-bottom: 12px;
+    }
+
 .custom-textarea {
     width: 100%;
     min-height: 250px;
@@ -201,3 +219,195 @@ select.input-validation-error {
         outline: none;
         border-color: #b71c1c !important;
     }
+
+
+
+
+.file-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* ✅ Center content horizontally */
+    justify-content: center;
+    gap: 16px;
+    padding: 18px;
+    border: 2px dashed #0027B2;
+    border-radius: 20px;
+    background: #F9FAFB;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    margin-bottom: 16px;
+    width: auto;
+    max-width: 350px;
+    align-self: flex-start;
+}
+
+
+
+    .file-upload-container:hover {
+        background: #F3F4F6;
+        border-color: #001a7a;
+    }
+
+.upload-icon {
+    width: 32px;
+    height: 32px;
+    opacity: 1;
+    display: block; /* ✅ makes it behave like a block */
+    margin: 0 auto; /* ✅ horizontally centers it */
+}
+
+
+.upload-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    color: #6B7280;
+    margin-top: 16px
+}
+
+.upload-lines {
+    width: 60px;
+    height: 2px;
+    background: #0027B2;
+}
+
+.upload-label {
+    font-weight: 500;
+    color: #757575;
+}
+
+.file-input-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.selected-file-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #0027B2;
+    padding: 12px 16px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+
+}
+
+    .selected-file-name.show {
+        display: flex;
+    }
+
+
+
+
+/* Input with Icon Container */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+}
+
+/* Styled Input Fields */
+.icon-input {
+    width: 100%;
+    max-width: 350px;
+    padding: 14px 50px 14px 18px;
+    border: 2px solid #0027b2; /* Changed from gray (#d1d5db) to blue */
+    border-radius: 12px; /* Rounded pill shape like in design */
+    font-size: 16px;
+    font-family: "Poppins", sans-serif;
+    background: #ffffff;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    appearance: none; /* Remove default browser styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+
+
+    .icon-input::placeholder {
+        color: #9ca3af;
+        font-size: 16px;
+    }
+
+/* Icon Positioning */
+.input-icon {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Allow clicks to pass through to input */
+    width: 24px;
+    height: 24px;
+}
+
+
+/* Select Dropdown - Hide default arrow */
+select.icon-input {
+    cursor: pointer;
+    background-image: none; /* Remove default dropdown arrow */
+}
+
+/* Date Input - Adjust for browser calendar icon */
+input[type="date"].icon-input {
+    position: relative;
+}
+
+    /* Hide default date picker icon in Chrome/Safari */
+    input[type="date"].icon-input::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        position: absolute;
+        right: 0;
+        width: 50px;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    /* Firefox date input */
+    input[type="date"].icon-input::-moz-calendar-picker-indicator {
+        opacity: 0;
+    }
+
+/* Form Group Spacing */
+.form-group {
+    margin-bottom: 24px;
+}
+
+    .form-group label {
+        display: block;
+        font-family: "Poppins", sans-serif;
+        font-size: 18px;
+        font-weight: 500;
+        color: #000000;
+        margin-bottom: 12px;
+    }
+
+/* Error State */
+input.input-validation-error.icon-input,
+select.input-validation-error.icon-input {
+    border-color: #d32f2f !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .icon-input {
+        padding: 12px 45px 12px 16px;
+        font-size: 14px;
+    }
+
+    .input-icon {
+        width: 20px;
+        height: 20px;
+        right: 14px;
+    }
+}
