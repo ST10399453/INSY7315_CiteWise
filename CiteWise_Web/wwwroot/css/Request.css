@@ -106,20 +106,22 @@ body.sidebar-collapsed {
     padding: 16px;
     font-size: 18px;
     line-height: 1.5;
-    border: 1px solid #E8EBF2;
+    border: 2px solid #0027B2;
     background: linear-gradient(145deg, rgba(230, 232, 238, 0.4) 0%, rgba(210, 214, 222, 0.4) 100%);
     backdrop-filter: blur(2px);
     border-radius: 16px;
-    resize: both;
+    resize: vertical;
     box-sizing: border-box;
     outline: none;
 
 }
 
-.custom-textarea:focus {
-    border-color: #3b82f6;       /* light blue focus */
-    box-shadow: 0 0 6px rgba(59,130,246,0.4);
-}
+    .custom-textarea:focus {
+        outline: none;
+        border-color: #001a7a; /* deep blue focus */
+        box-shadow: 0 0 8px rgba(0, 39, 178, 0.35);
+        background-color: #f8faff;
+    }
 
 
 .button-container {
@@ -334,6 +336,19 @@ select.input-validation-error {
 }
 
 
+    .icon-input:hover {
+        border-color: #001e8d; /* darker shade of blue */
+        box-shadow: 0 0 6px rgba(0, 39, 178, 0.25);
+    }
+
+    /* --- Focus State (when user clicks in input) --- */
+    .icon-input:focus {
+        outline: none;
+        border-color: #001a7a; /* deep blue focus */
+        box-shadow: 0 0 8px rgba(0, 39, 178, 0.35);
+        background-color: #f8faff; /* very light blue tint background */
+    }
+
 
     .icon-input::placeholder {
         color: #9ca3af;
@@ -373,10 +388,6 @@ input[type="date"].icon-input {
         cursor: pointer;
     }
 
-    /* Firefox date input */
-    input[type="date"].icon-input::-moz-calendar-picker-indicator {
-        opacity: 0;
-    }
 
 /* Form Group Spacing */
 .form-group {
