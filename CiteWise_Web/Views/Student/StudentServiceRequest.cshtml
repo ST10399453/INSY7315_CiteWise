@@ -129,19 +129,37 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const picker = flatpickr("#deadlinePicker", {
-            dateFormat: "Y-m-d",
-            altInput: true,
-            altFormat: "Y / m / d",
-            allowInput: true,
-            minDate: "today"
+            dateFormat: "Y-m-d",         // actual value format sent to backend
+            altInput: true,              // shows formatted version to user
+            altFormat: "Y / m / d",      // user-friendly format
+            allowInput: true,            // allow typing manually
+            minDate: "today",            // prevent selecting past dates
+            // minDate: new Date().fp_incr(5) TESTING SOMETHING
+
+            // ✅ Disable weekends (0 = Sunday, 6 = Saturday)
+            disable: [
+                function (date) {
+                    return (date.getDay() === 0 || date.getDay() === 6);
+                }
+            ],
+
+            // Optional: Add a friendly message tooltip when hovering a weekend
+            onDayCreate: function (dObj, dStr, fp, dayElem) {
+                const day = dayElem.dateObj.getDay();
+                if (day === 0 || day === 6) {
+                    dayElem.classList.add("flatpickr-disabled-day");
+                    dayElem.setAttribute("title", "Weekends are not selectable");
+                }
+            }
         });
 
-        // make SVG icon open the picker
+        // 📅 Clicking the SVG icon opens the calendar
         document.querySelector(".calendar-icon").addEventListener("click", () => {
             picker.open();
         });
     });
 </script>
+
 
 
 

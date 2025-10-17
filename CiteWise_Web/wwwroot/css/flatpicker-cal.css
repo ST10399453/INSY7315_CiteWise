@@ -105,6 +105,15 @@ span.flatpickr-weekday {
     box-shadow: 0 0 0 2px rgba(0, 39, 178, 0.3);
 }
 
+
+/* Dim disabled weekends */
+.flatpickr-day.flatpickr-disabled-day {
+    opacity: 0.4;
+    cursor: not-allowed;
+    color: #999 !important;
+}
+
+
 /* ----------------- Animation Keyframes ----------------- */
 @keyframes fadeIn {
     from {
@@ -117,3 +126,19 @@ span.flatpickr-weekday {
         transform: translateY(0);
     }
 }
+
+/* Remove the dropdown arrow next to the month selector */
+.flatpickr-monthDropdown-months {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background: transparent !important;
+    background-image: none !important;
+    padding-right: 0 !important;
+    text-align: center;
+    font-weight: 600;
+    color: #0027B2;
+}
+
+/* Remove the dropdown arrow next to the year selector */
+
