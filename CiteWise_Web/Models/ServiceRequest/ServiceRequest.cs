@@ -9,6 +9,9 @@ namespace CiteWise_Web.Models.ServiceRequest
 
         public string? AdditionalInfo { get; set; }
 
+        [Required(ErrorMessage = "Please enter a document name.")]
+        public string DocName { get; set; }
+
         [Required(ErrorMessage = "Please upload your document before continuing.")]
         public IFormFile Documents { get; set; }
 

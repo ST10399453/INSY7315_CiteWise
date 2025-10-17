@@ -7,7 +7,7 @@ function updateProgress() {
     // Step 1: Service selected (required)
     if ($("input[name='SelectedService']:checked").length > 0) progressPercent += 25;
 
-    // Step 2: Additional info (optional) → only add if user clicked Next
+    // Step 2: Additional info (optional)
     progressPercent += extraProgress;
 
     // Step 3: Document uploaded (required)
@@ -19,7 +19,6 @@ function updateProgress() {
     if ($("select[name='Urgency']").val()) progressPercent += 12.5;
 
     if (progressPercent > 100) progressPercent = 100;
-
     $(".progress-fill").css("width", progressPercent + "%");
 }
 
@@ -27,27 +26,38 @@ function nextStep(step) {
     const form = $("form");
     const validator = form.validate({ ignore: [] });
 
-    // Clear previous messages
+    // Clear previous validation messages
     $("span[data-valmsg-for]").text("");
 
-    // Step 1: Service required
+    // --- Step 1: Service required ---
     if (currentStep === 1 && $("input[name='SelectedService']:checked").length === 0) {
         validator.showErrors({ SelectedService: "Please select the type of service you need." });
         $("input[name='SelectedService']").first().focus();
         return;
     }
 
-    // Step 3: Document required
+    // --- Step 3: Document name + file required ---
     if (currentStep === 3) {
+        const docNameInput = $("input[name='DocName']").val().trim();
         const fileInput = $("input[name='Documents']")[0];
+        let hasError = false;
+
+        if (!docNameInput) {
+            validator.showErrors({ DocName: "Please enter a document name." });
+            $("input[name='DocName']").focus();
+            hasError = true;
+        }
+
         if (!fileInput || fileInput.files.length === 0) {
             validator.showErrors({ Documents: "Please upload a document." });
-            $("input[name='Documents']").focus();
-            return;
+            if (!hasError) $("input[name='Documents']").focus();
+            hasError = true;
         }
+
+        if (hasError) return;
     }
 
-    // Step 4: Deadline & Urgency required
+    // --- Step 4: Deadline & Urgency required ---
     if (currentStep === 4) {
         const deadline = $("input[name='Deadline']").val();
         const urgency = $("select[name='Urgency']").val();
@@ -68,26 +78,25 @@ function nextStep(step) {
         return;
     }
 
-    // If user is leaving Step 2, add extra progress
+    // --- Step 2 completed (optional progress) ---
     if (currentStep === 2) {
-        extraProgress = 25; // Step 2 clicked Next → add 10%
+        extraProgress = 25;
     }
 
-    // Hide current / show next
+    // --- Step transition ---
     $("#step" + currentStep).hide();
     $("#step" + step).show();
-
     currentStep = step;
 
-    // Update progress
     updateProgress();
 }
 
-// Optional: live update for Step 4 fields
+// --- Live update progress for Step 4 ---
 $("input[name='Deadline'], select[name='Urgency']").on("change input", function () {
     updateProgress();
 });
 
+// --- Show selected file name ---
 document.getElementById('documentUpload').addEventListener('change', function (e) {
     const fileNameDisplay = document.getElementById('selectedFileName');
     const fileName = e.target.files[0]?.name;

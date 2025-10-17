@@ -13,6 +13,9 @@ namespace CiteWise_Web.Models.ServiceRequest
         [FirestoreProperty("documentId")]
         public string DocumentId { get; set; }
 
+        [FirestoreProperty("documentName")]
+        public string DocumentName { get; set; }
+
         [FirestoreProperty("consultantId")]
         public string ConsultantId { get; set; }      
 

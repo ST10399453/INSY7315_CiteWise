@@ -228,8 +228,8 @@ select.input-validation-error {
     flex-direction: column;
     align-items: center; /* ✅ Center content horizontally */
     justify-content: center;
-    gap: 16px;
-    padding: 18px;
+
+    padding: 12px;
     border: 2px dashed #0027B2;
     border-radius: 20px;
     background: #F9FAFB;
@@ -250,8 +250,8 @@ select.input-validation-error {
     }
 
 .upload-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     opacity: 1;
     display: block; /* ✅ makes it behave like a block */
     margin: 0 auto; /* ✅ horizontally centers it */
@@ -319,7 +319,7 @@ select.input-validation-error {
 /* Styled Input Fields */
 .icon-input {
     width: 100%;
-    max-width: 350px;
+    max-width: 370px;
     padding: 14px 50px 14px 18px;
     border: 2px solid #0027b2; /* Changed from gray (#d1d5db) to blue */
     border-radius: 12px; /* Rounded pill shape like in design */

@@ -49,7 +49,7 @@ namespace CiteWise_Web.Controllers
             var document = new DocumentModel
             {
                 UID = uid,
-                DocName = model.Documents.FileName,
+                DocName = model.DocName,
                 MimeType = model.Documents.ContentType,
                 AdditionalInfo = model.AdditionalInfo,
                 Service = model.SelectedService,
@@ -70,6 +70,7 @@ namespace CiteWise_Web.Controllers
             {
                 UID = uid,
                 DocumentId = docId,
+                DocumentName = document.DocName,
                 ConsultantId = null,
                 ServiceType = model.SelectedService,
                 Description = model.AdditionalInfo,

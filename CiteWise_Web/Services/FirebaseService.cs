@@ -214,6 +214,7 @@ namespace CiteWise_Web.Services
                 {
                     userId = new { stringValue = review.UID },
                     documentId = new { stringValue = review.DocumentId },
+                    documentName = new { stringValue = review.DocumentName ?? "" },
                     consultantId = new { stringValue = review.ConsultantId ?? "" },
                     serviceType = new { stringValue = review.ServiceType ?? "" },
                     description = new { stringValue = review.Description ?? "" },
