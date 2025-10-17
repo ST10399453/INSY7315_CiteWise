@@ -163,23 +163,25 @@ namespace CiteWise_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ForgotPassword(string email)
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
         {
-            if (string.IsNullOrEmpty(email))
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Email))
             {
-                ModelState.AddModelError("", "Email is required.");
-                return View();
+                ModelState.AddModelError("Email", "Email is required.");
+                return View(model);
             }
 
             try
             {
-                await _firebaseService.SendPasswordResetEmailAsync(email);
-                ViewBag.Message = "Password reset link has been sent to your email.";
+                await _firebaseService.SendPasswordResetEmailAsync(model.Email);
+
+                ViewBag.SuccessMessage = "Password reset link sent successfully!";
+
             }
             catch (Exception ex)
                 
             {
-                ModelState.AddModelError("", $"Error: {ex.Message}");
+                ModelState.AddModelError("Email", $"Error sending reset link: {ex.Message}");
             }
 
             return View();
