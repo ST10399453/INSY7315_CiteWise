@@ -108,7 +108,6 @@
                                 <option value="High">High</option>
                             </select>
                             <svg class="input-icon arrow-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                Replace this with your actual down arrow SVG
                                 <path d="M6 9L12 15L18 9" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                         </div>
@@ -125,89 +124,3 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const picker = flatpickr("#deadlinePicker", {
-            dateFormat: "Y-m-d",         // actual value format sent to backend
-            altInput: true,              // shows formatted version to user
-            altFormat: "Y / m / d",      // user-friendly format
-            allowInput: true,            // allow typing manually
-            minDate: "today",            // prevent selecting past dates
-            // minDate: new Date().fp_incr(5) TESTING SOMETHING
-
-            // ✅ Disable weekends (0 = Sunday, 6 = Saturday)
-            disable: [
-                function (date) {
-                    return (date.getDay() === 0 || date.getDay() === 6);
-                }
-            ],
-
-            // Optional: Add a friendly message tooltip when hovering a weekend
-            onDayCreate: function (dObj, dStr, fp, dayElem) {
-                const day = dayElem.dateObj.getDay();
-                if (day === 0 || day === 6) {
-                    dayElem.classList.add("flatpickr-disabled-day");
-                    dayElem.setAttribute("title", "Weekends are not selectable");
-                }
-            }
-        });
-
-        // 📅 Clicking the SVG icon opens the calendar
-        document.querySelector(".calendar-icon").addEventListener("click", () => {
-            picker.open();
-        });
-    });
-</script>
-
-
-
-
-
-@* <!-- STEP 2: ADDITIONAL INFO -->
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Back</button>
-                </div>
-
-                <!-- STEP 3: UPLOAD DOCUMENT -->
-                <div id="step3" class="wizard-step" style="display:none;">
-                    <h4>Step 3: Upload Your Document</h4>
-                    <input asp-for="Documents" type="file" class="form-control mb-3" />
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Back</button>
-                    <button type="button" class="btn btn-primary float-end" onclick="nextStep(4)">Next</button>
-                </div>
-
-                                @* <div id="step3" style="display:none">
-                    <h3>Step 3: Upload Your Document</h3>
-                    <div class="file-upload">
-                        <label for="Documents" class="file-upload-label">
-                            <img src="/icons/file_upload.svg" alt="Upload Icon" class="upload-icon" /> *@
-@* <span>Select a file</span> *@
-@*         </label>
-                        <p>Select a file </p>
-                        <input asp-for="Documents" type="file" />
-                    </div>
-
-                    <div class="button-container">
-                        <button type="button" class="btn-next" onclick="nextStep(4)">Next</button>
-                    </div>
-                </div>
-
-
-                <!-- STEP 4: DEADLINE & URGENCY -->
-                <div id="step4" class="wizard-step" style="display:none;">
-                    <h4>Step 4: Set Deadline & Urgency</h4>
-
-                    <label class="form-label">Deadline</label>
-                    <input asp-for="Deadline" type="date" class="form-control mb-3" />
-
-                    <label class="form-label">Urgency Level</label>
-                    <select asp-for="Urgency" class="form-control mb-3">
-                        <option value="">-- Select Urgency --</option>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                    </select>
-
-                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Back</button>
-                    <button type="submit" class="btn btn-success float-end">Submit Request</button>
-                </div> *@
