@@ -1,6 +1,7 @@
 ﻿using CiteWise_Web.Models;
 using CiteWise_Web.Models.Account;
 using CiteWise_Web.Services;
+using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CiteWise_Web.Controllers
@@ -10,7 +11,7 @@ namespace CiteWise_Web.Controllers
         private readonly FirebaseService _firebaseService;
 
         public AccountController(FirebaseService firebaseService)
-        {
+        {   
             _firebaseService = firebaseService;
         }
 
@@ -101,6 +102,56 @@ namespace CiteWise_Web.Controllers
             return RedirectToAction("Login");
         }
 
+        public async Task<IActionResult> GoogleLogin([FromBody] TokenRequest req)
+        {
+
+            try
+            {
+                FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(req.Token);
+                string uid = decodedToken.Uid;
+
+                var user = await FirebaseAuth.DefaultInstance.GetUserAsync(decodedToken.Uid);
+
+                var profile = await _firebaseService.GetUserProfileAsync(uid, req.Token);
+
+                if(profile == null)
+                {
+                    var newProfile = new UserProfile
+                    {
+                        Uid = uid,
+                        FirstName = user.DisplayName?.Split(' ').FirstOrDefault() ?? "New",
+                        Surname = user.DisplayName?.Split(' ').Skip(1).FirstOrDefault() ?? "User",
+                        Email = user.Email ?? "",
+                        Role = "Pending" 
+                   };
+
+                    await _firebaseService.SaveUserProfileAsync(uid, req.Token, newProfile);
+                    profile = newProfile;
+                }
+
+                HttpContext.Session.SetString("UserUid", uid);
+                HttpContext.Session.SetString("UserEmail", user.Email ?? "");
+                HttpContext.Session.SetString("UserName", profile.FirstName ?? user.DisplayName ?? "User");
+                HttpContext.Session.SetString("UserRole", profile.Role ?? "Pending");
+
+
+                string redirectUrl = profile.Role switch
+                {
+                    "Consultant" => Url.Action("ConsultantDashboard", "Consultant")!,
+                    "Student" => Url.Action("StudentDashboard", "Student")!,
+                    _ => Url.Action("SelectRole", "Onboarding", new { uid = profile.Uid, token = req.Token })!
+                };
+
+
+                return Ok(new { success = true, redirectUrl });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { success = false, message = ex.Message });
+            }
+        }
+
+       
 
         // ----------------------
         // FORGOT PASSWORD
@@ -126,6 +177,7 @@ namespace CiteWise_Web.Controllers
                 ViewBag.Message = "Password reset link has been sent to your email.";
             }
             catch (Exception ex)
+                
             {
                 ModelState.AddModelError("", $"Error: {ex.Message}");
             }

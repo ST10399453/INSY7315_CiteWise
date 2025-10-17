@@ -268,12 +268,8 @@ C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Syst
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\System.Management.dll
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\runtimes\win\lib\net7.0\System.Management.dll
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\1ts1028npq-5bujrn3bwu.gz
-C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\mlnbb5k7ue-b3spnsef1d.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\gunmta812n-20iuhliljf.gz
-C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\l6bedyb546-jyy7tub9hi.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\h65zcjptqy-wi5om0gu4r.gz
-C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\17hw1yooy8-jj9lj6nph5.gz
-C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ed26068xmw-1blqrkafqb.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-d0b8gvos2f.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\4hoz9b22mp-oyahrm9nen.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\terhkk8y51-62qt6ttc6z.gz
@@ -284,7 +280,6 @@ C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\aj3gb1ob71-10gg2v1keq.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8mtfyigxeg-ywp1b4v1wf.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\m8x9hv1jlf-84avf9vn6n.gz
-C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8xbyvx74aj-9g0eq3ob9b.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-fzyj0q4lwu.gz
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\fdjscliigs-iyeuowvny5.gz
 C:\Users\akhil\AndroidStudioProjects\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\i69gjstz8j-glululs13y.gz
@@ -439,3 +434,15 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\cdxiio70s6-f1woj84yy9.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\0ybcq8qpea-jlm4692tjd.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\tl2bdi0m0u-wqhn2w71dj.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\FirebaseKey\budgetapp-fbcbf-adminsdk.json
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\mlnbb5k7ue-g0d55wfnrw.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\17hw1yooy8-p2okdkc20t.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\i69gjstz8j-rromc91rpj.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ed26068xmw-5ipweew5fc.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\6opuqcm4av-acprr9c8mp.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\cdxiio70s6-oieiy4eyd5.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\fdjscliigs-4h6axrf0pe.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\0ybcq8qpea-oma0h9ipfo.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\tl2bdi0m0u-jdfz4nwnuv.gz
+C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8xbyvx74aj-no0evkeehw.gz
+C:\Users\ctvan\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\2qebheeuja-mxbqe63yp2.gz
