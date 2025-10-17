@@ -39,9 +39,9 @@ namespace CiteWise_Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            if (model.Role == "Student")
+            if (model.Role == "student")
                 return RedirectToAction("Student", new { uid = model.Uid, token = model.IdToken });
-            else if (model.Role == "Consultant")
+            else if (model.Role == "consultant")
                 return RedirectToAction("Consultant", new { uid = model.Uid, token = model.IdToken });
 
             // fallback

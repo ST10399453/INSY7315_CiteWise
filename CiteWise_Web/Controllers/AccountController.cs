@@ -94,9 +94,9 @@ namespace CiteWise_Web.Controllers
             HttpContext.Session.SetString("UserUid", profile.Uid);
             HttpContext.Session.SetString("UserRole", profile.Role);
 
-            if (profile.Role == "Student")
+            if (profile.Role == "student")
                 return RedirectToAction("StudentDashboard", "Student");
-            else if (profile.Role == "Consultant")
+            else if (profile.Role == "consultant")
                 return RedirectToAction("ConsultantDashboard", "Consultant");
 
             return RedirectToAction("Login");
