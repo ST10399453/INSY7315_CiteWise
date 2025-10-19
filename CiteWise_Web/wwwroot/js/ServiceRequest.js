@@ -36,6 +36,17 @@ function nextStep(step) {
         return;
     }
 
+    // --- Step 2: Project title required ---
+    if (currentStep === 2) {
+        const projectTitle = $("input[name='ProjectTitle']").val().trim();
+        if (!projectTitle) {
+            validator.showErrors({ ProjectTitle: "Please enter your project name." });
+            $("input[name='ProjectTitle']").focus();
+            return; // stop if invalid
+        }
+        extraProgress = 25; // optional textarea can add extra if desired
+    }
+
     // --- Step 3: Document name + file required ---
     if (currentStep === 3) {
         const docNameInput = $("input[name='DocName']").val().trim();
@@ -78,10 +89,10 @@ function nextStep(step) {
         return;
     }
 
-    // --- Step 2 completed (optional progress) ---
-    if (currentStep === 2) {
-        extraProgress = 25;
-    }
+    //// --- Step 2 completed (optional progress) ---
+    //if (currentStep === 2) {
+    //    extraProgress = 25;
+    //}
 
     // --- Step transition ---
     $("#step" + currentStep).hide();
@@ -105,6 +116,7 @@ document.getElementById('documentUpload').addEventListener('change', function (e
         fileNameDisplay.textContent = fileName;
         fileNameDisplay.classList.add('show');
     } else {
+        fileNameDisplay.textContent = "";
         fileNameDisplay.classList.remove('show');
     }
 });

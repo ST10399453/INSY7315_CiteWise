@@ -43,7 +43,14 @@
                 @* STEP 2 *@
                 <div id="step2" style="display:none">
                     <h3>Step 2: Fill out any additional information</h3>
-                    <textarea asp-for="AdditionalInfo" rows="7" class="custom-textarea"  placeholder="Additional info..."></textarea>
+
+                    <div class="form-group">
+                        <label>Project Name</label>
+                        <input asp-for="ProjectTitle" class="icon-input" placeholder="Enter project name..." />
+                        <span asp-validation-for="ProjectTitle" class="text-dangers"></span>
+                    </div>
+
+                    <textarea asp-for="AdditionalInfo" rows="3" class="custom-textarea"  placeholder="Additional info..."></textarea>
                     <div class="button-container">
                         <button type="button" class="btn-next" onclick="nextStep(3)">Next</button>
                     </div>
@@ -53,7 +60,6 @@
                 @* STEP 3 *@
                 <div id="step3" style="display:none">
                     <h3>Step 3: Upload Your Document</h3>
-
                     <div class="form-group">
                         <label>Document Name</label>
                         <input asp-for="DocName" type="text" id="docName" class="icon-input" placeholder="Enter document name" />

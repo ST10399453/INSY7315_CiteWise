@@ -217,6 +217,7 @@ namespace CiteWise_Web.Services
                     documentName = new { stringValue = review.DocumentName ?? "" },
                     consultantId = new { stringValue = review.ConsultantId ?? "" },
                     serviceType = new { stringValue = review.ServiceType ?? "" },
+                    projecttitle = new { stringValue = review.ProjectTitle ?? "" },
                     description = new { stringValue = review.Description ?? "" },
                     priority = new { stringValue = review.Priority ?? "" },
                     deadline = review.Deadline != null? new { timestampValue = review.Deadline.Value.ToDateTime().ToString("o") }: null,

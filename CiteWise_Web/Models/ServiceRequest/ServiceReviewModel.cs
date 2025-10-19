@@ -20,7 +20,10 @@ namespace CiteWise_Web.Models.ServiceRequest
         public string ConsultantId { get; set; }      
 
         [FirestoreProperty("serviceType")]
-        public string ServiceType { get; set; }      
+        public string ServiceType { get; set; }
+
+        [FirestoreProperty("ProjectTitle")]
+        public string ProjectTitle { get; set; }
 
         [FirestoreProperty("description")]
         public string Description { get; set; }

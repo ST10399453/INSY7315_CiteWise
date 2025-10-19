@@ -10,6 +10,9 @@ namespace CiteWise_Web.Models.ServiceRequest
         [FirestoreProperty("uid")]
         public string UID { get; set; }
 
+        [FirestoreProperty("projectitle")]
+        public string ProjectTitle { get; set; }
+
         [FirestoreProperty("service")]
         public string Service { get; set; }
 

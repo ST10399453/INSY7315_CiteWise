@@ -1,8 +1,10 @@
 wwwroot\CiteWise_Logo.ico
+wwwroot\css\flatpicker-cal.css
 wwwroot\css\LandingPage.css
 wwwroot\css\LandingPageNavBar.css
 wwwroot\css\MainApplicationNavBar.css
 wwwroot\css\register.css
+wwwroot\css\Request.css
 wwwroot\css\site.css
 wwwroot\css\StudentDashboard.css
 wwwroot\favicon.ico
@@ -26,9 +28,9 @@ wwwroot\img\Cloud.png
 wwwroot\img\Growth.png
 wwwroot\img\main_circle.png
 wwwroot\img\Network.png
+wwwroot\js\cal-flatpicker.js
 wwwroot\js\firebase-login.js
 wwwroot\js\Landing.js
-wwwroot\js\ServiceRequest.js
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
@@ -90,13 +92,14 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\css\flatpicker-cal.css
-wwwroot\css\Request.css
+wwwroot\js\ServiceRequest.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\CiteWise_Logo.ico
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\flatpicker-cal.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingPage.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingPageNavBar.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\MainApplicationNavBar.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\register.css
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\Request.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\site.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\StudentDashboard.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\favicon.ico
@@ -113,9 +116,9 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\Profile
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\Resources.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\tick.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\up_arrow.svg
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\cal-flatpicker.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\firebase-login.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\Landing.js
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\ServiceRequest.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\site.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
@@ -176,5 +179,4 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\di
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\dist\jquery.slim.min.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\dist\jquery.slim.min.map
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\lib\jquery\LICENSE.txt
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\flatpicker-cal.css
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\Request.css
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\ServiceRequest.js
