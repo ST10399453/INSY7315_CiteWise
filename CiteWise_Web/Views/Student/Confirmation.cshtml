@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "_LayoutAuth";
+}
+
+
+@model CiteWise_Web.Models.ServiceRequest.ServiceRequest
+@{
+    Layout = "_LayoutAuth";
+}
+
+<div class="studentbody">
+    <div class="centered">     
+        <div class="progress-bar" style="visibility:hidden;">
+        </div>
+        <div class="studentcard text-center">
+            <img src="/icons/confirm.svg" alt="Success" class="confirmation-icon" />
+            <h2>Your request has been submitted!</h2>
+            <p>A quotation will be generated after submission.</p>
+            <br/>
+            <p>You’ll be redirected to your dashboard shortly...</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(() => {
+            window.location.href = "/Student/StudentDashboard";
+        }, 2000);
+    </script>
+}

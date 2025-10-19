@@ -19,7 +19,10 @@ body.sidebar-collapsed {
     overflow: auto;
     display: flex;
     justify-content: center;
+    align-items: flex-start; /* ⬅️ makes content start from top instead of centering */
+    gap: 20px; /* optional spacing if multiple elements */
 }
+
 
 .centered {
     width: 100%;
@@ -61,6 +64,7 @@ body.sidebar-collapsed {
     box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.15);
     border: 2px solid #FFF;
 }
+
 
     /* --- Step Header --- */
     .studentcard h3 {
@@ -227,7 +231,7 @@ select.input-validation-error {
 .file-upload-container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* ✅ Center content horizontally */
+    align-items: center;
     justify-content: center;
 
     padding: 12px;
@@ -254,8 +258,8 @@ select.input-validation-error {
     width: 24px;
     height: 24px;
     opacity: 1;
-    display: block; /* ✅ makes it behave like a block */
-    margin: 0 auto; /* ✅ horizontally centers it */
+    display: block;
+    margin: 0 auto; 
 }
 
 
@@ -322,30 +326,30 @@ select.input-validation-error {
     width: 100%;
     max-width: 370px;
     padding: 14px 50px 14px 18px;
-    border: 2px solid #0027b2; /* Changed from gray (#d1d5db) to blue */
-    border-radius: 12px; /* Rounded pill shape like in design */
+    border: 2px solid #0027b2; 
+    border-radius: 12px; 
     font-size: 16px;
     font-family: "Poppins", sans-serif;
     background: #ffffff;
     box-sizing: border-box;
     transition: all 0.3s ease;
-    appearance: none; /* Remove default browser styling */
+    appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
 }
 
 
     .icon-input:hover {
-        border-color: #001e8d; /* darker shade of blue */
+        border-color: #001e8d; 
         box-shadow: 0 0 6px rgba(0, 39, 178, 0.25);
     }
 
     /* --- Focus State (when user clicks in input) --- */
     .icon-input:focus {
         outline: none;
-        border-color: #001a7a; /* deep blue focus */
+        border-color: #001a7a; 
         box-shadow: 0 0 8px rgba(0, 39, 178, 0.35);
-        background-color: #f8faff; /* very light blue tint background */
+        background-color: #f8faff; 
     }
 
 
@@ -407,6 +411,43 @@ input.input-validation-error.icon-input,
 select.input-validation-error.icon-input {
     border-color: #d32f2f !important;
 }
+
+
+/* --- Confirmation Page Styling --- */
+.confirmation-icon {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    padding: 20px;
+}
+
+.text-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    padding: 60px 40px;
+    border: none;
+    text-align: center;
+}
+
+    .studentcard.text-center h2 {
+        font-family: 'Poppins', sans-serif;
+        color: #0027B2;
+        font-size: 30px;
+        font-weight: 600;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+    .studentcard.text-center p {
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #6B7280;
+        margin-bottom: 6px;
+    }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

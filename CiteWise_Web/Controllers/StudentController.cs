@@ -67,13 +67,20 @@ namespace CiteWise_Web.Controllers
             HttpResponseMessage response = await _apiService.CreateRequestAsync(formData, firebaseToken);
 
             if (response.IsSuccessStatusCode)
-                return RedirectToAction("StudentDashboard");
+                return RedirectToAction("Confirmation");
 
             // Get API response content for debugging
             string apiError = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError("", $"Failed to submit request. API response: {apiError}");
 
             return View(model);
+        }
+
+
+        [HttpGet]
+        public IActionResult Confirmation()
+        {
+            return View();
         }
     }
 }
