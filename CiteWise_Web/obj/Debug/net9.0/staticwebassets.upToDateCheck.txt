@@ -31,6 +31,7 @@ wwwroot\img\Network.png
 wwwroot\js\cal-flatpicker.js
 wwwroot\js\firebase-login.js
 wwwroot\js\Landing.js
+wwwroot\js\ServiceRequest.js
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
@@ -92,7 +93,6 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\js\ServiceRequest.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\CiteWise_Logo.ico
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\flatpicker-cal.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingPage.css

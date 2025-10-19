@@ -94,6 +94,8 @@ namespace CiteWise_Web.Controllers
             HttpContext.Session.SetString("UserUid", profile.Uid);
             HttpContext.Session.SetString("UserRole", profile.Role);
 
+            HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
+
             if (profile.Role == "student")
                 return RedirectToAction("StudentDashboard", "Student");
             else if (profile.Role == "consultant")
@@ -133,6 +135,8 @@ namespace CiteWise_Web.Controllers
                 HttpContext.Session.SetString("UserEmail", user.Email ?? "");
                 HttpContext.Session.SetString("UserName", profile.FirstName ?? user.DisplayName ?? "User");
                 HttpContext.Session.SetString("UserRole", profile.Role ?? "Pending");
+
+                HttpContext.Session.SetString("FirebaseToken", req.Token);
 
 
                 string redirectUrl = profile.Role switch

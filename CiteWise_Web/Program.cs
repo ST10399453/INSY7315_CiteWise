@@ -7,6 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+//Add HttpClient support
+builder.Services.AddHttpClient();
+
+//Register ApiService
+builder.Services.AddScoped<ApiService>();
+
 builder.Services.AddSingleton<FirebaseService>();
 
 //// Add session support

@@ -18,20 +18,21 @@
                     <h3>Step 1: Select a service</h3>
                     <div class="form-group">
                         <label>
-                            <input type="radio" asp-for="SelectedService" value="Proofreading & Editing" />Proofreading & Editing
+                            <input type="radio" asp-for="SelectedService" value="PROOFREADING_EDITING" />Proofreading & Editing
                         </label><br>
                         <label>
-                            <input type="radio" asp-for="SelectedService" value="Formatting & Referencing" />Formatting & Referencing
+                            <input type="radio" asp-for="SelectedService" value="FORMATTING_REFERENCING" />Formatting & Referencing
                         </label><br>
                         <label>
-                            <input type="radio" asp-for="SelectedService" value="Data Analysis Support" />Data Analysis Support
+                            <input type="radio" asp-for="SelectedService" value="DATA_ANALYSIS_SUPPORT" />Data Analysis Support
                         </label><br>
                         <label>
-                            <input type="radio" asp-for="SelectedService" value="Research/Methodology Coaching" />Research/Methodology Coaching                
+                            <input type="radio" asp-for="SelectedService" value="RESEARCH_METHODOLOGY_COACHING" />Research/Methodology Coaching
                         </label><br>
                         <label>
-                            <input type="radio" asp-for="SelectedService" value="Translation" />Translation                  
+                            <input type="radio" asp-for="SelectedService" value="TRANSLATION" />Translation
                         </label><br>
+
                         <span asp-validation-for="SelectedService" class="text-dangers"></span>
                         @* <button type="button" class="btn btn-primary float-end" onclick="nextStep(2)">Next</button> *@
                      </div>
@@ -109,9 +110,9 @@
                         <div class="input-with-icon">
                             <select asp-for="Urgency" class="icon-input">
                                 <option value="">-- Select Urgency --</option>
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HIGH">High</option>
                             </select>
                             <svg class="input-icon arrow-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6 9L12 15L18 9" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

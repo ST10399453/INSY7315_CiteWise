@@ -10,11 +10,11 @@ namespace CiteWise_Web.Controllers
 {
     public class StudentController : Controller
     {
-        private readonly FirebaseService _firebaseService;
+        private readonly ApiService _apiService;
 
-        public StudentController(FirebaseService firebaseService)
+        public StudentController(ApiService apiService)
         {
-            _firebaseService = firebaseService;
+            _apiService = apiService;
         }
 
         [HttpGet]
@@ -35,56 +35,45 @@ namespace CiteWise_Web.Controllers
         public async Task<IActionResult> StudentServiceRequest(ServiceRequest model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
-            string uid = HttpContext.Session.GetString("UserUid");
-            if (string.IsNullOrEmpty(uid))
-            {
+            // Get Firebase token from session
+            string firebaseToken = HttpContext.Session.GetString("FirebaseToken");
+            if (string.IsNullOrEmpty(firebaseToken))
                 return RedirectToAction("Login", "Account");
+
+            // Build multipart form data
+            var formData = new MultipartFormDataContent();
+
+            // Attach the file
+            if (model.Documents != null && model.Documents.Length > 0)
+            {
+                var streamContent = new StreamContent(model.Documents.OpenReadStream());
+                streamContent.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue(model.Documents.ContentType);
+                formData.Add(streamContent, "file", model.Documents.FileName);
             }
 
-            //Creates a document model from the submitted form data
-            var document = new DocumentModel
-            {
-                UID = uid,
-                DocName = model.DocName,
-                MimeType = model.Documents.ContentType,
-                ProjectTitle = model.ProjectTitle,
-                AdditionalInfo = model.AdditionalInfo,
-                Service = model.SelectedService,
-                Urgency = model.Urgency,
-                Deadline = model.Deadline.HasValue? Timestamp.FromDateTime(model.Deadline.Value.ToUniversalTime()): null,
-                UploadedAt = Timestamp.FromDateTime(DateTime.UtcNow)
-            };
+            // Attach text fields
+            formData.Add(new StringContent(model.DocName ?? ""), "documentName");
+            formData.Add(new StringContent(model.SelectedService ?? ""), "serviceType");
+            formData.Add(new StringContent(model.AdditionalInfo ?? ""), "description");
+            formData.Add(new StringContent(model.Urgency ?? ""), "priority");
 
-            // Save document
-            string docResult = await _firebaseService.SaveDocumentToFirestoreAsync(document, uid);
+            if (model.Deadline.HasValue)
+                formData.Add(new StringContent(model.Deadline.Value.ToString("yyyy-MM-dd")), "deadline");
 
-            var jsonObj = JsonConvert.DeserializeObject<JObject>(docResult);
-            var fullPath = jsonObj?["name"]?.ToString();
-            var docId = fullPath?.Split('/').Last(); 
+            // Send to API
+            HttpResponseMessage response = await _apiService.CreateRequestAsync(formData, firebaseToken);
 
-            // Create service review thats links to the document saved
-            var review = new ServiceReviewModel
-            {
-                UID = uid,
-                DocumentId = docId,
-                DocumentName = document.DocName,
-                ConsultantId = null,
-                ServiceType = model.SelectedService,
-                ProjectTitle = model.ProjectTitle,
-                Description = model.AdditionalInfo,
-                Priority = model.Urgency,
-                Deadline = document.Deadline,
-                CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
-            };
+            if (response.IsSuccessStatusCode)
+                return RedirectToAction("StudentDashboard");
 
-            // Save service review
-            await _firebaseService.SaveServiceReviewAsync(review);
+            // Get API response content for debugging
+            string apiError = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("", $"Failed to submit request. API response: {apiError}");
 
-            return RedirectToAction("StudentDashboard");
+            return View(model);
         }
     }
 }

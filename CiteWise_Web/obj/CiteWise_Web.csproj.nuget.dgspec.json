@@ -65,15 +65,19 @@
             },
             "Google.Apis.Auth": {
               "target": "Package",
-              "version": "[1.71.0, )"
+              "version": "[1.72.0, )"
             },
             "Google.Cloud.Firestore": {
               "target": "Package",
-              "version": "[3.10.0, )"
+              "version": "[3.11.0, )"
             },
             "Microsoft.AspNetCore.Session": {
               "target": "Package",
               "version": "[2.3.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.4, )"
             }
           },
           "imports": [
