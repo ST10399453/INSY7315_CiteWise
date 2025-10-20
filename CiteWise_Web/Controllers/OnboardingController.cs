@@ -13,7 +13,6 @@ namespace CiteWise_Web.Controllers
             _firebaseService = firebaseService;
         }
 
-
         // ----------------------
         // GET Role Select
         // ----------------------

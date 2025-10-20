@@ -20,6 +20,11 @@ namespace CiteWise_Web.Controllers
         [HttpGet]
         public IActionResult StudentDashboard()
         {
+            string role = HttpContext.Session.GetString("UserRole");
+            if (role != "Student")
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             return View();
         }
@@ -28,19 +33,38 @@ namespace CiteWise_Web.Controllers
         [HttpGet]
         public IActionResult StudentServiceRequest()
         {
+            string firebaseToken = HttpContext.Session.GetString("FirebaseToken");
+            string userRole = HttpContext.Session.GetString("UserRole");
+
+            if (string.IsNullOrEmpty(firebaseToken) || userRole != "Student")
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             return View();
         }
+
 
         [HttpPost]
         public async Task<IActionResult> StudentServiceRequest(ServiceRequest model)
         {
             if (!ModelState.IsValid)
+            {
                 return View(model);
+            }
 
             // Get Firebase token from session
             string firebaseToken = HttpContext.Session.GetString("FirebaseToken");
             if (string.IsNullOrEmpty(firebaseToken))
+            {
                 return RedirectToAction("Login", "Account");
+            }
+
+            string userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Student")
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             // Build multipart form data
             var formData = new MultipartFormDataContent();
@@ -61,13 +85,18 @@ namespace CiteWise_Web.Controllers
             formData.Add(new StringContent(model.Urgency ?? ""), "priority");
 
             if (model.Deadline.HasValue)
+            {
                 formData.Add(new StringContent(model.Deadline.Value.ToString("yyyy-MM-dd")), "deadline");
+            }
 
             // Send to API
             HttpResponseMessage response = await _apiService.CreateRequestAsync(formData, firebaseToken);
 
             if (response.IsSuccessStatusCode)
+            {
+                TempData["RequestSubmitted"] = true;
                 return RedirectToAction("Confirmation");
+            }
 
             // Get API response content for debugging
             string apiError = await response.Content.ReadAsStringAsync();
@@ -77,9 +106,18 @@ namespace CiteWise_Web.Controllers
         }
 
 
-        [HttpGet]
+       [HttpGet]
         public IActionResult Confirmation()
         {
+            if (TempData["RequestSubmitted"] == null)
+            {
+                // User didn't submit a request — redirect to dashboard
+                return RedirectToAction("StudentDashboard");
+            }
+
+            // Optional: remove the flag so refresh won't show the page again
+            TempData.Remove("RequestSubmitted");
+
             return View();
         }
     }
