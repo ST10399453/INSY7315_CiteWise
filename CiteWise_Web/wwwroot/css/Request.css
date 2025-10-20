@@ -463,3 +463,141 @@ select.input-validation-error.icon-input {
         right: 14px;
     }
 }
+
+/* Custom Dropdown Styles - Add this to your existing CSS file */
+
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-selected {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+    .dropdown-selected:hover {
+        border-color: #0027b2;
+    }
+
+.custom-dropdown.open .dropdown-selected {
+    border-color: #0027b2;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.custom-dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #0027b2;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.custom-dropdown.open .dropdown-options {
+    max-height: 300px;
+    opacity: 1;
+}
+
+.dropdown-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #e8ebf5;
+}
+
+    .dropdown-option:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-option:hover {
+        background-color: #f5f7ff;
+    }
+
+.option-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.urgency-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+    .urgency-indicator.high {
+        background-color: #ff6b6b;
+    }
+
+    .urgency-indicator.medium {
+        background-color: #ffd93d;
+    }
+
+    .urgency-indicator.low {
+        background-color: #6bcf7f;
+    }
+
+.option-text {
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+    .option-text strong {
+        font-weight: 600;
+    }
+
+.check-icon {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.dropdown-option.selected .check-icon {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dropdown-selected,
+    .dropdown-option {
+        padding: 10px 12px;
+    }
+
+    .option-text {
+        font-size: 13px;
+    }
+}

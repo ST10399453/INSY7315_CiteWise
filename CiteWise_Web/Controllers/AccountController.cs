@@ -96,9 +96,9 @@ namespace CiteWise_Web.Controllers
 
             HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
 
-            if (profile.Role == "student")
+            if (profile.Role == "Student")
                 return RedirectToAction("StudentDashboard", "Student");
-            else if (profile.Role == "consultant")
+            else if (profile.Role == "Consultant")
                 return RedirectToAction("ConsultantDashboard", "Consultant");
 
             return RedirectToAction("Login");

@@ -120,3 +120,61 @@ document.getElementById('documentUpload').addEventListener('change', function (e
         fileNameDisplay.classList.remove('show');
     }
 });
+
+
+// Custom Dropdown JavaScript - Add this to your existing JavaScript file or in a <script> tag
+
+document.addEventListener("DOMContentLoaded", () => {
+    const dropdown = document.getElementById("urgencyDropdown")
+    const selected = dropdown.querySelector(".dropdown-selected")
+    const selectedText = dropdown.querySelector(".selected-text")
+    const options = dropdown.querySelectorAll(".dropdown-option")
+    const hiddenSelect = document.getElementById("urgencySelect")
+
+    // Toggle dropdown open/close
+    selected.addEventListener("click", (e) => {
+        e.stopPropagation()
+        dropdown.classList.toggle("open")
+    })
+
+    // Handle option selection
+    options.forEach((option) => {
+        option.addEventListener("click", function (e) {
+            e.stopPropagation()
+
+            // Remove selected class from all options
+            options.forEach((opt) => opt.classList.remove("selected"))
+
+            // Add selected class to clicked option
+            this.classList.add("selected")
+
+            // Get the selected value and text
+            const value = this.getAttribute("data-value")
+            const text = this.querySelector(".option-text").textContent
+
+            // Update the visible selected text
+            selectedText.textContent = text
+
+            // Update the hidden select value for form submission
+            hiddenSelect.value = value
+
+            // Trigger change event for validation
+            hiddenSelect.dispatchEvent(new Event("change"))
+
+            // Close the dropdown
+            dropdown.classList.remove("open")
+        })
+    })
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove("open")
+        }
+    })
+
+    // Prevent dropdown from closing when clicking inside options area
+    dropdown.querySelector(".dropdown-options").addEventListener("click", (e) => {
+        e.stopPropagation()
+    })
+})

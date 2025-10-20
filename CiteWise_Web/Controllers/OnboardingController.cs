@@ -90,8 +90,12 @@ namespace CiteWise_Web.Controllers
 
             // ✅ Set session so name appears in topbar
             HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
+            HttpContext.Session.SetString("UserUid", profile?.Uid ?? model.Uid);
+            HttpContext.Session.SetString("UserRole", "Student");
+            HttpContext.Session.SetString("FirebaseToken", model.IdToken);
 
-            return RedirectToAction("StudentDashboard", "Student"); // student dashboard
+            return RedirectToAction("StudentDashboard", "Student");
+            // student dashboard
         }
 
         // ----------------------
@@ -123,7 +127,7 @@ namespace CiteWise_Web.Controllers
 
             var updates = new Dictionary<string, object>
             {
-                { "Role", "Consultant" },
+                { "Role", "consultant" },
                 { "Language", model.Language },
                 { "Specialisation", model.Specialisation }
             };
@@ -133,8 +137,12 @@ namespace CiteWise_Web.Controllers
             var profile = await _firebaseService.GetUserProfileAsync(model.Uid, model.IdToken);
 
             HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
+            HttpContext.Session.SetString("UserUid", profile?.Uid ?? model.Uid);
+            HttpContext.Session.SetString("UserRole", "Consultant");
+            HttpContext.Session.SetString("FirebaseToken", model.IdToken);
 
             return RedirectToAction("ConsultantDashboard", "Consultant");
+
         }
     }
 }
