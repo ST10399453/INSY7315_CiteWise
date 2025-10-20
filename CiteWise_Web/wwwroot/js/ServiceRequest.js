@@ -126,12 +126,12 @@ document.getElementById('documentUpload').addEventListener('change', function (e
 
 document.addEventListener("DOMContentLoaded", () => {
     const dropdown = document.getElementById("urgencyDropdown")
-    const selected = dropdown.querySelector(".dropdown-selected")
+    const selected = dropdown.querySelector(".urgency-selected")
     const selectedText = dropdown.querySelector(".selected-text")
-    const options = dropdown.querySelectorAll(".dropdown-option")
+    const options = dropdown.querySelectorAll(".urgency-option")
     const hiddenSelect = document.getElementById("urgencySelect")
 
-    // Toggle dropdown open/close
+    // Toggle dropdown
     selected.addEventListener("click", (e) => {
         e.stopPropagation()
         dropdown.classList.toggle("open")
@@ -142,26 +142,24 @@ document.addEventListener("DOMContentLoaded", () => {
         option.addEventListener("click", function (e) {
             e.stopPropagation()
 
-            // Remove selected class from all options
-            options.forEach((opt) => opt.classList.remove("selected"))
-
-            // Add selected class to clicked option
-            this.classList.add("selected")
-
-            // Get the selected value and text
             const value = this.getAttribute("data-value")
             const text = this.querySelector(".option-text").textContent
 
-            // Update the visible selected text
+            // Update visual display
             selectedText.textContent = text
 
-            // Update the hidden select value for form submission
+            // Update hidden select value for form submission
             hiddenSelect.value = value
 
-            // Trigger change event for validation
-            hiddenSelect.dispatchEvent(new Event("change"))
+            // Trigger change event for ASP.NET validation
+            const event = new Event("change", { bubbles: true })
+            hiddenSelect.dispatchEvent(event)
 
-            // Close the dropdown
+            // Update selected state
+            options.forEach((opt) => opt.classList.remove("selected"))
+            this.classList.add("selected")
+
+            // Close dropdown
             dropdown.classList.remove("open")
         })
     })
@@ -171,10 +169,5 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!dropdown.contains(e.target)) {
             dropdown.classList.remove("open")
         }
-    })
-
-    // Prevent dropdown from closing when clicking inside options area
-    dropdown.querySelector(".dropdown-options").addEventListener("click", (e) => {
-        e.stopPropagation()
     })
 })

@@ -105,79 +105,46 @@
                     </div>
                     
                     <br/>
-                    @* <div class="form-group">
+                    <div class="form-group">
                         <label>Urgency Level</label>
-                        <div class="input-with-icon">
-                            <select asp-for="Urgency" class="icon-input">
+                        <div class="custom-urgency-dropdown">
+                            <select asp-for="Urgency" id="urgencySelect" style="display: none;">
                                 <option value="">-- Select Urgency --</option>
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
                                 <option value="HIGH">High</option>
                             </select>
-                            <svg class="input-icon arrow-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6 9L12 15L18 9" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <span asp-validation-for="Urgency" class="text-dangers"></span>
-                    </div> *@
-                    <!-- Replace your current Step 4 urgency dropdown section with this -->
-
-                    <div class="form-group">
-                        <label>Urgency Level</label>
-
-                        <!-- Hidden select for ASP.NET form binding -->
-                        <select asp-for="Urgency" class="icon-input"  style="display: none;" id="urgencySelect">
-                            <option value="">-- Select Urgency --</option>
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                        </select>
-
-                        <!-- Custom dropdown UI -->
-                        <div class="custom-dropdown" id="urgencyDropdown">
-                            <div class="dropdown-selected">
-                                <span class="selected-text">-- Select Urgency --</span>
-                                <svg class="dropdown-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <div class="urgency-dropdown-trigger" id="urgencyTrigger">
+                                <div class="urgency-selected-display" id="urgencyDisplay">
+                                    <span class="urgency-placeholder">-- Select Urgency --</span>
+                                </div>
+                                <svg class="urgency-dropdown-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M6 9L12 15L18 9" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </div>
-
-                            <div class="dropdown-options">
-                                <div class="dropdown-option" data-value="HIGH">
-                                    <div class="option-content">
-                                        <span class="urgency-indicator high"></span>
-                                        <span class="option-text"><strong>HIGH</strong> (urgent)</span>
+                            <div class="urgency-dropdown-menu" id="urgencyMenu">
+                                <div class="urgency-option" data-value="HIGH">
+                                    <div class="urgency-indicator high"></div>
+                                    <div class="urgency-text">
+                                        <strong>HIGH</strong> <span>(urgent)</span>
                                     </div>
-                                    <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20 6L9 17L4 12" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
                                 </div>
-
-                                <div class="dropdown-option" data-value="MEDIUM">
-                                    <div class="option-content">
-                                        <span class="urgency-indicator medium"></span>
-                                        <span class="option-text"><strong>MEDIUM</strong> (important but not urgent)</span>
+                                <div class="urgency-option" data-value="MEDIUM">
+                                    <div class="urgency-indicator medium"></div>
+                                    <div class="urgency-text">
+                                        <strong>MEDIUM</strong> <span>(important but not urgent)</span>
                                     </div>
-                                    <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20 6L9 17L4 12" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
                                 </div>
-
-                                <div class="dropdown-option" data-value="LOW">
-                                    <div class="option-content">
-                                        <span class="urgency-indicator low"></span>
-                                        <span class="option-text"><strong>LOW</strong> (not urgent)</span>
+                                <div class="urgency-option" data-value="LOW">
+                                    <div class="urgency-indicator low"></div>
+                                    <div class="urgency-text">
+                                        <strong>LOW</strong> <span>(not urgent)</span>
                                     </div>
-                                    <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M20 6L9 17L4 12" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
                                 </div>
                             </div>
                         </div>
-
                         <span asp-validation-for="Urgency" class="text-dangers"></span>
-                    </div>
-
+                    </div>    
                     <div class="button-container">
                         <button type="submit" class="btn-next">Submit</button>
                     </div>
@@ -189,3 +156,54 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+<script>
+    // Custom urgency dropdown functionality
+    (function() {
+        const trigger = document.getElementById('urgencyTrigger');
+        const menu = document.getElementById('urgencyMenu');
+        const display = document.getElementById('urgencyDisplay');
+        const select = document.getElementById('urgencySelect');
+        const options = menu.querySelectorAll('.urgency-option');
+
+        // Toggle dropdown
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            trigger.classList.toggle('active');
+            menu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+                trigger.classList.remove('active');
+                menu.classList.remove('show');
+            }
+        });
+
+        // Handle option selection
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const indicator = this.querySelector('.urgency-indicator').cloneNode(true);
+                const text = this.querySelector('.urgency-text').cloneNode(true);
+
+                // Update hidden select
+                select.value = value;
+
+                // Update display
+                display.innerHTML = '';
+                display.appendChild(indicator);
+                display.appendChild(text);
+
+                // Update selected state
+                options.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+
+                // Close dropdown
+                trigger.classList.remove('active');
+                menu.classList.remove('show');
+            });
+        });
+    })();
+</script>
