@@ -73,7 +73,9 @@ namespace CiteWise_Web.Controllers
         public async Task<IActionResult> Login(LoginModel model)
         {
             if (!ModelState.IsValid)
+            {
                 return View(model);
+            }
 
             var authResponse = await _firebaseService.LoginUserAsync(model.Email, model.Password);
 
@@ -96,9 +98,9 @@ namespace CiteWise_Web.Controllers
 
             HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
 
-            if (profile.Role == "Student")
+            if (profile.Role == "student")
                 return RedirectToAction("StudentDashboard", "Student");
-            else if (profile.Role == "Consultant")
+            else if (profile.Role == "consultant")
                 return RedirectToAction("ConsultantDashboard", "Consultant");
 
             return RedirectToAction("Login");
@@ -141,8 +143,8 @@ namespace CiteWise_Web.Controllers
 
                 string redirectUrl = profile.Role switch
                 {
-                    "Consultant" => Url.Action("ConsultantDashboard", "Consultant")!,
-                    "Student" => Url.Action("StudentDashboard", "Student")!,
+                    "consultant" => Url.Action("ConsultantDashboard", "Consultant")!,
+                    "student" => Url.Action("StudentDashboard", "Student")!,
                     _ => Url.Action("SelectRole", "Onboarding", new { uid = profile.Uid, token = req.Token })!
                 };
 

@@ -78,7 +78,7 @@ namespace CiteWise_Web.Controllers
 
             var updates = new Dictionary<string, object>
             {
-                { "Role", "Student" },
+                { "Role", "student" },
                 { "Language", model.Language },
                 { "Institution", model.Institution },
                 { "FieldOfStudy", model.FieldOfStudy }
@@ -91,7 +91,7 @@ namespace CiteWise_Web.Controllers
             // ✅ Set session so name appears in topbar
             HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
             HttpContext.Session.SetString("UserUid", profile?.Uid ?? model.Uid);
-            HttpContext.Session.SetString("UserRole", "Student");
+            HttpContext.Session.SetString("UserRole", "student");
             HttpContext.Session.SetString("FirebaseToken", model.IdToken);
 
             return RedirectToAction("StudentDashboard", "Student");
@@ -138,7 +138,7 @@ namespace CiteWise_Web.Controllers
 
             HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
             HttpContext.Session.SetString("UserUid", profile?.Uid ?? model.Uid);
-            HttpContext.Session.SetString("UserRole", "Consultant");
+            HttpContext.Session.SetString("UserRole", "consultant");
             HttpContext.Session.SetString("FirebaseToken", model.IdToken);
 
             return RedirectToAction("ConsultantDashboard", "Consultant");

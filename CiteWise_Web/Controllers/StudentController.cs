@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Data;
 
 namespace CiteWise_Web.Controllers
 {
@@ -21,7 +22,7 @@ namespace CiteWise_Web.Controllers
         public IActionResult StudentDashboard()
         {
             string role = HttpContext.Session.GetString("UserRole");
-            if (role != "Student")
+            if (string.IsNullOrEmpty(role) || role.ToLower() != "student")
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -34,9 +35,9 @@ namespace CiteWise_Web.Controllers
         public IActionResult StudentServiceRequest()
         {
             string firebaseToken = HttpContext.Session.GetString("FirebaseToken");
-            string userRole = HttpContext.Session.GetString("UserRole");
+            string role = HttpContext.Session.GetString("UserRole");
 
-            if (string.IsNullOrEmpty(firebaseToken) || userRole != "Student")
+            if (string.IsNullOrEmpty(firebaseToken) || string.IsNullOrEmpty(role) || role.ToLower() != "student")
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -61,7 +62,7 @@ namespace CiteWise_Web.Controllers
             }
 
             string userRole = HttpContext.Session.GetString("UserRole");
-            if (userRole != "Student")
+            if (userRole != "student")
             {
                 return RedirectToAction("Login", "Account");
             }
