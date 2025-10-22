@@ -1,11 +1,7 @@
 ﻿using CiteWise_Web.Models.ServiceRequest;
 using CiteWise_Web.Services;
-using Google.Cloud.Firestore;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Data;
 
 namespace CiteWise_Web.Controllers
 {
@@ -19,23 +15,57 @@ namespace CiteWise_Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult StudentDashboard()
+        public async Task<IActionResult> StudentDashboard(string? status = null)
         {
-            string role = HttpContext.Session.GetString("UserRole");
-            if (string.IsNullOrEmpty(role) || role.ToLower() != "student")
-            {
+            var role = HttpContext.Session.GetString("UserRole");
+            var token = HttpContext.Session.GetString("FirebaseToken");
+
+            if (string.IsNullOrEmpty(role) || role.ToLower() != "student" || string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
+
+            var resp = await _apiService.GetMyRequestsAsync(token, status);
+            if (!resp.IsSuccessStatusCode)
+            {
+                var apiError = await resp.Content.ReadAsStringAsync();
+                TempData["Error"] = $"Failed to load requests. API response: {apiError}";
+                return View(new List<RequestItem>()); // still render view
             }
 
-            return View();
-        }
+            var json = await resp.Content.ReadAsStringAsync();
 
+            var items = new List<RequestItem>();
+            try
+            {
+                // Normal deserialization if API returns simple primitives
+                items = JsonConvert.DeserializeObject<List<RequestItem>>(json) ?? new List<RequestItem>();
+            }
+            catch (JsonSerializationException)
+            {
+                // Firestore-style fallback (nested _seconds fields)
+                dynamic parsed = JsonConvert.DeserializeObject(json);
+                foreach (var entry in parsed)
+                {
+                    var item = new RequestItem
+                    {
+                        ServiceType = entry.serviceType,
+                        Description = entry.description,
+                        Priority = entry.priority,
+                        Deadline = entry.deadline,
+                        CreatedAt = entry.createdAt?._seconds,
+                        UpdatedAt = entry.updatedAt?._seconds
+                    };
+                    items.Add(item);
+                }
+            }
+
+            return View(items);
+        }
 
         [HttpGet]
         public IActionResult StudentServiceRequest()
         {
-            string firebaseToken = HttpContext.Session.GetString("FirebaseToken");
-            string role = HttpContext.Session.GetString("UserRole");
+            var firebaseToken = HttpContext.Session.GetString("FirebaseToken");
+            var role = HttpContext.Session.GetString("UserRole");
 
             if (string.IsNullOrEmpty(firebaseToken) || string.IsNullOrEmpty(role) || role.ToLower() != "student")
             {
@@ -45,7 +75,6 @@ namespace CiteWise_Web.Controllers
             return View();
         }
 
-
         [HttpPost]
         public async Task<IActionResult> StudentServiceRequest(ServiceRequest model)
         {
@@ -54,7 +83,6 @@ namespace CiteWise_Web.Controllers
                 return View(model);
             }
 
-            // Get Firebase token from session
             string firebaseToken = HttpContext.Session.GetString("FirebaseToken");
             if (string.IsNullOrEmpty(firebaseToken))
             {
@@ -62,7 +90,7 @@ namespace CiteWise_Web.Controllers
             }
 
             string userRole = HttpContext.Session.GetString("UserRole");
-            if (userRole != "student")
+            if (userRole?.ToLower() != "student")
             {
                 return RedirectToAction("Login", "Account");
             }
@@ -80,10 +108,10 @@ namespace CiteWise_Web.Controllers
             }
 
             // Attach text fields
-            formData.Add(new StringContent(model.DocName ?? ""), "documentName");
-            formData.Add(new StringContent(model.SelectedService ?? ""), "serviceType");
-            formData.Add(new StringContent(model.AdditionalInfo ?? ""), "description");
-            formData.Add(new StringContent(model.Urgency ?? ""), "priority");
+            formData.Add(new StringContent(model.DocName ?? string.Empty), "documentName");
+            formData.Add(new StringContent(model.SelectedService ?? string.Empty), "serviceType");
+            formData.Add(new StringContent(model.AdditionalInfo ?? string.Empty), "description");
+            formData.Add(new StringContent(model.Urgency ?? string.Empty), "priority");
 
             if (model.Deadline.HasValue)
             {
@@ -99,15 +127,13 @@ namespace CiteWise_Web.Controllers
                 return RedirectToAction("Confirmation");
             }
 
-            // Get API response content for debugging
+            // Handle API error
             string apiError = await response.Content.ReadAsStringAsync();
             ModelState.AddModelError("", $"Failed to submit request. API response: {apiError}");
-
             return View(model);
         }
 
-
-       [HttpGet]
+        [HttpGet]
         public IActionResult Confirmation()
         {
             if (TempData["RequestSubmitted"] == null)
@@ -116,7 +142,6 @@ namespace CiteWise_Web.Controllers
                 return RedirectToAction("StudentDashboard");
             }
 
-            // Optional: remove the flag so refresh won't show the page again
             TempData.Remove("RequestSubmitted");
 
             return View();

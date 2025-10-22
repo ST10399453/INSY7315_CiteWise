@@ -1,32 +1,22 @@
-﻿
-html, body {
+﻿html, body {
     height: 100%;
-    overflow: hidden;
+    overflow: hidden; /* prevent the entire page from scrolling */
 }
 
 .dashboard-container {
-    position: fixed; 
+    position: fixed;
     top: 80px;
-    left: 260px; 
+    left: 260px;
     right: 0;
     bottom: 0;
     padding: 20px 40px;
-    overflow-y: auto; 
+    overflow: hidden; /* prevent double scrollbars */
     box-sizing: border-box;
 }
 
 body.sidebar-collapsed .dashboard-container {
-    left: 80px; /* when sidebar collapses */
+    left: 80px;
 }
-
-
-/*    .dashboard-container h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 30px;
-        color: #0027B2;
-    }*/
 
 .dashboard-grid {
     display: grid;
@@ -34,9 +24,42 @@ body.sidebar-collapsed .dashboard-container {
     grid-gap: 25px;
 }
 
-/*REQUEST BLOCK*/
+/* scrollable table wrapper */
+.table-scroll {
+    max-height: 400px; /* adjust height as needed */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 10px;
+}
+
+    /* make the header fixed within the scroll */
+    .table-scroll thead th {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 2;
+    }
+
+/* keep your original table style */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .table th,
+    .table td {
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+.table-striped tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+/* existing card and request styling */
 .request-list {
-    max-height: 200px; /* Adjust as needed */
+    max-height: 200px;
     overflow-y: auto;
     margin-bottom: 15px;
 }
@@ -50,12 +73,10 @@ body.sidebar-collapsed .dashboard-container {
     backdrop-filter: blur(2px);
 }
 
-
 .request-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
 }
 
 .request-title {
@@ -63,10 +84,6 @@ body.sidebar-collapsed .dashboard-container {
     font-weight: 600;
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 175%;
 }
 
 .priority-badge {
@@ -97,7 +114,6 @@ body.sidebar-collapsed .dashboard-container {
     border-radius: 8px;
 }
 
-
 .request-footer {
     display: flex;
     justify-content: space-between;
@@ -126,7 +142,6 @@ body.sidebar-collapsed .dashboard-container {
         font-family: 'Poppins', sans-serif;
     }
 
-
 .notification-list {
     list-style: none;
     padding: 0;
@@ -142,7 +157,6 @@ body.sidebar-collapsed .dashboard-container {
         .notification-list li:hover {
             background: rgba(202, 212, 245, 0.5);
         }
-
 
 .btn {
     background: #0027B2;
