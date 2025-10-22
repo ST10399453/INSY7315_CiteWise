@@ -83,7 +83,6 @@ open class BaseActivity : AppCompatActivity() {
                 R.id.nav_dashboard -> launchTop(getDashboardActivityClass())
                 R.id.nav_request   -> launchTop(ServiceRequestActivity::class.java)
                 R.id.nav_resources -> {
-                    // TODO replace when you add ResourcesActivity
                     launchTop(ResourcesActivity::class.java)
                 }
                 R.id.nav_messages  -> launchTop(ChatsActivity::class.java)

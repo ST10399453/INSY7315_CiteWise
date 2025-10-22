@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/offline/OfflineRepositories.kt
 package com.example.citewise_mobile.offline
 
 import android.content.Context
@@ -9,13 +8,47 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 /** Single access point to the local Room database. */
+/** Single access point to the local Room database. */
 class LocalRepos(ctx: Context) {
-    private val db = OfflineDb.get(ctx)
+    // Use a shared singleton instance so we can close it centrally
+    private val db = getDb(ctx)
+
     val requests = db.requests()
     val users = db.users()
     val chats = db.chats()
     val messages = db.messages()
     val documents = db.documents()
+
+    companion object {
+        @Volatile
+        private var dbInstance: OfflineDb? = null
+
+        private fun getDb(ctx: Context): OfflineDb {
+            val cached = dbInstance
+            if (cached != null) return cached
+            return synchronized(this) {
+                val again = dbInstance
+                if (again != null) again
+                else {
+                    // Use your existing Room builder inside OfflineDb.get(ctx)
+                    val created = OfflineDb.get(ctx)
+                    dbInstance = created
+                    created
+                }
+            }
+        }
+
+        /**
+         * Closes the shared Room database instance and releases it.
+         * Call this before deleting the DB file (e.g., in OfflineReset.resetLocalData).
+         */
+        fun closeAll() {
+            synchronized(this) {
+                dbInstance?.close()
+                dbInstance = null
+            }
+        }
+    }
 }
 
 /**

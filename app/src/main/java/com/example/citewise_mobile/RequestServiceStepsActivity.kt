@@ -10,17 +10,16 @@ import android.provider.OpenableColumns
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
-import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ProgressBar
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceType
 import com.example.citewise_mobile.offline.LocalRepos
@@ -213,7 +212,6 @@ class RequestServiceStepsActivity : AppCompatActivity() {
 
         btnAttachFile.setOnClickListener { pickDocLauncher.launch(allowedMimeTypes()) }
         etDeadline.setOnClickListener { showDatePicker() }
-
     }
 
     private fun goNextStep() {
@@ -292,7 +290,6 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     }
 
     // ======= OFFLINE-FIRST SAVE (Room) + SYNC TRIGGER =======
-
     private fun sendToLocalDb(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
@@ -311,10 +308,10 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         val staged = try { copyUriToTempFile(uri, name) }
         catch (e: Exception) { return onError("Failed to stage file: ${e.message}") }
 
-        // Current Firebase user → we’ll use this to resolve first name later
         val myUid = FirebaseAuth.getInstance().currentUser?.uid
 
-        lifecycleScope.launch {
+        val appScope = (application as CiteWiseApp).appScope
+        appScope.launch {
             try {
                 val entity = ServiceRequestEntity(
                     documentName = name,
@@ -328,14 +325,15 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                     syncState    = SyncState.PENDING_UPLOAD,
                     userId       = myUid
                 )
-                localRepos.requests.insert(entity)
 
-                // Trigger immediate upload via WorkManager
+                LocalRepos(this@RequestServiceStepsActivity).requests.insert(entity)
                 RequestsSyncWorker.oneShot(this@RequestServiceStepsActivity)
 
-                onSuccess()
+                runOnUiThread { onSuccess() }
+            } catch (ce: kotlinx.coroutines.CancellationException) {
+                runOnUiThread { onError("Save was cancelled, please try again") }
             } catch (t: Throwable) {
-                onError(t.message ?: "Failed to save locally")
+                runOnUiThread { onError(t.message ?: "Failed to save locally") }
             }
         }
     }
@@ -365,8 +363,9 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private fun copyUriToTempFile(uri: Uri, displayName: String): File {
         val safeName = if (displayName.isBlank()) "upload.bin" else displayName
         val outFile = File(cacheDir, safeName)
-        contentResolver.openInputStream(uri)?.use { input -> FileOutputStream(outFile).use { out -> input.copyTo(out) } }
-            ?: throw IllegalStateException("Cannot open stream for URI")
+        contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(outFile).use { out -> input.copyTo(out) }
+        } ?: throw IllegalStateException("Cannot open stream for URI")
         return outFile
     }
 

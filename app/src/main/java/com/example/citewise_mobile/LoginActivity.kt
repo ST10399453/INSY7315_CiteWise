@@ -13,7 +13,6 @@ import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
@@ -27,11 +26,17 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
 
+// 🔹 Workers for login-time pull
+import com.example.citewise_mobile.offline.RequestsPullWorker
+// import com.example.citewise_mobile.offline.MessagesSyncWorker
+// import com.example.citewise_mobile.offline.DocumentsSyncWorker
+// import com.example.citewise_mobile.offline.UsersSyncWorker
+// import com.example.citewise_mobile.offline.RequestsSyncWorker
+
 class LoginActivity : AppCompatActivity() {
 
     private val auth = com.google.firebase.Firebase.auth
 
-    //Removed tilEmail on purpose; we show email errors directly on etEmail
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
     private lateinit var btnLogin: MaterialButton
@@ -121,6 +126,7 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, pass)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    kickOffInitialSync()
                     routeByRole()
                 } else {
                     etPassword.error = task.exception?.localizedMessage ?: "Login failed"
@@ -178,6 +184,8 @@ class LoginActivity : AppCompatActivity() {
                 return@addOnCompleteListener
             }
             if (t.result?.exists() == true) {
+                // 🔹 Kick off a login-time pull before routing
+                kickOffInitialSync()
                 routeByRole()
             } else {
                 startActivity(
@@ -199,13 +207,26 @@ class LoginActivity : AppCompatActivity() {
         ref.get().addOnCompleteListener { t ->
             val role = t.result?.getValue(String::class.java)?.lowercase() ?: "student"
             when (role) {
-                "student" -> startActivity(Intent(this, StudentDashboardActivity::class.java))
-                "consultant" -> startActivity(Intent(this, ConsultantDashboardActivity::class.java))
-                "admin" -> startActivity(Intent(this, AdminDashboardActivity::class.java))
-                else -> startActivity(Intent(this, StudentDashboardActivity::class.java))
+                "student"   -> startActivity(Intent(this, StudentDashboardActivity::class.java))
+                "consultant"-> startActivity(Intent(this, ConsultantDashboardActivity::class.java))
+                "admin"     -> startActivity(Intent(this, AdminDashboardActivity::class.java))
+                else        -> startActivity(Intent(this, StudentDashboardActivity::class.java))
             }
             finish()
         }
+    }
+
+    // ---------------- Login-time Pull ----------------
+    private fun kickOffInitialSync() {
+        RequestsPullWorker.oneShot(this)
+
+        // MessagesSyncWorker.oneShot(this)
+        // DocumentsSyncWorker.oneShot(this)
+        // UsersSyncWorker.schedule(this)
+        // RequestsSyncWorker.schedulePeriodic(this)
+        // RequestsPullWorker.schedule(this)
+        // DocumentsSyncWorker.schedule(this)
+        // MessagesSyncWorker.schedule(this)
     }
 
     // ---------------- Helpers ----------------

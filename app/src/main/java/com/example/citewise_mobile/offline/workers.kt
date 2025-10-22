@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/offline/Workers.kt
 package com.example.citewise_mobile.offline
 
 import android.content.Context
@@ -20,6 +19,7 @@ import com.example.citewise_mobile.data.MessagesRepository
 import com.example.citewise_mobile.data.NetResult
 import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -45,7 +45,7 @@ private object WorkerCfg {
         .build()
 
     val backoffPolicy = BackoffPolicy.EXPONENTIAL
-    val backoffDelay = 30L // seconds
+    val backoffDelay = 3L // seconds
 }
 
 // ============================================================
@@ -203,7 +203,6 @@ class RequestsSyncWorker(
     private val TAG = "RequestsSyncWorker"
     private val repo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
     private val local by lazy { LocalRepos(applicationContext) }
-    // Use auth to fill userId if local & server both omitted it for some reason
     private val auth by lazy { FirebaseAuth.getInstance() }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
@@ -230,7 +229,7 @@ class RequestsSyncWorker(
                     serviceType = sr.serviceType.orEmpty(),
                     description = sr.description.orEmpty(),
                     priority = sr.priority.orEmpty(),
-                    deadlineIso = sr.deadlineIso // remains nullable
+                    deadlineIso = sr.deadlineIso
                 )) {
                     is NetResult.Ok -> {
                         val dto = result.data
@@ -245,10 +244,10 @@ class RequestsSyncWorker(
                         local.requests.update(
                             sr.copy(
                                 remoteId     = dto.id,
-                                documentId   = dto.documentId,                    // GUID from server
+                                documentId   = dto.documentId,
                                 status       = dto.status ?: "submitted",
-                                userId       = newUserId,                         // ✅ ensure we keep userId
-                                consultantId = newConsultantId,                   // ✅ keep consultantId if any
+                                userId       = newUserId,
+                                consultantId = newConsultantId,
                                 syncState    = SyncState.SYNCED,
                                 updatedAt    = System.currentTimeMillis()
                             )
@@ -315,8 +314,7 @@ class RequestsSyncWorker(
 }
 
 // ============================================================
-// RequestsPullWorker
-//  - Uses mapper that preserves userId/consultantId/documentId
+// RequestsPullWorker  (fetch user’s requests -> Room)
 // ============================================================
 
 class RequestsPullWorker(
@@ -336,7 +334,6 @@ class RequestsPullWorker(
             is NetResult.Ok -> {
                 res.data.forEach { dto ->
                     val existing: ServiceRequestEntity? = dto.id?.let { local.requests.findByRemoteId(it) }
-                    // ⬇️ use the mapper that carries userId/consultantId/documentId through
                     val mapped = dto.toEntityPreservingLocalFallback(existing)
                     local.requests.upsertByRemoteId(mapped)
                 }
@@ -354,11 +351,7 @@ class RequestsPullWorker(
         fun schedule(context: Context) {
             val req = PeriodicWorkRequestBuilder<RequestsPullWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(
-                    WorkerCfg.backoffPolicy,
-                    WorkerCfg.backoffDelay,
-                    TimeUnit.SECONDS
-                )
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 "requests_pull", ExistingPeriodicWorkPolicy.UPDATE, req
@@ -368,11 +361,7 @@ class RequestsPullWorker(
         fun oneShot(context: Context) {
             val once = OneTimeWorkRequestBuilder<RequestsPullWorker>()
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(
-                    WorkerCfg.backoffPolicy,
-                    WorkerCfg.backoffDelay,
-                    TimeUnit.SECONDS
-                )
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(once)
         }
@@ -470,4 +459,34 @@ class DocumentsSyncWorker(
             WorkManager.getInstance(context).enqueue(once)
         }
     }
+}
+
+// ============================================================
+// Offline Reset Utility (TOP-LEVEL)
+// ============================================================
+
+/**
+ * Fully clears local offline data:
+ * - Cancels all WorkManager background jobs
+ * - Clears Firestore local cache (if used)
+ * - Closes & deletes Room database file: offline.db
+ */
+object OfflineReset {
+
+    /**
+     * Call this when you want to nuke all local data (e.g., logout, debug button, after wiping Firebase).
+     * Must be called before Firestore or Room are re-initialized in this process.
+     */
+    fun resetLocalData(context: Context) {
+        WorkManager.getInstance(context).cancelAllWork()
+
+        runCatching {
+            FirebaseFirestore.getInstance().clearPersistence()
+        }.onFailure { it.printStackTrace() }
+
+        runCatching { LocalRepos.closeAll() }
+
+        context.deleteDatabase("offline.db")
+
+        }
 }

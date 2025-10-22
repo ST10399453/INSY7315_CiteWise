@@ -7,8 +7,13 @@ import com.example.citewise_mobile.offline.RequestsPullWorker
 import com.example.citewise_mobile.offline.RequestsSyncWorker
 import com.example.citewise_mobile.offline.DocumentsSyncWorker
 import com.example.citewise_mobile.offline.UsersSyncWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 class CiteWiseApp : Application() {
+    val appScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override fun onCreate() {
         super.onCreate()
 
