@@ -45,50 +45,44 @@ export async function ensureChat(u1, u2) {
   return chatId;
 }
 
-/**
- * List user chats from /userChats/{uid}. Optional pagination via startAfter (chatId).
- * Returns: { chats, nextPageToken }
- */
-export async function getUserChats(uid, { limit = 50, startAfter } = {}) {
-  const n = Math.max(1, Math.min(Number(limit) || 50, 200));
-
-  let q = rtdb().ref(`userChats/${uid}`).orderByKey();
-  if (startAfter) q = q.startAfter(String(startAfter));
-  q = q.limitToFirst(n);
-
-  const snap = await q.get();
-  const obj = snap.val() || {};
-  const rows = Object.entries(obj).map(([chatId, meta]) => ({
-    chatId,
-    ...(meta || {}),
-  }));
-
-  const nextPageToken = rows.length ? rows[rows.length - 1].chatId : null;
-  return { chats: rows, nextPageToken };
+/** Check if a user participates in a chat */
+export async function isParticipant(chatId, uid) {
+  const usersSnap = await rtdb().ref(`chats/${chatId}/users`).get();
+  const users = usersSnap.val() || {};
+  return Boolean(users && users[String(uid)]);
 }
 
 /**
- * Page messages from /chatMessages/{chatId} ordered by key (push IDs).
- * Returns: { messages, nextPageToken }
+ * Retrieve messages in chronological order (oldest → newest) by createdAt.
+ * Pagination: pass `after` (ms) to start strictly after that timestamp.
+ * Returns: { messages, nextAfter }
  */
-export async function getChatMessagesPage(chatId, { limit = 100, startAfter } = {}) {
+export async function getChatMessagesChrono(chatId, { limit = 100, after } = {}) {
   const n = Math.max(1, Math.min(Number(limit) || 100, 500));
-  let q = rtdb().ref(`chatMessages/${chatId}`).orderByKey();
-  if (startAfter) q = q.startAfter(String(startAfter));
+
+  let q = rtdb().ref(`chatMessages/${chatId}`).orderByChild("createdAt");
+  if (after != null) q = q.startAt(Number(after) + 1); // strictly after
   q = q.limitToFirst(n);
 
   const snap = await q.get();
   const obj = snap.val() || {};
-  const messages = Object.entries(obj).map(([id, m]) => ({ id, ...(m || {}) }));
-  const nextPageToken = messages.length ? messages[messages.length - 1].id : null;
 
-  return { messages, nextPageToken };
+  // Ensure ascending sort; RTDB returns sorted but we enforce correctness
+  const messages = Object.entries(obj)
+    .map(([id, m]) => ({ id, ...(m || {}) }))
+    .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+  const nextAfter = messages.length ? messages[messages.length - 1].createdAt : null;
+  return { messages, nextAfter };
 }
 
 /**
  * Send a chat message (writes to RTDB and bumps mirrors), then notifies recipient.
  * Message shape:
  *  id (push key), chatId, fromUid, toUid, body, createdAt, updatedAt, status: 'sent'
+ * Side-effects:
+ *  - Firestore notification: type "chat_message" to recipient only
+ *  - FCM push to recipient tokens
  */
 export async function sendChatMessage({ fromUid, toUid, body }) {
   const f = String(fromUid || "").trim();
@@ -122,18 +116,19 @@ export async function sendChatMessage({ fromUid, toUid, body }) {
   updates[`userChats/${t}/${chatId}/updatedAt`] = now;
   await rtdb().ref().update(updates);
 
-  // Firestore + FCM notify (best-effort; errors are logged but do not fail send)
+  // Firestore + FCM notify (best-effort; errors do not fail send)
   try {
     const { displayName, username } = await notify.getUserProfile(f);
     const title = displayName || username || "New message";
     const preview = text.length > 120 ? text.slice(0, 117) + "..." : text;
 
     await notify.createFirestoreNotification(t, {
-      type: "chat_message",
+      type: "chat_message",       // ONLY message notifications
       fromUid: f,
       fromName: displayName,
       fromUsername: username,
       message: preview,
+      chatId,
     });
 
     await notify.sendPushToUser(t, {
@@ -152,21 +147,3 @@ export async function sendChatMessage({ fromUid, toUid, body }) {
   return { id: msgRef.key, ...msg };
 }
 
-/**
- * Soft-delete a message (optional helper). Keeps placeholder but clears text.
- */
-export async function softDeleteMessage(chatId, messageId, actorUid) {
-  const ref = rtdb().ref(`chatMessages/${chatId}/${messageId}`);
-  const snap = await ref.get();
-  if (!snap.exists()) return { ok: false, reason: "not_found" };
-
-  const cur = snap.val() || {};
-  if (String(cur.fromUid) !== String(actorUid)) {
-    return { ok: false, reason: "not_owner" };
-  }
-
-  const now = Date.now();
-  await ref.update({ status: "deleted", body: "", updatedAt: now });
-  await rtdb().ref(`chats/${chatId}/updatedAt`).set(now);
-  return { ok: true };
-}

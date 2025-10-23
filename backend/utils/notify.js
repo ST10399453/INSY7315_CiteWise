@@ -15,10 +15,11 @@ class NotifyService {
 
   /**
    * Create Notifications/{userId}/items/{autoId}
+   * NOTE: We only use this for message events.
    */
   async createFirestoreNotification(
     userId,
-    { type, fromUid, message, fromName, fromUsername }
+    { type, fromUid, message, fromName, fromUsername, chatId }
   ) {
     const uid = String(userId || "").trim();
     if (!uid) throw new Error("createFirestoreNotification: userId required");
@@ -30,9 +31,10 @@ class NotifyService {
       .doc();
 
     const payload = {
-      type: String(type || "notification"),
+      type: String(type || "notification"), // e.g. "chat_message"
       fromUid: String(fromUid || ""),
       message: String(message || ""),
+      ...(chatId ? { chatId: String(chatId) } : {}),
       ...(fromName ? { fromName: String(fromName) } : {}),
       ...(fromUsername ? { fromUsername: String(fromUsername) } : {}),
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -83,7 +85,7 @@ class NotifyService {
         ttl: 60 * 60 * 1000, // 1 hour
         notification: {
           sound: "default",
-          channelId: "phuza-general", // must exist in the Android app
+          channelId: "citewise-general", // must exist in the Android app
         },
       },
     };

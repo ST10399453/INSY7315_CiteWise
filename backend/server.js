@@ -33,6 +33,13 @@ import {
   streamFromAzure,
 } from "./blobs/storage.js";
 
+import {
+  ensureChat,
+  sendChatMessage,
+  getChatMessagesChrono,
+  isParticipant,
+} from "./utils/chats.js";
+
 dotenv.config();
 
 const app = express();
@@ -455,56 +462,6 @@ app.post(
   }
 );
 
-
-// // TEMP: Allow open access for testing (no auth)
-// app.post(
-//   "/resources",
-//   upload.single("file"),
-//   body("name").isString().notEmpty(),
-//   body("faculty").isString().notEmpty(),
-//   body("category").isString().isIn(["WRITING_GUIDE", "TEMPLATE", "AI_USAGE"]),
-//   async (req, res) => {
-//     try {
-//       // Skip isAdmin check
-//       if (!req.file) return res.status(400).json({ message: "file is required" });
-
-//       const { name, faculty, category } = req.body;
-//       const id = newFileId();
-//       const clean = safeName(name);
-//       const mime = req.file.mimetype || "application/pdf";
-//       const size = req.file.size || req.file.buffer?.length || 0;
-
-//       const objectKey = `resources/${id}/${clean}`;
-//       const [r2Meta, azureMeta] = await Promise.all([
-//         uploadToR2({ key: objectKey, body: req.file.buffer, contentType: mime }),
-//         uploadToAzure({ blobPath: objectKey, body: req.file.buffer, contentType: mime }),
-//       ]);
-
-//       const doc = {
-//         id,
-//         name: clean,
-//         faculty,
-//         category,
-//         mimeType: mime,
-//         size,
-//         visibility: "students",
-//         storage: { cloudflare: r2Meta, azure: azureMeta },
-//         createdBy: "test-user",
-//         createdAt: Date.now(),
-//         updatedAt: Date.now(),
-//       };
-
-//       await fsdb.collection("resources").doc(id).set(doc);
-
-//       res.status(201).json(doc);
-//     } catch (e) {
-//       console.error(e);
-//       res.status(400).json({ message: e.message });
-//     }
-//   }
-// );
-
-
 // List resources (filters + sort)
 app.get(
   "/resources",
@@ -654,6 +611,66 @@ app.get(
     }
   }
 );
+
+app.get(
+  "/messages/:chatId",
+  checkAuth,
+  param("chatId").isString().notEmpty(),
+  query("limit").optional().isInt({ min: 1, max: 500 }),
+  query("after").optional().isInt(), // ms timestamp
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const { chatId } = req.params;
+      const limit = req.query.limit ? Number(req.query.limit) : 100;
+      const after = req.query.after != null ? Number(req.query.after) : undefined;
+
+      // access: must be a participant in the chat
+      const allowed = await isParticipant(chatId, req.user.uid);
+      if (!allowed) return res.status(403).json({ success: false, message: "Forbidden" });
+
+      const { messages, nextAfter } = await getChatMessagesChrono(chatId, { limit, after });
+
+      return res.json({
+        success: true,
+        chatId,
+        messages,   // oldest → newest
+        nextAfter,  // pass as ?after=nextAfter to page forward
+        meta: { order: "asc", limit }
+      });
+    } catch (e) {
+      console.error("GET /messages/:chatId error:", e);
+      return res.status(500).json({ success: false, message: "Failed to fetch messages" });
+    }
+  }
+);
+
+
+app.post(
+  "/messages",
+  checkAuth,
+  body("toUid").isString().notEmpty(),
+  body("body").isString().notEmpty(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const fromUid = req.user.uid;
+      const { toUid, body: text } = req.body;
+
+      if (String(toUid) === String(fromUid)) {
+        return res.status(400).json({ success: false, message: "Cannot message yourself" });
+      }
+
+      const saved = await sendChatMessage({ fromUid, toUid, body: text });
+
+      return res.status(201).json({ success: true, message: saved });
+    } catch (e) {
+      console.error("POST /messages error:", e);
+      return res.status(500).json({ success: false, message: "Failed to send message" });
+    }
+  }
+);
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 /** Startup */

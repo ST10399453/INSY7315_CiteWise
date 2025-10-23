@@ -71,7 +71,7 @@ if (!admin.apps.length) {
   admin.initializeApp({
     credential,
     projectId: configuredProjectId,
-    databaseURL: process.env.FIREBASE_RTDB_URL, // optional
+    databaseURL: process.env.FIREBASE_RTDB_URL,
   });
 }
 
@@ -82,8 +82,6 @@ db.settings({ ignoreUndefinedProperties: true });
 // Helpers
 const auth = admin.auth();
 
-// Named exports
 export { admin, auth, db, configuredProjectId as FIREBASE_PROJECT_ID };
 
-// Default export (so `import admin from '../db/firebaseAdmin.js'` works too)
 export default admin;
