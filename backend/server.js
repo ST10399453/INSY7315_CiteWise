@@ -13,12 +13,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Root
+// Health
 app.get("/", (_req, res) =>
   res.send("CiteWise API is running over HTTP (uploads: Cloudflare R2).")
 );
 
-// Mount grouped routes
+// Routes
 app.use("/requests", requestsRouter);
 app.use("/documents", documentsRouter);
 app.use("/resources", resourcesRouter);

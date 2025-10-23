@@ -16,7 +16,6 @@ export async function checkAuth(req, res, next) {
     const idToken = m[1];
     const decoded = await admin.auth().verifyIdToken(idToken, true);
 
-    // Optional: strongly assert token belongs to THIS Firebase project
     const projectId = process.env.FIREBASE_PROJECT_ID;
     if (projectId) {
       const expectedIss = `https://securetoken.google.com/${projectId}`;
