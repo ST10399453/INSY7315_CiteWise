@@ -7,7 +7,6 @@ title Data Flow: Resources Endpoints
 
 database "Firestore\n(Resources meta)" as FS_RES
 cloud "Cloudflare R2\nresources/" as R2
-cloud "Azure Blob\nresources/" as AZ
 
 package "Endpoints: Resources" {
   top to bottom direction
@@ -20,12 +19,9 @@ package "Endpoints: Resources" {
 ' READs
 FS_RES -[#2E7D32]-.-> RES_GET : READ (list/filter)
 R2     -[#2E7D32]-.-> RES_DL  : READ (signed URL)
-AZ     -[#2E7D32]-.-> RES_DL  : READ (SAS URL)
 R2     -[#2E7D32]-.-> RES_STREAM : READ (bytes)
-AZ     -[#2E7D32]-.-> RES_STREAM : READ (bytes)
 
 ' WRITEs
 RES_POST -[#C62828]-> R2     : WRITE (upload object)
-RES_POST -[#C62828]-> AZ     : WRITE (upload object)
 RES_POST -[#C62828]-> FS_RES : WRITE (metadata)
 @enduml

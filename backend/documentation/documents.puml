@@ -6,7 +6,6 @@ skinparam maxMessageSize 200
 title Data Flow: Documents Endpoints
 
 cloud "Cloudflare R2\nuploads/" as R2
-cloud "Azure Blob\nuploads/" as AZ
 
 package "Endpoints: Documents" {
   top to bottom direction
@@ -16,7 +15,5 @@ package "Endpoints: Documents" {
 
 ' READs (signed URL + stream)
 R2 -[#2E7D32]-.-> DOC_DL    : READ (signed URL)
-AZ -[#2E7D32]-.-> DOC_DL    : READ (SAS URL)
 R2 -[#2E7D32]-.-> DOC_STREAM: READ (bytes)
-AZ -[#2E7D32]-.-> DOC_STREAM: READ (bytes)
 @enduml
