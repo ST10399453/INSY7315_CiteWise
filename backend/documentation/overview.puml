@@ -33,15 +33,15 @@ node "CiteWise API" as API {
 
   package "Documents" as EP_DOCS {
     top to bottom direction
-    component "GET    /documents/:documentId/download  (Signed URL: R2/Azure)"                 as EP_DOCS_DL
-    component "GET    /documents/:documentId/file      (Stream for in-app viewing)"            as EP_DOCS_STREAM
+    component "GET    /documents/:documentId/download  (Signed URL: R2)"                 as EP_DOCS_DL
+    component "GET    /documents/:documentId/file      (Stream for in-app viewing)"      as EP_DOCS_STREAM
   }
 
   package "Resources" as EP_RES {
     top to bottom direction
     component "POST   /resources                        (Admin upload: Guide/Template/AI Usage)" as EP_RES_POST
     component "GET    /resources                        (List; filterable)"                     as EP_RES_GET
-    component "GET    /resources/:id/download           (Signed URL: R2/Azure)"                 as EP_RES_DL
+    component "GET    /resources/:id/download           (Signed URL: R2)"                       as EP_RES_DL
     component "GET    /resources/:id/file               (Stream for in-app viewing)"            as EP_RES_STREAM
   }
 
@@ -63,7 +63,6 @@ package "Data Sources" as RIGHT {
   database "Firebase Realtime Database (RTDB)\n/chats, /userChats, /chatMessages" as RTDB
   database "Firestore (Requests, Resources, Notifications)" as FS
   cloud "Cloudflare R2 (objects)\nuploads/, resources/" as R2
-  cloud "Azure Blob Storage (objects)\nuploads/, resources/" as AZ
 }
 
 ' --- Hidden links to balance layout (helps center API) ---
@@ -89,10 +88,8 @@ API  -[#C62828]-> RTDB : WRITE (send message,\nensure chat, mirrors)
 FS   -[#2E7D32]-.-> API : READ (requests/resources/\nnotifications)
 API  -[#C62828]-> FS  : WRITE (create request,\nresource meta,\nmessage_received notif)
 
-' Object storage (documents/resources) — both providers
+' Object storage (documents/resources) — R2 only
 R2   -[#2E7D32]-.-> API : READ (stream/signed URL)
-AZ   -[#2E7D32]-.-> API : READ (stream/signed URL)
 API  -[#C62828]-> R2  : WRITE (upload objects)
-API  -[#C62828]-> AZ  : WRITE (upload objects)
 
 @enduml
