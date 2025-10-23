@@ -1,9 +1,50 @@
 import admin from "../db/firebaseAdmin.js";
 import { notify } from "./notify.js";
+import crypto from "crypto";
 
 /** RTDB handle */
 export function rtdb() {
   return admin.database();
+}
+
+/** === Encryption helpers (AES-256-GCM) === */
+const ENC_ALGO = "aes-256-gcm";
+function getMsgKey() {
+  const b64 = process.env.CITEWISE_MSG_KEY_B64;
+  const hex = process.env.CITEWISE_MSG_KEY_HEX;
+  if (!b64 && !hex) {
+    throw new Error("Missing CITEWISE_MSG_KEY_B64 or CITEWISE_MSG_KEY_HEX");
+  }
+  return b64 ? Buffer.from(b64, "base64") : Buffer.from(hex, "hex");
+}
+
+/** Encrypt text -> { ct, iv, tag, alg, v } (Base64-encoded) */
+export function encryptBody(plaintext) {
+  const key = getMsgKey();
+  const iv = crypto.randomBytes(12); // 96-bit nonce recommended for GCM
+  const cipher = crypto.createCipheriv(ENC_ALGO, key, iv);
+  const ct = Buffer.concat([cipher.update(String(plaintext), "utf8"), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return {
+    v: 1,
+    alg: ENC_ALGO,
+    iv: iv.toString("base64"),
+    ct: ct.toString("base64"),
+    tag: tag.toString("base64"),
+  };
+}
+
+/** Decrypt { ct, iv, tag } -> plaintext */
+export function decryptBody(enc) {
+  if (!enc || !enc.ct || !enc.iv || !enc.tag) return "";
+  const key = getMsgKey();
+  const iv = Buffer.from(enc.iv, "base64");
+  const ct = Buffer.from(enc.ct, "base64");
+  const tag = Buffer.from(enc.tag, "base64");
+  const decipher = crypto.createDecipheriv(ENC_ALGO, key, iv);
+  decipher.setAuthTag(tag);
+  const pt = Buffer.concat([decipher.update(ct), decipher.final()]);
+  return pt.toString("utf8");
 }
 
 /** Build a stable 1:1 chat id from two UIDs (sorted join). */
@@ -56,6 +97,7 @@ export async function isParticipant(chatId, uid) {
  * Retrieve messages in chronological order (oldest → newest) by createdAt.
  * Pagination: pass `after` (ms) to start strictly after that timestamp.
  * Returns: { messages, nextAfter }
+ * Decrypts `bodyEnc` if present; falls back to legacy `body`.
  */
 export async function getChatMessagesChrono(chatId, { limit = 100, after } = {}) {
   const n = Math.max(1, Math.min(Number(limit) || 100, 500));
@@ -67,9 +109,24 @@ export async function getChatMessagesChrono(chatId, { limit = 100, after } = {})
   const snap = await q.get();
   const obj = snap.val() || {};
 
-  // Ensure ascending sort; RTDB returns sorted but we enforce correctness
   const messages = Object.entries(obj)
-    .map(([id, m]) => ({ id, ...(m || {}) }))
+    .map(([id, m]) => {
+      const base = { id, ...(m || {}) };
+      // If deleted, leave body empty
+      if (base.status === "deleted") return { ...base, body: "" };
+      // Prefer encrypted payload
+      if (base.bodyEnc && base.body == null) {
+        try {
+          const body = decryptBody(base.bodyEnc);
+          return { ...base, body };
+        } catch {
+          // On any decrypt error, return placeholder
+          return { ...base, body: "" };
+        }
+      }
+      // Legacy fallback (plain body existed before encryption rollout)
+      return base;
+    })
     .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
   const nextAfter = messages.length ? messages[messages.length - 1].createdAt : null;
@@ -78,11 +135,7 @@ export async function getChatMessagesChrono(chatId, { limit = 100, after } = {})
 
 /**
  * Send a chat message (writes to RTDB and bumps mirrors), then notifies recipient.
- * Message shape:
- *  id (push key), chatId, fromUid, toUid, body, createdAt, updatedAt, status: 'sent'
- * Side-effects:
- *  - Firestore notification: type "chat_message" to recipient only
- *  - FCM push to recipient tokens
+ * DB stores only encrypted body (bodyEnc). Plaintext is NOT stored.
  */
 export async function sendChatMessage({ fromUid, toUid, body }) {
   const f = String(fromUid || "").trim();
@@ -93,19 +146,24 @@ export async function sendChatMessage({ fromUid, toUid, body }) {
   const chatId = await ensureChat(f, t);
   const now = Date.now();
 
+  // Encrypt plaintext body
+  const bodyEnc = encryptBody(text);
+
   const msgRef = rtdb().ref(`chatMessages/${chatId}`).push();
   const msg = {
     chatId,
     fromUid: f,
     toUid: t,
-    body: text,
+    // body is intentionally omitted to avoid storing plaintext
+    bodyEnc,                // { v, alg, iv, ct, tag } Base64 fields
+    preview: text.length > 120 ? text.slice(0, 117) + "..." : text, // small UI hint
     createdAt: now,
     updatedAt: now,
     status: "sent",
   };
   await msgRef.set(msg);
 
-  // update chat metadata + user mirror entries
+  // update chat metadata + user mirror entries (use preview only)
   const last = { ...msg, id: msgRef.key };
   const updates = {};
   updates[`chats/${chatId}/lastMessage`] = last;
@@ -120,7 +178,7 @@ export async function sendChatMessage({ fromUid, toUid, body }) {
   try {
     const { displayName, username } = await notify.getUserProfile(f);
     const title = displayName || username || "New message";
-    const preview = text.length > 120 ? text.slice(0, 117) + "..." : text;
+    const preview = msg.preview;
 
     await notify.createFirestoreNotification(t, {
       type: "chat_message",       // ONLY message notifications
@@ -144,6 +202,5 @@ export async function sendChatMessage({ fromUid, toUid, body }) {
     console.error("[sendChatMessage] notify failed:", e?.message || e);
   }
 
-  return { id: msgRef.key, ...msg };
+  return { id: msgRef.key, ...msg, body: text };
 }
-
