@@ -1,4 +1,3 @@
-// dbManager.js
 import { db, admin } from "./firebaseAdmin.js";
 
 const COLLECTION = "ServiceReviews";

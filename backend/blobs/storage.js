@@ -1,4 +1,3 @@
-// backend/blobs/storage.js
 import crypto from 'crypto';
 
 // ---------- Cloudflare R2 (S3-compatible) ----------

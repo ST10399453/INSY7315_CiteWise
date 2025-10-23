@@ -1,4 +1,3 @@
-// backend/utils/notify.js
 import admin from "../db/firebaseAdmin.js";
 
 /** Small wrapper class around notification helpers (Firestore + FCM). */

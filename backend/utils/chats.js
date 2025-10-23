@@ -1,4 +1,3 @@
-// backend/utils/chats.js
 import admin from "../db/firebaseAdmin.js";
 import { notify } from "./notify.js";
 

@@ -1,4 +1,3 @@
-// auth/checkAuth.js
 import admin from '../db/firebaseAdmin.js';
 
 /**
