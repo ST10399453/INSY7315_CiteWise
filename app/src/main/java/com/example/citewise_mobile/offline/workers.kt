@@ -429,7 +429,7 @@ class DocumentsSyncWorker(
         val n = name?.lowercase().orEmpty()
         return when {
             n.endsWith(".pdf") -> "application/pdf"
-            n.endsWith(".doc") -> "application/msword"
+             n.endsWith(".doc") -> "application/msword"
             n.endsWith(".docx") -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             n.endsWith(".ppt") -> "application/vnd.ms-powerpoint"
             n.endsWith(".pptx") -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"

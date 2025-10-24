@@ -32,6 +32,7 @@ transition = "1.6.0"
 viewpager2 = "<latest>"
 workRuntimeKtx = "2.10.5"
 swiperefreshlayout = "1.1.0"
+firebaseMessaging = "25.0.1"
 
 
 [libraries]
@@ -72,6 +73,7 @@ material-vlatest = { module = "com.google.android.material:material", version.re
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
