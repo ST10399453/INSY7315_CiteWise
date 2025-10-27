@@ -7,9 +7,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.R
+import com.example.citewise_mobile.api.FlexTime
 import com.example.citewise_mobile.api.ServiceRequestDto
 import com.example.citewise_mobile.api.ServiceType
-import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.example.citewise_mobile.api.toUiDate
 
 class ServiceReviewAdapter(
     private val items: List<ServiceRequestDto>,
@@ -24,6 +25,10 @@ class ServiceReviewAdapter(
         val ivChevron: ImageView = view.findViewById(R.id.ivChevron)
         val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
         //val tvStage: TextView = view.findViewById(R.id.tvStage)
+
+        val tvSubmittedDate: TextView = view.findViewById(R.id.tvSubmittedDate)
+
+        val tvDeadline: TextView = view.findViewById(R.id.tvDeadline)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -55,6 +60,12 @@ class ServiceReviewAdapter(
             !item.description.isNullOrBlank() -> item.description
             else -> item.serviceType.toPretty()
         }
+
+        h.tvSubmittedDate.text = "Submitted: ${item.createdAt.toUiDate()}"
+
+        // Due / deadline date
+        h.tvDeadline.text = "Deadline: ${item.deadline.toUiDate()}"
+
 
         // Stage pill (shows status in friendly form)
 //        h.tvStage.text = item.status?.replace("_", " ")?.lowercase()?.replaceFirstChar { it.uppercase() }

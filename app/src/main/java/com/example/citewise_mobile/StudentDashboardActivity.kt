@@ -149,7 +149,12 @@ class StudentDashboardActivity : BaseActivity() {
         rvRequests.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         rvRequests.setHasFixedSize(true)
 
+        rvRequests.setPadding(0, 0, 0, 0)
+        rvRequests.clipToPadding = true
+
+
         val spacePx = (12f * resources.displayMetrics.density).toInt()
+        rvRequests.setPadding(spacePx, 0, spacePx, 0)
         rvRequests.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(
                 outRect: Rect,
@@ -157,9 +162,9 @@ class StudentDashboardActivity : BaseActivity() {
                 parent: RecyclerView,
                 state: RecyclerView.State
             ) {
-                val pos = parent.getChildAdapterPosition(view)
+//                val pos = parent.getChildAdapterPosition(view)
                 outRect.right = spacePx
-                if (pos == 0) outRect.left = spacePx
+//                if (pos == 0) outRect.left = spacePx
             }
         })
 
