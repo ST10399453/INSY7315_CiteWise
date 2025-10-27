@@ -358,4 +358,46 @@ router.post("/:id/cancel", checkAuth, param("id").isString(), async (req, res) =
   }
 });
 
+/**
+ * ============================================================
+ * 10) Self-Assign (Consultant claims a request)
+ * ------------------------------------------------------------
+ * Endpoint: POST /:id/self-assign
+ * Roles & Expectations:
+ *   - Consultants: can claim (assign themselves to) an unassigned request.
+ *   - Admins: could also use this if policy allows (enforced in transition).
+ *
+ * Body:
+ *   - deadline?: string (ISO)  // optional target date for the assignment
+ *
+ * Security:
+ *   - Requires authentication (checkAuth).
+ *   - transitionAssign should verify the actor is allowed to self-assign
+ *     (e.g., has "consultant" role) and that the request is in a claimable state.
+ * ============================================================
+ */
+router.post(
+  "/:id/self-assign",
+  checkAuth,
+  param("id").isString(),
+  body("deadline").optional().isString(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      const out = await transitionAssign({
+        id: req.params.id,
+        consultantId: req.user.uid,        // self-assign to the actor
+        deadline: req.body.deadline ?? null,
+        allowUpdate: false,                // create assignment (not update)
+        actor: req.user,                   // used by transition for authz
+      });
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  }
+);
+
+
 export default router;
