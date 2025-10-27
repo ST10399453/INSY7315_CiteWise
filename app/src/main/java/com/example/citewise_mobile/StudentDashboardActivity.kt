@@ -88,7 +88,7 @@ class StudentDashboardActivity : BaseActivity() {
                 .get()
                 .addOnSuccessListener { snap ->
                     val first = snap.getValue(String::class.java)?.trim().orEmpty()
-                    tvGreeting.text = if (first.isNotEmpty()) "Hi $first" else "Hi"
+                    tvGreeting.text = if (first.isNotEmpty()) "Hi, $first" else "Hi"
                 }
                 .addOnFailureListener { tvGreeting.text = "Hi" }
         } else tvGreeting.text = "Hi"

@@ -20,7 +20,7 @@ class ServiceReviewAdapter(
         val root: View = view
         val tvCategory: TextView = view.findViewById(R.id.tvCategory)
         val tvStatusLabel: TextView = view.findViewById(R.id.tvStatusLabel)
-        val statusDonut: CircularProgressIndicator = view.findViewById(R.id.statusDonut)
+//        val statusDonut: CircularProgressIndicator = view.findViewById(R.id.statusDonut)
         val ivChevron: ImageView = view.findViewById(R.id.ivChevron)
         val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
         //val tvStage: TextView = view.findViewById(R.id.tvStage)
@@ -44,7 +44,7 @@ class ServiceReviewAdapter(
 
         // Progress donut animation
         val progress = statusToProgress(item.status.orEmpty())
-        h.statusDonut.setProgressCompat(progress, true)
+//        h.statusDonut.setProgressCompat(progress, true)
 
         // Chevron
         h.ivChevron.setOnClickListener { onItemClick(item) }
@@ -62,7 +62,7 @@ class ServiceReviewAdapter(
 
         // Root click
         h.root.setOnClickListener { onItemClick(item) }
-        h.statusDonut.setOnClickListener { onItemClick(item) }
+//        h.statusDonut.setOnClickListener { onItemClick(item) }
     }
 
     override fun getItemCount(): Int = items.size
