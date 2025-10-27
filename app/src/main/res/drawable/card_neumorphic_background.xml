@@ -1,31 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Darker ambient shadow bottom-right -->
     <item
-        android:right="8dp"
-        android:bottom="8dp">
+        android:left="4dp"
+        android:top="0dp"
+        android:right="4dp"
+        android:bottom="4dp">
         <shape android:shape="rectangle">
             <corners android:radius="32dp"/>
-            <solid android:color="@color/dark_shadow"/>
+            <solid android:color="#33000000"/> <!-- darker translucent shadow -->
         </shape>
     </item>
+
+    <!-- Secondary shadow layer top-left for wrap-around effect -->
     <item
-        android:left="8dp"
-        android:top="8dp">
+        android:left="0dp"
+        android:top="4dp"
+        android:right="4dp"
+        android:bottom="0dp">
         <shape android:shape="rectangle">
             <corners android:radius="32dp"/>
-            <solid android:color="@color/light_highlight"/>
+            <solid android:color="#22000000"/> <!-- softer wrap-around shadow -->
         </shape>
     </item>
+
+    <!-- Top-left highlight -->
+    <item
+        android:left="6dp"
+        android:top="6dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="32dp"/>
+            <solid android:color="#33FFFFFF"/>
+        </shape>
+    </item>
+
+    <!-- Base surface -->
     <item android:id="@android:id/background"
-        android:right="3dp"
-        android:bottom="3dp"
         android:left="3dp"
-        android:top="3dp">
-        <shape>
-            <gradient android:startColor="@color/elements_background"
-                android:centerColor="@color/progress_background"
-                android:endColor="@color/elements_background"/>
+        android:top="3dp"
+        android:right="3dp"
+        android:bottom="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#EBECF0"/>
             <corners android:radius="32dp"/>
         </shape>
     </item>
+
 </layer-list>
+

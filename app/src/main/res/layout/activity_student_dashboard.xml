@@ -32,17 +32,6 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="16dp">
 
-                <ImageView
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:src="@drawable/logo"
-                    android:contentDescription="App Logo" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
                 <ImageButton
                     android:id="@+id/btnMenu"
                     android:layout_width="32dp"
@@ -52,17 +41,146 @@
                     android:contentDescription="Menu" />
             </LinearLayout>
 
-            <!-- Greeting -->
-            <TextView
-                android:id="@+id/tvGreeting"
-                android:layout_width="wrap_content"
+            <!--  Greeting Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/greetingCard"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="22dp"
-                android:text="Hi"
-                android:textColor="@color/gradient_end"
-                android:textSize="36sp"
-                android:fontFamily="@font/poppins_extra_bold"
-                android:textStyle="bold"/>
+                app:cardCornerRadius="20dp"
+                app:cardUseCompatPadding="true"
+                app:cardElevation="8dp"
+                app:strokeColor="@android:color/transparent"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_greeting_card"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:baselineAligned="false">
+
+                        <TextView
+                            android:id="@+id/tvGreeting"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Hi, Connor!"
+                            android:textColor="@color/text_light"
+                            android:textSize="30sp"
+                            android:letterSpacing="0.01"
+                            android:fontFamily="@font/poppins_bold" />
+
+                        <ImageView
+                            android:id="@+id/logoIcon"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginTop="-4dp"
+                            android:src="@drawable/logo"
+                            app:tint="@android:color/white"
+                            android:contentDescription="@string/app_name" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/subtitleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Here’s what’s happening with your assignments today."
+                        android:textColor="#E0EBECF0"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/poppins_regular" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Service Request Card-->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/serviceCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@android:color/transparent"
+                app:cardBackgroundColor="@android:color/transparent"
+                android:layout_marginTop="16dp">
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/card_neumorphic_background"
+                    android:padding="20dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tvServiceRequest"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Service Request\nProgress"
+                            android:textSize="20sp"
+                            android:textColor="@android:color/black"
+                            android:fontFamily="@font/poppins_sembold"
+                            android:lineSpacingExtra="4dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/icPending"
+                            android:paddingEnd="40dp"/>
+
+                        <ImageView
+                            android:id="@+id/icPending"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignTop="@id/tvServiceRequest"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="2dp"
+                            android:contentDescription="@string/app_name"
+                            android:src="@drawable/ic_pending" />
+                    </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/elevated_card"
+                    android:padding="20dp">
+
+
+                </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             <!-- ===== My Requests ===== -->
             <com.google.android.material.textview.MaterialTextView
