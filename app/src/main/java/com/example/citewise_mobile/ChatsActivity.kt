@@ -1,34 +1,54 @@
 package com.example.citewise_mobile
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat.enableEdgeToEdge
-import androidx.core.view.WindowInsetsCompat
+import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.adapters.ChatPreview
 import com.example.citewise_mobile.adapters.ChatsAdapter
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class ChatsActivity : AppCompatActivity() {
-    private lateinit var adapter: ChatsAdapter
+class ChatsActivity : BaseActivity() {
+
+    private lateinit var recentAdapter: ChatsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chats)
 
-        val rv = findViewById<RecyclerView>(R.id.recyclerChats)
-        adapter = ChatsAdapter { chat ->
-            // TODO: open conversation screen
+        setContentView(R.layout.activity_base)
+        applyInsets(R.id.main)
+
+        val baseContent = findViewById<ViewGroup>(R.id.baseContent)
+        val content = layoutInflater.inflate(R.layout.activity_chats, baseContent, false)
+        baseContent.addView(content)
+
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        setupBottomNav(bottomNav, R.id.nav_messages)
+
+        content.findViewById<RecyclerView>(R.id.rvRecent).apply {
+            layoutManager = LinearLayoutManager(this@ChatsActivity)
+            recentAdapter = ChatsAdapter { chat ->
+                // use chat.chatId and chat.displayName
+                val intent = Intent(this@ChatsActivity, ConversationActivity::class.java).apply {
+                    putExtra(ConversationActivity.EXTRA_CHAT_ID, chat.chatId)
+                    putExtra(ConversationActivity.EXTRA_CHAT_TITLE, chat.displayName)
+                }
+                startActivity(intent)
+            }
+            adapter = recentAdapter
+            addItemDecoration(SpacesItemDecoration(8))
         }
-        rv.adapter = adapter
-        rv.addItemDecoration(SpacesItemDecoration(8))
 
-        // Demo data
-        adapter.submitList(
+        content.findViewById<RecyclerView>(R.id.rvPinned).apply {
+            layoutManager = LinearLayoutManager(this@ChatsActivity, LinearLayoutManager.HORIZONTAL, false)
+        }
+
+        // Demo data unchanged (constructor already matches chatId/displayName)
+        recentAdapter.submitList(
             listOf(
-                ChatPreview("1", "Alice Johnson", "See you soon!", System.currentTimeMillis() - 600000),
+                ChatPreview("1", "Alice Johnson", "See you soon!", System.currentTimeMillis() - 600_000),
                 ChatPreview("2", "Bob King", "Thanks!", System.currentTimeMillis() - 86_400_000)
             )
         )

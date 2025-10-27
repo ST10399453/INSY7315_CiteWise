@@ -16,19 +16,18 @@
             android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sent message"
-            android:textColor="@android:color/white"
-            android:textSize="15sp" />
+            android:text="Thank you"
+            android:textColor="@color/text_dark"
+            android:textSize="15sp"/>
 
         <TextView
             android:id="@+id/tvTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="09:12"
+            android:text="1 minute ago"
             android:textSize="10sp"
             android:textColor="@android:color/white"
-            android:alpha="0.8"
-            android:layout_marginTop="4dp" />
+            android:alpha="0.85"
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
-
 </FrameLayout>

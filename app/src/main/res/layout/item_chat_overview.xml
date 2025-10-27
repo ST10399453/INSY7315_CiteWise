@@ -1,64 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="72dp"
     android:paddingStart="16dp"
     android:paddingEnd="16dp">
 
-    <!-- Circular initial -->
     <TextView
         android:id="@+id/tvInitial"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:gravity="center"
-        android:text="A"
+        android:text="R"
         android:textStyle="bold"
         android:textSize="18sp"
         android:textColor="@android:color/white"
         android:background="@drawable/bg_avatar_circle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-    <!-- Name -->
     <TextView
         android:id="@+id/tvName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Alice Johnson"
+        android:text="Roger"
         android:textSize="16sp"
         android:maxLines="1"
         android:ellipsize="end"
         app:layout_constraintStart_toEndOf="@id/tvInitial"
         app:layout_constraintTop_toTopOf="@id/tvInitial"
         app:layout_constraintEnd_toStartOf="@id/tvTime"
-        app:layout_goneMarginEnd="8dp"
-        android:layout_marginStart="12dp" />
+        android:layout_marginStart="12dp"/>
 
-    <!-- Time -->
     <TextView
         android:id="@+id/tvTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="09:12"
+        android:text="Yesterday"
         android:textSize="12sp"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="@color/text_faded"
         app:layout_constraintTop_toTopOf="@id/tvName"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Last message -->
     <TextView
         android:id="@+id/tvLastMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Last message preview goes here…"
+        android:text="Lorem ipsum dolor sit…"
         android:textSize="14sp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="@color/text_faded"
         app:layout_constraintStart_toStartOf="@id/tvName"
         app:layout_constraintTop_toBottomOf="@id/tvName"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

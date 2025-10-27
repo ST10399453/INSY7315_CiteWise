@@ -1,51 +1,52 @@
 package com.example.citewise_mobile
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.citewise_mobile.adapters.Message
-import com.example.citewise_mobile.adapters.MessagesAdapter
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
-import java.util.UUID
+import com.example.citewise_mobile.data.Message
+import com.example.citewise_mobile.data.MessagesAdapter
+import com.google.android.material.appbar.MaterialToolbar
 
 class ConversationActivity : AppCompatActivity() {
-    private lateinit var adapter: MessagesAdapter
+
+    companion object {
+        const val EXTRA_CHAT_ID = "chatId"
+        const val EXTRA_CHAT_TITLE = "chatTitle"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation)
 
-        val rv = findViewById<RecyclerView>(R.id.recyclerMessages)
-        adapter = MessagesAdapter()
-        rv.adapter = adapter
+        // Toolbar title from ChatsActivity
+        val chatTitle = intent.getStringExtra(EXTRA_CHAT_TITLE) ?: "Chat"
+        val toolbar = findViewById<MaterialToolbar>(R.id.topAppBar)
+        toolbar.title = chatTitle
+        toolbar.setNavigationOnClickListener { finish() }
 
-        // Demo messages
-        val now = System.currentTimeMillis()
-        adapter.submitList(
-            listOf(
-                Message("1", "Hey!", now - 120_000, false),
-                Message("2", "Hi, how are you?", now - 110_000, true),
-                Message("3", "All good, you?", now - 100_000, false),
-                Message("4", "Doing great!", now - 90_000, true)
-            )
-        )
-
-        val btnSend = findViewById<MaterialButton>(R.id.btnSend)
-        val et = findViewById<TextInputEditText>(R.id.etMessage)
-        btnSend.setOnClickListener {
-            val text = et.text?.toString()?.trim().orEmpty()
-            if (text.isNotEmpty()) {
-                val new = Message(UUID.randomUUID().toString(), text, System.currentTimeMillis(), true)
-                val current = adapter.currentList.toMutableList()
-                current.add(new)
-                adapter.submitList(current)
-                rv.scrollToPosition(current.lastIndex)
-                et.setText("")
-            }
+        // Recycler + adapter
+        val recycler = findViewById<RecyclerView>(R.id.recyclerMessages)
+        val adapter = MessagesAdapter()
+        recycler.layoutManager = LinearLayoutManager(this).apply {
+            stackFromEnd = true // start from bottom like chat apps
         }
+        recycler.adapter = adapter
+
+        // Demo data so you can SEE something immediately
+        val demo = listOf(
+            Message("1", "Hey, are you coming?", isMine = false, timestamp = System.currentTimeMillis() - 60_000),
+            Message(
+                "2",
+                "Yep, on my way 🚗",
+                isMine = true,
+                timestamp = System.currentTimeMillis() - 45_000
+            ),
+            Message("3", "Great, see you soon!", isMine = false, timestamp = System.currentTimeMillis() - 30_000)
+        )
+        adapter.submitList(demo)
+
+        // TODO: wire send button to append to adapter + scroll
+        // findViewById<MaterialButton>(R.id.btnSend).setOnClickListener { ... }
     }
 }

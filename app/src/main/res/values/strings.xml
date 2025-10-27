@@ -110,6 +110,11 @@
     <string name="my_requests_title_default">No requests</string>
     <string name="enter_service_title">Enter Service Title</string>
     <string name="service_title">Service Title</string>
+    <string name="add">add</string>
+    <string name="search">search</string>
+    <string name="more">more</string>
+    <string name="attach_image">attach image</string>
+    <string name="voice">voice</string>
 
 
 </resources>

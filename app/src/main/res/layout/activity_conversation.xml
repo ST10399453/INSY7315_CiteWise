@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/main_background"
     tools:context=".ConversationActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:title="Alice Johnson"
+        app:title="Ruben Silva"
         app:titleCentered="false"
         app:navigationIcon="@drawable/ic_chevron_left"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,6 +26,7 @@
         android:clipToPadding="false"
         android:padding="12dp"
         app:stackFromEnd="true"
+        android:background="@color/main_background"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/topAppBar"
         app:layout_constraintBottom_toTopOf="@id/inputBar"
@@ -31,13 +34,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_message_sent" />
 
-    <!-- Input bar (simple) -->
+    <!-- Input bar -->
     <LinearLayout
         android:id="@+id/inputBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:background="?attr/colorSurface"
+        android:background="@android:color/white"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,17 +56,35 @@
                 android:id="@+id/etMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Message" />
+                android:hint="Message"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/btnMic"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_circle_surface"
+            android:src="@drawable/ic_mic"
+            android:contentDescription="@string/voice" />
+
+        <!-- NEW: Image upload button -->
+        <ImageButton
+            android:id="@+id/btnImage"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_circle_surface"
+            android:src="@drawable/ic_image"
+            android:contentDescription="@string/attach_image" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSend"
             style="@style/Widget.MaterialComponents.Button.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="6dp"
             app:icon="@drawable/ic_send"
-            app:iconGravity="textStart" />
+            app:iconGravity="textStart"/>
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

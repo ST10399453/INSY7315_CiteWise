@@ -16,18 +16,17 @@
             android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Received message"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="15sp" />
+            android:text="I will send through the updated doc"
+            android:textColor="@color/text_dark"
+            android:textSize="15sp"/>
 
         <TextView
             android:id="@+id/tvTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="09:11"
+            android:text="2 minutes ago"
             android:textSize="10sp"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginTop="4dp" />
+            android:textColor="@color/text_faded"
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
-
 </FrameLayout>
