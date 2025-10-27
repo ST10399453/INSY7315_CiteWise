@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.R
 import com.example.citewise_mobile.api.FlexTime
+import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceRequestDto
 import com.example.citewise_mobile.api.ServiceType
 import com.example.citewise_mobile.api.toUiDate
@@ -25,6 +26,10 @@ class ServiceReviewAdapter(
         val ivChevron: ImageView = view.findViewById(R.id.ivChevron)
         val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
         //val tvStage: TextView = view.findViewById(R.id.tvStage)
+
+        val priorityIndicator: View = view.findViewById(R.id.priorityIndicator)
+        val tvPriority: TextView = view.findViewById(R.id.tvPriority)
+
 
         val tvSubmittedDate: TextView = view.findViewById(R.id.tvSubmittedDate)
 
@@ -63,8 +68,26 @@ class ServiceReviewAdapter(
 
         h.tvSubmittedDate.text = "Submitted: ${item.createdAt.toUiDate()}"
 
-        // Due / deadline date
+        // Due / deadline date //DONT DISPLAY??????
         h.tvDeadline.text = "Deadline: ${item.deadline.toUiDate()}"
+
+
+
+        val priority = item.priority ?: ServicePriority.LOW
+        h.tvPriority.text = priority.name.lowercase().replaceFirstChar { it.uppercase() }
+
+// Tint the indicator instead of replacing background
+        val indicatorDrawable = h.priorityIndicator.background.mutate()
+        val colorRes = when(priority) {
+            ServicePriority.HIGH -> R.color.gradient_middle
+            ServicePriority.MEDIUM -> R.color.gradient_start
+            ServicePriority.LOW -> R.color.gradient_end
+        }
+        indicatorDrawable.setTint(h.root.context.getColor(colorRes))
+        h.priorityIndicator.background = indicatorDrawable
+
+// Text color
+        h.tvPriority.setTextColor(h.root.context.getColor(colorRes))
 
 
         // Stage pill (shows status in friendly form)
