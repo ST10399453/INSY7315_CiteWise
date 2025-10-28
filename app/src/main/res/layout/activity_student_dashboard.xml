@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/main_background">
+    android:background="#F5F6F9">
 
     <!-- Scrollable content -->
     <androidx.core.widget.NestedScrollView
@@ -48,7 +48,6 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="20dp"
                 app:cardUseCompatPadding="true"
-                app:cardElevation="8dp"
                 app:strokeColor="@android:color/transparent"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -71,11 +70,11 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:fontFamily="@font/public_sans_bold"
+                            android:letterSpacing="0.01"
                             android:text="Hi, Connor!"
                             android:textColor="@color/text_light"
-                            android:textSize="30sp"
-                            android:letterSpacing="0.01"
-                            android:fontFamily="@font/poppins_bold" />
+                            android:textSize="30sp" />
 
                         <ImageView
                             android:id="@+id/logoIcon"
@@ -92,11 +91,12 @@
                         android:id="@+id/subtitleText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="8dp"
                         android:text="Here’s what’s happening with your assignments today."
                         android:textColor="#E0EBECF0"
-                        android:textSize="15sp"
-                        android:fontFamily="@font/poppins_regular" />
+                        android:textSize="16sp"
+                        android:fontFamily="@font/public_sans_medium" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -108,7 +108,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
                 app:cardUseCompatPadding="true"
                 app:strokeColor="@android:color/transparent"
                 app:cardBackgroundColor="@android:color/transparent">
@@ -129,26 +128,27 @@
                         <!-- Header: Text + Icon -->
                         <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            tools:ignore="UselessParent">
 
-                            <TextView
-                                android:id="@+id/tvServiceRequest"
-                                android:layout_width="wrap_content"
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/tvMyRequests"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Service Request\nProgress"
-                                android:textSize="20sp"
-                                android:layout_marginTop="8dp"
-                                android:textColor="@android:color/black"
-                                android:fontFamily="@font/poppins_sembold"
-                                android:lineSpacingExtra="2dp"
-                                android:layout_alignParentStart="true"
-                                android:layout_toStartOf="@id/icPending" />
+                                android:text="My Requests"
+                                android:paddingStart="12dp"
+                                android:paddingTop="8dp"
+                                android:textColor="#000"
+                                android:textSize="22sp"
+                                android:fontFamily="@font/public_sans_medium"
+                                android:layout_toStartOf="@id/icPending"
+                                tools:ignore="RtlSymmetry" />
 
                             <ImageView
                                 android:id="@+id/icPending"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_alignTop="@id/tvServiceRequest"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:layout_alignTop="@id/tvMyRequests"
                                 android:layout_alignParentEnd="true"
                                 android:layout_marginTop="8dp"
                                 android:layout_marginEnd="8dp"
@@ -176,37 +176,237 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRequestService"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/btn_login"
+                android:fontFamily="@font/poppins_sembold"
+                android:text="Request a Service"
+                android:textColor="@color/gradient_end"
+                android:textSize="16sp"
+                android:textAllCaps="true"
+                app:cornerRadius="50dp"
+                app:backgroundTint="@null"/>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <!-- ===== My Requests ===== -->
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tvMyRequests"
+            <!-- Notifications-->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/notifications"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="My Requests"
-                android:paddingStart="22dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="8dp"
-                android:textColor="@color/gradient_end"
-                android:textSize="20sp"
-                android:fontFamily="@font/poppins_bold" />
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@android:color/transparent"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/card_neumorphic_background"
+                    android:padding="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        tools:ignore="UselessParent">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/tvNotifications"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Notifications"
+                            android:paddingStart="12dp"
+                            android:paddingTop="8dp"
+                            android:textColor="#000"
+                            android:textSize="22sp"
+                            android:fontFamily="@font/public_sans_medium"
+                            android:layout_toStartOf="@id/icNotification"
+                            tools:ignore="RtlSymmetry" />
+
+                        <ImageView
+                            android:id="@+id/icNotification"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_alignTop="@id/tvNotifications"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="8dp"
+                            android:contentDescription="@string/app_name"
+                            android:src="@drawable/ic_notification" />
+                    </RelativeLayout>
+
+
+                <!-- Notification Items -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="24dp">
+
+                    <!-- Missing-->
+                    <LinearLayout
+                        android:id="@+id/btnMissingDocuments"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="12dp">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_missing_doc"
+                            android:contentDescription="@string/app_name" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/public_sans_medium"
+                            android:text="Missing Documents"
+                            android:textColor="@color/gradient_end"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/gradient_end" />
+                    </LinearLayout>
+
+                    <!-- Feedback -->
+                    <LinearLayout
+                        android:id="@+id/btnFeedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="10dp">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_feedback"
+                            android:contentDescription="@string/app_name" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/public_sans_medium"
+                            android:text="Feedback Recivied"
+                            android:textColor="@color/gradient_end"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/gradient_end" />
+                    </LinearLayout>
+
+                    <!-- Msg -->
+                    <LinearLayout
+                        android:id="@+id/btnNewMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="10dp">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_new_messages"
+                            android:contentDescription="@string/app_name" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/public_sans_medium"
+                            android:text="1 New Message"
+                            android:textColor="@color/gradient_end"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/gradient_end" />
+                    </LinearLayout>
+
+                    <!--  Consult-->
+                    <LinearLayout
+                        android:id="@+id/btnRateConsultant"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="10dp">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_rate_consultant"
+                            android:contentDescription="@string/app_name" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/public_sans_medium"
+                            android:text="Rate Your Consultant"
+                            android:textColor="@color/gradient_end"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/gradient_end" />
+                    </LinearLayout>
+
+                    <!--Sy=ttus-->
+                    <LinearLayout
+                        android:id="@+id/btnStatusUpdate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:paddingVertical="10dp">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_status_update"
+                            android:contentDescription="@string/app_name" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/public_sans_medium"
+                            android:text="Status Update"
+                            android:textColor="@color/gradient_end"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/gradient_end" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
 
             <!-- Screen-level loading spinner (hidden by default) -->
             <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -234,204 +434,7 @@
                 android:fontFamily="@font/poppins_medium"
                 android:visibility="gone" />
 
-            <!-- Horizontal carousel list (RecyclerView) -->
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/rvRequests"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="220dp"-->
-<!--                android:paddingStart="8dp"-->
-<!--                android:paddingEnd="8dp"-->
-<!--                android:clipToPadding="false"-->
-<!--                android:nestedScrollingEnabled="false"-->
-<!--                android:visibility="visible" />-->
-            <!-- ===== /My Requests ===== -->
 
-            <!-- CTA -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRequestService"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/btn_login"
-                android:fontFamily="@font/poppins_sembold"
-                android:text="Request a Service"
-                android:textColor="@color/gradient_end"
-                android:textSize="16sp"
-                android:textAllCaps="true"
-                app:cornerRadius="50dp"
-                app:backgroundTint="@null"/>
-
-            <!-- Notifications card -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="24dp"
-                android:background="@drawable/card_neumorphic_background"
-                android:orientation="vertical"
-                android:paddingBottom="16dp">
-
-                <TextView
-                    android:id="@+id/tvNotifications"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:paddingTop="24dp"
-                    android:paddingStart="24dp"
-                    android:fontFamily="@font/poppins_sembold"
-                    android:text="Notifications"
-                    android:textColor="@color/gradient_end"
-                    android:textSize="24sp" />
-
-                <!-- Buttons -->
-                <LinearLayout
-                    android:id="@+id/btnMissingDocuments"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="10dp"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="@drawable/ripple_white_rounded"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Missing Documents"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:fontFamily="@font/poppins_medium"/>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="3.5"/>
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/warning"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white"
-                        android:padding="1dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/btnFeedback"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="10dp"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="@drawable/ripple_white_rounded"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Feedback"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:fontFamily="@font/poppins_medium"/>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="3.5"/>
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/edit"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white"
-                        android:padding="2dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/btnNewMessages"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="10dp"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="@drawable/ripple_white_rounded"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="New Messages"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:fontFamily="@font/poppins_medium"/>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="3.5"/>
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/comment"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white"
-                        android:padding="1dp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/btnRateConsultant"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/button_gradient_blue"
-                    android:paddingTop="10dp"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="@drawable/ripple_white_rounded"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rate your consultant"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:fontFamily="@font/poppins_medium"/>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="3.5"/>
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/rating"
-                        android:contentDescription="@null"
-                        app:tint="@android:color/white" />
-                </LinearLayout>
-            </LinearLayout>
 
             <!-- AI Assistant -->
             <TextView
