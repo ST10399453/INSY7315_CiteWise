@@ -27,7 +27,7 @@ class ServiceReviewAdapter(
         val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
         //val tvStage: TextView = view.findViewById(R.id.tvStage)
 
-        val priorityIndicator: View = view.findViewById(R.id.priorityIndicator)
+//        val priorityIndicator: View = view.findViewById(R.id.priorityIndicator)
         val tvPriority: TextView = view.findViewById(R.id.tvPriority)
 
 
@@ -77,17 +77,17 @@ class ServiceReviewAdapter(
         h.tvPriority.text = priority.name.lowercase().replaceFirstChar { it.uppercase() }
 
 // Tint the indicator instead of replacing background
-        val indicatorDrawable = h.priorityIndicator.background.mutate()
+//        val indicatorDrawable = h.priorityIndicator.background.mutate()
         val colorRes = when(priority) {
-            ServicePriority.HIGH -> R.color.gradient_middle
-            ServicePriority.MEDIUM -> R.color.gradient_start
-            ServicePriority.LOW -> R.color.gradient_end
+            ServicePriority.HIGH -> R.color.priority_High
+            ServicePriority.MEDIUM -> R.color.priority_Medium
+            ServicePriority.LOW -> R.color.priority_Low
         }
-        indicatorDrawable.setTint(h.root.context.getColor(colorRes))
-        h.priorityIndicator.background = indicatorDrawable
+//        indicatorDrawable.setTint(h.root.context.getColor(colorRes))
+//        h.priorityIndicator.background = indicatorDrawable
 
 // Text color
-        h.tvPriority.setTextColor(h.root.context.getColor(colorRes))
+       h.tvPriority.setTextColor(h.root.context.getColor(colorRes))
 
 
         // Stage pill (shows status in friendly form)
