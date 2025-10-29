@@ -5,9 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.R
-import com.example.citewise_mobile.api.FlexTime
 import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceRequestDto
 import com.example.citewise_mobile.api.ServiceType
@@ -20,19 +20,20 @@ class ServiceReviewAdapter(
 
     class VH(view: View) : RecyclerView.ViewHolder(view) {
         val root: View = view
-        val tvCategory: TextView = view.findViewById(R.id.tvCategory)
-        val tvStatusLabel: TextView = view.findViewById(R.id.tvStatusLabel)
-//        val statusDonut: CircularProgressIndicator = view.findViewById(R.id.statusDonut)
-        val ivChevron: ImageView = view.findViewById(R.id.ivChevron)
-        val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
-        //val tvStage: TextView = view.findViewById(R.id.tvStage)
 
-//        val priorityIndicator: View = view.findViewById(R.id.priorityIndicator)
+        // Top row
+        val tvCategory: TextView = view.findViewById(R.id.tvCategory)
         val tvPriority: TextView = view.findViewById(R.id.tvPriority)
 
+        // Title + chevron
+        val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
+        val ivChevron: ImageView = view.findViewById(R.id.ivChevron)
 
+        // Meta
         val tvSubmittedDate: TextView = view.findViewById(R.id.tvSubmittedDate)
+        val tvStatusLabel: TextView = view.findViewById(R.id.tvStatusLabel)
 
+        // Deadline row
         val tvDeadline: TextView = view.findViewById(R.id.tvDeadline)
     }
 
@@ -45,64 +46,55 @@ class ServiceReviewAdapter(
     override fun onBindViewHolder(h: VH, position: Int) {
         val item = items[position]
 
-        // Service type / category
+        // Category
         h.tvCategory.text = item.serviceType.toPretty()
 
-        // Status label
-        h.tvStatusLabel.text = item.status?.replace("_", " ")?.lowercase()?.replaceFirstChar { it.uppercase() }
-            ?: "Pending"
-
-        // Progress donut animation
-        val progress = statusToProgress(item.status.orEmpty())
-//        h.statusDonut.setProgressCompat(progress, true)
-
-        // Chevron
-        h.ivChevron.setOnClickListener { onItemClick(item) }
-
-        // Big title: now shows Service Title (fallbacks to category, then description)
+        // Title (prefer explicit title, then description, then category)
         h.tvServiceTitle.text = when {
             !item.title.isNullOrBlank() -> item.title
             !item.description.isNullOrBlank() -> item.description
             else -> item.serviceType.toPretty()
         }
 
-        h.tvSubmittedDate.text = "Submitted: ${item.createdAt.toUiDate()}"
+        // Status label
+        h.tvStatusLabel.text = item.status
+            ?.replace("_", " ")
+            ?.lowercase()
+            ?.replaceFirstChar { it.uppercase() }
+            ?: "Pending"
 
-        // Due / deadline date //DONT DISPLAY??????
-        h.tvDeadline.text = "Deadline: ${item.deadline.toUiDate()}"
+        // Submitted date (safe fallback)
+        h.tvSubmittedDate.text = "Submitted: ${item.createdAt?.toUiDate() ?: "—"}"
 
+        // Deadline (robust null/blank handling)
+        val deadlineUi = item.deadline?.toUiDate()?.takeIf { !it.isNullOrBlank() }
+        if (deadlineUi != null) {
+            h.tvDeadline.visibility = View.VISIBLE
+            h.tvDeadline.text = "Deadline: $deadlineUi"
+        } else {
+            h.tvDeadline.visibility = View.GONE
 
+        }
 
+        // Priority text + tint
         val priority = item.priority ?: ServicePriority.LOW
         h.tvPriority.text = priority.name.lowercase().replaceFirstChar { it.uppercase() }
-
-// Tint the indicator instead of replacing background
-//        val indicatorDrawable = h.priorityIndicator.background.mutate()
-        val colorRes = when(priority) {
+        val colorRes = when (priority) {
             ServicePriority.HIGH -> R.color.priority_High
             ServicePriority.MEDIUM -> R.color.priority_Medium
             ServicePriority.LOW -> R.color.priority_Low
         }
-//        indicatorDrawable.setTint(h.root.context.getColor(colorRes))
-//        h.priorityIndicator.background = indicatorDrawable
+        h.tvPriority.setTextColor(ContextCompat.getColor(h.root.context, colorRes))
 
-// Text color
-       h.tvPriority.setTextColor(h.root.context.getColor(colorRes))
-
-
-        // Stage pill (shows status in friendly form)
-//        h.tvStage.text = item.status?.replace("_", " ")?.lowercase()?.replaceFirstChar { it.uppercase() }
-//            ?: "Pending"
-
-        // Root click
+        // Item interactions
         h.root.setOnClickListener { onItemClick(item) }
-//        h.statusDonut.setOnClickListener { onItemClick(item) }
+        h.ivChevron.setOnClickListener { onItemClick(item) }
     }
 
     override fun getItemCount(): Int = items.size
 }
 
-// ---- Helpers ----
+/* ---- Helpers ---- */
 
 private fun ServiceType?.toPretty(): String = when (this) {
     ServiceType.PROOFREADING_EDITING -> "Proofreading & Editing"
@@ -113,10 +105,3 @@ private fun ServiceType?.toPretty(): String = when (this) {
     ServiceType.OTHER, null -> "Other"
 }
 
-private fun statusToProgress(status: String): Int = when (status.trim().lowercase()) {
-    "submitted", "pending" -> 25
-    "assigned", "in_progress", "in progress", "in review" -> 50
-    "feedback", "awaiting_feedback", "awaiting feedback", "feedback ready" -> 75
-    "complete", "completed", "done", "approved" -> 100
-    else -> 25
-}
