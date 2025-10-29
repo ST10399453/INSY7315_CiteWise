@@ -7,10 +7,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-/** Single access point to the local Room database. */
-/** Single access point to the local Room database. */
+/**
+ * Single access point to the local Room database DAOs.
+ * Keeps a process-wide singleton instance so we can close/reset centrally.
+ */
 class LocalRepos(ctx: Context) {
-    // Use a shared singleton instance so we can close it centrally
+
+    // Shared singleton instance for the Room DB
     private val db = getDb(ctx)
 
     val requests = db.requests()
@@ -39,8 +42,8 @@ class LocalRepos(ctx: Context) {
         }
 
         /**
-         * Closes the shared Room database instance and releases it.
-         * Call this before deleting the DB file (e.g., in OfflineReset.resetLocalData).
+         * Closes the shared Room database instance and clears the cached ref.
+         * Call before deleting the DB file (e.g., in OfflineReset.resetLocalData()).
          */
         fun closeAll() {
             synchronized(this) {
@@ -50,7 +53,6 @@ class LocalRepos(ctx: Context) {
         }
     }
 }
-
 /**
  * Bridges to cloud services that are NOT covered by Retrofit.
  * - Users: Firebase Realtime Database `/users`

@@ -125,6 +125,14 @@
     <string name="rate_your_consultant">Rate Your Consultant</string>
     <string name="status_update">Status Update</string>
     <string name="open_notification">open_notification</string>
+    <string name="new_chat">New Chat</string>
+    <string name="close">close</string>
+    <string name="search_name">Search Name</string>
+    <string name="frequently_contacted">Frequently Contacted</string>
+    <string name="echannel_messages_name">Messages\n</string>
+    <string name="channel_messages_desc">Chat and conversation notification</string>
+    <string name="search_chats">Search Chats</string>
+
 
 
 </resources>

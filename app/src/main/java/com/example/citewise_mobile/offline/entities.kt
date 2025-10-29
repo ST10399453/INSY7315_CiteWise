@@ -73,7 +73,7 @@ data class MessageEntity(
     indices = [Index("ownerUid"), Index("updatedAt")]
 )
 data class DocumentEntity(
-    @PrimaryKey val id: String,         // server document id
+    @PrimaryKey val id: String,         // server doc id
     val ownerUid: String,               // firebase uid if available
     val fileName: String,
     val mimeType: String,

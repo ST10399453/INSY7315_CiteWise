@@ -13,22 +13,30 @@ import java.util.*
 
 data class ChatPreview(
     val chatId: String,
+    val peerUid: String,        // <-- added: used when launching ConversationActivity
     val displayName: String,
     val lastMessage: String,
-    val lastTimestamp: Long // epoch millis
+    val lastTimestamp: Long     // epoch millis
 )
 
 class ChatsAdapter(
     private val onChatClicked: (ChatPreview) -> Unit
 ) : ListAdapter<ChatPreview, ChatsAdapter.ChatVH>(Diff) {
 
+    init {
+        setHasStableIds(true)
+    }
+
     object Diff : DiffUtil.ItemCallback<ChatPreview>() {
-        override fun areItemsTheSame(oldItem: ChatPreview, newItem: ChatPreview) =
+        override fun areItemsTheSame(oldItem: ChatPreview, newItem: ChatPreview): Boolean =
             oldItem.chatId == newItem.chatId
 
-        override fun areContentsTheSame(oldItem: ChatPreview, newItem: ChatPreview) =
+        override fun areContentsTheSame(oldItem: ChatPreview, newItem: ChatPreview): Boolean =
             oldItem == newItem
     }
+
+    override fun getItemId(position: Int): Long =
+        getItem(position).chatId.hashCode().toLong()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatVH {
         val view = LayoutInflater.from(parent.context)
@@ -61,6 +69,7 @@ class ChatsAdapter(
         }
 
         private fun formatTime(epochMillis: Long): String {
+            if (epochMillis <= 0L) return ""
             val now = Calendar.getInstance()
             val then = Calendar.getInstance().apply { timeInMillis = epochMillis }
 

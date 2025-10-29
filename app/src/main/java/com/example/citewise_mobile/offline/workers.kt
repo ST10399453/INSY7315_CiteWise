@@ -45,7 +45,15 @@ private object WorkerCfg {
         .build()
 
     val backoffPolicy = BackoffPolicy.EXPONENTIAL
-    val backoffDelay = 3L // seconds
+    val backoffDelaySeconds = 3L
+}
+
+private object WorkNames {
+    const val USERS_SYNC = "users_sync"
+    const val MESSAGES_SYNC = "messages_sync"
+    const val REQUESTS_SYNC = "requests_sync"
+    const val REQUESTS_PULL = "requests_pull"
+    const val DOCUMENTS_SYNC = "documents_sync"
 }
 
 // ============================================================
@@ -86,17 +94,17 @@ class UsersSyncWorker(
         fun schedule(context: Context) {
             val req = PeriodicWorkRequestBuilder<UsersSyncWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "users_sync", ExistingPeriodicWorkPolicy.UPDATE, req
+                WorkNames.USERS_SYNC, ExistingPeriodicWorkPolicy.UPDATE, req
             )
         }
     }
 }
 
 // ============================================================
-// MessagesSyncWorker
+// MessagesSyncWorker  (push pending + pull delta)
 // ============================================================
 
 class MessagesSyncWorker(
@@ -133,12 +141,13 @@ class MessagesSyncWorker(
                     local.messages.upsertMessages(listOf(entity))
                 }
                 is NetResult.Err -> {
+                    // 5xx: retry; else: permanent fail for this run
                     return@withContext if ((sent.code ?: 0) in 500..599) Result.retry() else Result.failure()
                 }
             }
         }
 
-        // 2) Pull delta
+        // 2) Pull delta for my inbound (others → me)
         val since = local.messages.maxInboundTs(myUid) ?: 0L
         when (val res = msgsRepo.since(since)) {
             is NetResult.Ok -> {
@@ -173,17 +182,17 @@ class MessagesSyncWorker(
         fun schedule(context: Context) {
             val req = PeriodicWorkRequestBuilder<MessagesSyncWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "messages_sync", ExistingPeriodicWorkPolicy.UPDATE, req
+                WorkNames.MESSAGES_SYNC, ExistingPeriodicWorkPolicy.UPDATE, req
             )
         }
 
         fun oneShot(context: Context) {
             val once = OneTimeWorkRequestBuilder<MessagesSyncWorker>()
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(once)
         }
@@ -192,7 +201,6 @@ class MessagesSyncWorker(
 
 // ============================================================
 // RequestsSyncWorker  (Room -> REST API POST /requests multipart)
-//  - On success, persist remoteId, documentId, status, AND user/consultant ids
 // ============================================================
 
 class RequestsSyncWorker(
@@ -296,7 +304,7 @@ class RequestsSyncWorker(
         fun oneShot(context: Context) {
             val req = OneTimeWorkRequestBuilder<RequestsSyncWorker>()
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(req)
         }
@@ -304,10 +312,10 @@ class RequestsSyncWorker(
         fun schedulePeriodic(context: Context) {
             val req = PeriodicWorkRequestBuilder<RequestsSyncWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "requests_sync", ExistingPeriodicWorkPolicy.UPDATE, req
+                WorkNames.REQUESTS_SYNC, ExistingPeriodicWorkPolicy.UPDATE, req
             )
         }
     }
@@ -351,17 +359,17 @@ class RequestsPullWorker(
         fun schedule(context: Context) {
             val req = PeriodicWorkRequestBuilder<RequestsPullWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "requests_pull", ExistingPeriodicWorkPolicy.UPDATE, req
+                WorkNames.REQUESTS_PULL, ExistingPeriodicWorkPolicy.UPDATE, req
             )
         }
 
         fun oneShot(context: Context) {
             val once = OneTimeWorkRequestBuilder<RequestsPullWorker>()
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(once)
         }
@@ -428,15 +436,15 @@ class DocumentsSyncWorker(
     private fun guessMime(name: String?): String {
         val n = name?.lowercase().orEmpty()
         return when {
-            n.endsWith(".pdf") -> "application/pdf"
-             n.endsWith(".doc") -> "application/msword"
+            n.endsWith(".pdf")  -> "application/pdf"
+            n.endsWith(".doc")  -> "application/msword"
             n.endsWith(".docx") -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            n.endsWith(".ppt") -> "application/vnd.ms-powerpoint"
+            n.endsWith(".ppt")  -> "application/vnd.ms-powerpoint"
             n.endsWith(".pptx") -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-            n.endsWith(".xls") -> "application/vnd.ms-excel"
+            n.endsWith(".xls")  -> "application/vnd.ms-excel"
             n.endsWith(".xlsx") -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            n.endsWith(".txt") -> "text/plain"
-            else -> "application/octet-stream"
+            n.endsWith(".txt")  -> "text/plain"
+            else                -> "application/octet-stream"
         }
     }
 
@@ -444,49 +452,19 @@ class DocumentsSyncWorker(
         fun schedule(context: Context) {
             val req = PeriodicWorkRequestBuilder<DocumentsSyncWorker>(15, TimeUnit.MINUTES)
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "documents_sync", ExistingPeriodicWorkPolicy.UPDATE, req
+                WorkNames.DOCUMENTS_SYNC, ExistingPeriodicWorkPolicy.UPDATE, req
             )
         }
 
         fun oneShot(context: Context) {
             val once = OneTimeWorkRequestBuilder<DocumentsSyncWorker>()
                 .setConstraints(WorkerCfg.connectedConstraints)
-                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelay, TimeUnit.SECONDS)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(once)
         }
     }
-}
-
-// ============================================================
-// Offline Reset Utility (TOP-LEVEL)
-// ============================================================
-
-/**
- * Fully clears local offline data:
- * - Cancels all WorkManager background jobs
- * - Clears Firestore local cache (if used)
- * - Closes & deletes Room database file: offline.db
- */
-object OfflineReset {
-
-    /**
-     * Call this when you want to nuke all local data (e.g., logout, debug button, after wiping Firebase).
-     * Must be called before Firestore or Room are re-initialized in this process.
-     */
-    fun resetLocalData(context: Context) {
-        WorkManager.getInstance(context).cancelAllWork()
-
-        runCatching {
-            FirebaseFirestore.getInstance().clearPersistence()
-        }.onFailure { it.printStackTrace() }
-
-        runCatching { LocalRepos.closeAll() }
-
-        context.deleteDatabase("offline.db")
-
-        }
 }

@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/api/MessagesApi.kt
 package com.example.citewise_mobile.api
 
 import retrofit2.Response
@@ -21,12 +20,20 @@ data class SendMessagePayload(
     val clientId: String? = null
 )
 
-interface MessagesApi {
+data class ChatPageDto(
+    val success: Boolean,
+    val chatId: String,
+    val messages: List<MessageDto>,
+    val nextAfter: Long?,            // server cursor to continue forward
+    val meta: Meta?                  // e.g., { order: "asc", limit: 100 }
+)
+data class Meta(val order: String?, val limit: Int?)
 
+interface MessagesApi {
     @POST("/messages")
     suspend fun send(@Body payload: SendMessagePayload): Response<MessageDto>
 
-    // conversation with a peer
+    // Keep if you’ll also support peer-based conversations:
     @GET("/messages")
     suspend fun listWithPeer(
         @Query("peerId") peerId: String,
@@ -34,9 +41,14 @@ interface MessagesApi {
         @Query("before") beforeEpochMs: Long? = null
     ): Response<List<MessageDto>>
 
-    // delta sync (involving current user)
     @GET("/messages/since")
-    suspend fun listSince(
-        @Query("since") sinceEpochMs: Long
-    ): Response<List<MessageDto>>
+    suspend fun listSince(@Query("since") sinceEpochMs: Long): Response<List<MessageDto>>
+
+    // NEW: aligns with backend GET /messages/:chatId (ascending + nextAfter)
+    @GET("/messages/{chatId}")
+    suspend fun listByChat(
+        @Path("chatId") chatId: String,
+        @Query("limit") limit: Int? = 100,
+        @Query("after") afterEpochMs: Long? = null
+    ): Response<ChatPageDto>
 }

@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.firebase.messaging)
+    implementation(libs.androidbrowserhelper)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
