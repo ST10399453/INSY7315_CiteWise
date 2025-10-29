@@ -63,7 +63,8 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:baselineAligned="false">
+                        android:baselineAligned="false"
+                        tools:ignore="UseCompoundDrawables">
 
                         <TextView
                             android:id="@+id/tvGreeting"
@@ -72,7 +73,7 @@
                             android:layout_weight="1"
                             android:fontFamily="@font/public_sans_bold"
                             android:letterSpacing="0.01"
-                            android:text="Hi, Connor!"
+                            android:text="@string/user_dashboard"
                             android:textColor="@color/text_light"
                             android:textSize="30sp" />
 
@@ -93,7 +94,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="8dp"
-                        android:text="Here’s what’s happening with your assignments today."
+                        android:text="@string/student_opening_msg"
                         android:textColor="#E0EBECF0"
                         android:textSize="16sp"
                         android:fontFamily="@font/public_sans_medium" />
@@ -135,7 +136,7 @@
                                 android:id="@+id/tvMyRequests"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="My Requests"
+                                android:text="@string/my_requests"
                                 android:paddingStart="12dp"
                                 android:paddingTop="8dp"
                                 android:textColor="#000"
@@ -220,7 +221,7 @@
                             android:id="@+id/tvNotifications"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Notifications"
+                            android:text="@string/notifications"
                             android:paddingStart="12dp"
                             android:paddingTop="8dp"
                             android:textColor="#000"
@@ -255,7 +256,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:paddingVertical="12dp">
+                        android:paddingVertical="12dp"
+                        android:layout_marginBottom="8dp">
 
                         <ImageView
                             android:layout_width="26dp"
@@ -269,13 +271,14 @@
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
                             android:fontFamily="@font/public_sans_medium"
-                            android:text="Missing Documents"
+                            android:text="@string/missing_documents"
                             android:textColor="@color/gradient_end"
                             android:textSize="16sp" />
 
                         <ImageView
                             android:layout_width="25dp"
                             android:layout_height="25dp"
+                            android:contentDescription="@string/open_notification"
                             android:src="@drawable/ic_chevron_right"
                             app:tint="@color/gradient_end" />
                     </LinearLayout>
@@ -286,7 +289,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:paddingVertical="10dp">
+                        android:paddingVertical="12dp"
+                        android:layout_marginBottom="8dp">
 
                         <ImageView
                             android:layout_width="26dp"
@@ -300,7 +304,7 @@
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
                             android:fontFamily="@font/public_sans_medium"
-                            android:text="Feedback Recivied"
+                            android:text="@string/feedback_recivied"
                             android:textColor="@color/gradient_end"
                             android:textSize="16sp" />
 
@@ -308,6 +312,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:contentDescription="@string/open_notification"
                             app:tint="@color/gradient_end" />
                     </LinearLayout>
 
@@ -317,7 +322,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:paddingVertical="10dp">
+                        android:paddingVertical="12dp"
+                        android:layout_marginBottom="8dp">
 
                         <ImageView
                             android:layout_width="26dp"
@@ -331,7 +337,7 @@
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
                             android:fontFamily="@font/public_sans_medium"
-                            android:text="1 New Message"
+                            android:text="@string/_1_new_message"
                             android:textColor="@color/gradient_end"
                             android:textSize="16sp" />
 
@@ -339,6 +345,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:contentDescription="@string/open_notification"
                             app:tint="@color/gradient_end" />
                     </LinearLayout>
 
@@ -348,7 +355,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:paddingVertical="10dp">
+                        android:paddingVertical="12dp"
+                        android:layout_marginBottom="8dp">
 
                         <ImageView
                             android:layout_width="26dp"
@@ -362,7 +370,7 @@
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
                             android:fontFamily="@font/public_sans_medium"
-                            android:text="Rate Your Consultant"
+                            android:text="@string/rate_your_consultant"
                             android:textColor="@color/gradient_end"
                             android:textSize="16sp" />
 
@@ -370,6 +378,7 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:contentDescription="@string/open_notification"
                             app:tint="@color/gradient_end" />
                     </LinearLayout>
 
@@ -379,7 +388,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:paddingVertical="10dp">
+                        android:paddingVertical="12dp"
+                        android:layout_marginBottom="8dp">
 
                         <ImageView
                             android:layout_width="26dp"
@@ -393,7 +403,7 @@
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
                             android:fontFamily="@font/public_sans_medium"
-                            android:text="Status Update"
+                            android:text="@string/status_update"
                             android:textColor="@color/gradient_end"
                             android:textSize="16sp" />
 
@@ -401,11 +411,89 @@
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:src="@drawable/ic_chevron_right"
+                            android:contentDescription="@string/open_notification"
                             app:tint="@color/gradient_end" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!--            AI-->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/ai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardCornerRadius="20dp"
+            app:cardUseCompatPadding="true"
+            app:strokeColor="@android:color/transparent"
+            app:cardBackgroundColor="@android:color/transparent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/card_neumorphic_background"
+            android:padding="16dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                tools:ignore="UselessParent">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvai"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="AI Assistant"
+                    android:paddingStart="12dp"
+                    android:paddingTop="8dp"
+                    android:textColor="#000"
+                    android:textSize="22sp"
+                    android:fontFamily="@font/public_sans_medium"
+                    android:layout_toStartOf="@id/icai"
+                    tools:ignore="RtlSymmetry" />
+
+                <ImageView
+                    android:id="@+id/icai"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_alignTop="@id/tvai"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/app_name" />
+<!--                android:src="@drawable/ic_notification"-->
+            </RelativeLayout>
+        </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
             <!-- Screen-level loading spinner (hidden by default) -->

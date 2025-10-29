@@ -76,6 +76,12 @@ class StudentDashboardActivity : BaseActivity() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         setupBottomNav(bottomNav, R.id.nav_dashboard)
 
+        tvMyRequests.setOnClickListener {
+            val intent = Intent(this, RequestsActivity::class.java)
+            startActivity(intent)
+        }
+
+
         btnRequestService.setOnClickListener {
             startActivity(Intent(this, RequestServiceStepsActivity::class.java))
         }

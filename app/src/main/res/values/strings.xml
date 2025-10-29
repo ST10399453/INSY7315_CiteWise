@@ -115,6 +115,16 @@
     <string name="more">more</string>
     <string name="attach_image">attach image</string>
     <string name="voice">voice</string>
+    <string name="user_dashboard">Hi, Connor!</string>
+    <string name="student_opening_msg">Here’s what’s happening with your assignments today.</string>
+    <string name="my_requests">My Requests</string>
+    <string name="notifications">Notifications</string>
+    <string name="missing_documents">Missing Documents</string>
+    <string name="feedback_recivied">Feedback Recivied</string>
+    <string name="_1_new_message">1 New Message</string>
+    <string name="rate_your_consultant">Rate Your Consultant</string>
+    <string name="status_update">Status Update</string>
+    <string name="open_notification">open_notification</string>
 
 
 </resources>
