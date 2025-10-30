@@ -21,6 +21,7 @@ fun ServiceRequestDto.toEntityPreservingLocalFallback(localFallback: ServiceRequ
     val docName    = localFallback?.documentName ?: (documentId ?: "document")
     val svcType    = serviceType?.name ?: (localFallback?.serviceType ?: "OTHER")
     //val titleText  = title ?: (localFallback?.title ?: "")
+    val quotationId =quotationId ?: (localFallback?.quotationId?: "")
     val desc       = description ?: (localFallback?.description ?: "")
     val prio       = priority?.name ?: (localFallback?.priority ?: "MEDIUM")
     val deadlineIso = epochToIsoUTC(deadline?.epochMillis)
@@ -32,6 +33,7 @@ fun ServiceRequestDto.toEntityPreservingLocalFallback(localFallback: ServiceRequ
         documentName = docName,
         serviceType  = svcType,
         //title        = titleText,
+        quotationId = quotationId,
         description  = desc,
         priority     = prio,
         deadlineIso  = deadlineIso,
@@ -46,6 +48,7 @@ fun ServiceRequestDto.toEntityPreservingLocalFallback(localFallback: ServiceRequ
         status       = status ?: localFallback?.status ?: "submitted",
         serviceType  = svcType,
         //title        = titleText,
+        quotationId = quotationId,
         description  = desc,
         priority     = prio,
         deadlineIso  = deadlineIso,
@@ -63,6 +66,7 @@ fun ServiceRequestEntity.toServiceRequestDto(): ServiceRequestDto =
         consultantId = consultantId,
         serviceType = runCatching { ServiceType.valueOf(serviceType) }.getOrNull(),
         //title = title,
+        quotationId = quotationId,
         description = description,
         priority = runCatching { ServicePriority.valueOf(priority ?: "LOW") }.getOrNull(),
         deadline = null,

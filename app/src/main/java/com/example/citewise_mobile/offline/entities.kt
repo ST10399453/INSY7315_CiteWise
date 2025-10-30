@@ -21,6 +21,7 @@ data class ServiceRequestEntity(
     val consultantId: String? = null,
     val serviceType: String,
     //val title: String? = null,
+    val quotationId: String? = null,
     val description: String? = null,
     val priority: String? = null,
     val status: String? = null,
