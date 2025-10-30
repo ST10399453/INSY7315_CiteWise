@@ -19,9 +19,7 @@
         android:left="2dp"
         android:top="2dp">
         <shape>
-            <gradient android:startColor="@color/elements_background"
-                android:centerColor="@color/progress_background"
-                android:endColor="@color/elements_background"/>
+            <solid android:color="#F1F2F5"/>
             <corners android:radius="24dp"/>
         </shape>
     </item>
