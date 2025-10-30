@@ -82,7 +82,7 @@
 
     <!-- Step 2 -->
     <string name="fill_additional_information">Step 2: Additional information</string>
-    <string name="enter_additional_information">enter additional information</string>
+    <string name="enter_additional_information">Enter additional information...</string>
 
     <!-- Step 3 -->
     <string name="upload_your_documents">Step 3: Upload your documents</string>
