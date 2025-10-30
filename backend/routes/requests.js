@@ -80,6 +80,7 @@ router.post(
         deadline: deadline || null,
         status: "Submitted",            // Initial state
         documentId: fileId,
+        customName: customName || null,
         file: { fileId, originalName: documentName, mimeType: mime, size },
         storage: { cloudflare: r2Meta },// Store R2 location metadata
       };
