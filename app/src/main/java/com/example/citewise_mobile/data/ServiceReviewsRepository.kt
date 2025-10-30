@@ -24,19 +24,23 @@ class ServiceReviewsRepository(
         file: File,
         mime: String,
         documentName: String,
+        customName: String?,
         serviceType: String,
         description: String,
         priority: String,
         deadlineIso: String?
     ): NetResult<ServiceRequestDto> = safe {
+        val mediaType = mime.toMediaTypeOrNull()
         val filePart = MultipartBody.Part.createFormData(
             name = "file",
             filename = documentName,
-            body = file.asRequestBody(mime.toMediaTypeOrNull())
+            body = file.asRequestBody(mediaType)
         )
+
         api.createRequestMultipart(
             file = filePart,
             documentName = documentName.toRb(),
+            customName = customName?.toRb(),
             serviceType = serviceType.toRb(),
             description = description.toRb(),
             priority = priority.toRb(),

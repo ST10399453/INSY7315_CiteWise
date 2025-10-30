@@ -19,7 +19,10 @@ import com.example.citewise_mobile.data.MessagesRepository
 import com.example.citewise_mobile.data.NetResult
 import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FieldValue.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -212,6 +215,7 @@ class RequestsSyncWorker(
     private val repo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
     private val local by lazy { LocalRepos(applicationContext) }
     private val auth by lazy { FirebaseAuth.getInstance() }
+    private val fs  by lazy { FirebaseFirestore.getInstance() }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
@@ -233,7 +237,8 @@ class RequestsSyncWorker(
                 when (val result = repo.createRequestMultipart(
                     file = stagedFile,
                     mime = stagedFile.guessMimeOrDefault(),
-                    documentName = sr.documentName.orEmpty(),
+                    documentName = sr.documentName,                          // non-null in entity
+                    customName = sr.customName.takeIf { it.isNotBlank() },   // pass customName
                     serviceType = sr.serviceType.orEmpty(),
                     description = sr.description.orEmpty(),
                     priority = sr.priority.orEmpty(),
@@ -242,13 +247,14 @@ class RequestsSyncWorker(
                     is NetResult.Ok -> {
                         val dto = result.data
 
-                        // Remove staged file (optional)
+                        // optional: delete staged file
                         runCatching { if (stagedFile.exists()) stagedFile.delete() }
 
                         // Prefer server ids; fallback to local; final fallback to current user
                         val newUserId = dto.userId ?: sr.userId ?: auth.currentUser?.uid
                         val newConsultantId = dto.consultantId ?: sr.consultantId
 
+                        // 1) Update Room
                         local.requests.update(
                             sr.copy(
                                 remoteId     = dto.id,
@@ -260,6 +266,35 @@ class RequestsSyncWorker(
                                 updatedAt    = System.currentTimeMillis()
                             )
                         )
+
+                        // 2) Mirror to Firestore (best-effort)
+                        val fsId = dto.id ?: sr.remoteId ?: sr.localId.toString()
+                        val fsData = hashMapOf(
+                            "id" to fsId,
+                            "userId" to (newUserId ?: ""),
+                            "consultantId" to (newConsultantId ?: ""),
+                            "serviceType" to ((dto.serviceType?.name) ?: sr.serviceType),
+                            "description" to (dto.description ?: sr.description ?: ""),
+                            "priority" to ((dto.priority?.name) ?: sr.priority ?: "MEDIUM"),
+                            "status" to (dto.status ?: "submitted"),
+                            "documentId" to (dto.documentId ?: sr.documentId),
+                            "originalFileName" to (dto.originalFileName ?: sr.documentName),
+                            "customName" to (dto.customName ?: sr.customName),   // <-- include customName
+                            "deadline" to (sr.deadlineIso ?: dto.deadline ?: sr.deadlineIso),
+                            "createdAt" to (dto.createdAt?.epochMillis ?: sr.createdAt),
+                            "updatedAt" to serverTimestamp()
+                        )
+
+                        runCatching {
+                            fs.collection("requests")
+                                .document(fsId)
+                                .set(fsData, SetOptions.merge())
+                                .addOnSuccessListener { Log.d(TAG, "Firestore upsert ok id=$fsId") }
+                                .addOnFailureListener { e -> Log.w(TAG, "Firestore upsert failed id=$fsId: ${e.message}") }
+                        }.onFailure { e ->
+                            Log.w(TAG, "Firestore write threw: ${e.message}")
+                        }
+
                         Log.d(TAG, "Uploaded localId=${sr.localId} -> remoteId=${dto.id}")
                     }
                     is NetResult.Err -> {

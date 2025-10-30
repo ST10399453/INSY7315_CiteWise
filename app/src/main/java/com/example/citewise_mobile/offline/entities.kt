@@ -27,6 +27,7 @@ data class ServiceRequestEntity(
     val status: String? = null,
     val documentId: String? = null,
     val documentName: String = "",
+    val customName: String = "",
     val filePath: String? = null,
     val deadlineIso: String? = null,
     val feedback: String? = null,

@@ -49,12 +49,14 @@ class ServiceReviewAdapter(
         // Category
         h.tvCategory.text = item.serviceType.toPretty()
 
-        // Title (prefer explicit title, then description, then category)
+        // Title (prefer CustomName -> file name -> description -> category)
         h.tvServiceTitle.text = when {
-            //!item.title.isNullOrBlank() -> item.title
+            !item.customName.isNullOrBlank() -> item.customName
+            !item.originalFileName.isNullOrBlank() -> item.originalFileName
             !item.description.isNullOrBlank() -> item.description
             else -> item.serviceType.toPretty()
         }
+
 
         // Status label
         h.tvStatusLabel.text = item.status

@@ -18,6 +18,7 @@ interface ServiceReviewsApi {
     suspend fun createRequestMultipart(
         @Part file: MultipartBody.Part,
         @Part("documentName") documentName: RequestBody,
+        @Part("customName") customName: RequestBody?,
         @Part("serviceType") serviceType: RequestBody,
         @Part("description") description: RequestBody,
         @Part("priority") priority: RequestBody,
