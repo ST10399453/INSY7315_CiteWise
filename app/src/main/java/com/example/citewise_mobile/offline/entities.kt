@@ -20,7 +20,7 @@ data class ServiceRequestEntity(
     val userId: String? = null,
     val consultantId: String? = null,
     val serviceType: String,
-    val title: String? = null,
+    //val title: String? = null,
     val description: String? = null,
     val priority: String? = null,
     val status: String? = null,

@@ -20,7 +20,7 @@ data class ServiceRequestDto(
     val userId: String? = null,
     val consultantId: String? = null,
     val serviceType: ServiceType? = null,
-    val title: String? = null,
+    //val title: String? = null,
     val description: String? = null,
     val priority: ServicePriority? = null,
     val deadline: FlexTime? = null,

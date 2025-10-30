@@ -46,7 +46,7 @@ interface ServiceRequestDao {
                     consultantId = entity.consultantId ?: existing.consultantId,
                     status       = entity.status,
                     serviceType  = entity.serviceType,
-                    title        = entity.title ?: existing.title,
+                    //title        = entity.title ?: existing.title,
                     description  = entity.description,
                     priority     = entity.priority,
                     deadlineIso  = entity.deadlineIso,

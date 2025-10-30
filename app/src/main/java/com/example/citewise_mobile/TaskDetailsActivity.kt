@@ -108,7 +108,7 @@ class TaskDetailsActivity : AppCompatActivity() {
 
         // Title
         tvProjectName.text = when {
-            !req.title.isNullOrBlank() -> req.title
+            //!req.title.isNullOrBlank() -> req.title
             !req.description.isNullOrBlank() -> req.description
             req.serviceType != null -> req.serviceType.toPretty()
             else -> "Untitled Project"

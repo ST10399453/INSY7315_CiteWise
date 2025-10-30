@@ -58,7 +58,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private lateinit var services: List<String>
 
     // Step 2
-    private lateinit var etServiceTitle: TextInputEditText
+    //private lateinit var etServiceTitle: TextInputEditText
     private lateinit var etAdditionalInfo: TextInputEditText
 
     // Step 3
@@ -141,7 +141,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
 
 
         // Step 2
-        etServiceTitle   = findViewById(R.id.etServiceTitle)
+        //etServiceTitle   = findViewById(R.id.etServiceTitle)
         etAdditionalInfo = findViewById(R.id.etAdditionalInfo)
 
         // Step 3
@@ -183,11 +183,11 @@ class RequestServiceStepsActivity : AppCompatActivity() {
 
                 }
                 1 -> { // Step 2 – capture TITLE + DESCRIPTION
-                    serviceTitle = etServiceTitle.text?.toString()?.trim()
+                    //serviceTitle = etServiceTitle.text?.toString()?.trim()
                     additionalInfo = etAdditionalInfo.text?.toString()?.trim()
-                    if (serviceTitle.isNullOrEmpty()) {
-                        toast(getString(R.string.enter_service_title)); return@setOnClickListener
-                    }
+//                    if (serviceTitle.isNullOrEmpty()) {
+//                        toast(getString(R.string.enter_service_title)); return@setOnClickListener
+//                    }
                 }
                 2 -> { // Step 3 (validate only)
                     docName = etDocName.text?.toString()?.trim()
@@ -309,7 +309,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         val name = displayNameFromUri(uri) ?: (docName ?: "document")
 
         // Title & description from Step 2
-        val title = (serviceTitle ?: etServiceTitle.text?.toString()?.trim()).orEmpty()
+       // val title = (serviceTitle ?: etServiceTitle.text?.toString()?.trim()).orEmpty()
         val description = (additionalInfo ?: etAdditionalInfo.text?.toString()?.trim()).orEmpty()
 
         val serviceTypeEnum = mapServiceType(selectedService)
@@ -327,7 +327,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                 val entity = ServiceRequestEntity(
                     documentName = name,
                     serviceType  = serviceTypeEnum.name,
-                    title        = title,
+                    //title        = title,
                     description  = description,
                     priority     = priorityEnum.name,
                     deadlineIso  = deadlineIso,

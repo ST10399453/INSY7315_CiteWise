@@ -51,7 +51,7 @@ class ServiceReviewAdapter(
 
         // Title (prefer explicit title, then description, then category)
         h.tvServiceTitle.text = when {
-            !item.title.isNullOrBlank() -> item.title
+            //!item.title.isNullOrBlank() -> item.title
             !item.description.isNullOrBlank() -> item.description
             else -> item.serviceType.toPretty()
         }
