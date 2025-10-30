@@ -30,6 +30,7 @@ data class ServiceRequestDto(
     val feedback: String? = null,
     val studentName: String? = null,
     val originalFileName: String? = null,
+    val customName: String? = null,
     val originalFileUrl: String? = null,
     val feedbackFileName: String? = null,
     val feedbackFileUrl: String? = null
