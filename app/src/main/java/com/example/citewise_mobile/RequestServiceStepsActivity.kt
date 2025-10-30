@@ -10,6 +10,7 @@ import android.provider.OpenableColumns
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
@@ -65,7 +66,9 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private var pickedFileUri: Uri? = null
 
     // Step 4
-    private lateinit var urgencySpinner: Spinner
+    //private lateinit var urgencySpinner: Spinner
+    private lateinit var dropdownUrgency: AutoCompleteTextView
+
     private lateinit var etDeadline: TextInputEditText
 
     // Cached state
@@ -110,7 +113,8 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         }
 
         bindViews()
-        setupSpinners()
+//        setupSpinners()
+        setupUrgencyDropdown()
         setupListeners()
 
         showStep(0, forward = true)
@@ -143,17 +147,25 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         progressUpload  = findViewById(R.id.progressUpload)
 
         // Step 4
-        urgencySpinner  = findViewById(R.id.urgencySpinner)
+        //urgencySpinner  = findViewById(R.id.urgencySpinner)
+        dropdownUrgency = findViewById(R.id.dropdownUrgency)
+
         etDeadline      = findViewById(R.id.etDeadline)
     }
 
-    private fun setupSpinners() {
-        val urgencyItems = resources.getStringArray(R.array.urgency_array).toList()
-        val urgencyAdapter = ArrayAdapter(
-            this, R.layout.item_service_selected, android.R.id.text1, urgencyItems
-        ).apply { setDropDownViewResource(R.layout.item_service_dropdown) }
-        urgencySpinner.adapter = urgencyAdapter
-    }
+//    private fun setupSpinners() {
+//        val urgencyItems = resources.getStringArray(R.array.urgency_array).toList()
+//        val urgencyAdapter = ArrayAdapter(
+//            this, R.layout.item_service_selected, android.R.id.text1, urgencyItems
+//        ).apply { setDropDownViewResource(R.layout.item_service_dropdown) }
+//        urgencySpinner.adapter = urgencyAdapter
+//    }
+private fun setupUrgencyDropdown() {
+    val urgencyItems = resources.getStringArray(R.array.urgency_array).toList()
+    val adapter = ArrayAdapter(this, R.layout.item_service_selected, urgencyItems)
+    dropdownUrgency.setAdapter(adapter)
+}
+
 
     private fun setupListeners() {
         btnNext.setOnClickListener {
@@ -180,7 +192,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                     }
                 }
                 3 -> { // Step 4 -> SAVE LOCALLY & SYNC VIA WORKER
-                    urgencyLevel = urgencySpinner.selectedItem?.toString()
+                    urgencyLevel = dropdownUrgency.text?.toString()?.trim()
                     deadlineText = etDeadline.text?.toString()
                     if (urgencyLevel.isNullOrEmpty()) {
                         toast(getString(R.string.select_urgency)); return@setOnClickListener
