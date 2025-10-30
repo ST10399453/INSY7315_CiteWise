@@ -72,7 +72,8 @@ router.post(
       // Assemble DB payload
       const payload = {
         userId: req.user.uid,           // Student submitting the request
-        consultantId: null,             // Not assigned yet
+        consultantId: null,  
+        quotationId: null,           // Not assigned yet
         serviceType,
         description,
         priority,
