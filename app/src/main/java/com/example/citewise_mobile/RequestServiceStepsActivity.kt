@@ -10,6 +10,7 @@ import android.provider.OpenableColumns
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -58,7 +59,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
 
     // Step 3 (Doc Name == customName)
     private lateinit var etDocName: TextInputEditText
-    private lateinit var btnAttachFile: MaterialButton
+    private lateinit var btnAttachFile: LinearLayout
     private lateinit var tvFileName: TextView
     private lateinit var progressUpload: ProgressBar
     private var pickedFileUri: Uri? = null
