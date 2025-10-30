@@ -34,6 +34,7 @@ workRuntimeKtx = "2.10.5"
 swiperefreshlayout = "1.1.0"
 firebaseMessaging = "25.0.1"
 androidbrowserhelper = "2.6.2"
+material3 = "1.4.0"
 
 
 [libraries]
@@ -76,6 +77,7 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 androidbrowserhelper = { group = "com.google.androidbrowserhelper", name = "androidbrowserhelper", version.ref = "androidbrowserhelper" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

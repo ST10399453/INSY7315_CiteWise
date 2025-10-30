@@ -5,24 +5,50 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background"
-    android:paddingTop="32dp"
-    android:paddingBottom="20dp">
+    android:background="@color/ui_background"
+    android:padding="16dp">
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/tvSetupProfile"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/headerContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/request_service"
-        android:fontFamily="@font/poppins_sembold"
-        android:textColor="@color/gradient_end"
-        android:textSize="20sp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back_arrow"
+            app:tint="@color/gradient_end"
+            android:layout_marginStart="8dp"
+            android:contentDescription="back"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:padding="8dp" />
+
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/request_service"
+            android:textColor="@color/gradient_end"
+            android:textSize="26sp"
+            android:fontFamily="@font/public_sans_medium"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
+
+
+
 
     <!-- Animated horizontal progress -->
     <ProgressBar
@@ -36,7 +62,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        app:layout_constraintTop_toBottomOf="@id/tvSetupProfile"
+        app:layout_constraintTop_toBottomOf="@id/headerContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -53,7 +79,12 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         app:layout_constraintTop_toBottomOf="@id/progressService"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"/>
+
+
+
+
 
     <!-- ===== Sections ===== -->
 
@@ -76,20 +107,109 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/select_a_service"
+            android:text="Step 1: Select a service"
             android:textColor="@color/text_dark"
             android:fontFamily="@font/poppins_sembold"
             android:textSize="18sp"
             android:layout_marginBottom="12dp"/>
 
-        <Spinner
-            android:id="@+id/serviceSpinner"
+        <!-- ✅ Radio group replaces Spinner -->
+        <RadioGroup
+            android:id="@+id/serviceRadioGroup"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/btn_login"
-            android:popupBackground="@drawable/bg_spinner_popup_white"
-            android:paddingLeft="8dp"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rbProofreading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Proofreading &amp; Editing"
+                android:textSize="16sp"
+                android:button="@null"
+                android:drawableStart="@drawable/radio_button_selector"
+                android:drawablePadding="8dp"
+                android:textColor="@color/text_dark"
+                android:fontFamily="@font/public_sans_medium"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="2dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false" />
+
+
+
+            <RadioButton
+                android:id="@+id/rbFormatting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Formatting &amp; Referencing"
+                android:textSize="16sp"
+                android:button="@null"
+                android:drawableStart="@drawable/radio_button_selector"
+                android:drawablePadding="8dp"
+                android:textColor="@color/text_dark"
+                android:fontFamily="@font/public_sans_medium"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="2dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false" />
+
+            <RadioButton
+                android:id="@+id/rbDataAnalysis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Data Analysis Support"
+                android:textSize="16sp"
+                android:button="@null"
+                android:drawableStart="@drawable/radio_button_selector"
+                android:drawablePadding="8dp"
+                android:textColor="@color/text_dark"
+                android:fontFamily="@font/public_sans_medium"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="2dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false" />
+
+            <RadioButton
+                android:id="@+id/rbResearchCoaching"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Research/Methodology Coaching"
+                android:textSize="16sp"
+                android:button="@null"
+                android:drawableStart="@drawable/radio_button_selector"
+                android:drawablePadding="8dp"
+                android:textColor="@color/text_dark"
+                android:fontFamily="@font/public_sans_medium"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="2dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false" />
+
+
+            <RadioButton
+                android:id="@+id/rbTranslation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Translation"
+                android:textSize="16sp"
+                android:button="@null"
+                android:drawableStart="@drawable/radio_button_selector"
+                android:drawablePadding="8dp"
+                android:textColor="@color/text_dark"
+                android:fontFamily="@font/public_sans_medium"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="2dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false" />
+        </RadioGroup>
     </LinearLayout>
+
 
     <!-- STEP 2 -->
     <LinearLayout
@@ -320,7 +440,7 @@
         android:gravity="center_horizontal"
         android:background="@drawable/card_neumorphic_background"
         android:padding="24dp"
-        android:visibility="visible"
+        android:visibility="gone"
         android:layout_marginTop="12dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"

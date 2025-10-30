@@ -14,10 +14,13 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ProgressBar
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.RadioButton
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.citewise_mobile.api.ServicePriority
@@ -49,7 +52,9 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private val totalSteps = 5 // 4 steps + success
 
     // Step 1
-    private lateinit var serviceSpinner: Spinner
+    //private lateinit var serviceSpinner: Spinner
+    private lateinit var serviceRadioGroup: RadioGroup
+
     private lateinit var services: List<String>
 
     // Step 2
@@ -131,7 +136,9 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         )
 
         // Step 1
-        serviceSpinner = findViewById(R.id.serviceSpinner)
+       // serviceSpinner = findViewById(R.id.serviceSpinner)
+        serviceRadioGroup = findViewById(R.id.serviceRadioGroup)
+
 
         // Step 2
         etServiceTitle   = findViewById(R.id.etServiceTitle)
@@ -149,11 +156,11 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
-        services = resources.getStringArray(R.array.services_array).toList()
-        val serviceAdapter = ArrayAdapter(
-            this, R.layout.item_service_selected, android.R.id.text1, services
-        ).apply { setDropDownViewResource(R.layout.item_service_dropdown) }
-        serviceSpinner.adapter = serviceAdapter
+        //services = resources.getStringArray(R.array.services_array).toList()
+//        val serviceAdapter = ArrayAdapter(
+//            this, R.layout.item_service_selected, android.R.id.text1, services
+//        ).apply { setDropDownViewResource(R.layout.item_service_dropdown) }
+//        serviceSpinner.adapter = serviceAdapter
 
         val urgencyItems = resources.getStringArray(R.array.urgency_array).toList()
         val urgencyAdapter = ArrayAdapter(
@@ -166,10 +173,14 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         btnNext.setOnClickListener {
             when (currentStep) {
                 0 -> { // Step 1
-                    if (serviceSpinner.selectedItem == null) {
-                        toast(getString(R.string.select_service_first)); return@setOnClickListener
+                    val selectedRadioId = serviceRadioGroup.checkedRadioButtonId
+                    if (selectedRadioId == -1) {
+                        toast(getString(R.string.select_service_first))
+                        return@setOnClickListener
                     }
-                    selectedService = services[serviceSpinner.selectedItemPosition]
+                    val selectedRadio = findViewById<RadioButton>(selectedRadioId)
+                    selectedService = selectedRadio.text.toString()
+
                 }
                 1 -> { // Step 2 – capture TITLE + DESCRIPTION
                     serviceTitle = etServiceTitle.text?.toString()?.trim()
