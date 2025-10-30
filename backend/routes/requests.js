@@ -55,7 +55,7 @@ router.post(
       if (!req.file) return res.status(400).json({ message: "file is required" });
 
       // Extract form fields
-      const { documentName, serviceType, description, priority, deadline = null } = req.body;
+      const { documentName, serviceType, description, priority, deadline = null, customName = null } = req.body;
 
       // Gather file metadata
       const mime = req.file.mimetype || "application/octet-stream";
