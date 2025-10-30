@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Internet and network permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Notification permission for Android 13+ -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Notification permission for Android 13+ -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
@@ -20,99 +17,84 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CiteWise_Mobile"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ActiveTasksActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ResourceManagementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ManageConsultantsActivity"
+            android:exported="false" />
         <activity
             android:name=".ConversationActivity"
             android:exported="false" />
-
         <activity
             android:name=".ResourcesActivity"
             android:exported="false" />
-
         <activity
             android:name=".DocumentViewerActivity"
             android:exported="false" />
-
         <activity
             android:name=".TaskDetailsActivity"
             android:exported="false" />
-
         <activity
             android:name=".ServiceReviewsActivity"
             android:exported="false" />
-
         <activity
             android:name=".AdminProfileSettingsActivity"
             android:exported="false" />
-
         <activity
             android:name=".ConsultantProfileSettingsActivity"
             android:exported="false" />
-
         <activity
             android:name=".ConsultantTaskDetailsActivity"
             android:exported="false" />
-
         <activity
             android:name=".ConsultantTasksActivity"
             android:exported="false" />
-
         <activity
             android:name=".StudentProfileSettingsActivity"
             android:exported="false" />
-
         <activity
             android:name=".SelectedChatActivity"
             android:exported="false" />
-
         <activity
             android:name=".ChatsActivity"
             android:exported="false" />
-
         <activity
             android:name=".AdminDashboardActivity"
             android:exported="false" />
-
         <activity
             android:name=".RequestServiceSuccessActivity"
             android:exported="false" />
-
         <activity
             android:name=".RequestServiceStepsActivity"
             android:exported="false" />
-
         <activity
             android:name=".RequestDetailsActivity"
             android:exported="false" />
-
         <activity
             android:name=".RequestsActivity"
             android:exported="false" />
-
         <activity
             android:name=".ServiceRequestActivity"
             android:exported="false" />
-
         <activity
             android:name=".StudentDashboardActivity"
             android:exported="false" />
-
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
-
         <activity
             android:name=".ConsultantDashboardActivity"
             android:exported="false" />
-
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
-
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -131,26 +113,20 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
-        </provider>
-
-        <!-- Firebase Cloud Messaging service -->
+        </provider> <!-- Firebase Cloud Messaging service -->
         <service
             android:name=".api.AppMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-
-        <!-- Default Firebase notification configuration -->
+        </service> <!-- Default Firebase notification configuration -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/gradient_middle" />
-
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

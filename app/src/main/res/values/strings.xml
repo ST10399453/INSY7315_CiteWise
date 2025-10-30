@@ -133,6 +133,15 @@
     <string name="channel_messages_desc">Chat and conversation notification</string>
     <string name="search_chats">Search Chats</string>
 
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_requests">Requests</string>
+    <string name="title_resources">Resources</string>
+    <string name="title_messages">Messages</string>
+    <string name="title_profile">Profile</string>
+
+    <string name="title_manage_consultants">Manage</string>
+    <string name="title_resource_mgmt">Resources</string>
+    <string name="title_active_tasks">Tasks</string>
 
 
 </resources>
