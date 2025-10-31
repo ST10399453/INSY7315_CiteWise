@@ -286,7 +286,7 @@ class RequestsSyncWorker(
                         )
 
                         runCatching {
-                            fs.collection("requests")
+                            fs.collection("ServiceReviews")
                                 .document(fsId)
                                 .set(fsData, SetOptions.merge())
                                 .addOnSuccessListener { Log.d(TAG, "Firestore upsert ok id=$fsId") }
