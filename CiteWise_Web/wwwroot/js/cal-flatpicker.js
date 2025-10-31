@@ -5,10 +5,7 @@
 
         while (addedDays < daysToAdd) {
             result.setDate(result.getDate() + 1);
-            // Skip weekends
-            if (result.getDay() !== 0 && result.getDay() !== 6) {
-                addedDays++;
-            }
+            if (result.getDay() !== 0 && result.getDay() !== 6) addedDays++;
         }
 
         return result;
@@ -21,17 +18,26 @@
         altInput: true,
         altFormat: "Y / m / d",
         allowInput: true,
-        minDate: minWorkingDate,  // sets minimum date correctly
+        minDate: minWorkingDate,
         disable: [
-            function (date) {
-                // Disable weekends
-                return date.getDay() === 0 || date.getDay() === 6;
-            }
-        ]
+            function (date) { return date.getDay() === 0 || date.getDay() === 6; }
+        ],
+        // ✅ Add this to trigger validation + progress updates
+        onChange: function (selectedDates, dateStr) {
+            const deadlineInput = $("input[name='Deadline']");
+            deadlineInput.val(dateStr);
+
+            // Re-validate this field and remove error if valid
+            const form = $("form");
+            const validator = form.validate();
+            if (validator) validator.element(deadlineInput);
+
+            updateProgress(); // update the progress bar
+        }
     });
 
-    // Make SVG icon open the picker
-    document.querySelector(".calendar-icon").addEventListener("click", () => {
-        picker.open();
-    });
+    document.querySelector(".calendar-icon").addEventListener("click", () => picker.open());
+
+    $.validator.setDefaults({ ignore: [] });
+    $.validator.unobtrusive.parse("form");
 });

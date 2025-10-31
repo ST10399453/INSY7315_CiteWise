@@ -45,12 +45,6 @@
                 <div id="step2" style="display:none">
                     <h3>Step 2: Fill out any additional information</h3>
 
-                    <div class="form-group">
-                        <label>Project Name</label>
-                        <input asp-for="ProjectTitle" class="icon-input" placeholder="Enter project name..." />
-                        <span asp-validation-for="ProjectTitle" class="text-dangers"></span>
-                    </div>
-
                     <textarea asp-for="AdditionalInfo" rows="3" class="custom-textarea"  placeholder="Additional info..."></textarea>
                     <div class="button-container">
                         <button type="button" class="btn-next" onclick="nextStep(3)">Next</button>
@@ -92,7 +86,7 @@
                     <div class="form-group">
                         <label>Enter Deadline</label>
                         <div class="input-with-icon">
-                            <input asp-for="Deadline" type="text" class="icon-input" id="deadlinePicker" placeholder="Enter deadline" />
+                            <input asp-for="Deadline" type="date" class="icon-input" id="deadlinePicker" placeholder="Enter deadline" />
                             <svg class="input-icon calendar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 Replace this with your actual calendar SVG
                                 <rect x="3" y="4" width="18" height="18" rx="2" stroke="#0027B2" stroke-width="2" />
@@ -108,7 +102,8 @@
                     <div class="form-group">
                         <label>Urgency Level</label>
                         <div class="custom-urgency-dropdown">
-                            <select asp-for="Urgency" id="urgencySelect" style="display: none;">
+                            <select asp-for="Urgency" id="urgencySelect"> 
+                                @* style="display: none;" *@
                                 <option value="">-- Select Urgency --</option>
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
@@ -153,57 +148,7 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
-<script>
-    // Custom urgency dropdown functionality
-    (function() {
-        const trigger = document.getElementById('urgencyTrigger');
-        const menu = document.getElementById('urgencyMenu');
-        const display = document.getElementById('urgencyDisplay');
-        const select = document.getElementById('urgencySelect');
-        const options = menu.querySelectorAll('.urgency-option');
-
-        // Toggle dropdown
-        trigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            trigger.classList.toggle('active');
-            menu.classList.toggle('show');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!trigger.contains(e.target) && !menu.contains(e.target)) {
-                trigger.classList.remove('active');
-                menu.classList.remove('show');
-            }
-        });
-
-        // Handle option selection
-        options.forEach(option => {
-            option.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                const indicator = this.querySelector('.urgency-indicator').cloneNode(true);
-                const text = this.querySelector('.urgency-text').cloneNode(true);
-
-                // Update hidden select
-                select.value = value;
-
-                // Update display
-                display.innerHTML = '';
-                display.appendChild(indicator);
-                display.appendChild(text);
-
-                // Update selected state
-                options.forEach(opt => opt.classList.remove('selected'));
-                this.classList.add('selected');
-
-                // Close dropdown
-                trigger.classList.remove('active');
-                menu.classList.remove('show');
-            });
-        });
-    })();
-</script>

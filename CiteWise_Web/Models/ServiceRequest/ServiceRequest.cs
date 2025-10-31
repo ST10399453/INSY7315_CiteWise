@@ -9,9 +9,6 @@ namespace CiteWise_Web.Models.ServiceRequest
         [Required(ErrorMessage = "Please select the type of service you need.")]
         public string SelectedService { get; set; }
 
-        [Required(ErrorMessage = "Please enter the name of your project")]
-        public string ProjectTitle { get; set; }
-
         public string? AdditionalInfo { get; set; }
 
         [Required(ErrorMessage = "Please enter a document name.")]
