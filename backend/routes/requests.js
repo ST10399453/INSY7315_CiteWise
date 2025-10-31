@@ -121,7 +121,9 @@ router.post(
  *     either here (role checks) or inside getRequests() with the actor context.
  * ============================================================
  */
-router.get("/", checkAuth, async (req, res) => {
+router.get("/", 
+ checkAuth, 
+  async (req, res) => {
   try {
     // Default behavior: students see their own requests; admins/consultants can override with query
     const status = req.query.status ?? null;
@@ -154,7 +156,9 @@ router.get("/", checkAuth, async (req, res) => {
  *   - IMPORTANT: getRequestById should enforce visibility based on req.user.
  * ============================================================
  */
-router.get("/:id", checkAuth, param("id").isString(), async (req, res) => {
+router.get("/:id", 
+  checkAuth, 
+  param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
     // Fetch a single request by ID; authorization should be verified downstream
@@ -261,7 +265,9 @@ router.put("/:id/assign",
  *     (or admin) can start review.
  * ============================================================
  */
-router.post("/:id/start-review", checkAuth, param("id").isString(), async (req, res) => {
+router.post("/:id/start-review", 
+  checkAuth, 
+  param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
     res.json(await transitionStartReview({ id: req.params.id, actor: req.user }));
@@ -326,7 +332,9 @@ router.post("/:id/review",
  *     (or that policy allows resubmission by others).
  * ============================================================
  */
-router.post("/:id/resubmit", checkAuth, param("id").isString(), async (req, res) => {
+router.post("/:id/resubmit", 
+  checkAuth, 
+  param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
     res.json(await transitionResubmit({ id: req.params.id, actor: req.user }));
@@ -350,7 +358,9 @@ router.post("/:id/resubmit", checkAuth, param("id").isString(), async (req, res)
  *   - transitionCancel should enforce ownership or admin privileges.
  * ============================================================
  */
-router.post("/:id/cancel", checkAuth, param("id").isString(), async (req, res) => {
+router.post("/:id/cancel", 
+  checkAuth, 
+  param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
     res.json(await transitionCancel({ id: req.params.id, actor: req.user }));
@@ -378,8 +388,7 @@ router.post("/:id/cancel", checkAuth, param("id").isString(), async (req, res) =
  *     (e.g., has "consultant" role) and that the request is in a claimable state.
  * ============================================================
  */
-router.post(
-  "/:id/self-assign",
+router.post("/:id/self-assign",
   checkAuth,
   param("id").isString(),
   body("deadline").optional().isString(),
