@@ -5,66 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CiteWise_Web</title>
     <script type="importmap"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/MainApplicationNavBar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/StudentDashboard.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Request.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/flatpicker-cal.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
 </head>
 <body>
-    <div class="sidebar">
-        <div class="logo-container">
-            <img src="~/img/CiteWise_Logo.jpg" alt="CiteWise Logo" class="sidebar-logo" />
-            <h2>iteWise</h2>
-
-            <div class="toggle-btn">
-                <img src="~/icons/menu_sidebar.svg" alt="Sidebar expand & collapse" />
-            </div>
-        </div>
-
-        <div class="logo-divider"></div>
-
-        <a asp-area="" asp-controller="Student" asp-action="StudentDashboard">
-            <img src="~/icons/Dashboard.svg" alt="Dashboard" class="sidebar-icon" />
-            <span>Dashboard</span>
-        </a>
-
-        <a asp-area="" asp-controller="Student" asp-action="StudentServiceRequest">
-            <img src="~/icons/Request.png" alt="Request Service Icon" class="sidebar-icon" />
-            <span>Request a Service</span>
-        </a>
-
-        <a href="#">
-            <img src="~/icons/Resources.svg" alt="Academic Resources" class="sidebar-icon" />
-            <span>Academic Resources</span>
-        </a>
-
-        <a href="#">
-            <img src="~/icons/Messages.svg" alt="Messages" class="sidebar-icon" />
-            <span>Messages</span>
-        </a>
-
-        <a href="#">
-            <img src="~/icons/Profile.svg" alt="Profile" class="sidebar-icon" />
-            <span>Profile</span>
-        </a>
-    </div>
-
-    <div class="topbar">
-    <div class="topbar-left">
-        <h2 class="topbar-name">
-            <span>Hi @(Context.Session.GetString("UserName") ?? "Guest")</span>
-        </h2>
-    </div>
-
-    <div class="topbar-right">
+    
+    @* <div class="topbar-right">
         <i class="fa-regular fa-bell icon"></i>
         <a asp-controller="Account" asp-action="Logout" title="Logout">
             <img src="https://via.placeholder.com/40" alt="Logout">
         </a>
-    </div>
-</div>
+    </div>  *@
+
+
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="~/img/citeWise.png" alt="CiteWise Logo" class="nav-logo" />
+            <span class="brand-name">iteWise</span>
+        </div>
+
+        <div class="navbar-center">
+            <a asp-controller="Student" asp-action="StudentDashboard"
+               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
+                Dashboard
+            </a>
+
+            <a asp-controller="Student" asp-action="StudentServiceRequest"
+               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
+                Request a Service
+            </a>
+
+            <a href="#"
+               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
+                Resources
+            </a>
+
+            <a href="#"
+               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Chats" ? "active" : "")">
+                Chats
+            </a>
+        </div>
+
+
+        <div class="navbar-right">
+            <a asp-controller="Account" asp-action="Logout" class="nav-account">
+                <div class="account-icon">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="account-text">My Account</span>
+            </a>
+        </div>
+    </nav>
+
+
     <div class="top-divider"></div>
 
     <div class="container">
