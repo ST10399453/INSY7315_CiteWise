@@ -142,6 +142,8 @@
     <string name="title_manage_consultants">Manage</string>
     <string name="title_resource_mgmt">Resources</string>
     <string name="title_active_tasks">Tasks</string>
+    <string name="navigate">Navigate</string>
+    <string name="profile_picture">profile\n</string>
 
 
 </resources>
