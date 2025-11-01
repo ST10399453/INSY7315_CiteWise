@@ -114,7 +114,7 @@ class ChatsActivity : BaseActivity() {
     // ---- Bottom sheets ----
 
     private fun showNewChatSheet() {
-        val dlg = BottomSheetDialog(this, com.google.android.material.R.style.Theme_Design_BottomSheetDialog)
+        val dlg = BottomSheetDialog(this, R.style.AppBottomSheetDialog)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_new_chat, null)
         dlg.setContentView(view)
 
@@ -147,7 +147,7 @@ class ChatsActivity : BaseActivity() {
     }
 
     private fun showSearchChatsSheet() {
-        val dlg = BottomSheetDialog(this, com.google.android.material.R.style.Theme_Design_BottomSheetDialog)
+        val dlg = BottomSheetDialog(this, R.style.AppBottomSheetDialog)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_search_chat, null)
         dlg.setContentView(view)
 
