@@ -4,15 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.adapters.ChatPreview
 import com.example.citewise_mobile.adapters.ChatsAdapter
@@ -22,7 +18,6 @@ import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.data.MessagesRepository
 import com.example.citewise_mobile.data.NetResult
 import com.example.citewise_mobile.offline.CloudDataSources
-import com.example.citewise_mobile.offline.UserEntity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
@@ -30,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.example.citewise_mobile.R
 
 class ChatsActivity : BaseActivity() {
 
@@ -80,18 +76,40 @@ class ChatsActivity : BaseActivity() {
 
     private fun refreshRecent() {
         val myUid = auth.currentUser?.uid ?: return
+
         lifecycleScope.launch {
-            when (val res = repo.since(0L)) { // pull all involving me; server-side delta endpoint
-                is NetResult.Ok -> {
-                    val grouped = groupByPeerAndLatest(res.data, myUid)
-                    recentAdapter.submitList(grouped)
+            try {
+                when (val res = repo.since(0L)) {
+                    is NetResult.Ok -> {
+                        // 1) Build previews as you do now
+                        val previews = groupByPeerAndLatest(res.data, myUid)
+
+                        // 2) Build a name map from RTDB users
+                        val users = withContext(Dispatchers.IO) { cloud.fetchUsers() }
+                        val nameMap = users.associate { u ->
+                            val name = "${u.firstName} ${u.surname}".trim().ifEmpty { u.email }
+                            u.uid to name
+                        }
+
+                        // 3) Replace displayName with the user’s name (fallback: uid)
+                        val enriched = previews.map { p ->
+                            p.copy(displayName = nameMap[p.peerUid] ?: p.peerUid)
+                        }
+
+                        recentAdapter.submitList(enriched)
+                    }
+                    is NetResult.Err -> {
+                        // Silent log
+                        println("refreshRecent: failed -> ${res.message}")
+                    }
                 }
-                is NetResult.Err -> {
-                    // Optional: show a toast/snackbar with res.message
-                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
+
+
 
     // ---- Bottom sheets ----
 

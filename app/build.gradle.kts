@@ -89,6 +89,7 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.material.vlatestversion)
 
 
 }
