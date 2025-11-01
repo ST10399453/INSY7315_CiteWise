@@ -18,11 +18,14 @@ wwwroot\icons\google.svg
 wwwroot\icons\menu_sidebar.svg
 wwwroot\icons\Messages.svg
 wwwroot\icons\Profile.svg
+wwwroot\icons\profiles.svg
 wwwroot\icons\Request.png
 wwwroot\icons\Resources.svg
 wwwroot\icons\tick.svg
 wwwroot\icons\up_arrow.svg
+wwwroot\icons\User.svg
 wwwroot\img\Calander.png
+wwwroot\img\citeWise.png
 wwwroot\img\CiteWise_Logo.jpg
 wwwroot\img\Cloud.png
 wwwroot\img\Confirm.png
@@ -115,9 +118,11 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\google.
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\menu_sidebar.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\Messages.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\Profile.svg
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\profiles.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\Resources.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\tick.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\up_arrow.svg
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\icons\User.svg
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\cal-flatpicker.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\firebase-login.js
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\js\Landing.js

@@ -16,15 +16,6 @@
 
 </head>
 <body>
-    
-    @* <div class="topbar-right">
-        <i class="fa-regular fa-bell icon"></i>
-        <a asp-controller="Account" asp-action="Logout" title="Logout">
-            <img src="https://via.placeholder.com/40" alt="Logout">
-        </a>
-    </div>  *@
-
-
     <nav class="navbar">
         <div class="navbar-left">
             <img src="~/img/citeWise.png" alt="CiteWise Logo" class="nav-logo" />
@@ -57,8 +48,37 @@
         <div class="navbar-right">
             <a asp-controller="Account" asp-action="Logout" class="nav-account">
                 <div class="account-icon">
-                    <i class="fa-solid fa-user"></i>
+                    @{
+                        var photoUrl = Context.Session.GetString("UserPhotoUrl");
+                        var firstName = Context.Session.GetString("UserName");
+                        var userRole = Context.Session.GetString("UserRole");
+                        string initials = "";
+
+                        if (string.IsNullOrEmpty(photoUrl))
+                        {
+                            // Get surname if available
+                            var surname = Context.Session.GetString("UserSurname");
+                            if (!string.IsNullOrEmpty(firstName))
+                                initials += firstName[0];
+                            if (!string.IsNullOrEmpty(surname))
+                                initials += surname[0];
+                        }
+                    }
+
+                    @if (!string.IsNullOrEmpty(photoUrl))
+                    {
+                        <img src="@photoUrl" alt="Profile" class="profile-pic" />
+                    }
+                    else if (!string.IsNullOrEmpty(initials))
+                    {
+                        <div class="profile-initials">@initials.ToUpper()</div>
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-user"></i>
+                    }
                 </div>
+
                 <span class="account-text">My Account</span>
             </a>
         </div>

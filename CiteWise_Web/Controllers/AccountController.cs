@@ -49,6 +49,12 @@ namespace CiteWise_Web.Controllers
 
             await _firebaseService.SaveUserProfileAsync(profile.Uid, authResponse.IdToken, profile);
 
+            HttpContext.Session.SetString("UserName", model.FirstName);
+            HttpContext.Session.SetString("UserSurname", model.Surname);
+            HttpContext.Session.SetString("UserUid", authResponse.LocalId);
+            HttpContext.Session.SetString("UserRole", "Pending");
+            HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
+
             return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
 
 
@@ -93,6 +99,7 @@ namespace CiteWise_Web.Controllers
             }
 
             HttpContext.Session.SetString("UserName", profile.FirstName);
+            HttpContext.Session.SetString("UserSurname", profile.Surname);
             HttpContext.Session.SetString("UserUid", profile.Uid);
             HttpContext.Session.SetString("UserRole", profile.Role);
 
@@ -115,7 +122,6 @@ namespace CiteWise_Web.Controllers
                 string uid = decodedToken.Uid;
 
                 var user = await FirebaseAuth.DefaultInstance.GetUserAsync(decodedToken.Uid);
-
                 var profile = await _firebaseService.GetUserProfileAsync(uid, req.Token);
 
                 if(profile == null)
@@ -131,6 +137,15 @@ namespace CiteWise_Web.Controllers
 
                     await _firebaseService.SaveUserProfileAsync(uid, req.Token, newProfile);
                     profile = newProfile;
+                }
+
+                if (!string.IsNullOrEmpty(user.PhotoUrl))
+                {
+                    HttpContext.Session.SetString("UserPhotoUrl", user.PhotoUrl);
+                }
+                else
+                {
+                    HttpContext.Session.Remove("UserPhotoUrl");
                 }
 
                 HttpContext.Session.SetString("UserUid", uid);

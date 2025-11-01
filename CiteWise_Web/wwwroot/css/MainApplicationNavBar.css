@@ -334,15 +334,51 @@ body {
     }
 
 
-.account-icon {
-    width: 38px;
-    height: 38px;
+.profile-pic {
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    background: #0027B2;
+    object-fit: cover;
+}
+
+.profile-initials {
+    border-radius: 50%;
+    background-color: #0027B2;
     color: #fff;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.account-icon {
+    width: 42px; 
+    height: 42px; 
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: transparent; 
+}
+
+
+.profile-initials {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: #0027B2;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
 }
 
     .account-icon i {
