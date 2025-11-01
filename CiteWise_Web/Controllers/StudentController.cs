@@ -111,12 +111,7 @@ namespace CiteWise_Web.Controllers
             formData.Add(new StringContent(model.DocName ?? string.Empty), "documentName");
             formData.Add(new StringContent(model.SelectedService ?? string.Empty), "serviceType");
             //formData.Add(new StringContent(model.AdditionalInfo ?? string.Empty), "description");
-            formData.Add(
-    new StringContent(string.IsNullOrWhiteSpace(model.AdditionalInfo)
-        ? "No additional description provided."
-        : model.AdditionalInfo),
-    "description"
-);
+            formData.Add(new StringContent(string.IsNullOrWhiteSpace(model.AdditionalInfo)? "No additional description provided.": model.AdditionalInfo),"description");
 
             formData.Add(new StringContent(model.Urgency ?? string.Empty), "priority");
 
