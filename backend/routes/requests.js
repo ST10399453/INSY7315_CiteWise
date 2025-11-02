@@ -1,50 +1,37 @@
-import { Router } from "express";
+import { Router } from "express"; // (GeeksforGeeks, 2022a)
 import multer from "multer";
-import { body, param } from "express-validator";
-import { checkAuth } from "../auth/checkAuth.js";
+import { body, param } from "express-validator"; // (express-validator, 2019)
+import { checkAuth } from "../auth/checkAuth.js"; // (Balaji, 2023)
 import {
   createRequest, getRequests, getRequestById, transitionAssign,
   transitionStartReview, transitionSubmitReview, transitionResubmit,
   transitionCancel
-} from "../db/dbManager.js";
-import { newFileId, safeName, uploadToR2 } from "../blobs/storage.js";
-import { bailIfInvalid } from "../utils/expressHelpers.js";
+} from "../db/dbManager.js"; // Firestore-backed ops (Firebase, 2019a)
+import { newFileId, safeName, uploadToR2 } from "../blobs/storage.js"; // R2 storage helpers (Cloudflare, 2024)
+import { bailIfInvalid } from "../utils/expressHelpers.js"; // Validation bail-out (express-validator, 2019)
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipart handling
 
 /**
  * ============================================================
  * 1) Create Request (multipart)
  * ------------------------------------------------------------
- * Endpoint: POST /
- * Roles & Expectations:
- *   - Students: create new service requests, must attach a file.
- *   - Consultants: typically should not create requests (enforce via policy/middleware if needed).
- *   - Admins: may create on behalf of students (if business rules allow).
- *
- * Behavior:
- *   - Accepts a file (multipart/form-data) and request metadata.
- *   - Uploads file to Cloudflare R2.
- *   - Persists DB record with "Submitted" status.
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - Additional role checks should happen in checkAuth, a role guard,
- *     or within createRequest(), depending on your architecture.
+ * Security & roles enforced via middleware/transition (Manico & Detlefsen, 2015)
+ * Uploads to Cloudflare R2, persists Firestore record (Cloudflare, 2024; Firebase, 2019a)
  * ============================================================
  */
 router.post(
   "/",
-  checkAuth,
+  checkAuth, // Require auth (Balaji, 2023)
   upload.single("file"), // Expect a single file under field name "file"
-  body("documentName").isString().notEmpty(),
+  body("documentName").isString().notEmpty(), // (express-validator, 2019)
   body("serviceType").isString().isIn([
     "PROOFREADING_EDITING","FORMATTING_REFERENCING","DATA_ANALYSIS_SUPPORT",
     "RESEARCH_METHODOLOGY_COACHING","TRANSLATION","OTHER",
-  ]),
-  body("description").isString().notEmpty(),
-  body("priority").isString().isIn(["LOW","MEDIUM","HIGH"]),
+  ]), // (express-validator, 2019)
+  body("description").isString().notEmpty(), // (express-validator, 2019)
+  body("priority").isString().isIn(["LOW","MEDIUM","HIGH"]), // (express-validator, 2019)
   body("deadline").optional().isString(), // ISO string recommended
   async (req, res) => {
     // Validate inputs; bail early if invalid
@@ -62,14 +49,14 @@ router.post(
       const size = req.file.size || req.file.buffer?.length || 0;
 
       // Generate a stable file ID and safe object key for storage
-      const fileId = newFileId();
-      const cleanName = safeName(documentName);
+      const fileId = newFileId(); // (Tony, 2023)
+      const cleanName = safeName(documentName); // input sanitization for keys (Manico & Detlefsen, 2015)
       const objectPath = `uploads/${fileId}/${cleanName}`;
 
       // Upload file bytes to Cloudflare R2
-      const r2Meta = await uploadToR2({ key: objectPath, body: req.file.buffer, contentType: mime });
+      const r2Meta = await uploadToR2({ key: objectPath, body: req.file.buffer, contentType: mime }); // (Cloudflare, 2024)
 
-      // Assemble DB payload
+      // Assemble DB payload (Firestore document shape) (Firebase, 2019a)
       const payload = {
         userId: req.user.uid,           // Student submitting the request
         consultantId: null,  
@@ -82,11 +69,11 @@ router.post(
         documentId: fileId,
         customName: customName || null,
         file: { fileId, originalName: documentName, mimeType: mime, size },
-        storage: { cloudflare: r2Meta },// Store R2 location metadata
+        storage: { cloudflare: r2Meta },// Store R2 location metadata (Cloudflare, 2024)
       };
 
       // Persist the new request
-      const created = await createRequest(payload);
+      const created = await createRequest(payload); // (Firebase, 2019a)
 
       // Return created entity (include storage meta for client to reference)
       return res.status(201).json({ ...created, storage: payload.storage });
@@ -101,28 +88,12 @@ router.post(
  * ============================================================
  * 2) List Requests
  * ------------------------------------------------------------
- * Endpoint: GET /
- * Roles & Expectations:
- *   - Students: list their own requests by default.
- *   - Consultants: can view all requests (or those assigned to them,
- *     depending on business rules). Use query filters as needed.
- *   - Admins: can view all and filter by userId/consultantId/status.
- *
- * Query params:
- *   - status?: string
- *   - userId?: string (defaults to current user for students)
- *   - consultantId?: string
- *   - sort?: string  (e.g., "createdAt")
- *   - dir?: string   ("asc" | "desc")
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - IMPORTANT: Authorization to view "all" vs. "own" should be enforced
- *     either here (role checks) or inside getRequests() with the actor context.
+ * Uses query filtering & optional ordering (Firebase, 2019a)
+ * Role-based visibility to be enforced (Manico & Detlefsen, 2015)
  * ============================================================
  */
 router.get("/", 
- checkAuth, 
+ checkAuth,  // (Balaji, 2023)
   async (req, res) => {
   try {
     // Default behavior: students see their own requests; admins/consultants can override with query
@@ -132,8 +103,8 @@ router.get("/",
     const sort = req.query.sort ?? undefined;
     const dir = req.query.dir ?? undefined;
 
-    // NOTE: Ensure getRequests enforces role-based filtering using req.user
-    const out = await getRequests({ status, userId, consultantId, sort, dir });
+    // NOTE: Ensure getRequests enforces role-based filtering using req.user (Manico & Detlefsen, 2015)
+    const out = await getRequests({ status, userId, consultantId, sort, dir }); // (Firebase, 2019a)
     res.json(out);
   } catch (err) {
     console.error(err);
@@ -145,24 +116,16 @@ router.get("/",
  * ============================================================
  * 3) Request Details
  * ------------------------------------------------------------
- * Endpoint: GET /:id
- * Roles & Expectations:
- *   - Students: can view details of their own requests.
- *   - Consultants: can view details of all requests (or those they handle).
- *   - Admins: can view any request.
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - IMPORTANT: getRequestById should enforce visibility based on req.user.
+ * Single-document fetch; downstream should verify visibility (Firebase, 2019a)
  * ============================================================
  */
 router.get("/:id", 
-  checkAuth, 
+  checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
-  const v = bailIfInvalid(req, res); if (v) return v;
+  const v = bailIfInvalid(req, res); if (v) return v; // (express-validator, 2019)
   try {
     // Fetch a single request by ID; authorization should be verified downstream
-    res.json(await getRequestById(req.params.id));
+    res.json(await getRequestById(req.params.id)); // (Firebase, 2019a)
   } catch (err) {
     console.error(err);
     res.status(404).json({ message: err.message });
@@ -173,27 +136,16 @@ router.get("/:id",
  * ============================================================
  * 4) Assign Consultant (Create assignment)
  * ------------------------------------------------------------
- * Endpoint: POST /:id/assign
- * Roles & Expectations:
- *   - Admins: can assign a consultant to a request.
- *   - Consultants/Students: should not assign (enforce via authz).
- *
- * Body:
- *   - consultantId: string (required)
- *   - deadline?: string (ISO)
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - transitionAssign should verify the actor is allowed (admin).
+ * Transactional transition with RBAC checks (Firebase, 2019a; Manico & Detlefsen, 2015)
  * ============================================================
  */
 router.post("/:id/assign",
-  checkAuth,
+  checkAuth, // (Balaji, 2023)
   param("id").isString(),
-  body("consultantId").isString().notEmpty(),
+  body("consultantId").isString().notEmpty(), // (express-validator, 2019)
   body("deadline").optional().isString(),
   async (req, res) => {
-    const v = bailIfInvalid(req, res); if (v) return v;
+    const v = bailIfInvalid(req, res); if (v) return v; // (express-validator, 2019)
     try {
       const out = await transitionAssign({
         id: req.params.id,
@@ -201,7 +153,7 @@ router.post("/:id/assign",
         deadline: req.body.deadline ?? null,
         allowUpdate: false,     // This call creates a new assignment
         actor: req.user,        // Used for authorization inside transition
-      });
+      }); // (Firebase, 2019a)
       res.json(out);
     } catch (err) {
       console.error(err);
@@ -214,23 +166,13 @@ router.post("/:id/assign",
  * ============================================================
  * 5) Update Assignment (Change consultant/deadline)
  * ------------------------------------------------------------
- * Endpoint: PUT /:id/assign
- * Roles & Expectations:
- *   - Admins: can reassign or adjust deadlines.
- *
- * Body:
- *   - consultantId?: string (null → unassign)
- *   - deadline?: string (ISO)
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - transitionAssign should verify admin permissions when allowUpdate=true.
+ * Admin-only adjustment path, enforced in transition (Manico & Detlefsen, 2015)
  * ============================================================
  */
 router.put("/:id/assign",
-  checkAuth,
+  checkAuth, // (Balaji, 2023)
   param("id").isString(),
-  body("consultantId").optional().isString(),
+  body("consultantId").optional().isString(), // (express-validator, 2019)
   body("deadline").optional().isString(),
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
@@ -241,7 +183,7 @@ router.put("/:id/assign",
         deadline: req.body.deadline ?? null,
         allowUpdate: true,       // This call updates an existing assignment
         actor: req.user,
-      });
+      }); // (Firebase, 2019a)
       res.json(out);
     } catch (err) {
       console.error(err);
@@ -254,23 +196,15 @@ router.put("/:id/assign",
  * ============================================================
  * 6) Start Review
  * ------------------------------------------------------------
- * Endpoint: POST /:id/start-review
- * Roles & Expectations:
- *   - Consultants: typically start review when they begin working.
- *   - Admins: may also trigger depending on policy.
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - transitionStartReview must enforce that only assigned consultant
- *     (or admin) can start review.
+ * Only assigned consultant/admin may start (RBAC) (Manico & Detlefsen, 2015)
  * ============================================================
  */
 router.post("/:id/start-review", 
-  checkAuth, 
+  checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
-    res.json(await transitionStartReview({ id: req.params.id, actor: req.user }));
+    res.json(await transitionStartReview({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
@@ -281,25 +215,13 @@ router.post("/:id/start-review",
  * ============================================================
  * 7) Submit Review Outcome
  * ------------------------------------------------------------
- * Endpoint: POST /:id/review
- * Roles & Expectations:
- *   - Consultants: submit an outcome with optional feedback.
- *   - Admins: may override depending on policy.
- *
- * Body:
- *   - outcome: "approve" | "reject" | "fail"
- *   - feedback?: string
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - transitionSubmitReview should confirm actor is permitted and
- *     that the request is in a reviewable state.
+ * Validates outcome; enforces reviewable state & permissions (express-validator, 2019; Manico & Detlefsen, 2015)
  * ============================================================
  */
 router.post("/:id/review",
-  checkAuth,
+  checkAuth, // (Balaji, 2023)
   param("id").isString(),
-  body("outcome").isIn(["approve","reject","fail"]),
+  body("outcome").isIn(["approve","reject","fail"]), // (express-validator, 2019)
   body("feedback").optional().isString(),
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
@@ -309,7 +231,7 @@ router.post("/:id/review",
         outcome: req.body.outcome,
         feedback: req.body.feedback ?? null,
         actor: req.user,
-      });
+      }); // (Firebase, 2019a)
       res.json(out);
     } catch (err) {
       console.error(err);
@@ -322,22 +244,15 @@ router.post("/:id/review",
  * ============================================================
  * 8) Resubmit (Student action)
  * ------------------------------------------------------------
- * Endpoint: POST /:id/resubmit
- * Roles & Expectations:
- *   - Students: can resubmit after making changes.
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - transitionResubmit should verify the request belongs to the student
- *     (or that policy allows resubmission by others).
+ * Ownership checks apply (Manico & Detlefsen, 2015); transactional update (Firebase, 2019a)
  * ============================================================
  */
 router.post("/:id/resubmit", 
-  checkAuth, 
+  checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
-    res.json(await transitionResubmit({ id: req.params.id, actor: req.user }));
+    res.json(await transitionResubmit({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
@@ -348,22 +263,15 @@ router.post("/:id/resubmit",
  * ============================================================
  * 9) Cancel Request
  * ------------------------------------------------------------
- * Endpoint: POST /:id/cancel
- * Roles & Expectations:
- *   - Students: can cancel their own requests (depending on status).
- *   - Admins: can cancel any request as per policy.
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - transitionCancel should enforce ownership or admin privileges.
+ * Admin/owner/assigned consultant only (RBAC) (Manico & Detlefsen, 2015)
  * ============================================================
  */
 router.post("/:id/cancel", 
-  checkAuth, 
+  checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
-    res.json(await transitionCancel({ id: req.params.id, actor: req.user }));
+    res.json(await transitionCancel({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
@@ -374,24 +282,13 @@ router.post("/:id/cancel",
  * ============================================================
  * 10) Self-Assign (Consultant claims a request)
  * ------------------------------------------------------------
- * Endpoint: POST /:id/self-assign
- * Roles & Expectations:
- *   - Consultants: can claim (assign themselves to) an unassigned request.
- *   - Admins: could also use this if policy allows (enforced in transition).
- *
- * Body:
- *   - deadline?: string (ISO)  // optional target date for the assignment
- *
- * Security:
- *   - Requires authentication (checkAuth).
- *   - transitionAssign should verify the actor is allowed to self-assign
- *     (e.g., has "consultant" role) and that the request is in a claimable state.
+ * Self-claim flow; transition enforces claimable state & role (Manico & Detlefsen, 2015)
  * ============================================================
  */
 router.post("/:id/self-assign",
-  checkAuth,
+  checkAuth, // (Balaji, 2023)
   param("id").isString(),
-  body("deadline").optional().isString(),
+  body("deadline").optional().isString(), // (express-validator, 2019)
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
@@ -401,7 +298,7 @@ router.post("/:id/self-assign",
         deadline: req.body.deadline ?? null,
         allowUpdate: false,                // create assignment (not update)
         actor: req.user,                   // used by transition for authz
-      });
+      }); // (Firebase, 2019a)
       res.json(out);
     } catch (err) {
       console.error(err);
@@ -412,3 +309,67 @@ router.post("/:id/self-assign",
 
 
 export default router;
+
+/*
+REFERENCES
+
+Android Knowledge. 2023. “CRUD Using Firebase Realtime Database in Android Studio Using Kotlin | Create, Read, Update, Delete”.
+YouTube. August 2023 <https://www.youtube.com/watch?v=oGyQMBKPuNY> [accessed September 2025].
+
+Anil Kr Mourya. 2024. “How to Convert Base64 String to Bitmap and Bitmap to Base64 String”.
+Medium. January 2024 <https://mrappbuilder.medium.com/how-to-convert-base64-string-to-bitmap-and-bitmap-to-base64-string-7a30947b0494> [accessed September 2025].
+
+Axios. 2023. “Getting Started | Axios Docs”.
+Axios-Http.com. 2023 <https://axios-http.com/docs/intro> [accessed September 2025].
+
+Balaji, Dev. 2023. “JWT Authentication in Node.js: A Practical Guide”.
+Medium. September 2023 <https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49> [accessed October 2025].
+
+Cloudflare. 2024. “Cloudflare R2 · Cloudflare R2 Docs”.
+Cloudflare Docs. April 5, 2024 <https://developers.cloudflare.com/r2/> [accessed 12 October 2025].
+
+express-validator. 2019. “Getting Started · Express-Validator”.
+Github.io. 2019 <https://express-validator.github.io/docs/> [accessed October 2025].
+
+Firebase. 2019a. “Cloud Firestore | Firebase”.
+Firebase. 2019 <https://firebase.google.com/docs/firestore> [accessed September 2025].
+
+Firebase. 2019b. “Firebase Authentication | Firebase”.
+Firebase. Google. 2019 <https://firebase.google.com/docs/auth> [accessed September 2025].
+
+Firebase. 2019c. “Firebase Cloud Messaging | Firebase”.
+Firebase. 2019 <https://firebase.google.com/docs/cloud-messaging> [accessed September 2025].
+
+Firebase. 2019d. “Firebase Realtime Database”.
+Firebase. 2019 <https://firebase.google.com/docs/database> [accessed September 2025].
+
+GeeksforGeeks. 2022a. “Use of CORS in Node.js”.
+GeeksforGeeks. March 2022 <https://www.geeksforgeeks.org/node-js/use-of-cors-in-node-js/> [accessed October 2025].
+
+GeeksforGeeks. 2022b. “What Is Expressratelimit in Node.js ?”.
+GeeksforGeeks. April 2022 <https://www.geeksforgeeks.org/node-js/what-is-express-rate-limit-in-node-js/> [accessed October 2025].
+
+GeeksforGeeks. 2024. “NPM Dotenv”.
+GeeksforGeeks. May 2024 <https://www.geeksforgeeks.org/node-js/npm-dotenv/> [accessed October 2025].
+
+Manico, Jim and August Detlefsen. 2015. *Iron-Clad Java: Building Secure Web Applications*.
+McGraw-Hill Education.
+
+Nakazawa Tech. 2018. “Delightful JavaScript Testing with Jest”.
+YouTube. May 30, 2018 <https://www.youtube.com/watch?v=cAKYQpTC7MA> [accessed 2 November 2025].
+
+NextJS. 2025. “Documentation | NestJS - a Progressive Node.js Framework”.
+Documentation | NestJS - a Progressive Node.js Framework. 2025 <https://docs.nestjs.com/security/helmet> [accessed October 2025].
+
+Patel, Ravi. 2024. “A Beginner’s Guide to the Node.js”.
+Medium. December 2024 <https://medium.com/@ravipatel.it/a-beginners-guide-to-the-node-js-469f7458bbb2> [accessed October 2025].
+
+React Native. 2025. “React Fundamentals · React Native”.
+Reactnative.dev. 2025 <https://reactnative.dev/docs/intro-react> [accessed September 2025].
+
+Samson Omojola. 2024. “Password Hashing in Node.js with Bcrypt”.
+Honeybadger Developer Blog. Honeybadger. January 2024 <https://www.honeybadger.io/blog/node-password-hashing/> [accessed September 2025].
+
+Tony. 2023. “Guide to Node’s Crypto Module for Encryption/Decryption”.
+Medium. May 5, 2023 <https://medium.com/@tony.infisical/guide-to-nodes-crypto-module-for-encryption-decryption-65c077176980> [accessed 2 November 2025].
+*/

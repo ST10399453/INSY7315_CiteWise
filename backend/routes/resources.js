@@ -1,57 +1,39 @@
-import { Router } from "express";
+import { Router } from "express"; // (GeeksforGeeks, 2022a)
 import multer from "multer";
-import { body, param, query } from "express-validator";
-import { checkAuth } from "../auth/checkAuth.js";
-import { db as fsdb } from "../db/firebaseAdmin.js";
-import { isAdmin, bailIfInvalid } from "../utils/expressHelpers.js";
+import { body, param, query } from "express-validator"; // (express-validator, 2019)
+import { checkAuth } from "../auth/checkAuth.js"; // (Balaji, 2023)
+import { db as fsdb } from "../db/firebaseAdmin.js"; // (Firebase, 2019a)
+import { isAdmin, bailIfInvalid } from "../utils/expressHelpers.js"; // (Manico & Detlefsen, 2015; express-validator, 2019)
 import {
   newFileId,
   safeName,
   uploadToR2,
   r2SignedUrl,
   streamFromR2,
-} from "../blobs/storage.js";
+} from "../blobs/storage.js"; // Cloudflare R2 integration (Cloudflare, 2024)
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipart handling
 
 /**
  * ============================================================
  * Create Resource (Admins only)
  * ------------------------------------------------------------
- * Endpoint: POST /
- * Roles:
- *   - Admins: can upload resource files (e.g., guides, templates).
- *   - Students/Consultants: cannot create resources.
- *
- * Request (multipart/form-data):
- *   - file: binary (required)
- *   - name: string (required) — resource display name; is sanitized for storage
- *   - faculty: string (required)
- *   - category: enum ["WRITING_GUIDE","TEMPLATE","AI_USAGE"] (required)
- *
- * Behavior:
- *   - Validates input.
- *   - Uploads to Cloudflare R2.
- *   - Persists metadata in Firestore (collection: "resources").
- *   - Sets visibility default to "students" (adjust as policy requires).
- *
- * Security:
- *   - Auth required.
- *   - Admin check via isAdmin(req.user).
+ * Uses input validation + RBAC guard pattern (express-validator, 2019; Manico & Detlefsen, 2015)
+ * Uploads to R2 and persists metadata in Firestore (Cloudflare, 2024; Firebase, 2019a)
  * ============================================================
  */
 router.post(
   "/",
-  checkAuth,
+  checkAuth, // Auth required (Balaji, 2023)
   upload.single("file"),
-  body("name").isString().notEmpty(),
-  body("faculty").isString().notEmpty(),
-  body("category").isString().isIn(["WRITING_GUIDE", "TEMPLATE", "AI_USAGE"]),
+  body("name").isString().notEmpty(), // (express-validator, 2019)
+  body("faculty").isString().notEmpty(), // (express-validator, 2019)
+  body("category").isString().isIn(["WRITING_GUIDE", "TEMPLATE", "AI_USAGE"]), // (express-validator, 2019)
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
-      // Only admins may create resources
+      // Only admins may create resources (Manico & Detlefsen, 2015)
       if (!isAdmin(req.user)) return res.status(403).json({ message: "Forbidden" });
 
       // File is mandatory
@@ -59,18 +41,18 @@ router.post(
 
       // Normalize inputs
       const { name, faculty, category } = req.body;
-      const id = newFileId();                 // Unique ID for the resource
-      const clean = safeName(name);           // Safe filename for storage path
+      const id = newFileId();                 // Unique ID for the resource (Tony, 2023)
+      const clean = safeName(name);           // Safe filename for storage path (Manico & Detlefsen, 2015)
       const mime = req.file.mimetype || "application/pdf";
       const size = req.file.size || req.file.buffer?.length || 0;
 
       // Object key layout for R2 (namespaced by resource id)
       const objectKey = `resources/${id}/${clean}`;
 
-      // Upload bytes to Cloudflare R2 (single source of truth for file storage)
+      // Upload bytes to Cloudflare R2 (single source of truth for file storage) (Cloudflare, 2024)
       const r2Meta = await uploadToR2({ key: objectKey, body: req.file.buffer, contentType: mime });
 
-      // Persist metadata to Firestore
+      // Persist metadata to Firestore (Firebase, 2019a)
       const doc = {
         id,
         name: clean,
@@ -79,13 +61,13 @@ router.post(
         mimeType: mime,
         size,
         visibility: "students",           // Default visibility; tune as needed
-        storage: { cloudflare: r2Meta },  // Store R2 location/keys
+        storage: { cloudflare: r2Meta },  // Store R2 location/keys (Cloudflare, 2024)
         createdBy: req.user.uid,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
 
-      await fsdb.collection("resources").doc(id).set(doc);
+      await fsdb.collection("resources").doc(id).set(doc); // (Firebase, 2019a)
 
       // Return a lean payload (omit storage internals)
       res.status(201).json({
@@ -108,51 +90,31 @@ router.post(
  * ============================================================
  * List Resources
  * ------------------------------------------------------------
- * Endpoint: GET /
- * Roles:
- *   - Students: can list resources (typically those with visibility "students").
- *   - Consultants: can list resources; adjust visibility filters as needed.
- *   - Admins: can list and filter by visibility.
- *
- * Query:
- *   - faculty?: string — exact match filter
- *   - visibility?: "all" | "students" | "admins" — filter by visibility (default server-side logic)
- *   - q?: string — client-side substring match on name (post-fetch)
- *   - sort?: "alpha" | "date" (default "date")
- *   - dir?: "asc" | "desc" (default "desc")
- *
- * Behavior:
- *   - Firestore query for basic filters (faculty, visibility).
- *   - Optional client-side filter for q (name contains).
- *   - Sorting client-side by alpha or updatedAt.
- *
- * NOTE:
- *   - If dataset grows, consider moving search/sort to Firestore indexes
- *     or a search service to avoid full scans and large payloads.
+ * Firestore filtering + client-side search/sort (Firebase, 2019a; express-validator, 2019)
  * ============================================================
  */
 router.get(
   "/",
-  checkAuth,
-  query("faculty").optional().isString(),
-  query("visibility").optional().isString().isIn(["all", "students", "admins"]),
-  query("q").optional().isString(),
-  query("sort").optional().isString().isIn(["alpha", "date"]),
-  query("dir").optional().isString().isIn(["asc", "desc"]),
+  checkAuth, // (Balaji, 2023)
+  query("faculty").optional().isString(), // (express-validator, 2019)
+  query("visibility").optional().isString().isIn(["all", "students", "admins"]), // (express-validator, 2019)
+  query("q").optional().isString(), // (express-validator, 2019)
+  query("sort").optional().isString().isIn(["alpha", "date"]), // (express-validator, 2019)
+  query("dir").optional().isString().isIn(["asc", "desc"]), // (express-validator, 2019)
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
       const { faculty, visibility, q, sort = "date", dir = "desc" } = req.query;
 
       // Base collection
-      let ref = fsdb.collection("resources");
+      let ref = fsdb.collection("resources"); // (Firebase, 2019a)
 
       // Server-side Firestore filters
-      if (faculty) ref = ref.where("faculty", "==", String(faculty));
-      if (visibility && visibility !== "all") ref = ref.where("visibility", "==", String(visibility));
+      if (faculty) ref = ref.where("faculty", "==", String(faculty)); // (Firebase, 2019a)
+      if (visibility && visibility !== "all") ref = ref.where("visibility", "==", String(visibility)); // (Firebase, 2019a)
 
       // Fetch and map raw docs
-      const snap = await ref.get();
+      const snap = await ref.get(); // (Firebase, 2019a)
       let items = snap.docs.map(d => d.data());
 
       // Client-side filter by name contains (q)
@@ -195,25 +157,15 @@ router.get(
  * ============================================================
  * Generate Signed URL (R2 only)
  * ------------------------------------------------------------
- * Endpoint: GET /:id/download
- * Roles:
- *   - Students/Consultants/Admins: may download if allowed by visibility policy.
- *
- * Query:
- *   - disposition?: "inline" | "attachment" (default "inline")
- *   - expires?: number seconds (min 60, max 7200; default 900)
- *
- * Behavior:
- *   - Loads resource doc.
- *   - Returns a short-lived signed URL from Cloudflare R2 for secure access.
+ * Short-lived URL for secure access (Cloudflare, 2024)
  * ============================================================
  */
 router.get(
   "/:id/download",
-  checkAuth,
-  param("id").isString(),
-  query("disposition").optional().isString().isIn(["inline", "attachment"]),
-  query("expires").optional().isInt({ min: 60, max: 7200 }),
+  checkAuth, // (Balaji, 2023)
+  param("id").isString(), // (express-validator, 2019)
+  query("disposition").optional().isString().isIn(["inline", "attachment"]), // (express-validator, 2019)
+  query("expires").optional().isInt({ min: 60, max: 7200 }), // (express-validator, 2019)
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
@@ -222,13 +174,13 @@ router.get(
       const expires = Math.max(60, Math.min(7200, parseInt(req.query.expires || "900", 10)));
 
       // Load resource from Firestore
-      const docSnap = await fsdb.collection("resources").doc(id).get();
+      const docSnap = await fsdb.collection("resources").doc(id).get(); // (Firebase, 2019a)
       if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
       const doc = docSnap.data();
 
-      // (Optional) Enforce visibility / ownership here if not handled elsewhere
+      // (Optional) Enforce visibility / ownership here if not handled elsewhere (Manico & Detlefsen, 2015)
 
-      // Create signed URL on R2
+      // Create signed URL on R2 (Cloudflare, 2024)
       const url = await r2SignedUrl({
         bucket: doc.storage.cloudflare.bucket,
         key: doc.storage.cloudflare.key,
@@ -249,24 +201,14 @@ router.get(
  * ============================================================
  * Stream File (R2 only)
  * ------------------------------------------------------------
- * Endpoint: GET /:id/file
- * Roles:
- *   - Students/Consultants/Admins: may stream if allowed by visibility policy.
- *
- * Query:
- *   - disposition?: "inline" | "attachment" (default "inline")
- *
- * Behavior:
- *   - Streams file bytes directly from R2 to the client.
- *   - Sets appropriate Content-Type/Length and Content-Disposition headers.
- *   - Useful for web/mobile inline previews (PDF, images).
+ * Direct streaming with proper headers (Cloudflare, 2024)
  * ============================================================
  */
 router.get(
   "/:id/file",
-  checkAuth,
-  param("id").isString(),
-  query("disposition").optional().isString().isIn(["inline", "attachment"]),
+  checkAuth, // (Balaji, 2023)
+  param("id").isString(), // (express-validator, 2019)
+  query("disposition").optional().isString().isIn(["inline", "attachment"]), // (express-validator, 2019)
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
@@ -274,13 +216,13 @@ router.get(
       const disposition = String(req.query.disposition || "inline").toLowerCase();
 
       // Load resource from Firestore
-      const docSnap = await fsdb.collection("resources").doc(id).get();
+      const docSnap = await fsdb.collection("resources").doc(id).get(); // (Firebase, 2019a)
       if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
       const doc = docSnap.data();
 
-      // (Optional) Enforce visibility / ownership here if not handled elsewhere
+      // (Optional) Enforce visibility / ownership here if not handled elsewhere (Manico & Detlefsen, 2015)
 
-      // Retrieve stream + metadata from R2
+      // Retrieve stream + metadata from R2 (Cloudflare, 2024)
       const filename = doc.name || "resource";
       const meta = await streamFromR2({
         bucket: doc.storage.cloudflare.bucket,
@@ -302,3 +244,67 @@ router.get(
 );
 
 export default router;
+
+/*
+REFERENCES
+
+Android Knowledge. 2023. “CRUD Using Firebase Realtime Database in Android Studio Using Kotlin | Create, Read, Update, Delete”.
+YouTube. August 2023 <https://www.youtube.com/watch?v=oGyQMBKPuNY> [accessed September 2025].
+
+Anil Kr Mourya. 2024. “How to Convert Base64 String to Bitmap and Bitmap to Base64 String”.
+Medium. January 2024 <https://mrappbuilder.medium.com/how-to-convert-base64-string-to-bitmap-and-bitmap-to-base64-string-7a30947b0494> [accessed September 2025].
+
+Axios. 2023. “Getting Started | Axios Docs”.
+Axios-Http.com. 2023 <https://axios-http.com/docs/intro> [accessed September 2025].
+
+Balaji, Dev. 2023. “JWT Authentication in Node.js: A Practical Guide”.
+Medium. September 2023 <https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49> [accessed October 2025].
+
+Cloudflare. 2024. “Cloudflare R2 · Cloudflare R2 Docs”.
+Cloudflare Docs. April 5, 2024 <https://developers.cloudflare.com/r2/> [accessed 12 October 2025].
+
+express-validator. 2019. “Getting Started · Express-Validator”.
+Github.io. 2019 <https://express-validator.github.io/docs/> [accessed October 2025].
+
+Firebase. 2019a. “Cloud Firestore | Firebase”.
+Firebase. 2019 <https://firebase.google.com/docs/firestore> [accessed September 2025].
+
+Firebase. 2019b. “Firebase Authentication | Firebase”.
+Firebase. Google. 2019 <https://firebase.google.com/docs/auth> [accessed September 2025].
+
+Firebase. 2019c. “Firebase Cloud Messaging | Firebase”.
+Firebase. 2019 <https://firebase.google.com/docs/cloud-messaging> [accessed September 2025].
+
+Firebase. 2019d. “Firebase Realtime Database”.
+Firebase. 2019 <https://firebase.google.com/docs/database> [accessed September 2025].
+
+GeeksforGeeks. 2022a. “Use of CORS in Node.js”.
+GeeksforGeeks. March 2022 <https://www.geeksforgeeks.org/node-js/use-of-cors-in-node-js/> [accessed October 2025].
+
+GeeksforGeeks. 2022b. “What Is Expressratelimit in Node.js ?”.
+GeeksforGeeks. April 2022 <https://www.geeksforgeeks.org/node-js/what-is-express-rate-limit-in-node-js/> [accessed October 2025].
+
+GeeksforGeeks. 2024. “NPM Dotenv”.
+GeeksforGeeks. May 2024 <https://www.geeksforgeeks.org/node-js/npm-dotenv/> [accessed October 2025].
+
+Manico, Jim and August Detlefsen. 2015. *Iron-Clad Java: Building Secure Web Applications*.
+McGraw-Hill Education.
+
+Nakazawa Tech. 2018. “Delightful JavaScript Testing with Jest”.
+YouTube. May 30, 2018 <https://www.youtube.com/watch?v=cAKYQpTC7MA> [accessed 2 November 2025].
+
+NextJS. 2025. “Documentation | NestJS - a Progressive Node.js Framework”.
+Documentation | NestJS - a Progressive Node.js Framework. 2025 <https://docs.nestjs.com/security/helmet> [accessed October 2025].
+
+Patel, Ravi. 2024. “A Beginner’s Guide to the Node.js”.
+Medium. December 2024 <https://medium.com/@ravipatel.it/a-beginners-guide-to-the-node-js-469f7458bbb2> [accessed October 2025].
+
+React Native. 2025. “React Fundamentals · React Native”.
+Reactnative.dev. 2025 <https://reactnative.dev/docs/intro-react> [accessed September 2025].
+
+Samson Omojola. 2024. “Password Hashing in Node.js with Bcrypt”.
+Honeybadger Developer Blog. Honeybadger. January 2024 <https://www.honeybadger.io/blog/node-password-hashing/> [accessed September 2025].
+
+Tony. 2023. “Guide to Node’s Crypto Module for Encryption/Decryption”.
+Medium. May 5, 2023 <https://medium.com/@tony.infisical/guide-to-nodes-crypto-module-for-encryption-decryption-65c077176980> [accessed 2 November 2025].
+*/

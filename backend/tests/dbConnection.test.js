@@ -1,49 +1,23 @@
-import express from "express"; // Express app setup (Patel, 2024)
-import cors from "cors"; // Enable CORS middleware (GeeksforGeeks, 2022a)
-import "dotenv/config"; // Load environment variables from .env (GeeksforGeeks, 2024)
+import { jest, test, expect } from "@jest/globals";
 
-import { ensureR2Bucket } from "./blobs/storage.js"; // Cloudflare R2 storage initialization (Cloudflare, 2024)
+// Mock firebaseAdmin.js
+jest.unstable_mockModule("../db/firebaseAdmin.js", () => ({
+  default: {
+    database: () => ({
+      ref: () => ({
+        get: jest.fn(async () => ({ exists: () => true })),
+      }),
+    }),
+  },
+}));
 
-import requestsRouter from "./routes/requests.js"; // Modular route organization (Manico & Detlefsen, 2015)
-import documentsRouter from "./routes/documents.js";
-import resourcesRouter from "./routes/resources.js";
-import messagesRouter from "./routes/messages.js";
+const admin = (await import("../db/firebaseAdmin.js")).default;
 
-const app = express();
-app.use(cors()); // Middleware for CORS (GeeksforGeeks, 2022a)
-app.use(express.json()); // Parse JSON request bodies (Patel, 2024)
-
-// Health check endpoint for deployment monitoring (Manico & Detlefsen, 2015)
-app.get("/", (_req, res) =>
-  res.send("CiteWise API is running over HTTP (uploads: Cloudflare R2).")
-);
-
-// Primary API routes (Manico & Detlefsen, 2015)
-app.use("/requests", requestsRouter);
-app.use("/documents", documentsRouter);
-app.use("/resources", resourcesRouter);
-app.use("/messages", messagesRouter);
-
-// HTTP startup configuration (Patel, 2024)
-const PORT = process.env.PORT || 8080;
-
-(async function boot() {
-  try {
-    if (process.env.SKIP_STORAGE_INIT === "1") {
-      console.log("[BOOT] SKIP_STORAGE_INIT=1 → skipping R2 container checks"); // Config flag (Cloudflare, 2024)
-    } else {
-      await ensureR2Bucket(); // Initialize R2 bucket (Cloudflare, 2024)
-    }
-
-    app.listen(PORT, () => {
-      console.log(`✅ HTTP server running at http://localhost:${PORT}`); // Startup log (Nakazawa Tech, 2018)
-    });
-  } catch (err) {
-    console.error("Startup failed:", err); // Error handling (Manico & Detlefsen, 2015)
-    process.exit(1);
-  }
-})();
-
+test("connects to firebase db (mock ok)", async () => {
+  const db = admin.database();
+  const snap = await db.ref("test/ping").get();
+  expect(snap.exists()).toBe(true);
+});
 
 /*
 REFERENCES

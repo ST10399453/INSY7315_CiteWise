@@ -1,49 +1,40 @@
-import express from "express"; // Express app setup (Patel, 2024)
-import cors from "cors"; // Enable CORS middleware (GeeksforGeeks, 2022a)
-import "dotenv/config"; // Load environment variables from .env (GeeksforGeeks, 2024)
+import { jest, test, expect } from "@jest/globals"; // (Nakazawa Tech, 2018)
 
-import { ensureR2Bucket } from "./blobs/storage.js"; // Cloudflare R2 storage initialization (Cloudflare, 2024)
+const verifyIdTokenMock = jest.fn(async () => ({ uid: "u1", email: "a@b.com" })); // Firebase Admin token verification stub (Firebase, 2019b)
 
-import requestsRouter from "./routes/requests.js"; // Modular route organization (Manico & Detlefsen, 2015)
-import documentsRouter from "./routes/documents.js";
-import resourcesRouter from "./routes/resources.js";
-import messagesRouter from "./routes/messages.js";
+// Mock BEFORE importing the module under test
+// Jest ESM mocking pattern for dependency isolation (Nakazawa Tech, 2018)
+jest.unstable_mockModule("../db/firebaseAdmin.js", () => ({
+  default: {
+    auth: () => ({ verifyIdToken: verifyIdTokenMock }), // (Firebase, 2019b)
+    database: () => ({}),
+  },
+}));
 
-const app = express();
-app.use(cors()); // Middleware for CORS (GeeksforGeeks, 2022a)
-app.use(express.json()); // Parse JSON request bodies (Patel, 2024)
+// Dynamic import so the mock is applied first (Nakazawa Tech, 2018)
+const { checkAuth } = await import("../auth/checkAuth.js");
 
-// Health check endpoint for deployment monitoring (Manico & Detlefsen, 2015)
-app.get("/", (_req, res) =>
-  res.send("CiteWise API is running over HTTP (uploads: Cloudflare R2).")
-);
+test("checkAuth passes with valid Bearer token", async () => { // Valid JWT Bearer flow (Balaji, 2023)
+  const req = { headers: { authorization: "Bearer goodtoken" } };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+  const next = jest.fn();
 
-// Primary API routes (Manico & Detlefsen, 2015)
-app.use("/requests", requestsRouter);
-app.use("/documents", documentsRouter);
-app.use("/resources", resourcesRouter);
-app.use("/messages", messagesRouter);
+  await checkAuth(req, res, next);
 
-// HTTP startup configuration (Patel, 2024)
-const PORT = process.env.PORT || 8080;
+  expect(verifyIdTokenMock).toHaveBeenCalledWith("goodtoken", true); // ensure Firebase Admin used correctly (Firebase, 2019b)
+  expect(next).toHaveBeenCalledTimes(1);
+});
 
-(async function boot() {
-  try {
-    if (process.env.SKIP_STORAGE_INIT === "1") {
-      console.log("[BOOT] SKIP_STORAGE_INIT=1 → skipping R2 container checks"); // Config flag (Cloudflare, 2024)
-    } else {
-      await ensureR2Bucket(); // Initialize R2 bucket (Cloudflare, 2024)
-    }
+test("checkAuth returns 401 if missing token", async () => { // Missing Authorization header path (Balaji, 2023)
+  const req = { headers: {} };
+  const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+  const next = jest.fn();
 
-    app.listen(PORT, () => {
-      console.log(`✅ HTTP server running at http://localhost:${PORT}`); // Startup log (Nakazawa Tech, 2018)
-    });
-  } catch (err) {
-    console.error("Startup failed:", err); // Error handling (Manico & Detlefsen, 2015)
-    process.exit(1);
-  }
-})();
+  await checkAuth(req, res, next);
 
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(next).not.toHaveBeenCalled();
+});
 
 /*
 REFERENCES
