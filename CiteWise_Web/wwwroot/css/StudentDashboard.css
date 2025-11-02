@@ -6,7 +6,7 @@
 .dashboard-container {
     position: fixed;
     top: 80px;
-    left: 260px;
+    left: 0; /* ✅ no sidebar anymore */
     right: 0;
     bottom: 0;
     padding: 20px 40px;

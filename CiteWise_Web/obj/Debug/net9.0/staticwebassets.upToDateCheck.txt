@@ -2,6 +2,7 @@ wwwroot\CiteWise_Logo.ico
 wwwroot\css\flatpicker-cal.css
 wwwroot\css\LandingPage.css
 wwwroot\css\LandingPageNavBar.css
+wwwroot\css\MainApplicationNavBar.css
 wwwroot\css\register.css
 wwwroot\css\Request.css
 wwwroot\css\site.css
@@ -97,7 +98,6 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\css\MainApplicationNavBar.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\CiteWise_Logo.ico
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\flatpicker-cal.css
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\wwwroot\css\LandingPage.css

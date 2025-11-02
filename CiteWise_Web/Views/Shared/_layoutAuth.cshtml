@@ -81,9 +81,80 @@
 
                 <span class="account-text">My Account</span>
             </a>
+
+            <!-- media queries stuff -->
+            <button class="hamburger-menu" id="hamburgerMenu" aria-label="Open menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
         </div>
     </nav>
 
+        <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <div class="mobile-sidebar-header">
+                <div class="mobile-sidebar-brand">
+                    <img src="~/img/citeWise.png" alt="CiteWise Logo" class="mobile-logo" />
+                    <span class="mobile-brand-name">iteWise</span>
+                </div>
+                <button class="close-sidebar" id="closeSidebar" aria-label="Close menu">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+
+            <div class="mobile-sidebar-links">
+                <a asp-controller="Student" asp-action="StudentDashboard"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
+                    Dashboard
+                </a>
+
+                <a asp-controller="Student" asp-action="StudentServiceRequest"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
+                    Request a Service
+                </a>
+
+                <a href="#" class="mobile-nav-link">Resources</a>
+                <a href="#" class="mobile-nav-link">Chats</a>
+            </div>
+
+            <div class="mobile-account-section">
+                <a asp-controller="Account" asp-action="Logout" class="mobile-account-link">
+                    <div class="mobile-account-icon">
+                        @{
+                            var photoUrl = Context.Session.GetString("UserPhotoUrl");
+                            var firstName = Context.Session.GetString("UserName");
+                            var surname = Context.Session.GetString("UserSurname");
+                            string initials = "";
+
+                            if (string.IsNullOrEmpty(photoUrl))
+                            {
+                                if (!string.IsNullOrEmpty(firstName))
+                                    initials += firstName[0];
+                                if (!string.IsNullOrEmpty(surname))
+                                    initials += surname[0];
+                            }
+                        }
+
+                        @if (!string.IsNullOrEmpty(photoUrl))
+                        {
+                            <img src="@photoUrl" alt="Profile" class="mobile-profile-pic" />
+                        }
+                        else if (!string.IsNullOrEmpty(initials))
+                        {
+                            <div class="mobile-profile-initials">@initials.ToUpper()</div>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-user"></i>
+                        }
+                    </div>
+
+                    <span class="mobile-account-text">My Account</span>
+                </a>
+            </div>
+
+        </div>
+    <!-- media queries stuff -->
 
     <div class="top-divider"></div>
 
@@ -97,12 +168,12 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/ServiceRequest.js" asp-append-version="true"></script>
+    <script src="~/js/MainApplicationNavBar.js" asp-append-version="true"></script>
     <script src="~/js/cal-flatpicker.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js"></script>
-
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

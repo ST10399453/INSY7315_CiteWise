@@ -1,33 +1,30 @@
 ﻿/* Keep your sidebar/top offset setup */
 :root {
-    --sidebar-width: 260px;
-    --top-offset: 80px;
-}
 
-body.sidebar-collapsed {
-    --sidebar-width: 80px;
+    --top-offset: 80px;
 }
 
 .studentbody {
     position: fixed;
     top: var(--top-offset);
-    left: var(--sidebar-width);
+    left: 0; /* ✅ no sidebar anymore */
     right: 0;
     bottom: 0;
     box-sizing: border-box;
     padding: 40px;
     overflow: auto;
     display: flex;
-    justify-content: center;
-    align-items: flex-start; /* ⬅️ makes content start from top instead of centering */
-    gap: 20px; /* optional spacing if multiple elements */
+    justify-content: center; /* ✅ center horizontally */
+    align-items: flex-start; /* ✅ keep content aligned from top */
+    gap: 20px;
 }
-
 
 .centered {
     width: 100%;
     max-width: 900px;
+    margin: 0 auto; /* ✅ extra centering safety */
 }
+
 
 /* --- Page Title --- */
 .page-title {
