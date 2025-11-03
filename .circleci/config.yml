@@ -1,0 +1,149 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+executors:
+  node_20:
+    docker:
+      - image: cimg/node:20.17
+    environment:
+      NODE_ENV: test
+
+commands:
+  install_backend_deps:
+    steps:
+      - restore_cache:
+          keys:
+            - v5-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
+            - v5-backend-deps-{{ arch }}-{{ .Branch }}
+            - v5-backend-deps-{{ arch }}
+      - run:
+          name: Install deps in backend/
+          working_directory: backend
+          command: |
+            node -v
+            npm -v
+            ls -la
+            cat package.json || true
+            npm install
+      - save_cache:
+          key: v5-backend-deps-{{ arch }}-{{ .Branch }}-{{ checksum "backend/package-lock.json" }}
+          paths:
+            - ~/.npm
+            - ~/project/backend/node_modules
+
+jobs:
+  lint:
+    executor: node_20
+    working_directory: ~/project
+    steps:
+      - checkout
+      - install_backend_deps
+      - run:
+          name: Lint (if script exists)
+          working_directory: backend
+          command: |
+            if npm run | grep -qE "^[[:space:]]*lint"; then
+              npm run lint
+            else
+              echo "No lint script; skipping."
+            fi
+
+  test:
+    executor: node_20
+    working_directory: ~/project
+    steps:
+      - checkout
+      - install_backend_deps
+      - run:
+          name: Unit tests (if script exists)
+          working_directory: backend
+          command: |
+            if npm run | grep -qE "^[[:space:]]*test"; then
+              npm test -- --ci --reporters=default || npm test
+            else
+              echo "No test script; skipping."
+            fi
+      - store_test_results:
+          path: backend/test-results
+          when: always
+      - store_artifacts:
+          path: backend/coverage
+          when: always
+
+  integration:
+    executor: node_20
+    working_directory: ~/project
+    steps:
+      - checkout
+      - install_backend_deps
+
+      # IMPORTANT: start server and wait for health in the SAME STEP
+      - run:
+          name: Start API and wait for health (single step)
+          working_directory: backend
+          command: |
+            set -eu
+
+            export PORT="${PORT:-8081}"
+            export SKIP_STORAGE_INIT=1   # avoid external storage init in CI
+
+            : > server.log
+
+            echo "Starting server on :$PORT"
+            if npm run | grep -qE "^[[:space:]]*dev"; then
+              ( npm run dev >> server.log 2>&1 ) & echo $! > server.pid
+            elif npm run | grep -qE "^[[:space:]]*start"; then
+              ( npm start >> server.log 2>&1 ) & echo $! > server.pid
+            else
+              ( node server.js >> server.log 2>&1 ) & echo $! > server.pid
+            fi
+
+            echo "PID: $(cat server.pid)"
+            echo "---- first log lines ----"
+            head -n 50 server.log || true
+
+            # wait up to 90s for HTTP 200 at /
+            for i in $(seq 1 90); do
+              code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}/" || true)
+              if [ "$code" = "200" ]; then
+                echo "Server healthy (HTTP 200) after $i s"
+                break
+              fi
+              if ! kill -0 "$(cat server.pid)" 2>/dev/null; then
+                echo "Server process exited early"
+                echo "---- tail server.log ----"
+                tail -n 300 server.log || true
+                exit 1
+              fi
+              sleep 1
+            done
+
+            # double-check health (fail if not 200)
+            curl -fsS "http://localhost:${PORT}/" | tee /tmp/health.txt
+
+      - run:
+          name: Stop API
+          working_directory: backend
+          when: always
+          command: |
+            if [ -f server.pid ]; then
+              kill "$(cat server.pid)" || true
+              sleep 1
+            fi
+
+      - store_artifacts:
+          path: /tmp/health.txt
+      - store_artifacts:
+          path: backend/server.log
+
+workflows:
+  version: 2
+  ci_only:
+    jobs:
+      - lint
+      - test:
+          requires: [lint]
+      - integration:
+          requires: [test]
