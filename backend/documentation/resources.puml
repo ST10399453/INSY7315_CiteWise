@@ -1,0 +1,27 @@
+@startuml API_DataFlow_Resources
+left to right direction
+skinparam componentStyle rectangle
+skinparam wrapWidth 280
+skinparam maxMessageSize 200
+title Data Flow: Resources Endpoints
+
+database "Firestore\n(Resources meta)" as FS_RES
+cloud "Cloudflare R2\nresources/" as R2
+
+package "Endpoints: Resources" {
+  top to bottom direction
+  component "POST /resources"                  as RES_POST
+  component "GET  /resources"                  as RES_GET
+  component "GET  /resources/:id/download"     as RES_DL
+  component "GET  /resources/:id/file"         as RES_STREAM
+}
+
+' READs
+FS_RES -[#2E7D32]-.-> RES_GET : READ (list/filter)
+R2     -[#2E7D32]-.-> RES_DL  : READ (signed URL)
+R2     -[#2E7D32]-.-> RES_STREAM : READ (bytes)
+
+' WRITEs
+RES_POST -[#C62828]-> R2     : WRITE (upload object)
+RES_POST -[#C62828]-> FS_RES : WRITE (metadata)
+@enduml

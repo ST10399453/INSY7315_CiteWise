@@ -1,0 +1,41 @@
+@startuml API_DataFlow_Requests
+left to right direction
+skinparam componentStyle rectangle
+skinparam wrapWidth 280
+skinparam maxMessageSize 200
+title Data Flow: Requests Endpoints
+
+database "Firestore\n(Requests)" as FS_REQ
+cloud "Cloudflare R2\nuploads/" as R2
+
+package "Endpoints: Requests" {
+  top to bottom direction
+  component "POST   /requests"                      as REQ_CREATE
+  component "GET    /requests"                      as REQ_LIST
+  component "GET    /requests/:id"                  as REQ_DETAIL
+  component "POST   /requests/:id/assign"           as REQ_ASSIGN
+  component "PUT    /requests/:id/assign"           as REQ_ASSIGN_UPD
+  component "POST   /requests/:id/self-assign"      as REQ_SELF_ASSIGN
+  component "POST   /requests/:id/start-review"     as REQ_START
+  component "POST   /requests/:id/review"           as REQ_REVIEW
+  component "POST   /requests/:id/resubmit"         as REQ_RESUB
+  component "POST   /requests/:id/cancel"           as REQ_CANCEL
+}
+
+' READs
+FS_REQ -[#2E7D32]-.-> REQ_LIST   : READ (list/filter)
+FS_REQ -[#2E7D32]-.-> REQ_DETAIL : READ (by id)
+
+' WRITEs (metadata/state)
+REQ_CREATE      -[#C62828]-> FS_REQ : WRITE (create: Submitted)
+REQ_ASSIGN      -[#C62828]-> FS_REQ : WRITE (Submitted→Assigned)
+REQ_ASSIGN_UPD  -[#C62828]-> FS_REQ : WRITE (update assignee/deadline)
+REQ_SELF_ASSIGN -[#C62828]-> FS_REQ : WRITE (Submitted→Assigned [self])
+REQ_START       -[#C62828]-> FS_REQ : WRITE (Assigned→In Review)
+REQ_REVIEW      -[#C62828]-> FS_REQ : WRITE (approve/reject/fail)
+REQ_RESUB       -[#C62828]-> FS_REQ : WRITE (Pending→Assigned)
+REQ_CANCEL      -[#C62828]-> FS_REQ : WRITE (Canceled)
+
+' Object uploads occur during create
+REQ_CREATE -[#C62828]-> R2 : WRITE (upload document)
+@enduml

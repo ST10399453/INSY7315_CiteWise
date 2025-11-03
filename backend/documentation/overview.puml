@@ -1,0 +1,95 @@
+@startuml CiteWise_API_Overview
+left to right direction
+skinparam componentStyle rectangle
+skinparam wrapWidth 260
+skinparam maxMessageSize 200
+title CiteWise API (Client -> App -> Firebase Auth -> API)
+
+actor USER as "Client"
+
+' --- Left cluster (kept together) ---
+package "Client & Auth" as LEFT {
+  top to bottom direction
+  rectangle "Mobile App" as APP
+  cloud "Firebase Auth (Login -> ID token)" as FB_AUTH
+}
+
+' --- API centered between LEFT and RIGHT ---
+node "CiteWise API" as API {
+  top to bottom direction
+
+  package "Requests" as EP_REQ {
+    top to bottom direction
+    component "POST   /requests                        (Create: Submitted)"                     as EP_REQ_CREATE
+    component "GET    /requests                        (List; filter by status/student/consultant)" as EP_REQ_LIST
+    component "GET    /requests/:id                    (Details)"                              as EP_REQ_DETAIL
+    component "POST   /requests/:id/assign             (Submitted → Assigned, admin)"          as EP_REQ_ASSIGN
+    component "PUT    /requests/:id/assign             (Update assignment, admin)"             as EP_REQ_ASSIGN_UPD
+    component "POST   /requests/:id/start-review       (Assigned → In Review, consultant)"     as EP_REQ_START
+    component "POST   /requests/:id/review             (approve→Feedback | reject→Pending | fail→Failed)" as EP_REQ_REVIEW
+    component "POST   /requests/:id/resubmit           (Pending → Assigned, student)"          as EP_REQ_RESUB
+    component "POST   /requests/:id/cancel             (Cancel anytime)"                       as EP_REQ_CANCEL
+  }
+
+  package "Documents" as EP_DOCS {
+    top to bottom direction
+    component "GET    /documents/:documentId/download  (Signed URL: R2)"                 as EP_DOCS_DL
+    component "GET    /documents/:documentId/file      (Stream for in-app viewing)"      as EP_DOCS_STREAM
+  }
+
+  package "Resources" as EP_RES {
+    top to bottom direction
+    component "POST   /resources                        (Admin upload: Guide/Template/AI Usage)" as EP_RES_POST
+    component "GET    /resources                        (List; filterable)"                     as EP_RES_GET
+    component "GET    /resources/:id/download           (Signed URL: R2)"                       as EP_RES_DL
+    component "GET    /resources/:id/file               (Stream for in-app viewing)"            as EP_RES_STREAM
+  }
+
+  package "Messages (channel: citewise_message)" as EP_MSG {
+    top to bottom direction
+    component "POST   /messages                         (Send 1:1; ensure chat; RTDB write; Firestore notif + FCM)" as EP_MSG_POST
+    component "GET    /messages/:chatId                 (List chronological; oldest → newest)"  as EP_MSG_GET
+  }
+
+  ' keep vertical order: Requests above Documents above Resources above Messages
+  EP_REQ -[hidden]down- EP_DOCS
+  EP_DOCS -[hidden]down- EP_RES
+  EP_RES -[hidden]down- EP_MSG
+}
+
+' --- Right cluster (kept together) ---
+package "Data Sources" as RIGHT {
+  top to bottom direction
+  database "Firebase Realtime Database (RTDB)\n/chats, /userChats, /chatMessages" as RTDB
+  database "Firestore (Requests, Resources, Notifications)" as FS
+  cloud "Cloudflare R2 (objects)\nuploads/, resources/" as R2
+}
+
+' --- Hidden links to balance layout (helps center API) ---
+LEFT -[hidden]-> API
+LEFT -[hidden]-> API
+API  -[hidden]-> RIGHT
+API  -[hidden]-> RIGHT
+
+' --- Flows ---
+Client --> APP
+APP  --> FB_AUTH : Sign in
+FB_AUTH --> APP : ID token
+APP  --> API : HTTPS JSON (Authorization: ID token)
+API  --> APP : JSON response
+
+' READ = green dotted from source -> API, WRITE = red solid API -> DB
+
+' RTDB (messages/chats)
+RTDB -[#2E7D32]-.-> API : READ (messages/chats)
+API  -[#C62828]-> RTDB : WRITE (send message,\nensure chat, mirrors)
+
+' Firestore (requests/resources/notifications)
+FS   -[#2E7D32]-.-> API : READ (requests/resources/\nnotifications)
+API  -[#C62828]-> FS  : WRITE (create request,\nresource meta,\nmessage_received notif)
+
+' Object storage (documents/resources) — R2 only
+R2   -[#2E7D32]-.-> API : READ (stream/signed URL)
+API  -[#C62828]-> R2  : WRITE (upload objects)
+
+@enduml
