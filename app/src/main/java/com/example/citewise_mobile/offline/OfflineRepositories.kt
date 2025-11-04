@@ -3,6 +3,8 @@ package com.example.citewise_mobile.offline
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -61,7 +63,8 @@ class LocalRepos(ctx: Context) {
  */
 class CloudDataSources(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val rtdb: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private val rtdb: FirebaseDatabase = FirebaseDatabase.getInstance(),
+    private val fs: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
     fun myUid(): String? = auth.currentUser?.uid
 
@@ -81,5 +84,24 @@ class CloudDataSources(
                     )
             UserEntity(uid, first, sur, email, role, updatedAt)
         }
+    }
+
+    /** Returns users (consultants) that are referenced by ServiceReviews. */
+    suspend fun fetchConsultantsAssignedInServiceReviews(): List<UserEntity> = withContext(Dispatchers.IO) {
+        val reviews = fs.collection("ServiceReviews")
+            // change field name if yours differs (e.g., consultantId)
+            .whereNotEqualTo("consultantUid", null)
+            .get().await()
+
+        val uids = buildSet {
+            for (d in reviews.documents) {
+                d.getString("consultantUid")?.takeIf { it.isNotBlank() }?.let { add(it) }
+                (d.get("consultant") as? DocumentReference)?.id?.let { add(it) } // if you store a doc ref
+            }
+        }
+        if (uids.isEmpty()) return@withContext emptyList()
+
+        // Your users are in Realtime DB; reuse fetchUsers() then filter by UID
+        fetchUsers().filter { it.uid in uids }
     }
 }

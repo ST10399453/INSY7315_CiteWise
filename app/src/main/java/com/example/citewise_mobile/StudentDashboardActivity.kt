@@ -153,7 +153,7 @@ class StudentDashboardActivity : BaseActivity() {
         rvRequests.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         PagerSnapHelper().attachToRecyclerView(rvRequests)
         rvRequests.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-        rvRequests.setHasFixedSize(true)
+
 
         rvRequests.setPadding(0, 0, 0, 0)
         rvRequests.clipToPadding = true

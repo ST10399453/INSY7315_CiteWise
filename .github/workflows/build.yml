@@ -1,4 +1,4 @@
-name: CI
+name: CI - Android Studio
 
 env:
   # The name of the main module repository
