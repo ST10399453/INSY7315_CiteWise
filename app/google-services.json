@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "709255792350-naft9qf1mmi0qa1rpr5r7vnkak2p99ha.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.citewise_mobile",
+            "certificate_hash": "64aac8b4ddd70746e5752bc72fcf1bef743b0c7f"
+          }
+        },
+        {
           "client_id": "709255792350-m8i9fba45diqdpk5u2fcki8ee1a25pq3.apps.googleusercontent.com",
           "client_type": 3
         }
