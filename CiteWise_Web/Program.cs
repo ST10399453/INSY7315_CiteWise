@@ -26,7 +26,7 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-var firebasepath = Path.Combine(app.Environment.ContentRootPath, "FirebaseKey", "budgetapp-fbcbf-adminsdk.json");
+var firebasepath = Path.Combine(app.Environment.ContentRootPath, "FirebaseKey", "citewise_two.json");
 
 if (!File.Exists(firebasepath))
     throw new FileNotFoundException($"Firebase key not found {firebasepath}");

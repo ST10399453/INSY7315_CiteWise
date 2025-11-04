@@ -442,7 +442,6 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\cdxiio70s6-oieiy4eyd5.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\0ybcq8qpea-oma0h9ipfo.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\tl2bdi0m0u-jdfz4nwnuv.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\2qebheeuja-mxbqe63yp2.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\hnljaidc2e-qfy228btkh.gz
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\bin\Debug\net9.0\appsettings.json
@@ -604,7 +603,9 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\nwucq4mf8t-c33q8aszo4.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\4jr9tuikjl-jrturl8wl1.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8xbyvx74aj-uj54kvswk6.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-zcja22fhbx.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\i69gjstz8j-vzyxwzs9yb.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-9mex309wb4.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\h65zcjptqy-qzt28wvxi1.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\h65zcjptqy-terniw927c.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\k23bl43col-padam54a52.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-ku8tsc6qkc.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\2qebheeuja-gesdh1v783.gz

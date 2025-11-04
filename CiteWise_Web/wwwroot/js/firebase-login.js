@@ -1,9 +1,18 @@
 ﻿// ✅ CiteWise Firebase configuration
+//const firebaseConfig = {
+//    apiKey: "AIzaSyBxHbq9jXn4KRWmvMmUNeskFEvWsD17JxA",
+//    authDomain: "budgetapp-fbcbf.firebaseapp.com",
+//    projectId: "budgetapp-fbcbf",
+//    databaseURL: "https://budgetapp-fbcbf-default-rtdb.firebaseio.com",
+//};
+
 const firebaseConfig = {
-    apiKey: "AIzaSyBxHbq9jXn4KRWmvMmUNeskFEvWsD17JxA",
-    authDomain: "budgetapp-fbcbf.firebaseapp.com",
-    projectId: "budgetapp-fbcbf",
-    databaseURL: "https://budgetapp-fbcbf-default-rtdb.firebaseio.com",
+    apiKey: "AIzaSyCrl_CvkGXJoAZP0eYgqU6HPqGxPZWe32g",
+    //apiKey: config["Firebase:ApiKey"],
+    authDomain: "citewise-30611.firebaseapp.com",
+    projectId: "citewise-30611",
+    databaseURL: "https://citewise-30611-default-rtdb.firebaseio.com",
+    //databaseURL: config["Firebase:DatabaseUrl"],
 };
 
 // ✅ Initialize Firebase
