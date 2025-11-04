@@ -77,15 +77,15 @@
     <string name="skip_for_now">Skip for now</string>
 
     <!-- Step 1 -->
-    <string name="select_a_service">Select a service</string>
+    <string name="select_a_service">Step 1: Select a service</string>
     <string name="select_service_first">Please select a service</string>
 
     <!-- Step 2 -->
-    <string name="fill_additional_information">Fill out additional information</string>
-    <string name="enter_additional_information">enter additional information</string>
+    <string name="fill_additional_information">Step 2: Additional information</string>
+    <string name="enter_additional_information">Enter additional information...</string>
 
     <!-- Step 3 -->
-    <string name="upload_your_documents">Upload your documents</string>
+    <string name="upload_your_documents">Step 3: Upload your documents</string>
     <string name="document_name">Document name</string>
     <string name="document_name_hint">Document name</string>
     <string name="attach_file">Attach file</string>
@@ -96,7 +96,7 @@
     <string name="enter_document_name">Please enter a document name</string>
 
     <!-- Step 4 -->
-    <string name="level_of_urgency">Level of urgency</string>
+    <string name="level_of_urgency">Step 4: Level of urgency</string>
     <string name="deadline">Deadline</string>
     <string name="select_a_date">Select a date</string>
     <string name="select_urgency">Please select urgency</string>
@@ -110,6 +110,40 @@
     <string name="my_requests_title_default">No requests</string>
     <string name="enter_service_title">Enter Service Title</string>
     <string name="service_title">Service Title</string>
+    <string name="add">add</string>
+    <string name="search">search</string>
+    <string name="more">more</string>
+    <string name="attach_image">attach image</string>
+    <string name="voice">voice</string>
+    <string name="user_dashboard">Hi, Connor!</string>
+    <string name="student_opening_msg">Here’s what’s happening with your assignments today.</string>
+    <string name="my_requests">My Requests</string>
+    <string name="notifications">Notifications</string>
+    <string name="missing_documents">Missing Documents</string>
+    <string name="feedback_recivied">Feedback Recivied</string>
+    <string name="_1_new_message">1 New Message</string>
+    <string name="rate_your_consultant">Rate Your Consultant</string>
+    <string name="status_update">Status Update</string>
+    <string name="open_notification">open_notification</string>
+    <string name="new_chat">New Chat</string>
+    <string name="close">close</string>
+    <string name="search_name">Search Name</string>
+    <string name="frequently_contacted">Frequently Contacted</string>
+    <string name="echannel_messages_name">Messages\n</string>
+    <string name="channel_messages_desc">Chat and conversation notification</string>
+    <string name="search_chats">Search Chats</string>
+
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_requests">Requests</string>
+    <string name="title_resources">Resources</string>
+    <string name="title_messages">Messages</string>
+    <string name="title_profile">Profile</string>
+
+    <string name="title_manage_consultants">Manage</string>
+    <string name="title_resource_mgmt">Resources</string>
+    <string name="title_active_tasks">Tasks</string>
+    <string name="navigate">Navigate</string>
+    <string name="profile_picture">profile\n</string>
 
 
 </resources>

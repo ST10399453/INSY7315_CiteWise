@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common -->
+    <item name="nav_messages" type="id"/>
+    <item name="nav_profile" type="id"/>
+
+    <!-- Student -->
+    <item name="nav_student_dashboard" type="id"/>
+    <item name="nav_service_requests" type="id"/>
+    <item name="nav_resources" type="id"/>
+
+    <!-- Admin -->
+    <item name="nav_admin_dashboard" type="id"/>
+    <item name="nav_manage_consultants" type="id"/>
+    <item name="nav_resource_mgmt" type="id"/>
+
+    <!-- Consultant -->
+    <item name="nav_consultant_dashboard" type="id"/>
+    <item name="nav_active_tasks" type="id"/>
+</resources>

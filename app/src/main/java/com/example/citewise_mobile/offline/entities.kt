@@ -20,12 +20,14 @@ data class ServiceRequestEntity(
     val userId: String? = null,
     val consultantId: String? = null,
     val serviceType: String,
-    val title: String? = null,
+    //val title: String? = null,
+    val quotationId: String? = null,
     val description: String? = null,
     val priority: String? = null,
     val status: String? = null,
     val documentId: String? = null,
     val documentName: String = "",
+    val customName: String = "",
     val filePath: String? = null,
     val deadlineIso: String? = null,
     val feedback: String? = null,
@@ -73,7 +75,7 @@ data class MessageEntity(
     indices = [Index("ownerUid"), Index("updatedAt")]
 )
 data class DocumentEntity(
-    @PrimaryKey val id: String,         // server document id
+    @PrimaryKey val id: String,         // server doc id
     val ownerUid: String,               // firebase uid if available
     val fileName: String,
     val mimeType: String,

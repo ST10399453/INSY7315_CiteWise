@@ -52,6 +52,10 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.firebase.messaging)
+    implementation(libs.androidbrowserhelper)
+    implementation(libs.androidx.material3)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -86,6 +90,7 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.material.vlatestversion)
 
 
 }

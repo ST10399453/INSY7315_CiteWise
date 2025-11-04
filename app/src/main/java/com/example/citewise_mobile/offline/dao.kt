@@ -13,11 +13,9 @@ interface ServiceRequestDao {
     @Update
     suspend fun update(entity: ServiceRequestEntity)
 
-    // Keep the Flow for live screens if you need it
     @Query("SELECT * FROM service_requests ORDER BY updatedAt DESC")
     fun observeAll(): Flow<List<ServiceRequestEntity>>
 
-    // ➜ Add this: non-reactive list for one-shot loads (used by ServiceReviewsActivity)
     @Query("SELECT * FROM service_requests ORDER BY updatedAt DESC")
     suspend fun getAll(): List<ServiceRequestEntity>
 
@@ -48,7 +46,8 @@ interface ServiceRequestDao {
                     consultantId = entity.consultantId ?: existing.consultantId,
                     status       = entity.status,
                     serviceType  = entity.serviceType,
-                    title        = entity.title ?: existing.title,
+                    //title        = entity.title ?: existing.title,
+                    quotationId = entity.quotationId ?: existing.quotationId,
                     description  = entity.description,
                     priority     = entity.priority,
                     deadlineIso  = entity.deadlineIso,
@@ -62,7 +61,6 @@ interface ServiceRequestDao {
             }
         }
     }
-
 }
 
 // ----- Users -----
@@ -73,7 +71,7 @@ interface UserDao {
     suspend fun upsertAll(users: List<UserEntity>)
 
     @Query("SELECT * FROM users ORDER BY firstName, surname")
-    fun observeAll(): kotlinx.coroutines.flow.Flow<List<UserEntity>>
+    fun observeAll(): Flow<List<UserEntity>>
 
     @Query("SELECT * FROM users")
     suspend fun getAll(): List<UserEntity>
@@ -134,5 +132,4 @@ interface DocumentDao {
 
     @Query("SELECT * FROM documents ORDER BY updatedAt DESC")
     suspend fun getAllByDate(): List<DocumentEntity>
-
 }

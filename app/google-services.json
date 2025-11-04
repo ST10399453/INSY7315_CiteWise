@@ -1,42 +1,42 @@
 {
   "project_info": {
-    "project_number": "888116651296",
-    "firebase_url": "https://budgetapp-fbcbf-default-rtdb.firebaseio.com",
-    "project_id": "budgetapp-fbcbf",
-    "storage_bucket": "budgetapp-fbcbf.firebasestorage.app"
+    "project_number": "709255792350",
+    "firebase_url": "https://citewise-30611-default-rtdb.firebaseio.com",
+    "project_id": "citewise-30611",
+    "storage_bucket": "citewise-30611.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:888116651296:android:4f495b2f8a4f92c60ca345",
+        "mobilesdk_app_id": "1:709255792350:android:ac64e3a45e17f08a44644f",
         "android_client_info": {
           "package_name": "com.example.citewise_mobile"
         }
       },
       "oauth_client": [
         {
-          "client_id": "888116651296-hjul7m4kv5i6ku92qc6jt83v1co3vn6r.apps.googleusercontent.com",
+          "client_id": "709255792350-naft9qf1mmi0qa1rpr5r7vnkak2p99ha.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.citewise_mobile",
-            "certificate_hash": "326b889ea105090fe0a21c45f0a31040ff1e516b"
+            "certificate_hash": "64aac8b4ddd70746e5752bc72fcf1bef743b0c7f"
           }
         },
         {
-          "client_id": "888116651296-fchh9kerbgqame6b04bf3ooas4bmvoru.apps.googleusercontent.com",
+          "client_id": "709255792350-m8i9fba45diqdpk5u2fcki8ee1a25pq3.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDwPulYyuQA-CqcFCuXwY05_gxm-PZ7P1M"
+          "current_key": "AIzaSyCrl_CvkGXJoAZP0eYgqU6HPqGxPZWe32g"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "888116651296-fchh9kerbgqame6b04bf3ooas4bmvoru.apps.googleusercontent.com",
+              "client_id": "709255792350-m8i9fba45diqdpk5u2fcki8ee1a25pq3.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

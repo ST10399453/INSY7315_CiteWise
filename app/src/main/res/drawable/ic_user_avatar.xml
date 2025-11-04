@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Outer circle (avatar boundary) -->
+    <path
+        android:fillColor="#FF404040"
+        android:fillAlpha="0.12"
+        android:pathData="M12,2A10,10 0 1,1 2,12 10,10 0 0,1 12,2z" />
+
+    <!-- Head -->
+    <path
+        android:fillColor="#FF404040"
+        android:pathData="M12,7a3,3 0 1,1 0,6 3,3 0 0,1 0,-6z" />
+
+    <!-- Shoulders / torso -->
+    <path
+        android:fillColor="#FF404040"
+        android:fillAlpha="0.85"
+        android:pathData="M12,14c-4,0 -7,2 -7,5v1h14v-1c0,-3 -3,-5 -7,-5z" />
+</vector>

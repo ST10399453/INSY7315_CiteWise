@@ -9,29 +9,37 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+/**
+ * Central Retrofit provider for all backend APIs.
+ * - Adds Firebase bearer token via FirebaseAuthInterceptor
+ * - BODY logging for debug (adjust in production)
+ * - Lenient Gson with FlexTime adapter support
+ */
 object RetrofitInstance {
 
-    // Use your deployed API
+    /** Use your deployed API base URL (must end with '/') */
     private const val BASE_URL = "https://citewise-api.onrender.com/"
 
     private val logging by lazy {
         HttpLoggingInterceptor().apply {
-            // BODY while debugging; switch to BASIC/HEADERS for production
+            // BODY for development; consider BASIC or HEADERS in production
             level = HttpLoggingInterceptor.Level.BODY
         }
     }
 
-    // Debug-only probe to confirm the Authorization header exists
+    /** Debug-only probe to confirm Authorization header presence */
     private val authHeaderProbe = Interceptor { chain ->
-        val hasAuth = chain.request().header("Authorization")?.startsWith("Bearer ") == true
+        val req = chain.request()
+        val hasAuth = req.header("Authorization")?.startsWith("Bearer ") == true
         android.util.Log.d("AUTH", "Has Authorization header? $hasAuth")
-        chain.proceed(chain.request())
+        chain.proceed(req)
     }
 
     private val gson by lazy {
         GsonBuilder()
             .setLenient()
-            // We handle mixed date shapes via FlexTimeAdapter instead of setDateFormat
+            // If your project defines FlexTime & FlexTimeAdapter, keep this.
+            // (No-op if you later remove those types)
             .registerTypeAdapter(FlexTime::class.java, FlexTimeAdapter())
             .create()
     }
@@ -42,9 +50,9 @@ object RetrofitInstance {
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
-            .addInterceptor(FirebaseAuthInterceptor()) // << adds Bearer token
-            .addInterceptor(authHeaderProbe)           // << optional debug
-            .addInterceptor(logging)                   // keep after auth so it logs post-auth request
+            .addInterceptor(FirebaseAuthInterceptor()) // adds Bearer token
+            .addInterceptor(authHeaderProbe)           // optional debug
+            .addInterceptor(logging)                   // after auth so it logs signed calls
             .build()
     }
 
@@ -56,6 +64,7 @@ object RetrofitInstance {
             .build()
     }
 
+    // Expose typed APIs (interfaces must exist in your project)
     val api: ServiceReviewsApi by lazy { retrofit.create(ServiceReviewsApi::class.java) }
     val documentsApi: DocumentsApi by lazy { retrofit.create(DocumentsApi::class.java) }
     val messagesApi: MessagesApi by lazy { retrofit.create(MessagesApi::class.java) }

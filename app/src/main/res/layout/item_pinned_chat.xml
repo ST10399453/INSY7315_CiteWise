@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="220dp"
+    android:layout_height="match_parent"
+    android:layout_marginStart="14dp"
+    android:layout_marginEnd="6dp"
+    app:cardCornerRadius="14dp"
+    app:cardUseCompatPadding="true"
+    app:strokeWidth="0dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp">
+
+        <!-- Avatar -->
+        <TextView
+            android:id="@+id/tvInitial"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_bold"
+            android:background="@drawable/bg_avatar_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="A" />
+
+        <!-- Name -->
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_dark"
+            android:textSize="15sp"
+            android:fontFamily="@font/poppins_bold"
+            app:layout_constraintStart_toEndOf="@id/tvInitial"
+            app:layout_constraintTop_toTopOf="@id/tvInitial"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="10dp"
+            tools:text="Ruben" />
+
+        <!-- Time / dot -->
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/text_faded"
+            android:fontFamily="@font/poppins"
+            app:layout_constraintTop_toBottomOf="@id/tvName"
+            app:layout_constraintStart_toStartOf="@id/tvName"
+            tools:text="3:39 pm" />
+
+        <View
+            android:id="@+id/dotUnread"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_unread_dot"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/tvTime"
+            app:layout_constraintTop_toTopOf="@id/tvTime" />
+
+        <!-- Preview -->
+        <TextView
+            android:id="@+id/tvPreview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textSize="13sp"
+            android:textColor="@color/text_faded"
+            android:fontFamily="@font/poppins"
+            app:layout_constraintStart_toStartOf="@id/tvInitial"
+            app:layout_constraintTop_toBottomOf="@id/tvInitial"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit." />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

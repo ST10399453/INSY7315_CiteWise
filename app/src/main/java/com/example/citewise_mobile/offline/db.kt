@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/offline/db.kt
 package com.example.citewise_mobile.offline
 
 import android.content.Context
@@ -14,7 +13,7 @@ import androidx.room.RoomDatabase
         MessageEntity::class,
         DocumentEntity::class
     ],
-    version = 1,
+    version = 4,
     exportSchema = true
 )
 abstract class OfflineDb : RoomDatabase() {

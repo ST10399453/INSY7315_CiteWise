@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="main_background">#EBECF0</color>
+    <color name="ui_background">#F5F6F9</color>
     <color name="elements_background">#EBECF0</color>
     <color name="dark_shadow">#26000000</color>
     <color name="light_highlight">#66FFFFFF</color>
@@ -12,4 +13,7 @@
     <color name="text_faded">#424242</color>
     <color name="text_light">#ffffff</color>
     <color name="progress_background">#f7f7f7</color>
+    <color name="priority_Low">#38E154</color>
+    <color name="priority_Medium">#EBA900</color>
+    <color name="priority_High">#FF0000</color>
 </resources>

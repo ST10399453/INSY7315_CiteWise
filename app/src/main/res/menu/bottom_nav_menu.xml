@@ -6,3 +6,68 @@
     <item android:id="@+id/nav_messages"  android:icon="@drawable/ic_messages"  android:title="Messages"/>
     <item android:id="@+id/nav_profile"   android:icon="@drawable/ic_profile"   android:title="Profile"/>
 </menu>
+
+<!--NEW DYNAMIC MENU-->
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<menu xmlns:android="http://schemas.android.com/apk/res/android">-->
+
+<!--&lt;!&ndash; 1) Dashboard (common) &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_dashboard"-->
+<!--    android:icon="@drawable/ic_dashboard"-->
+<!--    android:title="Dashboard"-->
+<!--    android:orderInCategory="1"/>-->
+
+<!--&lt;!&ndash; 2) Role-specific second tab &ndash;&gt;-->
+<!--&lt;!&ndash; Student: Service Requests &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_request"-->
+<!--    android:icon="@drawable/request"-->
+<!--    android:title="Requests"-->
+<!--    android:orderInCategory="2"/>-->
+
+<!--&lt;!&ndash; Admin: Manage Consultants &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_manage_consultants"-->
+<!--    android:icon="@drawable/ic_manage_consultants"-->
+<!--    android:title="Consultants"-->
+<!--    android:orderInCategory="2"/>-->
+
+<!--&lt;!&ndash; Consultant: Active Tasks &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_active_tasks"-->
+<!--    android:icon="@drawable/ic_active_tasks"-->
+<!--    android:title="Tasks"-->
+<!--    android:orderInCategory="2"/>-->
+
+<!--&lt;!&ndash; 3) Role-specific third tab &ndash;&gt;-->
+<!--&lt;!&ndash; Student: Resources &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_resources"-->
+<!--    android:icon="@drawable/ic_resources"-->
+<!--    android:title="Resources"-->
+<!--    android:orderInCategory="3"/>-->
+
+<!--&lt;!&ndash; Admin: Resource Management &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_resource_mgmt"-->
+<!--    android:icon="@drawable/ic_resources"-->
+<!--    android:title="Resources"-->
+<!--    android:orderInCategory="3"/>-->
+
+<!--&lt;!&ndash; 4) Messages (common) &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_messages"-->
+<!--    android:icon="@drawable/ic_messages"-->
+<!--    android:title="Messages"-->
+<!--    android:orderInCategory="4"/>-->
+
+<!--&lt;!&ndash; 5) Profile (role-specific destination, common id) &ndash;&gt;-->
+<!--<item-->
+<!--    android:id="@+id/nav_profile"-->
+<!--    android:icon="@drawable/ic_profile"-->
+<!--    android:title="Profile"-->
+<!--    android:orderInCategory="5"/>-->
+
+<!--</menu>-->
+

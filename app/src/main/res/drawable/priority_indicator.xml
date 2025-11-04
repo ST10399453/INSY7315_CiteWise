@@ -1,0 +1,33 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Shadow layer (bottom-right soft shadow) -->
+    <item android:right="1dp" android:top="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp" />
+            <gradient
+                android:startColor="#33000000"
+                android:endColor="#00000000"
+                android:angle="315" />
+        </shape>
+    </item>
+
+    <!-- Highlight layer (top-left soft light) -->
+    <item android:left="1dp" android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp" />
+            <gradient
+                android:startColor="#33FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:angle="135" />
+        </shape>
+    </item>
+
+    <!-- Main color layer (your original purple/green tint) -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp" />
+            <solid android:color="#B538E154" />
+        </shape>
+    </item>
+
+</layer-list>

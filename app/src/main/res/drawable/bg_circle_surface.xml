@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+
+    <!-- Circular surface -->
+    <item>
+        <shape android:shape="oval">
+            <!-- Uses your theme's surface color so it works in light/dark -->
+            <solid android:color="?attr/colorSurface" />
+            <!-- Subtle outline like the Figma -->
+            <stroke
+                android:width="1dp"
+                android:color="?attr/colorOutlineVariant" />
+        </shape>
+    </item>
+</ripple>

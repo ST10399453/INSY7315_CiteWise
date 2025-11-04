@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/api/FlexTime.kt
 package com.example.citewise_mobile.api
 
 import com.google.gson.*
@@ -14,10 +13,10 @@ data class FlexTime(val epochMillis: Long?) : Serializable {
     }
 }
 
-// Handy extension if you prefer: 1234L.toFlex()
 fun Long?.toFlex(): FlexTime? = this?.let { FlexTime(it) }
 
 class FlexTimeAdapter : JsonDeserializer<FlexTime> {
+
     private val isoFormats = listOf(
         "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
         "yyyy-MM-dd'T'HH:mm:ss'Z'",
@@ -29,37 +28,47 @@ class FlexTimeAdapter : JsonDeserializer<FlexTime> {
     }
 
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): FlexTime {
-        return try {
-            when {
+        try {
+            return when {
                 json.isJsonNull -> FlexTime(null)
+
                 json.isJsonPrimitive && json.asJsonPrimitive.isString -> {
-                    FlexTime(parseIsoToMillis(json.asString))
+                    // Try parsing plain string or ISO date
+                    val millis = parseIsoToMillis(json.asString)
+                    FlexTime(millis)
                 }
+
                 json.isJsonObject -> {
                     val obj = json.asJsonObject
                     if (obj.has("_seconds")) {
+                        // Firestore timestamp object
                         val sec = obj.get("_seconds").asLong
                         val nsec = obj.get("_nanoseconds")?.asLong ?: 0L
                         FlexTime(sec * 1000L + nsec / 1_000_000L)
                     } else FlexTime(null)
                 }
+
                 else -> FlexTime(null)
             }
         } catch (_: Exception) {
-            FlexTime(null)
+            return FlexTime(null)
         }
     }
 
     private fun parseIsoToMillis(s: String): Long? {
         for (fmt in isoFormats) {
-            try { return fmt.parse(s)?.time } catch (_: ParseException) {}
+            try {
+                val date = fmt.parse(s)
+                if (date != null) return date.time
+            } catch (_: ParseException) {}
         }
         return null
     }
 }
 
+// Extension to display in dd/MM/yyyy
 fun FlexTime?.toUiDate(): String =
     this?.epochMillis?.let { ms ->
-        val df = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val df = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         df.format(Date(ms))
     } ?: "—"

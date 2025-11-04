@@ -64,7 +64,12 @@ class TaskDetailsActivity : AppCompatActivity() {
     private lateinit var progressStage: LinearProgressIndicator
 
     private val localRepos by lazy { LocalRepos(this) }
-    private val docsRepo by lazy { DocumentsRepository(RetrofitInstance.documentsApi, applicationContext) }
+    private val docsRepo by lazy {
+        DocumentsRepository(
+            RetrofitInstance.documentsApi,
+            applicationContext
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,13 +111,14 @@ class TaskDetailsActivity : AppCompatActivity() {
         // Priority chip
         chipPriority.text = req.priority?.toPretty() ?: "—"
 
-        // Title
+        // Title (prefer customName → description → serviceType)
         tvProjectName.text = when {
-            !req.title.isNullOrBlank() -> req.title
+            !req.customName.isNullOrBlank() -> req.customName
             !req.description.isNullOrBlank() -> req.description
             req.serviceType != null -> req.serviceType.toPretty()
             else -> "Untitled Project"
         }
+
 
         // Deadline (prefer remote, fallback to local Room)
         val deadlineFromRemote = req.deadline?.toUiDate()
@@ -120,7 +126,8 @@ class TaskDetailsActivity : AppCompatActivity() {
         tvStudentAndDeadline.text = "Student     ${deadlineFromRemote ?: "—"}"
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val finalDeadline = deadlineFromRemote ?: isoToUiDate(tryFindLocalDeadlineIso(req)) ?: "—"
+            val finalDeadline =
+                deadlineFromRemote ?: isoToUiDate(tryFindLocalDeadlineIso(req)) ?: "—"
             val firstName = tryFindFirstName(req)
 
             withContext(Dispatchers.Main) {
@@ -142,13 +149,15 @@ class TaskDetailsActivity : AppCompatActivity() {
 
         // Download (public Downloads via DownloadManager)
         btnDownloadStudentFile.setOnClickListener {
-            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
+            val docId =
+                req.documentId ?: return@setOnClickListener toast("Document not available yet.")
             val fileName = req.originalFileName ?: "$docId"
             lifecycleScope.launch(Dispatchers.IO) {
                 when (val s = docsRepo.getSignedUrl(docId)) {
                     is NetResult.Ok -> withContext(Dispatchers.Main) {
                         enqueueSystemDownload(s.data, fileName)
                     }
+
                     is NetResult.Err -> withContext(Dispatchers.Main) {
                         // fallback: save privately if signed URL not available
                         when (val saved = docsRepo.downloadToDisk(docId, fileName)) {
@@ -162,7 +171,8 @@ class TaskDetailsActivity : AppCompatActivity() {
 
         // View (save to app Downloads then in-app viewer)
         btnViewStudentFile.setOnClickListener {
-            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
+            val docId =
+                req.documentId ?: return@setOnClickListener toast("Document not available yet.")
             val fileName = req.originalFileName ?: "$docId"
             downloadAndOpenInApp(docId, fileName)
         }
@@ -178,7 +188,8 @@ class TaskDetailsActivity : AppCompatActivity() {
         }
 
         // Description
-        tvDescription.text = req.description?.takeIf { it.isNotBlank() } ?: "No additional information provided."
+        tvDescription.text =
+            req.description?.takeIf { it.isNotBlank() } ?: "No additional information provided."
 
         // Progress
         progressStage.setProgressCompat(statusToProgress(req.status.orEmpty()), true)
@@ -190,10 +201,12 @@ class TaskDetailsActivity : AppCompatActivity() {
             when (val result = docsRepo.downloadToDisk(documentId, preferredName)) {
                 is NetResult.Ok -> withContext(Dispatchers.Main) {
                     val file = result.data
-                    val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
-                        .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
+                    val intent =
+                        Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
+                            .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
                     startActivity(intent)
                 }
+
                 is NetResult.Err -> withContext(Dispatchers.Main) {
                     toast("Download failed: ${result.message}")
                 }
@@ -217,26 +230,31 @@ class TaskDetailsActivity : AppCompatActivity() {
     }
 
     /** Look up first name from local DB → DTO fallback → "Student". */
-    private suspend fun tryFindFirstName(req: ServiceRequestDto): String = withContext(Dispatchers.IO) {
-        val uid = req.userId
-        if (!uid.isNullOrBlank()) {
-            val user = runCatching { localRepos.users.getAll().firstOrNull { it.uid == uid } }.getOrNull()
-            val fromDb = user?.firstName?.takeIf { it.isNotBlank() }
-            if (!fromDb.isNullOrBlank()) return@withContext fromDb
+    private suspend fun tryFindFirstName(req: ServiceRequestDto): String =
+        withContext(Dispatchers.IO) {
+            val uid = req.userId
+            if (!uid.isNullOrBlank()) {
+                val user = runCatching {
+                    localRepos.users.getAll().firstOrNull { it.uid == uid }
+                }.getOrNull()
+                val fromDb = user?.firstName?.takeIf { it.isNotBlank() }
+                if (!fromDb.isNullOrBlank()) return@withContext fromDb
+            }
+            val fromDto = req.studentName?.substringBefore(' ')?.takeIf { it.isNotBlank() }
+            return@withContext fromDto ?: "Student"
         }
-        val fromDto = req.studentName?.substringBefore(' ')?.takeIf { it.isNotBlank() }
-        return@withContext fromDto ?: "Student"
-    }
 
     /** Try Room.deadlineIso by remoteId, else by documentId. */
-    private suspend fun tryFindLocalDeadlineIso(req: ServiceRequestDto): String? = withContext(Dispatchers.IO) {
-        val byRemote = req.id?.let { runCatching { localRepos.requests.findByRemoteId(it) }.getOrNull() }
-        byRemote?.deadlineIso ?: run {
-            val docId = req.documentId ?: return@run null
-            val all = runCatching { localRepos.requests.getAll() }.getOrNull().orEmpty()
-            all.firstOrNull { it.documentId == docId }?.deadlineIso
+    private suspend fun tryFindLocalDeadlineIso(req: ServiceRequestDto): String? =
+        withContext(Dispatchers.IO) {
+            val byRemote =
+                req.id?.let { runCatching { localRepos.requests.findByRemoteId(it) }.getOrNull() }
+            byRemote?.deadlineIso ?: run {
+                val docId = req.documentId ?: return@run null
+                val all = runCatching { localRepos.requests.getAll() }.getOrNull().orEmpty()
+                all.firstOrNull { it.documentId == docId }?.deadlineIso
+            }
         }
-    }
 
     /** Convert ISO-8601 Z to yyyy-MM-dd for UI. */
     private fun isoToUiDate(iso: String?): String? {
@@ -257,7 +275,8 @@ class TaskDetailsActivity : AppCompatActivity() {
     private fun openFile(file: File) {
         try {
             val uri: Uri = FileProvider.getUriForFile(this, fileProviderAuthority, file)
-            val mime = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
+            val mime =
+                URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, mime)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -295,11 +314,12 @@ class TaskDetailsActivity : AppCompatActivity() {
         ServiceType.OTHER -> "Other"
     }
 
-    private fun statusToProgress(status: String): Int = when (status.trim().lowercase(Locale.ROOT)) {
-        "submitted", "pending" -> 25
-        "assigned", "in_progress", "in progress" -> 50
-        "feedback", "awaiting_feedback", "feedback ready" -> 75
-        "complete", "completed", "done" -> 100
-        else -> 25
-    }
+    private fun statusToProgress(status: String): Int =
+        when (status.trim().lowercase(Locale.ROOT)) {
+            "submitted", "pending" -> 25
+            "assigned", "in_progress", "in progress" -> 50
+            "feedback", "awaiting_feedback", "feedback ready" -> 75
+            "complete", "completed", "done" -> 100
+            else -> 25
+        }
 }
