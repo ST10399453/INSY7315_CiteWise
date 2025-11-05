@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ctvan\\source\\repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj": {}
+    "C:\\Users\\ctvan\\Source\\Repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ctvan\\source\\repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj": {
+    "C:\\Users\\ctvan\\Source\\Repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ctvan\\source\\repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj",
+        "projectUniqueName": "C:\\Users\\ctvan\\Source\\Repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj",
         "projectName": "CiteWise_Web",
-        "projectPath": "C:\\Users\\ctvan\\source\\repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj",
+        "projectPath": "C:\\Users\\ctvan\\Source\\Repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj",
         "packagesPath": "C:\\Users\\ctvan\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ctvan\\source\\repos\\INSY7315_CiteWise\\CiteWise_Web\\obj\\",
+        "outputPath": "C:\\Users\\ctvan\\Source\\Repos\\INSY7315_CiteWise\\CiteWise_Web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

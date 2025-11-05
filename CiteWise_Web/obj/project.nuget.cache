@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WjhG6pk97YU=",
+  "dgSpecHash": "mlzaY5Rv76U=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ctvan\\source\\repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj",
+  "projectFilePath": "C:\\Users\\ctvan\\Source\\Repos\\INSY7315_CiteWise\\CiteWise_Web\\CiteWise_Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ctvan\\.nuget\\packages\\firebase.auth\\1.0.0\\firebase.auth.1.0.0.nupkg.sha512",
     "C:\\Users\\ctvan\\.nuget\\packages\\firebaseadmin\\3.4.0\\firebaseadmin.3.4.0.nupkg.sha512",

@@ -8,28 +8,23 @@ namespace CiteWise_Web.Services
     public class ApiService
     {
         private readonly HttpClient _client;
+        
 
         public ApiService(IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _client = httpClientFactory.CreateClient();
+
             _client.BaseAddress = new Uri(config["Api:BaseUrl"]);
+
         }
 
-        public async Task<HttpResponseMessage> GetRequestsAsync(string firebaseToken, string? role = null)
+        public async Task<HttpResponseMessage> GetRequestAsync(string firebaseToken)
         {
-
             _client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", firebaseToken);
+                 new AuthenticationHeaderValue("Bearer", firebaseToken);
 
-            var url = "requests";
-
-            if(!string.IsNullOrEmpty(role) && role.Equals("consultant", StringComparison.OrdinalIgnoreCase))
-            {
-                url += "?status=Submitted";
-            }
-            
-
-            return await _client.GetAsync(url);
+         
+            return await _client.GetAsync("requests");
         }
 
         public async Task<HttpResponseMessage> SelfAssignRequestAsync(string requestId, string firebaseToken)
@@ -37,8 +32,19 @@ namespace CiteWise_Web.Services
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", firebaseToken);
 
-            return await _client.PostAsync($"requests/{requestId}/self-assign",null);
+            return await _client.PostAsync($"requests/{requestId}/self-assign", null);
         }
+
+        public async Task<HttpResponseMessage> GetUnassignedRequestsAsync(string firebaseToken)
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", firebaseToken);
+
+            return await _client.GetAsync("requests?userId=");
+        }
+
+        
+
 
         public async Task<HttpResponseMessage> CreateRequestAsync(
             MultipartFormDataContent formData,

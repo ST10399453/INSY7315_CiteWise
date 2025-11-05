@@ -19,17 +19,17 @@ namespace CiteWise_Web.Controllers
         public async Task<IActionResult> ConsultantDashboard()
         {
 
-            string role = HttpContext.Session.GetString("UserRole");
+            string role = HttpContext.Session.GetString("UserRole")?.ToLower();
             string token = HttpContext.Session.GetString("FirebaseToken");
-            Console.WriteLine($"Firebase token in session: {token}");
-            string uid = HttpContext.Session.GetString("UserUid");
+            
 
             if (role != "consultant" || string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
 
-            var response = await _apiService.GetRequestsAsync(token,role);
 
-            if(!response.IsSuccessStatusCode)
+            var response = await _apiService.GetUnassignedRequestsAsync(token);
+
+            if (!response.IsSuccessStatusCode)
             {
                 ViewBag.Error = "Failed to load requests from API";
                 return View(new List<ServiceRequestItem>());
@@ -39,6 +39,8 @@ namespace CiteWise_Web.Controllers
             ViewBag.DebugJson = json;
             var requests = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(json)
                 ?? new List<ServiceRequestItem>();
+
+           
 
             return View(requests);
 
