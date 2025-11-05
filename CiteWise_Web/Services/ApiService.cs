@@ -15,6 +15,31 @@ namespace CiteWise_Web.Services
             _client.BaseAddress = new Uri(config["Api:BaseUrl"]);
         }
 
+        public async Task<HttpResponseMessage> GetRequestsAsync(string firebaseToken, string? role = null)
+        {
+
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", firebaseToken);
+
+            var url = "requests";
+
+            if(!string.IsNullOrEmpty(role) && role.Equals("consultant", StringComparison.OrdinalIgnoreCase))
+            {
+                url += "?status=Submitted";
+            }
+            
+
+            return await _client.GetAsync(url);
+        }
+
+        public async Task<HttpResponseMessage> SelfAssignRequestAsync(string requestId, string firebaseToken)
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", firebaseToken);
+
+            return await _client.PostAsync($"requests/{requestId}/self-assign",null);
+        }
+
         public async Task<HttpResponseMessage> CreateRequestAsync(
             MultipartFormDataContent formData,
             string firebaseToken

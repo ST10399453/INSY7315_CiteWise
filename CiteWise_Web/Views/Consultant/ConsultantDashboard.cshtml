@@ -1,91 +1,61 @@
-﻿@* @{
-    ViewData["Title"] = "Consultant Dashboard";
-    Layout = "_LayoutAuth";
+﻿@model IEnumerable<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem>
+
+<h2>Consultant Dashboard</h2>
+<pre>@ViewBag.DebugJson</pre>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
 }
 
-<div class="dashboard-container">
-    <h2>Consultant Dashboard</h2>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
-    <div class="dashboard-grid">
-
-        <!-- Overview Cards -->
-        <div class="dashboard-card">
-            <h3>My Tasks</h3>
-            <p><strong>5 Active Projects</strong></p>
-            <p>2 Deadlines this week</p>
-            <p>1 Pending Quotation</p>
-        </div>
-
-        <!-- Assigned Students -->
-        <div class="dashboard-card">
-            <h3>Assigned Students</h3>
-            <table class="task-table">
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Service</th>
-                        <th>Status</th>
-                        <th>Deadline</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Connor</td>
-                        <td>Proofreading</td>
-                        <td>In Progress</td>
-                        <td>12 Oct 2025</td>
-                        <td>
-                           <a asp-controller="Consultant" asp-action="RetrieveRequest" class="btn btn-primary">
-                               Open
-                           </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Akhilesh</td>
-                        <td>Data Analysis</td>
-                        <td>Awaiting Feedback</td>
-                        <td>15 Oct 2025</td>
-                        <td>
-                            <a asp-controller="Consultant" asp-action="RetrieveRequest" class="btn btn-primary">
-                                Open
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- File Management -->
-        <div class="dashboard-card">
-            <h3>File Management</h3>
-            <p>Upload annotated document:</p>
-            <input type="file" class="file-upload" />
-            <button class="btn">Upload</button>
-            <p class="mt-2"><a href="#">Download latest student submission</a></p>
-        </div>
-
-        <!-- Quotation Handling -->
-        <div class="dashboard-card">
-            <h3>Quotation Requests</h3>
-            <p><strong>Student:</strong> Ethan Huntley</p>
-            <p><strong>Service:</strong> Data Analysis</p>
-            <p><strong>Suggested Quote:</strong> R650.00</p>
-            <div class="btn-group">
-                <button class="btn">Approve</button>
-                <button class="btn btn-secondary">Revise</button>
-            </div>
-        </div>
-
-        <!-- Messages -->
-        <div class="dashboard-card">
-            <h3>Messages</h3>
-            <ul class="message-list">
-                <li><strong>Erin:</strong> Thanks for the feedback!</li>
-                <li><strong>Alicia:</strong> Uploaded my draft.</li>
-            </ul>
-            <button class="btn">Go to Messages</button>
-        </div>
-
-    </div>
-</div> *@
+@if (!Model.Any())
+{
+    <p>No service requests found.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Document</th>
+                <th>Service Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Deadline</th>
+                <th>Consultant</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model)
+            {
+                <tr>
+                    <td>@req.DocumentName</td>
+                    <td>@req.ServiceType</td>
+                    <td>@req.Priority</td>
+                    <td>@req.Status</td>
+                    <td>@req.Deadline</td>
+                    <td>@req.ConsultantId</td>
+                    <td>
+                        @if (string.IsNullOrEmpty(req.ConsultantId))
+                        {
+                            <form asp-action="AssignToMe" method="post">
+                                <input type="hidden" name="id" value="@req.Id" />
+                                <button type="submit" class="btn btn-success btn-sm">Assign to Me</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span>Assigned</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
