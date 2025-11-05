@@ -67,12 +67,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/step_1"
-        android:fontFamily="@font/poppins_bold"
-        android:textColor="@color/gradient_end"
-        android:textSize="32sp"
-        android:layout_marginTop="24dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
         app:layout_constraintTop_toBottomOf="@id/progressService"
         app:layout_constraintStart_toStartOf="parent"
         android:visibility="gone"/>
@@ -89,7 +83,7 @@
         android:background="@drawable/card_neumorphic_background"
         android:padding="18dp"
         android:visibility="gone"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="170dp"
@@ -213,7 +207,7 @@
         android:background="@drawable/card_neumorphic_background"
         android:padding="20dp"
         android:visibility="gone"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="170dp"
@@ -346,7 +340,7 @@
         android:background="@drawable/card_neumorphic_background"
         android:padding="20dp"
         android:visibility="gone"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="170dp"
@@ -472,7 +466,7 @@
         android:background="@drawable/card_neumorphic_background"
         android:padding="20dp"
         android:visibility="visible"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="170dp"
@@ -515,12 +509,12 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             app:hintEnabled="false"
             app:endIconDrawable="@drawable/ic_down_arrow"
             app:endIconTint="@null"
             android:textSize="14sp"
-            app:endIconMode="dropdown_menu">
+            app:endIconMode="dropdown_menu"
+            android:layout_marginBottom="16dp">
 
             <AutoCompleteTextView
                 android:id="@+id/dropdownUrgency"
@@ -528,10 +522,6 @@
                 android:layout_height="48dp"
                 android:hint="gg"
                 android:textSize="14sp"
-                android:dropDownWidth="170dp"
-                android:dropDownHeight="480dp"
-                android:dropDownVerticalOffset="-12dp"
-                android:dropDownHorizontalOffset="155dp"
                 android:background="@drawable/text_field"
                 android:popupBackground="@drawable/bg_spinner_popup_white"
                 android:inputType="none"
@@ -540,6 +530,11 @@
                 android:textColor="@android:color/black"
                 android:textColorHint="@android:color/darker_gray"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+<!--        android:dropDownWidth="170dp"-->
+<!--        android:dropDownHeight="480dp"-->
+<!--        android:dropDownVerticalOffset="-12dp"-->
+<!--        android:dropDownHorizontalOffset="155dp"-->
 
         <TextView
             android:id="@+id/tvDeadline"
@@ -579,7 +574,7 @@
         android:background="@drawable/card_neumorphic_background"
         android:padding="24dp"
         android:visibility="gone"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="170dp"
