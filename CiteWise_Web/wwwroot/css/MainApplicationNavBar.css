@@ -14,7 +14,8 @@ body {
     justify-content: space-between;
     background: #ebecf0;
     padding: 12px 35px;
-    border-radius: 50px;
+/*    border-radius: 25px;*/
+    border-radius: 16px;
     /*    background: linear-gradient(90deg, #E8EAF1 2.4%, rgba(235, 236, 240, 0.00) 98.82%);*/
     box-shadow: 8px 7px 21px 0 rgba(0, 0, 0, 0.15), -6px -7px 11px 0 rgba(255, 255, 255, 0.84);
     width: 80%;
@@ -62,13 +63,13 @@ body {
 }
 
     .nav-link:hover {
-        border-radius: 29px;
+        border-radius: 13px;
         background: #ebecf0;
         box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
     }
 
     .nav-link.active {
-        border-radius: 29px;
+        border-radius: 13px;
         background: #ebecf0;
         box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
     }
@@ -109,6 +110,22 @@ body {
     background: #ebecf0;
     box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
 }
+
+/*This is for the landing page nav bar*/
+.register-btn .account-text {
+    background: linear-gradient(90deg, #001C7F 2.17%, #2943A1 50.45%, #0027B2 98.39%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 22px;
+    transition: all 0.3s ease;
+}
+
+    .register-btn .account-text:hover {
+        border-radius: 12px;
+        background: #0033cc;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+/*This is for the landing page nav bar*/
 
 .profile-pic {
     width: 40px;
@@ -159,6 +176,7 @@ body {
 .account-icon i {
     font-size: 18px;
 }
+
 
 /* Added hamburger menu button styles - hidden by default on desktop */
 .hamburger-menu {
