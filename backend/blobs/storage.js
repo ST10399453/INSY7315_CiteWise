@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { S3Client, PutObjectCommand, GetObjectCommand, HeadBucketCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, HeadBucketCommand, CreateBucketCommand, DeleteObjectCommand,} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import "dotenv/config";
 
@@ -75,6 +75,15 @@ export async function r2SignedUrl({ bucket, key, expiresSeconds = 900, dispositi
 export async function streamFromR2({ bucket, key }) {
   const res = await r2().send(new GetObjectCommand({ Bucket: bucket, Key: key }));
   return { stream: res.Body, contentType: res.ContentType || "application/octet-stream", contentLength: res.ContentLength };
+}
+
+/** Delete a single object from R2.
+ *  Note: S3 DeleteObject is idempotent — it succeeds even if the key doesn’t exist.
+ */
+export async function deleteFromR2({ bucket, key }) {
+  if (!bucket || !key) throw new Error("deleteFromR2: bucket and key are required");
+  await r2().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+  return { bucket, key, deleted: true };
 }
 
 // (Cloudflare, 2024)
