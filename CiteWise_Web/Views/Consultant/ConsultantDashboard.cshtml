@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem>
+﻿@* @model IEnumerable<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem>
 
 <h2>Consultant Dashboard</h2>
 
@@ -57,4 +57,130 @@ else
             }
         </tbody>
     </table>
+} *@
+
+@* @model IEnumerable<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem> *@
+@model List<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem>
+
+@* <h2>Consultant Dashboard</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div> *@
+@{
+    ViewData["Title"] = "Consultant Dashboard";
+    Layout = "_LayoutAuth";
 }
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+<div class="dashboard-container">
+
+@* @if (!Model.Any())
+{
+    <p>No service requests found.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Document</th>
+                <th>Service Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Deadline</th>
+                <th>Consultant</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var req in Model)
+            {
+                <tr>
+                    <td>@req.DocumentName</td>
+                    <td>@req.ServiceType</td>
+                    <td>@req.Priority</td>
+                    <td>@req.Status</td>
+                    <td>@req.Deadline</td>
+                    <td>@req.ConsultantId</td>
+                    <td>
+                        @if (string.IsNullOrEmpty(req.ConsultantId))
+                        {
+                            <form asp-action="AssignToMe" method="post">
+                                <input type="hidden" name="id" value="@req.Id" />
+                                <button type="submit" class="btn btn-success btn-sm">Assign to Me</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span>Assigned</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+} *@
+    <div class="dashboard-grid">
+
+        <!-- CARD 1: Overview -->
+        <div class="dashboard-card">
+            <h3>Available Requests</h3>
+            <p><strong>@Model.Count</strong> unassigned service requests waiting to be claimed.</p>
+            <p>Click "Assign to Me" to take ownership of a student's request.</p>
+        </div>
+
+        <!-- CARD 2: Unassigned Request Table -->
+        <div class="dashboard-card" style="grid-column: span 2;">
+            <h3>Unassigned Service Requests</h3>
+
+            <div class="table-scroll">
+                @if (Model == null || !Model.Any())
+                {
+                    <p style="color:#777;">No available service requests at the moment.</p>
+                }
+                else
+                {
+                    <table class="table table-striped mt-2">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Service</th>
+                                <th>Priority</th>
+                                <th>Deadline</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model)
+                            {
+                                <tr>
+                                    <td>@r.Id</td>
+                                    <td>@r.ServiceType</td>
+                                    <td>@r.Priority</td>
+                                    <td>@(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)</td>
+                                    <td>
+                                        <form asp-action="AssignToMe" method="post">
+                                            <input type="hidden" name="id" value="@r.Id" />
+                                            <button class="btn">Assign to Me</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+        <!-- CARD 3: AI Assistant (matches student template) -->
+        <div class="dashboard-card">
+            <h3>Ask an AI Assistant</h3>
+            <p>Use the AI to help review drafts or generate helpful academic text.</p>
+        </div>
+
+    </div>
+</div>
