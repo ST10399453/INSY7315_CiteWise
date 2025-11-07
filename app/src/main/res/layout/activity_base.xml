@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/main_background">
 
-    <!-- Screen-specific content is inflated into this -->
+    <!-- Screen-specific content is inflated here -->
     <FrameLayout
         android:id="@+id/baseContent"
         android:layout_width="0dp"
@@ -17,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Bottom nav that BaseActivity.setupBottomNav(...) expects -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
@@ -27,15 +26,12 @@
         android:layout_marginBottom="56dp"
         android:background="@drawable/btn_login"
         android:elevation="12dp"
-        app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/toggle_bg_selector"
         app:itemTextColor="@color/toggle_bg_selector"
-        app:itemActiveIndicatorStyle="@color/nav_icon_color"
         app:itemRippleColor="@android:color/transparent"
         app:itemIconSize="24dp"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

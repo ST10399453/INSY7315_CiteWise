@@ -92,8 +92,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.material.vlatestversion)
 
-    implementation(libs.eazegraph)
-    implementation(libs.library)
+
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
 

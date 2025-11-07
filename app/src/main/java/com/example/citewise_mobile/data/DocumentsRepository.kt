@@ -16,74 +16,126 @@ class DocumentsRepository(
 ) {
     private val rawHttp by lazy { OkHttpClient() }
 
-    /** Public signed URL (for DownloadManager). */
-    suspend fun getSignedUrl(documentId: String): NetResult<String> =
-        withContext(Dispatchers.IO) {
-            val signed = runCatching {
-                api.signedUrl(documentId = documentId, provider = null, disposition = "attachment")
-            }.getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Signed URL failed") }
+    /** Public/authorized signed URL for DownloadManager. */
+    suspend fun getSignedUrl(
+        documentId: String,
+        auth: String? = null
+    ): NetResult<String> = withContext(Dispatchers.IO) {
+        val signed = runCatching {
+            api.signedUrl(
+                documentId = documentId,
+                provider = null,
+                disposition = "attachment",
+                auth = auth
+            )
+        }.getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Signed URL failed") }
 
-            if (!signed.isSuccessful || signed.body() == null) {
-                val msg = signed.errorBody()?.string().orEmpty().ifBlank { "HTTP ${signed.code()}" }
-                return@withContext NetResult.Err(msg, signed.code())
-            }
-            NetResult.Ok(signed.body()!!.url)
+        if (!signed.isSuccessful || signed.body() == null) {
+            val msg = signed.errorBody()?.string().orEmpty().ifBlank { "HTTP ${signed.code()}" }
+            return@withContext NetResult.Err(msg, signed.code())
         }
+        NetResult.Ok(signed.body()!!.url)
+    }
 
     /** Private save for in-app viewing. */
-    suspend fun downloadToDisk(documentId: String, preferredName: String?): NetResult<File> =
-        withContext(Dispatchers.IO) {
-            // 1) Try direct streaming via proxy (/documents/{id}/file)
-            val streamTry: Response<ResponseBody> = runCatching {
-                api.streamFile(documentId = documentId, provider = null, disposition = "attachment")
-            }.getOrElse { t ->
-                return@withContext NetResult.Err(t.message ?: "Stream failed")
-            }
+    suspend fun downloadToDisk(
+        documentId: String,
+        preferredName: String?,
+        auth: String? = null
+    ): NetResult<File> = withContext(Dispatchers.IO) {
+        // 1) Try direct streaming via proxy (/documents/{id}/file)
+        val streamTry: Response<ResponseBody> = runCatching {
+            api.streamFile(
+                documentId = documentId,
+                provider = null,
+                disposition = "attachment",
+                auth = auth
+            )
+        }.getOrElse { t ->
+            return@withContext NetResult.Err(t.message ?: "Stream failed")
+        }
 
-            if (streamTry.isSuccessful) {
-                return@withContext saveBodyToFile(streamTry.body()!!, documentId, preferredName)
-            }
+        if (streamTry.isSuccessful && streamTry.body() != null) {
+            return@withContext saveBodyToFile(streamTry.body()!!, documentId, preferredName)
+        }
 
-            // If not found, try signed URL then raw GET
-            if (streamTry.code() != 404) {
-                val msg = streamTry.errorBody()?.string().orEmpty().ifBlank { "HTTP ${streamTry.code()}" }
-                return@withContext NetResult.Err(msg, streamTry.code())
-            }
+        // If not found, try signed URL then raw GET
+        if (streamTry.code() != 404) {
+            val msg = streamTry.errorBody()?.string().orEmpty().ifBlank { "HTTP ${streamTry.code()}" }
+            return@withContext NetResult.Err(msg, streamTry.code())
+        }
 
-            val signed = runCatching {
-                api.signedUrl(documentId = documentId, provider = null, disposition = "attachment")
-            }.getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Signed URL failed") }
+        val signed = runCatching {
+            api.signedUrl(
+                documentId = documentId,
+                provider = null,
+                disposition = "attachment",
+                auth = auth
+            )
+        }.getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Signed URL failed") }
 
-            if (!signed.isSuccessful || signed.body() == null) {
-                val msg = signed.errorBody()?.string().orEmpty().ifBlank { "HTTP ${signed.code()}" }
-                return@withContext NetResult.Err(msg, signed.code())
-            }
+        if (!signed.isSuccessful || signed.body() == null) {
+            val msg = signed.errorBody()?.string().orEmpty().ifBlank { "HTTP ${signed.code()}" }
+            return@withContext NetResult.Err(msg, signed.code())
+        }
 
-            val url = signed.body()!!.url
-            val req = Request.Builder().url(url).get().build()
-            val resp = runCatching { rawHttp.newCall(req).execute() }.getOrElse { t ->
-                return@withContext NetResult.Err(t.message ?: "Download failed")
-            }
+        val url = signed.body()!!.url
+        val req = Request.Builder().url(url).get().build()
+        val resp = runCatching { rawHttp.newCall(req).execute() }
+            .getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Download failed") }
 
-            if (!resp.isSuccessful) return@withContext NetResult.Err("HTTP ${resp.code}", resp.code)
-
-            val body = resp.body ?: return@withContext NetResult.Err("Empty body from signed URL")
+        resp.use { r ->
+            if (!r.isSuccessful) return@withContext NetResult.Err("HTTP ${r.code}", r.code)
+            val body = r.body ?: return@withContext NetResult.Err("Empty body from signed URL")
             return@withContext saveBodyToFile(body, documentId, preferredName)
         }
+    }
+
+    /** Admin only. */
+    suspend fun deleteResource(
+        resourceId: String
+    ): NetResult<Unit> = withContext(Dispatchers.IO) {
+        val resp = runCatching { api.deleteResource(resourceId) }
+            .getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Delete failed") }
+
+        if (!resp.isSuccessful) {
+            val msg = resp.errorBody()?.string().orEmpty().ifBlank { "HTTP ${resp.code()}" }
+            return@withContext NetResult.Err(msg, resp.code())
+        }
+        NetResult.Ok(Unit)
+    }
+
+    /** Signed URL for a resource (server may require auth). */
+    suspend fun getResourceSignedUrl(
+        id: String,
+        disposition: String = "inline",
+        auth: String? = null
+    ): NetResult<String> = withContext(Dispatchers.IO) {
+        val resp = runCatching { api.resourceSignedUrl(id, disposition, null, auth) }
+            .getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Signed URL failed") }
+
+        if (!resp.isSuccessful || resp.body() == null) {
+            val msg = resp.errorBody()?.string().orEmpty().ifBlank { "HTTP ${resp.code()}" }
+            return@withContext NetResult.Err(msg, resp.code())
+        }
+        NetResult.Ok(resp.body()!!.url)
+    }
 
     private fun saveBodyToFile(
         body: ResponseBody,
         documentId: String,
         preferredName: String?
     ): NetResult<File> = try {
-        val fileName = (preferredName?.takeIf { it.isNotBlank() } ?: "$documentId.bin")
+        val safeName = preferredName
+            ?.takeIf { it.isNotBlank() }
+            ?.replace(Regex("""[\\/:*?"<>|]"""), "_")
+            ?: "$documentId.bin"
 
-        // app-specific external Downloads (visible to your app, not public Downloads app)
         val base = ctx.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS)
             ?: ctx.filesDir
         val dir = File(base, "CiteWise").apply { if (!exists()) mkdirs() }
 
-        val target = File(dir, fileName)
+        val target = File(dir, safeName)
         body.byteStream().use { input ->
             target.outputStream().use { output -> input.copyTo(output) }
         }

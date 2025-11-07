@@ -1,251 +1,278 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background"
-    android:paddingTop="32dp"
-    android:paddingBottom="20dp">
+    tools:context=".ResourcesActivity">
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+    <!-- Top bar / header area -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Resources"
-        android:fontFamily="@font/poppins_sembold"
-        android:textColor="@color/gradient_end"
-        android:textSize="20sp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:paddingTop="8dp"
+        android:background="@android:color/transparent"
+        android:fitsSystemWindows="true"
+        app:liftOnScroll="true">
 
-    <!-- Subheading -->
-    <TextView
-        android:id="@+id/tvSub"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Browse, filter and download helpful documents."
-        android:textColor="@color/text_faded"
-        android:fontFamily="@font/poppins"
-        android:textSize="12sp"
-        android:layout_marginTop="6dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Card container -->
-    <LinearLayout
-        android:id="@+id/cardContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/card_neumorphic_background"
-        android:padding="20dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintTop_toBottomOf="@id/tvSub"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Search label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search documents"
-            android:textColor="@color/text_dark"
-            android:fontFamily="@font/poppins_medium"
-            android:textSize="12sp"
-            android:layout_marginBottom="6dp"/>
-
-        <!-- Search field -->
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etSearch"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/text_field"
-            android:hint="Type to search"
-            android:fontFamily="@font/poppins"
-            android:paddingHorizontal="16dp"
-            android:imeOptions="actionSearch"
-            android:singleLine="true"
-            android:textColor="@color/text_dark"
-            android:textColorHint="@color/text_dark"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Filters row -->
+        <!-- Title + subtitle -->
         <LinearLayout
-            android:id="@+id/rowFilters"
+            android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="3"
-            android:layout_marginTop="4dp">
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp">
 
-            <!-- Visibility -->
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:text="Resources"
+                android:textSize="22sp"
+                android:textColor="@color/gradient_end"
+                android:fontFamily="@font/poppins_sembold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Visibility"
-                    android:textColor="@color/text_dark"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="6dp"/>
-
-                <Spinner
-                    android:id="@+id/actVisibility"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/btn_login"
-                    android:popupBackground="@drawable/bg_spinner_popup_white"
-                    android:paddingLeft="8dp"/>
-            </LinearLayout>
-
-            <Space
-                android:layout_width="12dp"
-                android:layout_height="1dp"/>
-
-            <!-- Faculty -->
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tvSub"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Faculty"
-                    android:textColor="@color/text_dark"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="6dp"/>
-
-                <Spinner
-                    android:id="@+id/actFaculty"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/btn_login"
-                    android:popupBackground="@drawable/bg_spinner_popup_white"
-                    android:paddingLeft="8dp"/>
-            </LinearLayout>
-
-            <Space
-                android:layout_width="12dp"
-                android:layout_height="1dp"/>
-
-            <!-- Sort -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Sort"
-                    android:textColor="@color/text_dark"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="6dp"/>
-
-                <Spinner
-                    android:id="@+id/actSort"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/btn_login"
-                    android:popupBackground="@drawable/bg_spinner_popup_white"
-                    android:paddingLeft="8dp"/>
-            </LinearLayout>
+                android:layout_marginTop="6dp"
+                android:text="Browse, filter and download helpful documents."
+                android:textSize="12sp"
+                android:textColor="@color/text_faded"
+                android:fontFamily="@font/poppins"/>
         </LinearLayout>
 
-        <!-- Optional chips row (filters quick picks) - safe widths -->
-        <LinearLayout
-            android:id="@+id/quickChipsRow"
+        <!-- Search + Filters Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            android:gravity="start">
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="12dp"
+            app:cardUseCompatPadding="true"
+            app:cardCornerRadius="20dp"
+            app:strokeColor="@android:color/transparent"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:layout_scrollFlags="scroll|enterAlways">
 
-            <!-- Keep simple buttons to avoid ChipGroup width crash -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/chipAll"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="All"
-                android:textAllCaps="false"
-                android:textColor="@color/text_dark"
-                android:background="@drawable/btn_login"
-                app:backgroundTint="@null"
-                android:layout_marginEnd="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/card_neumorphic_background"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="12dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/chipPdf"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="PDF"
-                android:textAllCaps="false"
-                android:textColor="@color/text_dark"
-                android:background="@drawable/btn_login"
-                app:backgroundTint="@null"
-                android:layout_marginEnd="8dp"/>
+                <!-- Search -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Search documents"
+                    android:layout_marginBottom="6dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_dark"
+                    android:fontFamily="@font/poppins_medium" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/chipDocs"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Docs"
-                android:textAllCaps="false"
-                android:textColor="@color/text_dark"
-                android:background="@drawable/btn_login"
-                app:backgroundTint="@null"/>
-        </LinearLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    app:startIconDrawable="@drawable/ic_search_blue">
 
-    </LinearLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="Type to search"
+                        android:imeOptions="actionSearch"
+                        android:singleLine="true"
+                        android:textColor="@color/text_dark"
+                        android:textColorHint="@color/text_faded"
+                        android:fontFamily="@font/poppins"
+                        android:textSize="14sp"
+                        android:contentDescription="Search resources"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Grid -->
+                <!-- Filters Row -->
+                <LinearLayout
+                    android:id="@+id/rowFilters"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp"
+                    android:weightSum="3">
+
+                    <!-- Visibility -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Visibility"
+                            android:textColor="@color/text_dark"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:layout_marginBottom="6dp"/>
+
+                        <!-- Keep ID & type Spinner for existing Kotlin -->
+                        <Spinner
+                            android:id="@+id/actVisibility"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/btn_login"
+                            android:popupBackground="@drawable/bg_spinner_popup_white"
+                            android:paddingLeft="8dp"
+                            android:contentDescription="Filter by visibility"/>
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="1dp"/>
+
+                    <!-- Faculty -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Faculty"
+                            android:textColor="@color/text_dark"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:layout_marginBottom="6dp"/>
+
+                        <Spinner
+                            android:id="@+id/actFaculty"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/btn_login"
+                            android:popupBackground="@drawable/bg_spinner_popup_white"
+                            android:paddingLeft="8dp"
+                            android:contentDescription="Filter by faculty"/>
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="1dp"/>
+
+                    <!-- Sort -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sort"
+                            android:textColor="@color/text_dark"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/poppins_medium"
+                            android:layout_marginBottom="6dp"/>
+
+                        <Spinner
+                            android:id="@+id/actSort"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:background="@drawable/btn_login"
+                            android:popupBackground="@drawable/bg_spinner_popup_white"
+                            android:paddingLeft="8dp"
+                            android:contentDescription="Sort resources"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Quick chips -->
+                <LinearLayout
+                    android:id="@+id/quickChipsRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="start"
+                    android:layout_marginTop="12dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/chipAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="All"
+                        android:textAllCaps="false"
+                        android:textColor="@color/text_dark"
+                        android:background="@drawable/btn_login"
+                        app:backgroundTint="@null"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Show all resources"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/chipPdf"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="PDF"
+                        android:textAllCaps="false"
+                        android:textColor="@color/text_dark"
+                        android:background="@drawable/btn_login"
+                        app:backgroundTint="@null"
+                        android:layout_marginEnd="8dp"
+                        android:contentDescription="Filter by PDF"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/chipDocs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="Docs"
+                        android:textAllCaps="false"
+                        android:textColor="@color/text_dark"
+                        android:background="@drawable/btn_login"
+                        app:backgroundTint="@null"
+                        android:contentDescription="Filter by Docs"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Content list (the scroller) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDocuments"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/cardContainer"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_document_card" />
+        android:paddingTop="4dp"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_document_card"/>
 
-    <!-- Offline/empty state -->
+    <!-- Offline/empty/error state overlays (toggle visibility in code) -->
     <LinearLayout
         android:id="@+id/stateNoInternet"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
+        android:gravity="center"
         android:padding="24dp"
-        app:layout_constraintTop_toTopOf="@id/rvDocuments"
-        app:layout_constraintBottom_toBottomOf="@id/rvDocuments"
-        app:layout_constraintStart_toStartOf="@id/rvDocuments"
-        app:layout_constraintEnd_toEndOf="@id/rvDocuments">
+        android:visibility="gone"
+        android:clickable="false">
 
         <ImageView
             android:layout_width="72dp"
@@ -273,17 +300,44 @@
             android:layout_marginTop="12dp"/>
     </LinearLayout>
 
-    <!-- Admin add FAB (hidden if not admin) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <!-- Optional: empty state -->
+    <LinearLayout
+        android:id="@+id/stateEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone"
+        android:clickable="false">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_resources"
+            android:contentDescription="No resources"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nothing to show"
+            android:textColor="@color/text_dark"
+            android:textSize="16sp"
+            android:layout_marginTop="12dp"/>
+    </LinearLayout>
+
+    <!-- Admin add FAB (Extended; visibility controlled in code) -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fabAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_add"
+        android:text="Add"
         android:contentDescription="Add resource"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:icon="@drawable/ic_add"
+        app:layout_anchor="@id/rvDocuments"
+        app:layout_anchorGravity="bottom|end"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

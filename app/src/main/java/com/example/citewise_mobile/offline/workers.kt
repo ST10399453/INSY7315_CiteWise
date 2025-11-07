@@ -19,10 +19,9 @@ import com.example.citewise_mobile.data.MessagesRepository
 import com.example.citewise_mobile.data.NetResult
 import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FieldValue.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.FieldValue.serverTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -60,7 +59,7 @@ private object WorkNames {
 }
 
 // ============================================================
-// UsersSyncWorker  (pull from Firebase Realtime DB /users)
+// UsersSyncWorker  (pull from Firestore /users; normalize roles)
 // ============================================================
 
 class UsersSyncWorker(
@@ -72,18 +71,29 @@ class UsersSyncWorker(
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
 
         val local = LocalRepos(applicationContext)
-        val cloud = CloudDataSources()
+        val cloud = CloudDataSources() // uses Firestore under the hood
 
         return@withContext try {
+            // Preferred: Firestore-only (ensures you get all 16 from /users)
             val cloudUsers = cloud.fetchUsers()
-            val localUsers = local.users.getAll().associateBy { it.uid }
 
-            // Upsert only newer
-            val toUpsert = cloudUsers.filter { cu ->
-                val lu = localUsers[cu.uid]
-                lu == null || cu.updatedAt > lu.updatedAt
+            // If you still have users in RTDB and want to merge newest by uid:
+            // val cloudUsers = cloud.fetchAllUsersMerged()
+
+            val localUsersByUid = local.users.getAll().associateBy { it.uid }
+
+            // Normalize roles to lowercase before comparing/upserting
+            val normalized = cloudUsers.map { u -> u.copy(role = u.role.trim().lowercase()) }
+
+            // Upsert only newer or missing
+            val toUpsert = normalized.filter { cu ->
+                val existing = localUsersByUid[cu.uid]
+                existing == null || cu.updatedAt > existing.updatedAt
             }
-            if (toUpsert.isNotEmpty()) local.users.upsertAll(toUpsert)
+
+            if (toUpsert.isNotEmpty()) {
+                local.users.upsertAll(toUpsert)
+            }
 
             Result.success()
         } catch (_: IOException) {
@@ -102,6 +112,14 @@ class UsersSyncWorker(
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WorkNames.USERS_SYNC, ExistingPeriodicWorkPolicy.UPDATE, req
             )
+        }
+
+        fun oneShot(context: Context) {
+            val once = OneTimeWorkRequestBuilder<UsersSyncWorker>()
+                .setConstraints(WorkerCfg.connectedConstraints)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueue(once)
         }
     }
 }
@@ -279,7 +297,7 @@ class RequestsSyncWorker(
                             "status" to (dto.status ?: "submitted"),
                             "documentId" to (dto.documentId ?: sr.documentId),
                             "originalFileName" to (dto.originalFileName ?: sr.documentName),
-                            "customName" to (dto.customName ?: sr.customName),   // <-- include customName
+                            "customName" to (dto.customName ?: sr.customName),
                             "deadline" to (sr.deadlineIso ?: dto.deadline ?: sr.deadlineIso),
                             "createdAt" to (dto.createdAt?.epochMillis ?: sr.createdAt),
                             "updatedAt" to serverTimestamp()

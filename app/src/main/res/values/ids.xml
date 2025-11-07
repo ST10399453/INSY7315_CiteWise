@@ -17,4 +17,5 @@
     <!-- Consultant -->
     <item name="nav_consultant_dashboard" type="id"/>
     <item name="nav_active_tasks" type="id"/>
+    <item name="tag_last_role" type="id" />
 </resources>

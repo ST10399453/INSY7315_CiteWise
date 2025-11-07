@@ -18,7 +18,10 @@ import com.github.mikephil.charting.data.PieEntry
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class AdminDashboardActivity : BaseActivity() {
 
@@ -117,12 +120,15 @@ class AdminDashboardActivity : BaseActivity() {
             popup.show()
         }
 
-        // ---- (Demo) KPI numbers — replace with real data sources ----
-        tvTotalConsultants.text = "30"
-        tvTotalStudents.text    = "127"
+        // Show placeholders while loading
+        tvTotalConsultants.text = "—"
+        tvTotalStudents.text = "—"
+
+        // Pull actual counts
+        fetchUserCounts()
 
         // ---- Active tasks pie chart ----
-        // Replace these with your repository values
+        // Replace these with your repository values if you have a tasks data source.
         val submitted = 18
         val inProgress = 32
         val awaiting = 12
@@ -130,8 +136,45 @@ class AdminDashboardActivity : BaseActivity() {
         setupActiveTasksPie(submitted, inProgress, awaiting, completed)
     }
 
+    /** Fetch real consultant & student counts from Realtime Database. */
+    private fun fetchUserCounts() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val usersRef = FirebaseDatabase.getInstance().reference.child("users")
+                val snap = usersRef.get().await()
+
+                var studentCount = 0
+                var consultantCount = 0
+
+                for (child in snap.children) {
+                    val role = child.child("role").getValue(String::class.java)?.trim()?.lowercase()
+                    when (role) {
+                        "student" -> studentCount++
+                        "consultant" -> consultantCount++
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    tvTotalStudents.text = studentCount.toString()
+                    tvTotalConsultants.text = consultantCount.toString()
+                }
+            } catch (t: Throwable) {
+                withContext(Dispatchers.Main) {
+                    tvTotalStudents.text = "0"
+                    tvTotalConsultants.text = "0"
+                }
+            }
+        }
+    }
+
+
     /** Configure the Active Tasks donut (MPAndroidChart). */
-    private fun setupActiveTasksPie(submitted: Int, inProgress: Int, awaitingFeedback: Int, completed: Int) {
+    private fun setupActiveTasksPie(
+        submitted: Int,
+        inProgress: Int,
+        awaitingFeedback: Int,
+        completed: Int
+    ) {
         val total = submitted + inProgress + awaitingFeedback + completed
         tvActiveTasksCount.text = total.toString()
 

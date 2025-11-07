@@ -68,40 +68,75 @@ class CloudDataSources(
 ) {
     fun myUid(): String? = auth.currentUser?.uid
 
-    // -------- Users (Realtime DB) --------
+    /**
+     * Preferred: fetch all users from **Firestore** collection /users.
+     * - Falls back to doc.id as uid if "uid" field is missing
+     * - Normalizes role to lowercase
+     * - Pulls updatedAt robustly (supports Long or Timestamp)
+     */
     suspend fun fetchUsers(): List<UserEntity> = withContext(Dispatchers.IO) {
-        val snap = rtdb.reference.child("users").get().await()
-        snap.children.mapNotNull { c ->
-            val uid = c.child("uid").getValue(String::class.java) ?: return@mapNotNull null
-            val first = c.child("firstName").getValue(String::class.java) ?: ""
-            val sur = c.child("surname").getValue(String::class.java) ?: ""
-            val email = c.child("email").getValue(String::class.java) ?: ""
-            val role = c.child("role").getValue(String::class.java) ?: ""
-            val updatedAt = (
-                    c.child("updatedAt").getValue(Long::class.java)
-                        ?: c.child("createdAt").getValue(Long::class.java)
-                        ?: 0L
-                    )
+        val snap = fs.collection("users").get().await()
+        snap.documents.mapNotNull { d ->
+            val uid = (d.getString("uid") ?: d.id).takeIf { !it.isNullOrBlank() } ?: return@mapNotNull null
+            val first = d.getString("firstName") ?: d.getString("firstname") ?: ""
+            val sur   = d.getString("surname")   ?: d.getString("lastName")  ?: ""
+            val email = d.getString("email") ?: ""
+            val role  = (d.getString("role") ?: "").trim().lowercase()
+
+            val updatedFromLong  = d.getLong("updatedAt")
+            val createdFromLong  = d.getLong("createdAt")
+            val updatedFromStamp = (d.getTimestamp("updatedAt") ?: d.getTimestamp("createdAt"))?.toDate()?.time
+            val updatedAt = updatedFromLong ?: updatedFromStamp ?: createdFromLong ?: 0L
+
             UserEntity(uid, first, sur, email, role, updatedAt)
         }
     }
 
-    /** Returns users (consultants) that are referenced by ServiceReviews. */
+    /**
+     * Legacy: fetch users from **Realtime Database** /users.
+     * Still normalizes role + supports missing "uid" by using the node key.
+     */
+    suspend fun fetchUsersFromRtdb(): List<UserEntity> = withContext(Dispatchers.IO) {
+        val snap = rtdb.reference.child("users").get().await()
+        snap.children.mapNotNull { c ->
+            val uid = c.child("uid").getValue(String::class.java) ?: c.key ?: return@mapNotNull null
+            val first = c.child("firstName").getValue(String::class.java) ?: ""
+            val sur   = c.child("surname").getValue(String::class.java)   ?: ""
+            val email = c.child("email").getValue(String::class.java)     ?: ""
+            val role  = (c.child("role").getValue(String::class.java) ?: "").trim().lowercase()
+            val updatedAt =
+                c.child("updatedAt").getValue(Long::class.java)
+                    ?: c.child("createdAt").getValue(Long::class.java)
+                    ?: 0L
+            UserEntity(uid, first, sur, email, role, updatedAt)
+        }
+    }
+
+    /**
+     * Optional: merge Firestore + RTDB and keep the newest by uid.
+     * Use this if your deployment has users scattered in both places.
+     */
+    suspend fun fetchAllUsersMerged(): List<UserEntity> = withContext(Dispatchers.IO) {
+        val fsUsers = fetchUsers()
+        val rtdbUsers = fetchUsersFromRtdb()
+        (fsUsers + rtdbUsers)
+            .groupBy { it.uid }
+            .map { (_, list) -> list.maxByOrNull { it.updatedAt }!! }
+    }
+
+    /** Example helper if you ever need consultants referenced in Firestore ServiceReviews. */
     suspend fun fetchConsultantsAssignedInServiceReviews(): List<UserEntity> = withContext(Dispatchers.IO) {
         val reviews = fs.collection("ServiceReviews")
-            // change field name if yours differs (e.g., consultantId)
             .whereNotEqualTo("consultantUid", null)
             .get().await()
 
         val uids = buildSet {
             for (d in reviews.documents) {
                 d.getString("consultantUid")?.takeIf { it.isNotBlank() }?.let { add(it) }
-                (d.get("consultant") as? DocumentReference)?.id?.let { add(it) } // if you store a doc ref
+                (d.get("consultant") as? DocumentReference)?.id?.let { add(it) }
             }
         }
         if (uids.isEmpty()) return@withContext emptyList()
-
-        // Your users are in Realtime DB; reuse fetchUsers() then filter by UID
         fetchUsers().filter { it.uid in uids }
     }
 }
