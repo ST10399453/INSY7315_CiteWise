@@ -3,16 +3,45 @@
     overflow: hidden; /* prevent the entire page from scrolling */
 }
 
+
+.dashboard-header {
+    background: linear-gradient(90deg, #030213 0%, #0027B2 50%, #0A1952 100%);
+    color: #fff;
+    padding: 25px 35px;
+    border-radius: 16px;
+    margin: 18px auto 25px auto;
+    width: 90%;
+}
+    .dashboard-header h2 {
+        font-family: "Public Sans", sans-serif;
+        letter-spacing: 0.07px;
+        margin: 0 0 6px;
+        font-weight: 600;
+        font-size: 32px;
+        font-style: normal;
+    }
+
+    .dashboard-header p {
+        font-family: "Public Sans", sans-serif;
+        margin: 0 0 15px;
+        font-size: 19px;
+        color: rgba(255, 255, 255, 0.80);
+        font-weight: 400;
+        letter-spacing: -0.312px;
+    }
+
+
 .dashboard-container {
-    position: fixed;
-    top: 80px;
-    left: 0; /* ✅ no sidebar anymore */
+    position: relative;
+    top: 0;
+    left: 0;
     right: 0;
     bottom: 0;
     padding: 20px 40px;
-    overflow: hidden; /* prevent double scrollbars */
+    overflow-y: auto;
     box-sizing: border-box;
 }
+
 
 body.sidebar-collapsed .dashboard-container {
     left: 80px;

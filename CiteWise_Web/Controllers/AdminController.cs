@@ -13,5 +13,15 @@ namespace CiteWise_Web.Controllers
         {
             return View();
         }
+
+        public IActionResult ManageConsultants()
+        {
+            return View();
+        }
+
+        public IActionResult Resources()
+        {
+            return View();
+        }
     }
 }

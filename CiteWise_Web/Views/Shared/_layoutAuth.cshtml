@@ -16,6 +16,28 @@
 
 </head>
 <body>
+
+
+    @{
+        var userRole = Context.Session.GetString("UserRole");
+        var photoUrl = Context.Session.GetString("UserPhotoUrl");
+        var firstName = Context.Session.GetString("UserName");
+        var surname = Context.Session.GetString("UserSurname");
+        string initials = "";
+
+        if (string.IsNullOrEmpty(photoUrl))
+        {
+            if (!string.IsNullOrEmpty(firstName))
+            {
+                initials += firstName[0];
+            }
+            if (!string.IsNullOrEmpty(surname))
+            {
+                initials += surname[0];
+            }
+        }
+    }
+
     <nav class="navbar">
         <div class="navbar-left">
             <img src="~/img/citeWise.png" alt="CiteWise Logo" class="nav-logo" />
@@ -23,47 +45,71 @@
         </div>
 
         <div class="navbar-center">
+        @if (userRole == "student")
+        {
             <a asp-controller="Student" asp-action="StudentDashboard"
-               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
+            class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
                 Dashboard
             </a>
 
             <a asp-controller="Student" asp-action="StudentServiceRequest"
-               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
+            class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
                 Request a Service
             </a>
 
             <a href="#"
-               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
+            class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
                 Resources
             </a>
 
             <a href="#"
-               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Chats" ? "active" : "")">
+            class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Chats" ? "active" : "")">
+            Chats
+                </a>
+        }
+
+        else if (userRole == "consultant")
+        {
+            <a asp-controller="consultant" asp-action="ConsultantDashboard"
+                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ConsultantDashboard" ? "active" : "")">
+                Dashboard
+            </a>
+
+            <a asp-controller="Student" asp-action="MyTasks"
+                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MyTasks" ? "active" : "")">
+                MyTasks
+            </a>
+
+            <a href="#"
+                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Chats" ? "active" : "")">
                 Chats
             </a>
+        }
+
+        else if (userRole == "admin")
+        {
+            <a asp-controller="Admin" asp-action="AdminDashboard"
+                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AdminDashboard" ? "active" : "")">
+                Dashboard
+            </a>
+
+            <a asp-controller="Admin" asp-action="ManageConsultants"
+                 class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageConsultants" ? "active" : "")">
+                 Manage Consultants
+            </a>
+
+            <a asp-controller="Admin" asp-action="Resources"
+                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
+                Resources
+            </a>  
+        }
         </div>
 
 
         <div class="navbar-right">
             <a asp-controller="Account" asp-action="Logout" class="nav-account">
                 <div class="account-icon">
-                    @{
-                        var photoUrl = Context.Session.GetString("UserPhotoUrl");
-                        var firstName = Context.Session.GetString("UserName");
-                        var userRole = Context.Session.GetString("UserRole");
-                        string initials = "";
-
-                        if (string.IsNullOrEmpty(photoUrl))
-                        {
-                            // Get surname if available
-                            var surname = Context.Session.GetString("UserSurname");
-                            if (!string.IsNullOrEmpty(firstName))
-                                initials += firstName[0];
-                            if (!string.IsNullOrEmpty(surname))
-                                initials += surname[0];
-                        }
-                    }
+                   
 
                     @if (!string.IsNullOrEmpty(photoUrl))
                     {
@@ -82,7 +128,6 @@
                 <span class="account-text">My Account</span>
             </a>
 
-            <!-- media queries stuff -->
             <button class="hamburger-menu" id="hamburgerMenu" aria-label="Open menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
@@ -103,18 +148,55 @@
             </div>
 
             <div class="mobile-sidebar-links">
+                @if (userRole == "student")
+                {
                 <a asp-controller="Student" asp-action="StudentDashboard"
-                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
+                class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
                     Dashboard
                 </a>
 
                 <a asp-controller="Student" asp-action="StudentServiceRequest"
-                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
+                class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
                     Request a Service
                 </a>
 
                 <a href="#" class="mobile-nav-link">Resources</a>
                 <a href="#" class="mobile-nav-link">Chats</a>
+            }
+            else if (userRole == "consultant")
+            {
+                <a asp-controller="Consultant" asp-action="ConsultantDashboard"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ConsultantDashboard" ? "active" : "")">
+                    Dashboard
+                </a>
+
+                <a asp-controller="Student" asp-action="MyTasks"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MyTasks" ? "active" : "")">
+                    My Tasks
+                </a>
+
+                <a href="#"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Chats" ? "active" : "")">
+                    Chats
+                </a>
+            }
+            else if (userRole == "admin")
+            {
+                <a asp-controller="Admin" asp-action="AdminDashboard"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AdminDashboard" ? "active" : "")">
+                    Dashboard
+                </a>
+
+                <a asp-controller="Admin" asp-action="ManageConsultants"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageConsultants" ? "active" : "")">
+                    Manage Consultants
+                </a>
+
+                <a asp-controller="Admin" asp-action="Resources"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
+                    Resources
+                </a>
+            }
             </div>
 
             <div class="mobile-account-section">
@@ -129,9 +211,13 @@
                             if (string.IsNullOrEmpty(photoUrl))
                             {
                                 if (!string.IsNullOrEmpty(firstName))
+                                {
                                     initials += firstName[0];
+                                }
                                 if (!string.IsNullOrEmpty(surname))
+                                {
                                     initials += surname[0];
+                                }
                             }
                         }
 

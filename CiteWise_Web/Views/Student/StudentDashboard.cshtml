@@ -5,6 +5,14 @@
     Layout = "_LayoutAuth";
 }
 
+<div class="dashboard-header">
+    @* <h2>Good morning, Connor</h2> *@
+    <h2>Good morning, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
+    <br/>
+    <p>Here's what's happening with your assignments today.</p>
+</div>
+
+
 <div class="dashboard-container">
 
     <div class="dashboard-grid">
