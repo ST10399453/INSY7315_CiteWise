@@ -5,7 +5,7 @@ namespace CiteWise_Web.Models.Account
     public class LoginModel
     {
         [Required]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; }
 
         [Required]

@@ -8,5 +8,10 @@ namespace CiteWise_Web.Controllers
         {
             return View();
         }
+
+        public IActionResult AdminDashboard()
+        {
+            return View();
+        }
     }
 }

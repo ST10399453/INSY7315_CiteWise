@@ -78,6 +78,10 @@
                class="mobile-nav-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
                 Contact Us
             </a>
+            <a asp-area="" asp-controller="Account" asp-action="Register"
+               class="mobile-nav-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
+                Register 
+            </a>
         </div>
     </div>
 

@@ -106,11 +106,19 @@ namespace CiteWise_Web.Controllers
             HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
 
             if (profile.Role == "student")
+            {
                 return RedirectToAction("StudentDashboard", "Student");
+            }
             else if (profile.Role == "consultant")
+            {
                 return RedirectToAction("ConsultantDashboard", "Consultant");
+            }
+            else if (profile.Role == "admin")
+            {
+                return RedirectToAction("AdminDashboard", "Admin");
+            }
 
-            return RedirectToAction("Login");
+                return RedirectToAction("Login");
         }
 
         public async Task<IActionResult> GoogleLogin([FromBody] TokenRequest req)
@@ -160,6 +168,7 @@ namespace CiteWise_Web.Controllers
                 {
                     "consultant" => Url.Action("ConsultantDashboard", "Consultant")!,
                     "student" => Url.Action("StudentDashboard", "Student")!,
+                    "admin" => Url.Action("AdminDashboard", "Admin")!,
                     _ => Url.Action("SelectRole", "Onboarding", new { uid = profile.Uid, token = req.Token })!
                 };
 

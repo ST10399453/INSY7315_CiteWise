@@ -13,7 +13,7 @@ namespace CiteWise_Web.Models.Account
         public string Surname { get; set; }
 
         [Required]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; }
 
         [Required]
