@@ -233,7 +233,9 @@ router.get(
  * Deletes both Firestore record and R2 object (Cloudflare, 2024)
  * ============================================================
  */
-router.delete("/:id", checkAuth, param("id").isString(), async (req, res) => {
+router.delete("/:id", 
+  checkAuth, 
+  param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
     if (!isAdmin(req.user)) return res.status(403).json({ message: "Forbidden" });

@@ -81,9 +81,7 @@ export async function streamFromR2({ bucket, key }) {
  *  Note: S3 DeleteObject is idempotent — it succeeds even if the key doesn’t exist.
  */
 export async function deleteFromR2({ bucket, key }) {
-  if (!bucket || !key) throw new Error("deleteFromR2: bucket and key are required");
   await r2().send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
-  return { bucket, key, deleted: true };
 }
 
 // (Cloudflare, 2024)
