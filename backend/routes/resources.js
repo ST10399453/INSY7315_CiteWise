@@ -30,16 +30,32 @@ const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipa
  */
 router.post(
   "/",
-  checkAuth, // Auth required (Balaji, 2023)
-  attachRole,  
+  checkAuth,
+  attachRole,
   upload.single("file"),
-  body("name").isString().notEmpty(), // (express-validator, 2019)
-  body("faculty").isString().notEmpty(), // (express-validator, 2019)
-  body("category").isString().isIn(["WRITING_GUIDE", "TEMPLATE", "AI_USAGE"]), // (express-validator, 2019)
+  body("name").isString().notEmpty(),
+  body("faculty").isString().notEmpty(),
+  body("category").isString().isIn(["WRITING_GUIDE", "TEMPLATE", "AI_USAGE"]),
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
+
     try {
-      if (!isAdmin(req.user)) return res.status(403).json({ message: "Forbidden" });
+      console.log("----- INCOMING /resources -----");
+      console.log("Auth header present:", Boolean(req.headers.authorization));
+      console.log("User parsed from token:", req.user); // { uid, email, claims, role? }
+      console.log("Body:", req.body);
+      console.log("File:",
+        req.file ? {
+          originalname: req.file.originalname,
+          mimetype: req.file.mimetype,
+          size: req.file.size
+        } : "NO FILE");
+      console.log("-------------------------------");
+
+      if (!isAdmin(req.user)) {
+        console.log("❌ Forbidden: not admin. Role seen:", (req.user?.role || req.user?.claims?.role));
+        return res.status(403).json({ message: "Forbidden" });
+      }
       if (!req.file) return res.status(400).json({ message: "file is required" });
 
       await ensureStorageReady();
@@ -71,6 +87,8 @@ router.post(
         updatedAt: Date.now(),
       };
 
+      console.log("✅ Writing Firestore doc:", { id: doc.id, createdBy: doc.createdBy, role: req.user.role });
+
       await fsdb.collection("resources").doc(id).set(doc);
 
       res.status(201).json({
@@ -81,12 +99,14 @@ router.post(
         mimeType: doc.mimeType,
         size: doc.size,
         updatedAt: doc.updatedAt,
+        createdBy: doc.createdBy,
       });
+
+      console.log("✅ Done /resources:", id);
     } catch (e) {
-      console.error(e);
+      console.error("❌ Error /resources:", e);
       res.status(400).json({ message: e.message });
     }
-    console.log(createdBy)
   }
 );
 

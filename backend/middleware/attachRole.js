@@ -1,16 +1,15 @@
 import { db as fsdb } from "../db/firebaseAdmin.js";
 
-export async function attachRole(req, res, next) {
+export async function attachRole(req, _res, next) {
   try {
     const uid = req.user?.uid;
-    if (!uid) return res.status(401).json({ message: "Unauthorized" });
-
+    if (!uid) return next();
     const snap = await fsdb.collection("users").doc(uid).get();
-    const role = (snap.exists && (snap.data()?.role || "")) || "";
-    req.user.role = String(role).toLowerCase(); // normalize to lowercase
-    return next();
+    const role = String(snap.data()?.role || "").toLowerCase();
+    req.user.role = role;
+    console.log("attachRole:", { uid, role });
   } catch (e) {
-    console.error("[attachRole] failed", e);
-    return res.status(500).json({ message: "Role lookup failed" });
+    console.error("attachRole error:", e);
   }
+  next();
 }
