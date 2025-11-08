@@ -86,6 +86,7 @@ router.post(
       console.error(e);
       res.status(400).json({ message: e.message });
     }
+    console.log(createdBy)
   }
 );
 
