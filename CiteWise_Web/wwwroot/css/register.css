@@ -242,3 +242,29 @@ select.input-validation-error {
     text-align: center;
 }
 /*Forgot password*/
+
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.form-input {
+    appearance: none; /* Hides default arrow (Chrome, Safari, Edge) */
+    -moz-appearance: none; /* Hides default arrow (Firefox) */
+    -webkit-appearance: none; /* Ensures compatibility */
+    width: 100%;
+    padding: 10px 40px 10px 12px; /* Add right padding for the SVG */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: white;
+}
+
+.urgency-dropdown-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Let clicks go through to the select */
+}

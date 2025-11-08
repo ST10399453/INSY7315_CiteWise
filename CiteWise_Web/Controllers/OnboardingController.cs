@@ -79,7 +79,7 @@ namespace CiteWise_Web.Controllers
             var updates = new Dictionary<string, object>
             {
                 { "Role", "student" },
-                { "Language", model.Language },
+                //{ "Language", model.Language },
                 { "Institution", model.Institution },
                 { "FieldOfStudy", model.FieldOfStudy }
             };
@@ -128,7 +128,7 @@ namespace CiteWise_Web.Controllers
             var updates = new Dictionary<string, object>
             {
                 { "Role", "consultant" },
-                { "Language", model.Language },
+                //{ "Language", model.Language },
                 { "Specialisation", model.Specialisation }
             };
 

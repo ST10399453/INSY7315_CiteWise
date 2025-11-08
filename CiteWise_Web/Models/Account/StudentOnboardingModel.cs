@@ -4,9 +4,9 @@ namespace CiteWise_Web.Models.Account
 {
     public class StudentOnboardingModel
     {
-        [Required]
-        [Display(Name = "Language")]
-        public string Language { get; set; }
+        //[Required]
+        //[Display(Name = "Language")]
+        //public string Language { get; set; }
 
         [Required]
         [Display(Name = "Institution")]

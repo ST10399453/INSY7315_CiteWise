@@ -24,21 +24,28 @@
                         <input type="hidden" asp-for="IdToken" />
 
                         <!-- Role Selection -->
-                        <div class="form-group">
+                        <div class="form-group custom-select">
                             <select asp-for="Role" id="roleSelect" class="form-input">
                                 <option value="">-- Select Role --</option>
                                 <option value="student">Student</option>
                                 <option value="consultant">Consultant</option>
                             </select>
+
+                            <svg class="urgency-dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 9L12 15L18 9" stroke="#0027B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+
                             <span asp-validation-for="Role" class="text-danger"></span>
                         </div>
 
+
                         <!-- Student Fields -->
                         <div id="studentFields" class="role-fields" style="display:none;">
-                            <div class="form-group">
+                            @* <div class="form-group">
                                 <label>Language</label>
                                 <input name="Language" class="form-input" />
-                            </div>
+                            </div> *@
 
                             <div class="form-group">
                                 <label>Institution</label>
@@ -53,10 +60,10 @@
 
                         <!-- Consultant Fields -->
                         <div id="consultantFields" class="role-fields" style="display:none;">
-                            <div class="form-group">
+                            @* <div class="form-group">
                                 <label>Language</label>
                                 <input name="Language" class="form-input" />
-                            </div>
+                            </div> *@
 
                             <div class="form-group">
                                 <label>Specialisation</label>
