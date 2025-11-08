@@ -127,6 +127,62 @@ body {
     }
 /*This is for the landing page nav bar*/
 
+
+.nav-item.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 145%; /* below the parent link */
+    left: 0;
+    background-color: #ebecf0;
+    min-width: 190px;
+    border-radius: 12px;
+    flex-direction: column;
+    z-index: 100;
+}
+
+    .dropdown-content .dropdown-item {
+        display: block;
+        padding: 10px 16px;
+        color: #333;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 17px;
+        font-family: "Public Sans", sans-serif;
+        transition: all 0.3s ease;
+    }
+
+        .dropdown-content .dropdown-item:hover {
+            border-radius: 12px;
+            background: #ebecf0;
+            box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+        }
+
+.nav-item.dropdown:hover .dropdown-content {
+    display: flex;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .profile-pic {
     width: 40px;
     height: 40px;

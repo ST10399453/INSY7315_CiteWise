@@ -1,7 +1,9 @@
 ﻿html, body {
     height: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
+
 
 /*Greeting header*/
 .dashboard-header {
@@ -30,16 +32,17 @@
         letter-spacing: -0.312px;
     }
 
+
+
 /*feature btn*/
 /* container matches header width */
-.feature-section {
-    width: 90%;
-    margin: 0 auto 25px auto;
+/*.feature-section {
+    width: 94%;
+    margin: 18px auto 25px auto;
     box-sizing: border-box;
-    overflow-x: auto; /* allows horizontal scroll on very small screens */
+    overflow-x: auto;
 }
 
-/* keep a consistent gap and force 5 items per row */
 .feature-buttons {
     --gap: 35px;
     display: flex;
@@ -49,11 +52,11 @@
     width: 100%;
     box-sizing: border-box;
     padding: 0;
-}
+}*/
 
 /* each button takes exactly 1/5 of the available width minus gaps */
-.feature-btn {
-    flex: 0 0 calc((100% - (var(--gap) * 4)) / 5);
+/*.feature-btn {
+    flex: 0 0 calc((100% - (var(--gap) * 4)) / 4);
     box-sizing: border-box;
     background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
     box-shadow: 3px 3px 6.1px -3px rgba(255, 255, 255, 0.36) inset, -4px -4px 6px -4px rgba(0, 0, 0, 0.10) inset;
@@ -62,61 +65,34 @@
     padding: 22px 14px;
     text-align: center;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    font-family: 'Poppins', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 120px;
-}
+}*/
 
 /* icon and label */
-.feature-icon {
+/*.feature-icon {
     width: 48px;
     height: 48px;
     margin-bottom: 10px;
     object-fit: contain;
-    color: #fff
+    color: #fff;
+
 }
 
 .feature-btn span {
-    font-size: 15px;
+    font-family: "Public Sans", sans-serif;
+    font-size: 18px;
     font-weight: 500;
     white-space: nowrap;
-}
+}*/
 
 /* hover */
-.feature-btn:hover {
+/*.feature-btn:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}*/
 
 
 

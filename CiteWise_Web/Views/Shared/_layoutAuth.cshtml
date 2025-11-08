@@ -51,11 +51,19 @@
             class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentDashboard" ? "active" : "")">
                 Dashboard
             </a>
-
-            <a asp-controller="Student" asp-action="StudentServiceRequest"
-            class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
-                Request a Service
-            </a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link @(new[] { "StudentServiceRequest", "ViewRequests" }.Contains(ViewContext.RouteData.Values["action"]?.ToString()) ? "active" : "")">
+                        Request a Service
+                    </a>
+                    <div class="dropdown-content">
+                        <a asp-controller="Student" asp-action="StudentServiceRequest" class="dropdown-item @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
+                            Submit Request
+                        </a>
+                        <a asp-controller="Student" asp-action="ViewRequests" class="dropdown-item @(ViewContext.RouteData.Values["action"]?.ToString() == "ViewRequests" ? "active" : "")">
+                            View Requests
+                        </a>
+                    </div>
+                </div>
 
             <a href="#"
             class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
@@ -156,9 +164,15 @@
                 </a>
 
                 <a asp-controller="Student" asp-action="StudentServiceRequest"
-                class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
-                    Request a Service
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "StudentServiceRequest" ? "active" : "")">
+                    Submit Request
                 </a>
+
+                <a asp-controller="Student" asp-action="ViewRequests"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ViewRequests" ? "active" : "")">
+                    View Requests
+                </a>
+
 
                 <a href="#" class="mobile-nav-link">Resources</a>
                 <a href="#" class="mobile-nav-link">Chats</a>
