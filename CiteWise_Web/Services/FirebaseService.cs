@@ -10,6 +10,10 @@ namespace CiteWise_Web.Services
 {
     public class FirebaseService
     {
+        private static readonly HttpClient _client = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(15)
+        };
         private readonly string _apiKey;
         private readonly string _databaseUrl;
 
@@ -19,17 +23,12 @@ namespace CiteWise_Web.Services
             _databaseUrl = configuration["Firebase:DatabaseUrl"];
         }
 
-        private HttpClient GetClient()
-        {
-            return new HttpClient();
-        }
-
         // -------------------------------
         // REGISTER USER (Email/Password)
         // -------------------------------
         public async Task<FirebaseAuthResponse> RegisterUserAsync(string email, string password)
         {
-            using var client = GetClient();
+            //using var client = GetClient();
 
             var data = new
             {
@@ -40,7 +39,7 @@ namespace CiteWise_Web.Services
 
             var json = JsonConvert.SerializeObject(data);
 
-            var response = await client.PostAsync(
+            var response = await _client.PostAsync(
                 $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={_apiKey}",
                 new StringContent(json, Encoding.UTF8, "application/json")
             );
@@ -54,7 +53,7 @@ namespace CiteWise_Web.Services
         // -------------------------------
         public async Task<FirebaseAuthResponse> LoginUserAsync(string email, string password)
         {
-            using var client = GetClient();
+            //using var client = GetClient();
 
             var data = new
             {
@@ -64,7 +63,7 @@ namespace CiteWise_Web.Services
             };
 
             var json = JsonConvert.SerializeObject(data);
-            var response = await client.PostAsync(
+            var response = await _client.PostAsync(
                 $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={_apiKey}",
                 new StringContent(json, Encoding.UTF8, "application/json")
             );
@@ -83,7 +82,7 @@ namespace CiteWise_Web.Services
         //SEND PASSWORD RESET EMAIL 
         public async Task<bool> SendPasswordResetEmailAsync(string email)
         {
-            using var client = GetClient();
+            //using var client = GetClient();
 
             var data = new
             {
@@ -93,7 +92,7 @@ namespace CiteWise_Web.Services
 
             var json = JsonConvert.SerializeObject(data);
 
-            var response = await client.PostAsync(
+            var response = await _client.PostAsync(
                 $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDwPulYyuQA-CqcFCuXwY05_gxm-PZ7P1M",
                 new StringContent(json, Encoding.UTF8, "application/json")
             );
@@ -114,11 +113,11 @@ namespace CiteWise_Web.Services
         // -------------------------------
         public async Task SaveUserProfileAsync(string uid, string idToken, UserProfile profile)
         {
-            using var client = GetClient();
+            //using var client = GetClient();
             var json = JsonConvert.SerializeObject(profile);
 
             // Save or update user profile in Realtime DB
-            await client.PutAsync(
+            await _client.PutAsync(
                 $"{_databaseUrl}/users/{uid}.json?auth={idToken}",
                 new StringContent(json, Encoding.UTF8, "application/json")
             );
@@ -129,7 +128,7 @@ namespace CiteWise_Web.Services
         // -------------------------------
         public async Task UpdateUserProfileAsync(string uid, string idToken, object updates)
         {
-            using var client = GetClient();
+            //using var client = GetClient();
             var json = JsonConvert.SerializeObject(updates);
 
             // PATCH merges fields instead of replacing the whole object
@@ -138,7 +137,7 @@ namespace CiteWise_Web.Services
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
 
-            var response = await client.SendAsync(request);
+            var response = await _client.SendAsync(request);
             response.EnsureSuccessStatusCode();
         }
 
@@ -149,8 +148,8 @@ namespace CiteWise_Web.Services
 
         public async Task<UserProfile?> GetUserProfileAsync(string uid, string idToken)
         {
-            using var client = GetClient();
-            var response = await client.GetAsync($"{_databaseUrl}/users/{uid}.json?auth={idToken}");
+            //using var client = GetClient();
+            var response = await _client.GetAsync($"{_databaseUrl}/users/{uid}.json?auth={idToken}");
 
             if (!response.IsSuccessStatusCode)
                 return null;
