@@ -9,9 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.api.ResourcesViewModel
 import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.data.DocumentsRepository
@@ -19,77 +22,106 @@ import com.example.citewise_mobile.databinding.ActivityResourcesBinding
 import com.example.citewise_mobile.offline.DocumentEntity
 import com.example.citewise_mobile.offline.LocalRepos
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import okhttp3.ResponseBody
+import java.io.File
+import java.io.InputStream
+import java.net.HttpURLConnection
 
 class ResourcesActivity : BaseActivity() {
 
     private lateinit var binding: ActivityResourcesBinding
     private lateinit var vm: ResourcesViewModel
     private lateinit var adapter: DocumentsAdapter
+    private lateinit var docsRepo: DocumentsRepository
+
+    private val isAdminRole get() = getCurrentUserRole() == UserRole.ADMIN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1) Use shared base layout (bottom nav, etc.)
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
-        // 2) Inflate resources screen into baseContent
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
         val content = layoutInflater.inflate(R.layout.activity_resources, baseContent, false)
         binding = ActivityResourcesBinding.bind(content)
         baseContent.addView(content)
 
-        // 3) Bottom nav like ServiceRequestActivity
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        setupBottomNav(bottomNav, R.id.nav_resources)
+        val selectedId = if (isAdminRole) R.id.nav_resource_mgmt else R.id.nav_resources
+        setupBottomNav(bottomNav, selectedId)
 
-        // 4) Set up UI
-        setupViewModel()
+        // Init adapter BEFORE collecting flows
         setupRecycler()
+        setupViewModel()
         setupSearch()
-        setupSpinners()   // NEW: replaces toggle sort + ACT fields
-        setupAdminFab()
+        setupSpinners()
+        setupRoleSpecificUi()
 
         vm.refresh()
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Setup
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─────────────────── Setup ───────────────────
     private fun setupViewModel() {
         val localRepos = LocalRepos(applicationContext)
-        val docsRepo = DocumentsRepository(RetrofitInstance.documentsApi, applicationContext)
+        docsRepo = DocumentsRepository(RetrofitInstance.documentsApi, applicationContext)
+
         val factory = ResourcesViewModel.Factory(
             api = RetrofitInstance.documentsApi,
             localRepos = localRepos,
             docsRepo = docsRepo
         )
         vm = ViewModelProvider(this, factory)[ResourcesViewModel::class.java]
+
+        lifecycleScope.launch {
+            vm.items.collectLatest { list ->
+                adapter.submitList(list)
+                val isEmpty = list.isNullOrEmpty()
+                binding.stateEmpty.isVisible = isEmpty
+                if (!isEmpty) binding.stateNoInternet.isVisible = false
+            }
+        }
     }
 
     private fun setupRecycler() {
         adapter = DocumentsAdapter(
             onOverflow = ::showOverflow,
-            onOpen = ::openDocument   // tap = download
+            onOpen = ::openDocument
         )
-        binding.rvDocuments.layoutManager = GridLayoutManager(this, 2)
+        val spanCount = if (resources.configuration.smallestScreenWidthDp >= 600) 3 else 2
+        binding.rvDocuments.layoutManager = GridLayoutManager(this, spanCount)
         binding.rvDocuments.adapter = adapter
 
-        lifecycleScope.launch {
-            vm.items.collect { list -> adapter.submitList(list) }
-        }
-    }
-
-    private fun setupSearch() {
-        binding.etSearch.addTextChangedListener(SimpleTextWatcher { text ->
-            vm.setQuery(text)
+        binding.rvDocuments.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                if (!isAdminRole) return
+                when {
+                    dy > 6  -> binding.fabAdd.shrink()
+                    dy < -6 -> binding.fabAdd.extend()
+                }
+            }
         })
     }
 
+    private fun setupSearch() {
+        binding.etSearch.addTextChangedListener { editable ->
+            vm.setQuery(editable?.toString().orEmpty())
+        }
+        binding.etSearch.setOnEditorActionListener { v, _, _ ->
+            vm.setQuery(v.text?.toString().orEmpty()); true
+        }
+        binding.btnRetry.setOnClickListener { vm.refresh() }
+    }
+
     private fun setupSpinners() {
-        // You can swap these for string-array resources if you have them.
         val visibilityOptions = listOf("All", "Public", "Private")
         val facultyOptions = listOf("All", "Engineering", "Science", "Humanities", "Business")
         val sortOptions = listOf("Newest first", "Oldest first", "A–Z", "Z–A")
@@ -101,49 +133,46 @@ class ResourcesActivity : BaseActivity() {
         binding.actFaculty.adapter = spinnerAdapter(facultyOptions)
         binding.actSort.adapter = spinnerAdapter(sortOptions)
 
-        // Avoid firing on initial selection
-        var ready = false
-        binding.actSort.post { ready = true }
+        var sortReady = false
+        binding.actSort.post { sortReady = true }
 
-        binding.actVisibility.onItemSelected { _, pos ->
-            if (pos >= 0) vm.refresh() // hook to backend visibility if needed
-        }
-        binding.actFaculty.onItemSelected { _, _ ->
-            vm.setFaculty(binding.actFaculty.selectedItem?.toString())
+        binding.actVisibility.onItemSelected { _, _ -> vm.refresh() }
+        binding.actFaculty.onItemSelected { parent, pos ->
+            val label = parent.getItemAtPosition(pos)?.toString()
+            vm.setFaculty(label)
         }
         binding.actSort.onItemSelected { _, pos ->
-            if (!ready) return@onItemSelected
+            if (!sortReady) return@onItemSelected
             when (pos) {
-                0 -> vm.setSort("date")     // Newest first
-                1 -> vm.setSort("date_asc") // Oldest first
-                2 -> vm.setSort("alpha")    // A–Z
+                0 -> vm.setSort("date")
+                1 -> vm.setSort("date_asc")
+                2 -> vm.setSort("alpha")
                 3 -> vm.setSort("alpha_desc")
             }
         }
-        // Defaults
+
         binding.actVisibility.setSelection(0)
         binding.actFaculty.setSelection(0)
         binding.actSort.setSelection(0)
     }
 
-    private fun setupAdminFab() {
-        if (isAdmin()) binding.fabAdd.visibility = View.VISIBLE
+    private fun setupRoleSpecificUi() {
+        binding.fabAdd.isVisible = isAdminRole
         binding.fabAdd.setOnClickListener {
-            AdminAddResourceBottomSheet().show(supportFragmentManager, "addResource")
+            Snackbar.make(binding.root, "Add resource (admin)", Snackbar.LENGTH_SHORT)
+                .setAnchorView(binding.fabAdd)
+                .show()
         }
     }
 
-    private fun isAdmin(): Boolean = false
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Actions
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─────────────────── Actions ───────────────────
     private fun showOverflow(doc: DocumentEntity, anchor: View) {
         val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
-        popup.inflate(R.menu.menu_document_item) // only action_download inside
+        popup.inflate(if (isAdminRole) R.menu.menu_document_admin else R.menu.menu_document_item)
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_download -> { downloadExternal(doc); true }
+                R.id.action_delete   -> { confirmDeleteAsAdmin(doc); true }
                 else -> false
             }
         }
@@ -153,53 +182,168 @@ class ResourcesActivity : BaseActivity() {
     private fun openDocument(doc: DocumentEntity) = downloadExternal(doc)
 
     private fun downloadExternal(doc: DocumentEntity) {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val resp = RetrofitInstance.documentsApi.resourceSignedUrl(
-                    id = doc.id,
-                    disposition = "attachment",
-                    provider = null
-                )
-                if (!resp.isSuccessful) {
-                    Snackbar.make(binding.root, "Download link failed: ${resp.code()}", Snackbar.LENGTH_LONG).show()
-                    return@launch
-                }
-                val url = resp.body()?.url
-                if (url.isNullOrBlank()) {
-                    Snackbar.make(binding.root, "Empty download URL", Snackbar.LENGTH_LONG).show()
+                val auth = authHeaderOrNull()
+                if (auth == null) {
+                    withContext(Dispatchers.Main) { snack("Not signed in.") }
                     return@launch
                 }
 
-                val dm = getSystemService(DownloadManager::class.java)
-                val req = DownloadManager.Request(Uri.parse(url))
-                    .setTitle(doc.fileName)
-                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                    .setAllowedOverMetered(true)
-                    .setDestinationInExternalPublicDir(
-                        Environment.DIRECTORY_DOWNLOADS,
-                        "CiteWise/${doc.fileName}"
-                    )
-                dm.enqueue(req)
-                Snackbar.make(binding.root, "Downloading…", Snackbar.LENGTH_SHORT).show()
+                // 1) Prefer a signed URL via repository (now requires auth)
+                when (val urlRes = docsRepo.getResourceSignedUrl(
+                    id = doc.id,
+                    disposition = "attachment",
+                    auth = auth
+                )) {
+                    is com.example.citewise_mobile.data.NetResult.Ok -> {
+                        withContext(Dispatchers.Main) {
+                            enqueueDownload(urlRes.data, doc.fileName)
+                            snackShort("Downloading…")
+                        }
+                        return@launch
+                    }
+                    is com.example.citewise_mobile.data.NetResult.Err -> {
+                        // fall through to streaming
+                    }
+                }
+
+                // 2) Fallback: authorized streaming proxy
+                val streamResp = RetrofitInstance.documentsApi.streamResource(
+                    id = doc.id,
+                    provider = null,
+                    disposition = "attachment",
+                    auth = auth
+                )
+                if (streamResp.isSuccessful && streamResp.body() != null) {
+                    val file = saveToAppDownloads(streamResp.body()!!, doc.fileName)
+                    withContext(Dispatchers.Main) { snackShort("Saved to ${file.absolutePath}") }
+                    return@launch
+                }
+
+                val code = streamResp.code()
+                withContext(Dispatchers.Main) {
+                    when (code) {
+                        HttpURLConnection.HTTP_FORBIDDEN,
+                        HttpURLConnection.HTTP_UNAUTHORIZED ->
+                            snack("You don’t have permission to download this file (code $code).")
+                        HttpURLConnection.HTTP_NOT_FOUND ->
+                            snack("File not found (code $code).")
+                        else -> snack("Download failed${if (code > 0) " (code $code)" else ""}.")
+                    }
+                }
             } catch (t: Throwable) {
-                Snackbar.make(binding.root, "Download failed: ${t.message}", Snackbar.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) { snack("Download failed: ${t.message}") }
             }
         }
     }
-}
 
-/** Tiny helper to reduce TextWatcher boilerplate. */
-private class SimpleTextWatcher(
-    val onChange: (String) -> Unit
-) : android.text.TextWatcher {
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-    override fun afterTextChanged(s: android.text.Editable?) {}
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        onChange(s?.toString().orEmpty())
+    private fun confirmDeleteAsAdmin(doc: DocumentEntity) {
+        if (!isAdminRole) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Delete resource?")
+            .setMessage("“${doc.fileName}” will be removed for everyone. This cannot be undone.")
+            .setPositiveButton("Delete") { d, _ ->
+                d.dismiss()
+                deleteDocumentAsAdmin(doc)
+            }
+            .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
+            .show()
+    }
+
+    private fun deleteDocumentAsAdmin(doc: DocumentEntity) {
+        if (!isAdminRole) return
+        lifecycleScope.launch(Dispatchers.IO) {
+            val auth = authHeaderOrNull()
+            if (auth == null) {
+                withContext(Dispatchers.Main) { snack("Not signed in.") }
+                return@launch
+            }
+            try {
+                // Use repository if its deleteResource(resourceId, auth) is available:
+                val res = docsRepo.deleteResource(doc.id)
+                withContext(Dispatchers.Main) {
+                    when (res) {
+                        is com.example.citewise_mobile.data.NetResult.Ok -> {
+                            snackShort("Deleted")
+                            vm.refresh()
+                        }
+                        is com.example.citewise_mobile.data.NetResult.Err -> {
+                            val code = res.code ?: -1
+                            when (code) {
+                                HttpURLConnection.HTTP_FORBIDDEN,
+                                HttpURLConnection.HTTP_UNAUTHORIZED ->
+                                    snack("You don’t have permission to delete this resource (code $code).")
+                                HttpURLConnection.HTTP_NOT_FOUND ->
+                                    snack("Resource not found (code $code).")
+                                else ->
+                                    snack("Delete failed${if (code > 0) " (code $code)" else ""}.")
+                            }
+                        }
+                    }
+                }
+            } catch (t: Throwable) {
+                withContext(Dispatchers.Main) { snack("Delete failed: ${t.message}") }
+            }
+        }
+    }
+
+    // ─────────────────── Helpers ───────────────────
+
+    /** Build "Bearer <idToken)" or null if not signed in. */
+    private suspend fun authHeaderOrNull(): String? = withContext(Dispatchers.IO) {
+        val user = FirebaseAuth.getInstance().currentUser ?: return@withContext null
+        val token = runCatching { user.getIdToken(true).await().token }.getOrNull()
+        token?.let { "Bearer $it" }
+    }
+
+    private fun enqueueDownload(url: String, fileName: String) {
+        val safeName = fileName.replace(Regex("""[\\/:*?"<>|]"""), "_")
+        val req = DownloadManager.Request(Uri.parse(url))
+            .setTitle(safeName)
+            .setDescription("Downloading…")
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "CiteWise/$safeName")
+            .setAllowedOverMetered(true)
+            .setAllowedOverRoaming(true)
+        val dm = getSystemService(DownloadManager::class.java)
+        dm.enqueue(req)
+    }
+
+    private fun saveToAppDownloads(body: ResponseBody, fileName: String): File {
+        val base = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: filesDir
+        val dir = File(base, "CiteWise").apply { if (!exists()) mkdirs() }
+        val safeName = fileName.replace(Regex("""[\\/:*?"<>|]"""), "_")
+        val target = File(dir, safeName)
+        body.byteStream().use { input ->
+            target.outputStream().use { output -> input.copyTo(output) }
+        }
+        return target
+    }
+
+    private fun saveToAppDownloads(input: InputStream, fileName: String): File {
+        val base = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: filesDir
+        val dir = File(base, "CiteWise").apply { if (!exists()) mkdirs() }
+        val safeName = fileName.replace(Regex("""[\\/:*?"<>|]"""), "_")
+        val target = File(dir, safeName)
+        input.use { i -> target.outputStream().use { o -> i.copyTo(o) } }
+        return target
+    }
+
+    private fun snack(msg: String) {
+        Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG)
+            .setAnchorView(if (binding.fabAdd.isVisible) binding.fabAdd else null)
+            .show()
+    }
+
+    private fun snackShort(msg: String) {
+        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT)
+            .setAnchorView(if (binding.fabAdd.isVisible) binding.fabAdd else null)
+            .show()
     }
 }
 
-/** Extension to keep Spinner listeners tidy. */
+/** Spinner helper */
 private inline fun android.widget.Spinner.onItemSelected(
     crossinline block: (parent: AdapterView<*>, position: Int) -> Unit
 ) {

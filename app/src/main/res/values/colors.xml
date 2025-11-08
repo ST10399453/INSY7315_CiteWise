@@ -16,4 +16,8 @@
     <color name="priority_Low">#38E154</color>
     <color name="priority_Medium">#EBA900</color>
     <color name="priority_High">#FF0000</color>
+    <color name="blue_400">#0038FF</color>
+    <color name="indigo_500">#08C1B2</color>
+    <color name="purple_400">#9D00FF</color>
+    <color name="green_500">#00FFAE</color>
 </resources>

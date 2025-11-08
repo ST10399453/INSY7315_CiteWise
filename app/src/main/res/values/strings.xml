@@ -98,8 +98,8 @@
     <!-- Step 4 -->
     <string name="level_of_urgency">Step 4: Level of urgency</string>
     <string name="deadline">Deadline</string>
-    <string name="select_a_date">Select a date</string>
-    <string name="select_urgency">Please select urgency</string>
+    <string name="select_a_date">Enter deadline</string>
+    <string name="select_urgency">Select level of urgency</string>
     <string name="select_deadline">Please select a deadline date</string>
 
     <!-- Success -->

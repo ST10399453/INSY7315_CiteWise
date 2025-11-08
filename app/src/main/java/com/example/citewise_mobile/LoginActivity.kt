@@ -25,12 +25,16 @@ import androidx.credentials.exceptions.GetCredentialException
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.launch
-
-// Workers
-import com.example.citewise_mobile.offline.RequestsPullWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+
+// Workers (periodic + one-shot triggers)
+import com.example.citewise_mobile.offline.RequestsPullWorker
+import com.example.citewise_mobile.offline.UsersSyncWorker
+import com.example.citewise_mobile.offline.MessagesSyncWorker
+import com.example.citewise_mobile.offline.DocumentsSyncWorker
+import com.example.citewise_mobile.offline.RequestsSyncWorker
 
 class LoginActivity : AppCompatActivity() {
 
@@ -50,12 +54,12 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         // Bind views
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        btnLogin = findViewById(R.id.btnLogin)
+        etEmail        = findViewById(R.id.etEmail)
+        etPassword     = findViewById(R.id.etPassword)
+        btnLogin       = findViewById(R.id.btnLogin)
         btnGoogleLogin = findViewById(R.id.btnGoogleLogin)
-        tvForgot = findViewById(R.id.tvForgot)
-        tvGoSignUp = findViewById(R.id.tvGoSignUp)
+        tvForgot       = findViewById(R.id.tvForgot)
+        tvGoSignUp     = findViewById(R.id.tvGoSignUp)
 
         btnLogin.isEnabled = true
 
@@ -91,29 +95,30 @@ class LoginActivity : AppCompatActivity() {
     }
 
     /**
-     * IMPORTANT: skip the login form if we already have a Firebase session.
-     * We route by cached role instantly, then refresh from DB in the background.
+     * If already signed in, route immediately and ensure syncs are running.
      */
     override fun onStart() {
         super.onStart()
         val user = auth.currentUser ?: return
 
+        // Start/ensure background syncs even when user is already signed in
+        startAllSyncs()
+
         val cachedRole = prefs.getString("user_role", null)
         if (cachedRole != null) {
             startActivity(Intent(this, destForRole(cachedRole)))
             finish()
-            // Refresh role quietly (will update cache if changed)
             lifecycleScope.launch { refreshRoleCache(user.uid) }
         } else {
-            // No cache yet – fetch role before routing
+            // No cache yet – read DB; if user/role missing, go to Register.
             routeByRole(fetchAndCache = true)
         }
     }
 
-    // ---------------- Email/Password ----------------
+    // ───────────────────────── Email/Password ─────────────────────────
     private fun tryEmailPasswordLogin() {
         val email = etEmail.text?.toString()?.trim().orEmpty()
-        val pass = etPassword.text?.toString().orEmpty()
+        val pass  = etPassword.text?.toString().orEmpty()
 
         etEmail.error = null
         etPassword.error = null
@@ -128,7 +133,8 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, pass)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    kickOffInitialSync()
+                    // Kick all syncs on every fresh login
+                    startAllSyncs()
                     routeByRole(fetchAndCache = true)
                 } else {
                     etPassword.error = task.exception?.localizedMessage ?: "Login failed"
@@ -136,11 +142,13 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    // ---------------- Google Sign-In ----------------
+    // ───────────────────────── Google Sign-In ─────────────────────────
     private fun signInWithGoogle() {
         val serverClientId = getString(R.string.default_web_client_id)
         val googleOption = GetSignInWithGoogleOption.Builder(serverClientId).build()
-        val request = GetCredentialRequest.Builder().addCredentialOption(googleOption).build()
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleOption)
+            .build()
         val cm = CredentialManager.create(this)
 
         lifecycleScope.launch {
@@ -175,6 +183,11 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * After Google auth:
+     *  - If /users/{uid} exists -> start syncs + route by role
+     *  - Else -> registration flow
+     */
     private fun handleFirstTimeGoogleUserOrRoute() {
         val uid = auth.currentUser?.uid ?: return
         val ref = FirebaseDatabase.getInstance().reference.child("users").child(uid)
@@ -184,64 +197,87 @@ class LoginActivity : AppCompatActivity() {
                 return@addOnCompleteListener
             }
             if (t.result?.exists() == true) {
-                kickOffInitialSync()
+                startAllSyncs()
                 routeByRole(fetchAndCache = true)
             } else {
-                startActivity(
-                    Intent(this, RegisterActivity::class.java)
-                        .putExtra("mode", "google")
-                )
-                finish()
+                goToRegister()
             }
         }
     }
 
-    // ---------------- Role Routing ----------------
+    // ───────────────────────── Role Routing ─────────────────────────
     /**
-     * Fetches role from RTDB and routes. Optionally caches it.
+     * Reads /users/{uid}; if missing or role missing -> Register.
+     * Otherwise route and (optionally) cache role. (Role normalized to UPPERCASE)
      */
     private fun routeByRole(fetchAndCache: Boolean) {
         val uid = auth.currentUser?.uid ?: run {
             startActivity(Intent(this, LoginActivity::class.java)); finish(); return
         }
-        val ref = FirebaseDatabase.getInstance().reference
-            .child("users").child(uid).child("role")
 
-        ref.get().addOnCompleteListener { t ->
-            val role = t.result?.getValue(String::class.java)?.lowercase() ?: "student"
-            if (fetchAndCache) prefs.edit().putString("user_role", role).apply()
-            startActivity(Intent(this, destForRole(role)))
+        val userRef = FirebaseDatabase.getInstance().reference.child("users").child(uid)
+        userRef.get().addOnCompleteListener { t ->
+            if (!t.isSuccessful) { goToRegister(); return@addOnCompleteListener }
+
+            val snap = t.result
+            if (snap == null || !snap.exists()) { goToRegister(); return@addOnCompleteListener }
+
+            val roleUpper = snap.child("role").getValue(String::class.java)
+                ?.trim()
+                ?.uppercase()
+
+            if (roleUpper.isNullOrBlank()) { goToRegister(); return@addOnCompleteListener }
+
+            if (fetchAndCache) prefs.edit().putString("user_role", roleUpper).apply()
+            startActivity(Intent(this, destForRole(roleUpper)))
             finish()
         }
     }
 
-    private fun destForRole(role: String): Class<*> = when (role.lowercase()) {
-        "student"    -> StudentDashboardActivity::class.java
-        "consultant" -> ConsultantDashboardActivity::class.java
-        "admin"      -> AdminDashboardActivity::class.java
+    private fun goToRegister() {
+        startActivity(Intent(this, RegisterActivity::class.java).putExtra("mode", "google"))
+        finish()
+    }
+
+    private fun destForRole(role: String): Class<*> = when (role.uppercase()) {
+        "STUDENT"    -> StudentDashboardActivity::class.java
+        "CONSULTANT" -> ConsultantDashboardActivity::class.java
+        "ADMIN"      -> AdminDashboardActivity::class.java
         else         -> StudentDashboardActivity::class.java
     }
 
     private suspend fun refreshRoleCache(uid: String) {
         val ref = FirebaseDatabase.getInstance()
             .reference.child("users").child(uid).child("role")
-
-        // run off main to avoid blocking UI
         val snapshot = withContext(Dispatchers.IO) { ref.get().await() }
-        val latest = snapshot.getValue(String::class.java)?.lowercase()
-        if (!latest.isNullOrBlank()) {
-            getSharedPreferences("user_prefs", MODE_PRIVATE)
-                .edit().putString("user_role", latest).apply()
+        val latestUpper = snapshot.getValue(String::class.java)
+            ?.trim()
+            ?.uppercase()
+        if (!latestUpper.isNullOrBlank()) {
+            prefs.edit().putString("user_role", latestUpper).apply()
         }
     }
 
-    // ---------------- Login-time Pull ----------------
-    private fun kickOffInitialSync() {
-        RequestsPullWorker.oneShot(this)
-        // Add other workers if/when you need them
+    // ───────────────────────── Sync Kickers ─────────────────────────
+    /**
+     * Call this after any successful sign-in AND when app opens with an existing session.
+     * It:
+     *  - Schedules periodic workers (idempotent).
+     *  - Triggers one-shot initial pulls to populate local DB quickly.
+     */
+    private fun startAllSyncs() {
+        // Periodic (idempotent enqueueUnique… UPDATE)
+        UsersSyncWorker.schedule(this)
+        MessagesSyncWorker.schedule(this)
+        DocumentsSyncWorker.schedule(this)
+        RequestsSyncWorker.schedulePeriodic(this)
+
+        // One-shot “prime” pulls for faster first-run UX
+        RequestsPullWorker.oneShot(this)   // pulls my service requests into Room
+        UsersSyncWorker.oneShot(this)      // fetches all users immediately
     }
 
-    // ---------------- Helpers ----------------
+    // ───────────────────────── Helpers ─────────────────────────
     private fun isValidEmail(value: String?) =
         !value.isNullOrBlank() && Patterns.EMAIL_ADDRESS.matcher(value).matches()
 

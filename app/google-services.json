@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "709255792350-v0rfs913oaok2ngi6gdolhnmo5ll86om.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.citewise_mobile",
+            "certificate_hash": "c3a882ec4b57741aa4addcec54fb3a9530b8b425"
+          }
+        },
+        {
           "client_id": "709255792350-m8i9fba45diqdpk5u2fcki8ee1a25pq3.apps.googleusercontent.com",
           "client_type": 3
         }

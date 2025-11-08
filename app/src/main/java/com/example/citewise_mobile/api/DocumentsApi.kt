@@ -5,7 +5,9 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -13,17 +15,12 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Streaming
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DTOs
-// ─────────────────────────────────────────────────────────────────────────────
-
 data class SignedUrlDto(
     val url: String,
     val expiresInSeconds: Long,
     val provider: String
 )
 
-/** Server payload for a resource visible in the Resources screen. */
 data class ResourceDto(
     val id: String,
     val name: String,
@@ -36,33 +33,34 @@ data class ResourceDto(
     val signedUrlHint: String? = null
 )
 
-/** Map a ResourceDto to your Room entity used by the grid. */
+data class DeleteResourceResult(
+    val ok: Boolean,
+    val id: String
+)
+
 fun ResourceDto.toDocumentEntity(): DocumentEntity = DocumentEntity(
     id = id,
-    ownerUid = "",                                   // shared resource; not a single owner
+    ownerUid = "",
     fileName = name.ifBlank { "Untitled" },
     mimeType = mimeType ?: "application/pdf",
     sizeBytes = size,
     updatedAt = updatedAt ?: System.currentTimeMillis(),
     etag = etag,
     remoteUrlHint = signedUrlHint,
-    localPath = null,                                // set when user marks as offline
+    localPath = null,
     downloadedAt = null
 )
 
-// ─────────────────────────────────────────────────────────────────────────────
-// API
-// ─────────────────────────────────────────────────────────────────────────────
-
 interface DocumentsApi {
 
-    // Existing documents endpoints (in-app viewer / downloads for request files)
+    // documents/*
     @GET("documents/{documentId}/download")
     suspend fun signedUrl(
         @Path("documentId") documentId: String,
-        @Query("provider") provider: String? = null,           // "r2" | "azure"
+        @Query("provider") provider: String? = null,
         @Query("disposition") disposition: String? = "attachment",
-        @Query("expires") expires: Int? = 900
+        @Query("expires") expires: Int? = 900,
+        @Header("Authorization") auth: String? = null
     ): Response<SignedUrlDto>
 
     @GET("documents/{documentId}/file")
@@ -70,41 +68,50 @@ interface DocumentsApi {
     suspend fun streamFile(
         @Path("documentId") documentId: String,
         @Query("provider") provider: String? = null,
-        @Query("disposition") disposition: String? = "attachment"
+        @Query("disposition") disposition: String? = "attachment",
+        @Header("Authorization") auth: String? = null
     ): Response<ResponseBody>
 
-    // Resources (students): list with optional filters + sort
+    // resources/*
     @GET("resources")
     suspend fun listResources(
-        @Query("faculty") faculty: String? = null,          // e.g. "Engineering"
-        @Query("visibility") visibility: String? = null,    // "all" | "students" | "admins"
-        @Query("q") q: String? = null,                      // name search
-        @Query("sort") sort: String? = null,                // "alpha" | "date"
-        @Query("dir") dir: String? = null                   // "asc" | "desc"
+        @Query("faculty") faculty: String? = null,
+        @Query("visibility") visibility: String? = null,
+        @Query("q") q: String? = null,
+        @Query("sort") sort: String? = null,
+        @Query("dir") dir: String? = null,
+        @Header("Authorization") auth: String? = null
     ): Response<List<ResourceDto>>
 
-    // Resources (admins): create via multipart
     @Multipart
     @POST("resources")
     suspend fun createResource(
         @Part("name") name: RequestBody,
         @Part("faculty") faculty: RequestBody,
-        @Part("category") category: RequestBody,            // "WRITING_GUIDE" | "TEMPLATE" | "AI_USAGE"
-        @Part file: MultipartBody.Part
+        @Part("category") category: RequestBody,
+        @Part file: MultipartBody.Part,
+        @Header("Authorization") auth: String? = null
     ): Response<ResourceDto>
 
     @GET("resources/{id}/download")
     suspend fun resourceSignedUrl(
         @Path("id") id: String,
-        @Query("disposition") disposition: String = "inline",   // or "attachment"
-        @Query("provider") provider: String? = null
+        @Query("disposition") disposition: String = "inline",
+        @Query("provider") provider: String? = null,
+        @Header("Authorization") auth: String? = null
     ): Response<SignedUrlDto>
 
     @GET("resources/{id}/file")
     @Streaming
     suspend fun streamResource(
         @Path("id") id: String,
-        @Query("provider") provider: String? = null,        // optional: "r2" | "azure"
-        @Query("disposition") disposition: String? = "inline"
+        @Query("provider") provider: String? = null,
+        @Query("disposition") disposition: String? = "inline",
+        @Header("Authorization") auth: String? = null
     ): Response<ResponseBody>
+
+    @DELETE("resources/{id}")
+    suspend fun deleteResource(
+        @Path("id") id: String
+    ): Response<DeleteResourceResult>
 }
