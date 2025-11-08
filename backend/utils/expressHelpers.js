@@ -14,9 +14,11 @@ export function bailIfInvalid(req, res) {
  * Uses custom claims set by Firebase Authentication (Firebase, 2019b)
  */
 export function isAdmin(user) {
-  return user?.role === "admin" || user?.claims?.admin === true;
+  const fromClaims = String(user?.claims?.role || "").toLowerCase();
+  const fromAttached = String(user?.role || "").toLowerCase();
+  const role = fromAttached || fromClaims;
+  return role === "admin";
 }
-
 
 
 /**

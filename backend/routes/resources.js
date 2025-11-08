@@ -3,6 +3,7 @@ import multer from "multer";
 import { body, param, query } from "express-validator"; // (express-validator, 2019)
 import { checkAuth } from "../auth/checkAuth.js"; // (Balaji, 2023)
 import { db as fsdb } from "../db/firebaseAdmin.js"; // (Firebase, 2019a)
+import { attachRole } from "../middleware/attachRole.js";
 import { isAdmin, bailIfInvalid } from "../utils/expressHelpers.js"; // (Manico & Detlefsen, 2015; express-validator, 2019)
 import {
   newFileId,
@@ -30,6 +31,7 @@ const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipa
 router.post(
   "/",
   checkAuth, // Auth required (Balaji, 2023)
+  attachRole,  
   upload.single("file"),
   body("name").isString().notEmpty(), // (express-validator, 2019)
   body("faculty").isString().notEmpty(), // (express-validator, 2019)
@@ -235,6 +237,7 @@ router.get(
  */
 router.delete("/:id", 
   checkAuth, 
+  attachRole,  
   param("id").isString(), async (req, res) => {
   const v = bailIfInvalid(req, res); if (v) return v;
   try {
