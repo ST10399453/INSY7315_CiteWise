@@ -144,6 +144,10 @@
     <string name="title_active_tasks">Tasks</string>
     <string name="navigate">Navigate</string>
     <string name="profile_picture">profile\n</string>
-
+<!-- Consultant -->
+    <string name="loading_name_placeholder">Loading Profile...</string>
+    <string name="loading_expertise_placeholder">Specialization Not Set</string>
+    <string name="availability_placeholder">Checking Status...</string>
+    <string name="loading_email_placeholder">erinchis124@gmail.com</string>
 
 </resources>

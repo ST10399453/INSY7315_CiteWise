@@ -92,5 +92,6 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.material.vlatestversion)
 
-
+    // Average turnaround time graph
+    implementation("com.google.code.gson:gson:2.10.1")
 }

@@ -73,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/card_neumorphic_background"
+                android:background="@drawable/rounded_card_background"
                 android:orientation="vertical"
                 android:padding="16dp">
 

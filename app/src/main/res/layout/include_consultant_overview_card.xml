@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/rounded_card_background"
+    android:padding="16dp"
+    android:layout_marginBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/tvAvatarInitials"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_background"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/text_light"
+            android:fontFamily="@font/poppins_bold" />
+
+        <TextView
+            android:id="@+id/tvOverviewName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading_name_placeholder"
+            android:textColor="@color/text_dark"
+            android:textSize="18sp"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_marginStart="12dp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Account Information"
+        android:textColor="@color/text_faded"
+        android:textSize="14sp"
+        android:fontFamily="@font/poppins_sembold"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        style="@style/OverviewRow"
+        android:layout_marginBottom="4dp">
+        <TextView
+            style="@style/OverviewLabel"
+            android:text="CV" />
+        <Button
+            android:id="@+id/btnViewCV"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="VIEW"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:textColor="@color/gradient_end" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/OverviewRow"
+        android:layout_marginBottom="4dp">
+        <TextView
+            style="@style/OverviewLabel"
+            android:text="Area of Expertise" />
+        <TextView
+            android:id="@+id/tvExpertise"
+            style="@style/OverviewValue"
+            android:text=""
+            tools:text="Referencing" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/OverviewRow"
+        android:layout_marginBottom="4dp">
+        <TextView
+            style="@style/OverviewLabel"
+            android:text="Availability" />
+        <TextView
+            android:id="@+id/tvAvailability"
+            style="@style/OverviewValue"
+            android:text="@string/availability_placeholder"
+            tools:text="Available" />
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/OverviewRow">
+        <TextView
+            style="@style/OverviewLabel"
+            android:text="Email" />
+        <TextView
+            android:id="@+id/tvOverviewEmail"
+            style="@style/OverviewValue"
+            android:text=""
+            tools:text="erin@consult.com" />
+    </LinearLayout>
+</LinearLayout>

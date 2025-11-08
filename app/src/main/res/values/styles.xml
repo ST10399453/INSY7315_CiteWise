@@ -2,4 +2,192 @@
 <resources>
 
     <style name="AppBottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog" />
+
+    <style name="TaskFilterButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:gravity">center</item>
+        <item name="android:button">@null</item>
+        <item name="android:background">@drawable/radio_button_unselected</item>
+        <item name="android:textColor">@drawable/radio_text_color</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <style name="HistoryListItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:drawablePadding">12dp</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+    </style>
+
+    <style name="VersionHistoryItem" parent="HistoryListItem">
+        <item name="android:drawableStart">@drawable/ic_doc_preview_placeholder</item>
+    </style>
+
+    <style name="ProgressStatusItem" parent="HistoryListItem">
+    </style>
+
+
+    <style name="SummaryChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingHorizontal">12dp</item>
+        <item name="android:paddingVertical">6dp</item>
+        <item name="android:textColor">@color/text_light</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/poppins_sembold</item>
+        <item name="android:background">@drawable/chip_new_assigned</item>
+    </style>
+
+    <style name="NotificationItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingVertical">12dp</item>
+    </style>
+
+    <style name="NotificationItemText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="NotificationItemChevron">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:src">@drawable/ic_chevron_right</item>
+        <item name="android:contentDescription">open</item>
+        <item name="android:tint">@color/gradient_end</item>
+    </style>
+
+    <style name="ProfileToggleBase" parent="Widget.Material3.Button.TextButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="cornerRadius">20dp</item>
+    </style>
+
+    <style name="ProfileToggle.Selected" parent="ProfileToggleBase">
+        <item name="backgroundTint">@color/gradient_end</item>
+        <item name="android:textColor">@color/text_light</item>
+        <item name="android:radius">20dp</item>
+        <item name="android:padding">4dp</item>
+    </style>
+
+    <style name="ProfileToggle.Unselected" parent="ProfileToggleBase">
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:textColor">@color/text_faded</item>
+    </style>
+
+    <style name="OverviewLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">@color/text_faded</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+    </style>
+
+    <style name="OverviewValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/poppins_sembold</item>
+    </style>
+
+    <style name="OverviewRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingVertical">4dp</item>
+    </style>
+
+
+    <style name="HeaderTitleStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/gradient_end</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:fontFamily">@font/poppins_extra_bold</item>
+        <item name="android:layout_marginStart">16dp</item>
+    </style>
+
+    <style name="BackArrowStyle">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:src">@drawable/ic_back_arrow</item>
+        <item name="android:contentDescription">Back</item>
+        <item name="android:layout_marginTop">40dp</item>
+        <item name="android:layout_marginStart">4dp</item>
+    </style>
+
+    <style name="InputLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/poppins_sembold</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
+    <style name="SettingsInput">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@drawable/rounded_card_background</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:textColor">@color/text_dark</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:inputType">text</item>
+    </style>
+
+    <style name="SettingsSectionHeader">
+        <item name="android:textColor">@color/text_faded</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">@font/poppins_sembold</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <style name="StatValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/gradient_end</item>
+        <item name="android:fontFamily">@font/poppins_bold</item>
+    </style>
+
+    <style name="StatLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_faded</item>
+        <item name="android:fontFamily">@font/poppins</item>
+    </style>
+
+    <style name="StatColumn">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingVertical">8dp</item>
+    </style>
 </resources>

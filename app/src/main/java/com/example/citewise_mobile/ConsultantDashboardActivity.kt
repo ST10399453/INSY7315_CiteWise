@@ -1,112 +1,191 @@
 package com.example.citewise_mobile
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.RadioGroup
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import android.widget.RadioButton
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.citewise_mobile.adapters.QuoteRequestAdapter
+import com.example.citewise_mobile.adapters.ScheduleTaskAdapter
+import com.example.citewise_mobile.adapters.TaskAdapter
+import com.example.citewise_mobile.api.RetrofitInstance
+import com.example.citewise_mobile.api.ServicePriority
+import com.example.citewise_mobile.api.ServiceRequestDto
+import com.example.citewise_mobile.data.ServiceReviewsRepository
+import com.example.citewise_mobile.utils.DateUtils.isSameDay
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class ConsultantDashboardActivity : AppCompatActivity() {
+class ConsultantDashboardActivity : BaseActivity() {
 
-    // urgency enum for filtering
+    //Enums and Data Holders
     enum class Urgency {ALL, URGENT, MEDIUM, LOW}
 
-    // sample data
-    data class Task(val name: String, val urgency:Urgency)
+    private lateinit var fullTaskList: List<ServiceRequestDto>
 
-    // store full list and currently filtered list
-    private lateinit var fullTaskList: List<Task>
-  //  private lateinit var taskAdapter: TaskAdapter
+    //Adapters
+    private lateinit var taskAdapter: TaskAdapter
+    private lateinit var scheduleAdapter: ScheduleTaskAdapter
+    private lateinit var quoteRequestAdapter: QuoteRequestAdapter
+
+    //UI Components
+    private lateinit var tasksRecyclerView: RecyclerView
+    private lateinit var scheduleRecyclerView: RecyclerView
+    private lateinit var quoteRequestsRecyclerView: RecyclerView
+    private lateinit var urgencyFilterGroup: MaterialButtonToggleGroup
+
+    //Repositories/Auth
+    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val repo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // BaseActivity handles enableEdgeToEdge() and super.onCreate()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_consultant_dashboard)
 
-        // recycler view
-        val recyclerView = findViewById<RecyclerView>(R.id.tasksRecyclerView)
-     //   taskAdapter = TaskAdapter(fullTaskList)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-     //   recyclerView.adapter = taskAdapter
+        //Find the Bottom Nav and set it up immediately
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        setupBottomNav(bottomNav, R.id.nav_dashboard)
 
-        // radio group listener
-        val radioGroup = findViewById<RadioGroup>(R.id.urgencyFilterGroup)
-        radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            val selectedUrgency = when (checkedId){
-                R.id.filterUrgent -> Urgency.URGENT
-                R.id.filterMedium -> Urgency.MEDIUM
-                R.id.filterLow -> Urgency.LOW
-                R.id.filterAll -> Urgency.ALL
-                else -> Urgency.ALL
+        //Initialize UI Components
+        tasksRecyclerView = findViewById(R.id.tasksRecyclerView)
+        scheduleRecyclerView = findViewById(R.id.scheduleRecyclerView)
+        quoteRequestsRecyclerView = findViewById(R.id.quoteRequestsRecyclerView)
+        urgencyFilterGroup = findViewById(R.id.urgencyFilterGroup)
+
+        //Setup Adapters and RecyclerViews
+        setupTaskAdapters()
+
+        //Setup Urgency Filtering
+        setupUrgencyFilter()
+
+        //Load Data
+        fetchAssignedTasks()
+    }
+
+    // -------------------------------------------------------------------------
+    //  Data Fetching and Updates
+    // -------------------------------------------------------------------------
+
+    private fun fetchAssignedTasks() {
+        val consultantUid = auth.currentUser?.uid
+        if (consultantUid.isNullOrBlank()) {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_LONG).show()
+            fullTaskList = emptyList()
+            updateAllDashboardLists()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = repo.listGeneralRequests(consultantUid)
+
+            withContext(Dispatchers.Main) {
+                fullTaskList = when (result) {
+                    is com.example.citewise_mobile.data.NetResult.Ok -> result.data.orEmpty()
+                    is com.example.citewise_mobile.data.NetResult.Err -> {
+                        Toast.makeText(this@ConsultantDashboardActivity,
+                            "Failed to load tasks: ${result.message}", Toast.LENGTH_LONG).show()
+                        emptyList()
+                    }
+                }
+                updateAllDashboardLists()
             }
-            // call filtering function
-            filterTasks(selectedUrgency)
         }
     }
 
-    // Filters tasks based on urgency and updates recycler view
-    private fun filterTasks(urgency: Urgency){
-        val filteredList = if (urgency == Urgency.ALL){
+    private fun updateAllDashboardLists() {
+        filterTasks(Urgency.ALL)
+        scheduleAdapter.updateList(getTasksForDate(System.currentTimeMillis()))
+        quoteRequestAdapter.updateList(getPendingQuotes())
+    }
+
+    // -------------------------------------------------------------------------
+    //  Adapter Setup
+    // -------------------------------------------------------------------------
+
+    private fun setupTaskAdapters() {
+        val clickHandler: (ServiceRequestDto) -> Unit = { requestDto ->
+            openTaskDetails(requestDto)
+        }
+
+        tasksRecyclerView.layoutManager = LinearLayoutManager(this)
+        taskAdapter = TaskAdapter(emptyList(), clickHandler)
+        tasksRecyclerView.adapter = taskAdapter
+
+        scheduleRecyclerView.layoutManager = LinearLayoutManager(this)
+        scheduleAdapter = ScheduleTaskAdapter(emptyList(), clickHandler)
+        scheduleRecyclerView.adapter = scheduleAdapter
+
+        quoteRequestsRecyclerView.layoutManager = LinearLayoutManager(this)
+        quoteRequestAdapter = QuoteRequestAdapter(emptyList(), clickHandler)
+        quoteRequestsRecyclerView.adapter = quoteRequestAdapter
+    }
+
+    // -------------------------------------------------------------------------
+    //  Filtering Logic
+    // -------------------------------------------------------------------------
+
+    private fun setupUrgencyFilter() {
+        // MaterialButtonToggleGroup uses addOnButtonCheckedListener
+        urgencyFilterGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                val selectedUrgency = when (checkedId) {
+                    R.id.filterUrgent -> Urgency.URGENT
+                    R.id.filterMedium -> Urgency.MEDIUM
+                    R.id.filterLow -> Urgency.LOW
+                    R.id.filterAll -> Urgency.ALL
+                    else -> Urgency.ALL
+                }
+                filterTasks(selectedUrgency)
+            }
+        }
+    }
+
+    private fun filterTasks(urgency: Urgency) {
+        val filteredList = if (urgency == Urgency.ALL) {
             fullTaskList
+        } else {
+            val targetPriority = when(urgency) {
+                Urgency.URGENT -> ServicePriority.HIGH
+                Urgency.MEDIUM -> ServicePriority.MEDIUM
+                Urgency.LOW -> ServicePriority.LOW
+                else -> null
+            }
+            fullTaskList.filter { it.priority == targetPriority }
         }
-        else{
-            fullTaskList.filter{it.urgency == urgency}
-        }
-    //    taskAdapter.updateList(filteredList)
+        taskAdapter.updateList(filteredList)
     }
 
-    private fun getSampleTasks(): List<Task>{
-        return listOf(
-            Task("Review document", Urgency.MEDIUM),
-            Task("Proofreading & Editing", Urgency.URGENT),
-            Task("Referencing", Urgency.LOW)
-        )
+    private fun getTasksForDate(dateMillis: Long): List<ServiceRequestDto> {
+        return fullTaskList.filter { request ->
+            request.deadline?.epochMillis?.let { deadlineMillis ->
+                isSameDay(deadlineMillis, dateMillis)
+            } ?: false
+        }
     }
 
-     // class TaskAdapter(private var tasks: List<Task>): RecyclerView.Adapter<TaskAdapter.TaskViewHolder>(){
-
-        class TaskViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-            val urgencyTag: TextView = itemView.findViewById(R.id.taskUrgencyTag)
-            val serviceType: TextView = itemView.findViewById(R.id.taskServiceType)
-            val studentName: TextView = itemView.findViewById(R.id.taskStudentName)
-            val progressBar: ProgressBar = itemView.findViewById(R.id.taskProgressBar)
+    private fun getPendingQuotes(): List<ServiceRequestDto> {
+        return fullTaskList.filter {
+            it.status?.equals("AWAITING_QUOTE", ignoreCase = true) == true ||
+                    it.status?.equals("QUOTE_REVISE", ignoreCase = true) == true
         }
+    }
 
-     //   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-      //      val view = LayoutInflater.from(parent.context).inflate(R.layout.item_task_card, parent, false)
-      //      return TaskViewHolder(view)
+    // -------------------------------------------------------------------------
+    //  Navigation
+    // -------------------------------------------------------------------------
+
+    private fun openTaskDetails(requestDto: ServiceRequestDto) {
+        val intent = Intent(this, ConsultantTaskDetailsActivity::class.java).apply {
+            putExtra(ConsultantTaskDetailsActivity.EXTRA_REQUEST, requestDto)
         }
-
-       // override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-       //     val task = tasks[position]
-        //    val context = holder.itemView.context
-
-          //  holder.serviceType.text = task.serviceType
-         //   holder.studentName.text = task.studentName
-         //   holder.progressBar.progress = task.progressPercent
-         //   holder.urgencyTag.text = task.urgency.name
-
-         //   val tagColorResId = when(task.urgency){
-          //      Urgency.URGENT -> R.color.red_urgent
-          //      Urgency.MEDIUM -> R.color.orange_medium
-           //     Urgency.LOW -> R.color.green_low
-             //   else -> R.color.dark_shadow
-         //   }
-
-        //    val color = ContextCompat.getColor(context, tagColorResId)
-       //     holder.urgencyTag.setBackgroundColor(color)
-     //   }
-
-//        fun updateList(newList: List<Task>){
-  //          this.tasks = newList
-    //        notifyDataSetChanged()
-     //   }
-    // }
-//}
+        startActivity(intent)
+    }
+}

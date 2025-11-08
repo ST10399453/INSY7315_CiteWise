@@ -84,4 +84,19 @@ class ServiceReviewsRepository(
                 NetResult.Err(e.message ?: "Network error")
             }
         }
+
+    /**
+     * Fetches all service requests assigned to a specific consultant.
+     */
+    suspend fun listGeneralRequests(
+        consultantId: String? = null,
+        status: String? = null,
+        userId: String? = null
+    ): NetResult<List<ServiceRequestDto>> = safe {
+        api.listRequests(
+            consultantId = consultantId,
+            status = status,
+            userId = userId
+        )
+    }
 }

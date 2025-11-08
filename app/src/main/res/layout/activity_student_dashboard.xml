@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#F5F6F9">
+    android:background="@color/main_background">
 
     <!-- Scrollable content -->
     <androidx.core.widget.NestedScrollView
@@ -117,7 +117,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/card_neumorphic_background">
+                    android:background="@drawable/rounded_card_background">
 
                     <!-- Inner container adds inner spacing, not the card itself -->
                     <LinearLayout
@@ -208,7 +208,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/card_neumorphic_background"
+                    android:background="@drawable/rounded_card_background"
                     android:padding="16dp">
 
                     <RelativeLayout
@@ -433,7 +433,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/card_neumorphic_background"
+            android:background="@drawable/rounded_card_background"
             android:padding="16dp">
 
             <RelativeLayout
@@ -540,7 +540,7 @@
                 android:layout_height="156dp"
                 android:padding="16dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/card_neumorphic_background"
+                android:background="@drawable/rounded_card_background"
                 android:orientation="vertical">
 
                 <androidx.appcompat.widget.AppCompatImageButton
@@ -572,7 +572,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:background="@drawable/card_neumorphic_background">
+                    android:background="@drawable/rounded_card_background">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"

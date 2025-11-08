@@ -19,7 +19,7 @@ class ServiceRequestActivity : BaseActivity() {
         layoutInflater.inflate(R.layout.activity_service_request, baseContent, true)
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        setupBottomNav(bottomNav, R.id.nav_request)
+        setupBottomNav(bottomNav, R.id.nav_role_action)
 
         // View all requests
         findViewById<ViewGroup>(R.id.layoutViewAllRequests).setOnClickListener {

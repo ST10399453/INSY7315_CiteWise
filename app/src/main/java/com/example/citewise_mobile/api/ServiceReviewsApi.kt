@@ -40,6 +40,11 @@ interface ServiceReviewsApi {
         @Path("id") id: String
     ): Response<ServiceRequestDto>
 
+    @GET("/requests")
+    suspend fun listAssignedRequests(
+        @Query("consultantId") consultantId: String
+    ): Response<List<ServiceRequestDto>>
+
     // 4) Assign — POST /requests/{id}/assign
     @POST("/requests/{id}/assign")
     suspend fun assignRequest(
