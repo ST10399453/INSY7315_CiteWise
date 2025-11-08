@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp"
+    android:background="@drawable/rounded_card_background"
+    android:layout_marginBottom="1dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/quoteServiceType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_dark"
+        android:textSize="16sp"
+        android:fontFamily="@font/poppins_sembold"
+        tools:text="Proofreading &amp; Editing" />
+
+    <TextView
+        android:id="@+id/quoteDocumentName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_faded"
+        android:textSize="14sp"
+        android:fontFamily="@font/poppins_medium"
+        android:layout_marginTop="2dp"
+        tools:text="Literature Review" />
+
+    <TextView
+        android:id="@+id/quoteSubmissionDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_faded"
+        android:textSize="12sp"
+        android:fontFamily="@font/poppins"
+        android:layout_marginTop="4dp"
+        tools:text="05/10/2025" />
+
+</LinearLayout>

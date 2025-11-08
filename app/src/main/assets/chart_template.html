@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Turnaround Chart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: transparent; }
+    </style>
+
+    <script type="text/javascript">
+        var chartData = [];
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            if (chartData.length <= 1) {
+                document.getElementById('chart_div').innerHTML =
+                    '<div style="text-align: center; color: #666; padding-top: 50px; font-family: sans-serif;">No service history available yet.</div>';
+                return;
+            }
+
+            var dataTable = google.visualization.arrayToDataTable(chartData);
+
+            var options = {
+                title: '',
+                backgroundColor: 'transparent',
+                legend: { position: 'none' },
+                chartArea: { width: '90%', height: '70%' },
+                vAxis: {
+                    title: 'Avg Days',
+                    titleTextStyle: { color: '#666' },
+                    gridlines: { color: '#E0E0E0' }
+                },
+                hAxis: {
+                    title: 'Month',
+                    titleTextStyle: { color: '#666' },
+                    textStyle: { fontSize: 10 }
+                },
+                series: {
+                    0: {
+                        color: '#0027B2',
+                        lineWidth: 3,
+                        pointSize: 8
+                    }
+                }
+            };
+
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(dataTable, options);
+        }
+    </script>
+</head>
+<body>
+<div id="chart_div" style="width: 100%; height: 100%;"></div>
+</body>
+</html>
