@@ -14,8 +14,10 @@ export function bailIfInvalid(req, res) {
  * Uses custom claims set by Firebase Authentication (Firebase, 2019b)
  */
 export function isAdmin(user) {
-  return Boolean(user?.claims?.role === "admin" || user?.claims?.admin === true);
+  return user?.role === "admin" || user?.claims?.admin === true;
 }
+
+
 
 /**
  * Determines whether the given user has access to a document.
