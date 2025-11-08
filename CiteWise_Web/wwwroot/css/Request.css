@@ -1,5 +1,4 @@
-﻿/* Keep your sidebar/top offset setup */
-:root {
+﻿:root {
 
     --top-offset: 80px;
 }
@@ -7,22 +6,22 @@
 .studentbody {
     position: fixed;
     top: var(--top-offset);
-    left: 0; /* ✅ no sidebar anymore */
+    left: 0; 
     right: 0;
     bottom: 0;
     box-sizing: border-box;
     padding: 40px;
     overflow: auto;
     display: flex;
-    justify-content: center; /* ✅ center horizontally */
-    align-items: flex-start; /* ✅ keep content aligned from top */
+    justify-content: center; 
+    align-items: flex-start;
     gap: 20px;
 }
 
 .centered {
     width: 100%;
     max-width: 900px;
-    margin: 0 auto; /* ✅ extra centering safety */
+    margin: 0 auto;
 }
 
 
@@ -44,22 +43,22 @@
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 32px;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
 .progress-fill {
     height: 100%;
-    background: #0027B2;
-    width: 0; /* dynamically set with inline style or JS */
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    width: 0;
     border-radius: 10px;
 }
 
 /* --- White Card --- */
 .studentcard {
-    background: #fff;
+    background: #EBECF0;
     border-radius: 16px;
     padding: 24px 32px;
-    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.15);
-    border: 2px solid #FFF;
+    box-shadow: 4px 4px 4.1px 0 rgba(0, 0, 0, 0.25) inset, -4px -4px 4px 0 rgba(255, 255, 255, 0.63) inset, 2px 2px 4px 0 rgba(0, 0, 0, 0.2), -1px -1px 2px 0 rgba(255, 255, 255, 0.5);
 }
 
 
@@ -107,21 +106,20 @@
     padding: 16px;
     font-size: 18px;
     line-height: 1.5;
-    border: 2px solid #0027B2;
-    backdrop-filter: blur(2px);
-    border-radius: 16px;
+    border: 1px solid #d1d5db;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
     resize: vertical;
     box-sizing: border-box;
-    outline: none;
-
 }
 
 
     .custom-textarea:focus {
         outline: none;
-        border-color: #001a7a; /* deep blue focus */
-        box-shadow: 0 0 8px rgba(0, 39, 178, 0.35);
-        background-color: #f8faff;
+        border-color: #0027B2; /* deep blue focus */
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+        background: #F1F2F5;
     }
 
 
@@ -186,17 +184,19 @@
 
 
 .btn-next {
-    background-color: #0027B2; /* blue */
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
     color: white;
     border: none;
-    padding: 10px 32px;
+    padding: 10px 48px;
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
     .btn-next:hover {
-        background: #001a7a;
+        background: #0027B2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
     }
 
 
@@ -224,6 +224,16 @@ select.input-validation-error {
     }
 
 
+label.file-upload-container.input-validation-error {
+    border: 1px solid #D32F2F !important;
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+    label.file-upload-container.input-validation-error:focus-within {
+        border-color: #b71c1c !important;
+        box-shadow: 0 0 6px rgba(211, 47, 47, 0.4);
+    }
 
 
 .file-upload-container {
@@ -231,11 +241,11 @@ select.input-validation-error {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     padding: 12px;
-    border: 2px dashed #0027B2;
+  border: 1px solid #d1d5db;
     border-radius: 20px;
-    background: #F9FAFB;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
@@ -298,19 +308,17 @@ select.input-validation-error {
     font-size: 16px;
     color: #0027B2;
     padding: 12px 16px;
-    background: #F9FAFB;
+    border: 1px solid #d1d5db;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     display: none;
     align-items: center;
-
 }
 
     .selected-file-name.show {
         display: flex;
     }
-
-
-
 
 /* Input with Icon Container */
 .input-with-icon {
@@ -324,30 +332,23 @@ select.input-validation-error {
     width: 100%;
     max-width: 370px;
     padding: 14px 50px 14px 18px;
-    border: 2px solid #0027b2; 
-    border-radius: 12px; 
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
     font-size: 16px;
     font-family: "Poppins", sans-serif;
-    background: #ffffff;
+    background: #F1F2F5;
     box-sizing: border-box;
-    transition: all 0.3s ease;
-    appearance: none; 
     -webkit-appearance: none;
     -moz-appearance: none;
 }
 
 
-    .icon-input:hover {
-        border-color: #001e8d; 
-        box-shadow: 0 0 6px rgba(0, 39, 178, 0.25);
-    }
-
-    /* --- Focus State (when user clicks in input) --- */
     .icon-input:focus {
         outline: none;
-        border-color: #001a7a; 
-        box-shadow: 0 0 8px rgba(0, 39, 178, 0.35);
-        background-color: #f8faff; 
+        border-color: #0027B2;
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+        background: #F1F2F5;
     }
 
 
@@ -362,16 +363,14 @@ select.input-validation-error {
     right: 18px;
     top: 50%;
     transform: translateY(-50%);
-    pointer-events: none; /* Allow clicks to pass through to input */
+    pointer-events: none;
     width: 24px;
     height: 24px;
 }
 
-
-/* Select Dropdown - Hide default arrow */
 select.icon-input {
     cursor: pointer;
-    background-image: none; /* Remove default dropdown arrow */
+    background-image: none; 
 }
 
 /* Date Input - Adjust for browser calendar icon */
@@ -480,11 +479,12 @@ select.input-validation-error.icon-input {
 .urgency-dropdown-trigger {
     width: 100%;
     padding: 14px 50px 14px 18px;
-    border: 2px solid #0027b2;
+    border: 1px solid #d1d5db;
     border-radius: 12px;
     font-size: 16px;
     font-family: "Poppins", sans-serif;
-    background: #ffffff;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
     transition: all 0.3s ease;
     cursor: pointer;
