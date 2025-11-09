@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
@@ -8,8 +9,8 @@ namespace CiteWise_Web.Services
     public class ApiService
     {
         private readonly HttpClient _client;
-        
-//dasdsadasds
+
+
         public ApiService(IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _client = httpClientFactory.CreateClient();
@@ -23,7 +24,7 @@ namespace CiteWise_Web.Services
             _client.DefaultRequestHeaders.Authorization =
                  new AuthenticationHeaderValue("Bearer", firebaseToken);
 
-         
+
             return await _client.GetAsync("requests");
         }
 
@@ -32,7 +33,9 @@ namespace CiteWise_Web.Services
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", firebaseToken);
 
-            return await _client.PostAsync($"requests/{requestId}/self-assign", null);
+            var body = new { };
+
+            return await _client.PostAsJsonAsync($"requests/{requestId}/self-assign", body);
         }
 
         public async Task<HttpResponseMessage> GetUnassignedRequestsAsync(string firebaseToken)
@@ -43,7 +46,7 @@ namespace CiteWise_Web.Services
             return await _client.GetAsync("requests?userId=");
         }
 
-        
+
 
 
         public async Task<HttpResponseMessage> CreateRequestAsync(
@@ -75,5 +78,35 @@ namespace CiteWise_Web.Services
             var url = string.IsNullOrEmpty(qs) ? "requests" : $"requests?{qs}";
             return await _client.GetAsync(url);
         }
+
+        public async Task<string> GetFileDownloadUrlAsync(string fileId, string token)
+        {
+
+            _client.DefaultRequestHeaders.Authorization =
+        new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _client.GetAsync($"documents/{fileId}/download");
+
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+
+
+            dynamic data = JsonConvert.DeserializeObject(json);
+
+            return (string)data.url;
+        }
+
+        public async Task<HttpResponseMessage> GetAssignedRequestsAsync(string token, string consultantId)
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            return await _client.GetAsync($"requests?consultantId={consultantId}");
+        }
+
+
     }
 }

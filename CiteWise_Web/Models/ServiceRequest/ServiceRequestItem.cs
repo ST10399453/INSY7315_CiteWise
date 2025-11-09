@@ -9,5 +9,9 @@
         public string Status { get; set; }
         public string ConsultantId { get; set; }
         public string Deadline { get; set; }
+
+        public string? DocumentId { get; set; }
+
+        public FileMetadata? File { get; set; }
     }
 }
