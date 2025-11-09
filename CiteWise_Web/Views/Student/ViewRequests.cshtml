@@ -1,0 +1,75 @@
+﻿@model List<CiteWise_Web.Models.ServiceRequest.RequestItem>
+@using System.Linq
+
+@{
+    Layout = "_LayoutAuth";
+
+    var selectedPriority = (string)Context.Request.Query["priority"] ?? "All";
+}
+
+<div class="studentbody">
+    <div class="centered">
+        <h2 class="page-title">View All Requests</h2>
+
+        <div class="filter-tabs">
+            <div class="active-bg"></div>
+            <a class="tab @(selectedPriority == "All" ? "active" : "")" data-priority="All">All</a>
+            <a class="tab @(selectedPriority == "High" ? "active" : "")" data-priority="High">High</a>
+            <a class="tab @(selectedPriority == "Medium" ? "active" : "")" data-priority="Medium">Medium</a>
+            <a class="tab @(selectedPriority == "Low" ? "active" : "")" data-priority="Low">Low</a>
+        </div>
+
+
+        <div class="dashboard-card">
+            @if (Model != null && Model.Any())
+            {
+                <div class="request-list">
+                    @foreach (var request in Model.OrderBy(r => string.IsNullOrEmpty(r.Deadline) ? DateTime.MaxValue : DateTime.Parse(r.Deadline)))                                
+                    {
+                        <div class="request-item">
+                            <div class="category-header">
+                                @{
+                                    var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
+                                    request.ServiceType.Replace("_", " ").ToLower()
+                                    );
+
+                                    if (displayName.Contains("Proofreading Editing"))
+                                        displayName = displayName.Replace("Proofreading Editing", "Proofreading & Editing");
+
+                                    if (displayName.Contains("Formatting Referencing"))
+                                        displayName = displayName.Replace("Formatting Referencing", "Formatting & Referencing");
+                                }
+                                <p class="category-title">@displayName</p>
+                                <span class="priority-badge @(request.Priority?.ToLower())">
+                                    @request.Priority
+                                </span>
+                            </div>
+
+                            <div class="request-content">
+                                <div class="content-left">
+                                    <h3 class="request-title">@request.File?.OriginalName</h3>
+                                    <p class="submission-date">
+                                        Submitted: @(request.CreatedAt.HasValue? request.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy"): "-")
+                                    </p>
+                                    <div class="request-footer">
+                                        <div class="status-group">
+                                            <span class="status-dot @(request.Status?.ToLower().Replace(" ", "-"))"></span>
+                                            <span class="status-text">@request.Status</span>
+                                        </div>
+                                        <span class="deadline-text">
+                                            Deadline: @(string.IsNullOrEmpty(request.Deadline) ? "-" : request.Deadline)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      }
+                </div>
+            }
+            else
+            {
+                <p>No service requests found.</p>
+            }
+        </div>
+    </div>
+</div>

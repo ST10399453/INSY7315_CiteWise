@@ -18,10 +18,10 @@
             <img src="~/icons/r.svg" alt="Request a Service" class="feature-icon" />
             <span>Request a Service</span>
         </a>
-        <div class="feature-btn">
+        <a asp-controller="Student" asp-action="ViewRequests" class="feature-btn">
             <img src="~/icons/view_requests.png" alt="View all Requests" class="feature-icon" />
             <span>View All Requests</span>
-        </div>
+        </a>
         <div class="feature-btn">
             <img src="~/icons/AI_Icon.svg" alt="AI Assistant" class="feature-icon" />
             <span>AI Assistant</span>
@@ -32,8 +32,6 @@
         </div>
     </div>
 </div>
-
-
 
 <div class="dashboard-container">
 
@@ -108,34 +106,56 @@
         </div>
 
 
-
-
         <!-- Notifications -->
         <div class="dashboard-card">
-            <h3>Notifications</h3>
+            <h3 class="dashboard-heading">
+                Notifications
+                <img src="~/icons/notification.svg" alt="Notification Icon" class="heading-icon" />
+            </h3>
+
             <ul class="notification-list">
-                <li>📄 Missing documents</li>
-                <li>✅ Feedback received</li>
-                <li>💬 1 New message</li>
-                <li>⭐ Rate your consultant</li>
-                <li>🔔 Status update</li>
+                <li>
+                    <img src="~/icons/feedback.svg" class="left-icon" />
+                    <span>Feedback received</span>
+                    <img src="~/icons/right_arrow.svg" class="arrow-icon" />
+                </li>
+
+                <li>
+                    <img src="~/icons/message.svg" class="left-icon" />
+                    <span>1 New message</span>
+                    <img src="~/icons/right_arrow.svg" class="arrow-icon" />
+                </li>
+
+                <li>
+                    <img src="~/icons/rates.svg" class="left-icon" />
+                    <span>Rate your consultant</span>
+                    <img src="~/icons/right_arrow.svg" class="arrow-icon" />
+                </li>
+
+                <li>
+                    <img src="~/icons/status_update.svg" class="left-icon" />
+                    <span>Status update</span>
+                    <img src="~/icons/right_arrow.svg" class="arrow-icon" />
+                </li>
+
             </ul>
         </div>
 
+
         <!-- Service Quote -->
-        <div class="dashboard-card">
-            <h3>Service Quote</h3>
+            @* <h3>Service Quote</h3> *@
             <div class="request-item">
                 <p><strong>Business Plan Draft</strong></p>
                 <p>Total: <strong>R450.00</strong></p>
                 <p>Deadline: 25.08.2025</p>
             </div>
-            <div class="btn-group">
+            @* <div class="btn-group">
                 <button class="btn">Accept</button>
                 <button class="btn btn-secondary">Request Review</button>
                 <button class="btn btn-outline">Download PDF</button>
-            </div>
-        </div>
+            </div> *@
+
+        
 
     </div>
 </div>

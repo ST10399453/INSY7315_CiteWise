@@ -432,7 +432,6 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\nwucq4mf8t-c33q8aszo4.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\4jr9tuikjl-jrturl8wl1.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\k23bl43col-padam54a52.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-ku8tsc6qkc.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\2qebheeuja-gesdh1v783.gz
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\bin\Debug\net9.0\appsettings.json
@@ -606,7 +605,6 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\yqclhnibia-rhd3bmtrf6.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\31hfx6wnt8-3q808mv8jk.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8mtfyigxeg-gz7ez9pbc1.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\h65zcjptqy-4256hyq6oo.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\mlnbb5k7ue-c779a7xqu6.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\h65zcjptqy-4256hyq6oo.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\17hw1yooy8-t2tegtc8vp.gz
@@ -617,6 +615,18 @@ C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8mtfyigxeg-z0vr7b5t8b.gz
 C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8xbyvx74aj-x65mknx062.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\17hw1yooy8-t2tegtc8vp.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\i69gjstz8j-fr16fxvui7.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8xbyvx74aj-x65mknx062.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-6llx0geyjn.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\jutq080csj-116iv8c9t6.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\o29ea6pvg0-zqeffqbc3d.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\pqa1z2ju7c-o8hlxf325s.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\d6otl4ak39-1io6tyhgp7.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\8vgtf2n3kw-d41nosj7b6.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\k5vnkwt4jn-8zorn74tl2.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ram6k90psx-2ltxfaz5fb.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\1m59p74c4b-olgqtt76aj.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\x8b79p8ozl-5uvmqdeftb.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\h65zcjptqy-sjpr4mz8fg.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-o7o2pvx4hk.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\i69gjstz8j-2cuws3rsgr.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\33lxpgvfex-tzy8x4l6ag.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-oh1p1vv6qs.gz

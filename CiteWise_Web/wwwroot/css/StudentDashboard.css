@@ -14,6 +14,8 @@
     border-radius: 16px;
     margin: 18px auto 25px auto;
     width: 90%;
+    position: relative;
+    z-index: 1;
 }
 
     .dashboard-header h2 {
@@ -102,6 +104,7 @@
     padding: 20px 40px;
     overflow-y: auto;
     box-sizing: border-box;
+    z-index: 1;
 }
 
 .dashboard-grid {
@@ -109,6 +112,18 @@
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 25px;
 }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 equal columns horizontally */
+    gap: 25px; /* neat spacing between cards */
+    align-items: start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1400px; /* keeps layout centered and balanced */
+    margin: 0 auto;
+}
+
 
 /* scrollable table wrapper */
 .table-scroll {
@@ -143,12 +158,7 @@
     background-color: #f9f9f9;
 }
 
-/* existing card and request styling */
-.request-list {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-bottom: 15px;
-}
+
 
 
 /*CHNAGE HERE HERE HERE*/
@@ -196,14 +206,30 @@
 }
 
     .notification-list li {
-        padding: 10px;
-        border-bottom: 1px solid #eee;
+        display: flex;
+        font-family: "Public Sans";
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e6e6e6;
         cursor: pointer;
+        color: #0027B2;
+        font-size: 15px;
     }
 
-        .notification-list li:hover {
-            background: rgba(202, 212, 245, 0.5);
-        }
+.left-icon {
+    width: 22px;
+    margin-right: 10px;
+}
+
+.arrow-icon {
+    width: 10px;
+}
+
+.notification-list li span {
+    flex: 1;
+}
+
 
 .btn {
     background: #0027B2;

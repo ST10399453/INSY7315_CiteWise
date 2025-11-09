@@ -148,5 +148,35 @@ namespace CiteWise_Web.Controllers
 
             return View();
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ViewRequests(string priority = "All")
+        {
+            var token = HttpContext.Session.GetString("FirebaseToken");
+            var role = HttpContext.Session.GetString("UserRole");
+
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(role) || role.ToLower() != "student")
+                return RedirectToAction("Login", "Account");
+
+            var resp = await _apiService.GetMyRequestsAsync(token, null); // fetch all requests
+            if (!resp.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to load requests from API.";
+                return View(new List<RequestItem>());
+            }
+
+            var json = await resp.Content.ReadAsStringAsync();
+            var items = JsonConvert.DeserializeObject<List<RequestItem>>(json) ?? new List<RequestItem>();
+
+            if (priority != "All")
+            {
+                items = items.Where(r => string.Equals(r.Priority, priority, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            return View(items);
+        }
+
+
     }
 }
