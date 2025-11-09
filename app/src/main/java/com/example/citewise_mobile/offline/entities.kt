@@ -4,23 +4,33 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-enum class SyncState { PENDING_UPLOAD, SYNCED, FAILED }
+/**
+ * Indicates how far a record has synced with the backend.
+ */
+enum class SyncState {
+    PENDING_UPLOAD,
+    SYNCED,
+    FAILED
+}
+
+// ============================================================
+// Service Requests (Students & Consultants)
+// ============================================================
 
 @Entity(
     tableName = "service_requests",
     indices = [
         Index("updatedAt"),
         Index("syncState"),
-        Index("remoteId") // fast lookup when merging pulls
+        Index("remoteId") // for fast lookup when merging pull results
     ]
 )
 data class ServiceRequestEntity(
     @PrimaryKey(autoGenerate = true) val localId: Long = 0,
-    val remoteId: String? = null,
-    val userId: String? = null,
-    val consultantId: String? = null,
-    val serviceType: String,
-    //val title: String? = null,
+    val remoteId: String? = null,           // server id
+    val userId: String? = null,             // student uid
+    val consultantId: String? = null,       // consultant uid
+    val serviceType: String,                // required
     val quotationId: String? = null,
     val description: String? = null,
     val priority: String? = null,
@@ -28,7 +38,7 @@ data class ServiceRequestEntity(
     val documentId: String? = null,
     val documentName: String = "",
     val customName: String = "",
-    val filePath: String? = null,
+    val filePath: String? = null,           // local staging path before upload
     val deadlineIso: String? = null,
     val feedback: String? = null,
     val syncState: SyncState = SyncState.SYNCED,
@@ -36,17 +46,31 @@ data class ServiceRequestEntity(
     val updatedAt: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "users", indices = [Index("updatedAt")])
+// ============================================================
+// Users (All Roles)
+// ============================================================
+
+@Entity(
+    tableName = "users",
+    indices = [Index("updatedAt")]
+)
 data class UserEntity(
     @PrimaryKey val uid: String,
     val firstName: String,
     val surname: String,
     val email: String,
-    val role: String,
+    val role: String,           // "student", "consultant", "admin"
     val updatedAt: Long
 )
 
-@Entity(tableName = "chats", indices = [Index("updatedAt")])
+// ============================================================
+// Chats (1:1 Chat Sessions)
+// ============================================================
+
+@Entity(
+    tableName = "chats",
+    indices = [Index("updatedAt")]
+)
 data class ChatEntity(
     @PrimaryKey val chatId: String,
     val senderId: String,
@@ -54,9 +78,19 @@ data class ChatEntity(
     val updatedAt: Long
 )
 
+// ============================================================
+// Messages (Individual Chat Messages)
+// ============================================================
+
 @Entity(
     tableName = "messages",
-    indices = [Index("chatId"), Index("senderId"), Index("recipientId"), Index("timeSent"), Index("synced")]
+    indices = [
+        Index("chatId"),
+        Index("senderId"),
+        Index("recipientId"),
+        Index("timeSent"),
+        Index("synced")
+    ]
 )
 data class MessageEntity(
     @PrimaryKey val messageId: String,
@@ -70,19 +104,52 @@ data class MessageEntity(
     val synced: Boolean = false
 )
 
+// ============================================================
+// Documents (Any Uploaded File Stored on Server)
+// ============================================================
+
 @Entity(
     tableName = "documents",
     indices = [Index("ownerUid"), Index("updatedAt")]
 )
 data class DocumentEntity(
-    @PrimaryKey val id: String,         // server doc id
-    val ownerUid: String,               // firebase uid if available
+    @PrimaryKey val id: String,             // server doc id
+    val ownerUid: String,                   // Firebase UID of the owner
     val fileName: String,
     val mimeType: String,
     val sizeBytes: Long?,
     val updatedAt: Long,
-    val etag: String?,
+    val etag: String?,                      // for sync comparisons
     val remoteUrlHint: String?,
     val localPath: String?,
     val downloadedAt: Long?
+)
+
+// ============================================================
+// Resources (Admin-Uploaded Shared Materials)
+//  - Added `faculty` so workers/UI can send & display it.
+// ============================================================
+
+@Entity(
+    tableName = "resources",
+    indices = [
+        Index("updatedAt"),
+        Index("remoteId"),
+        Index("faculty")
+    ]
+)
+data class ResourceEntity(
+    @PrimaryKey(autoGenerate = true) val localId: Long = 0,
+    val remoteId: String? = null,           // server resource id
+    val adminUid: String? = null,           // uploader
+    val title: String,
+    val description: String? = null,
+    val category: String? = null,           // "TEMPLATE", "WRITING_GUIDE", etc.
+    val faculty: String? = null,
+    val documentId: String? = null,
+    val fileName: String? = null,
+    val filePath: String? = null,
+    val syncState: SyncState = SyncState.SYNCED,
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis()
 )

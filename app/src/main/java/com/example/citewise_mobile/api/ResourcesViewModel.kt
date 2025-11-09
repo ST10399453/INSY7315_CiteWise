@@ -3,10 +3,9 @@ package com.example.citewise_mobile.api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.citewise_mobile.api.DocumentsApi
 import com.example.citewise_mobile.data.DocumentsRepository
-import com.example.citewise_mobile.offline.DocumentEntity
 import com.example.citewise_mobile.offline.LocalRepos
+import com.example.citewise_mobile.offline.ResourceEntity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,23 +13,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.io.File
 
 class ResourcesViewModel(
-    private val api: DocumentsApi,
+    private val api: ResourcesApi,
     private val localRepos: LocalRepos,
     private val docsRepo: DocumentsRepository
 ) : ViewModel() {
 
-    // UI inputs
+    // inputs
     private val q = MutableStateFlow("")
-    private val faculty = MutableStateFlow<String?>(null)           // "All" or actual faculty; we normalize to null if "All"
-    private val visibilityLabel = MutableStateFlow<String?>("All")  // "All" | "Public" | "Private"
-    private val sortKey = MutableStateFlow("date")                  // "date" | "date_asc" | "alpha" | "alpha_desc"
+    private val faculty = MutableStateFlow<String?>(null)
+    private val visibilityLabel = MutableStateFlow<String?>("All")
+    private val sortKey = MutableStateFlow("date")
 
-    // Outputs
-    private val _items = MutableStateFlow<List<DocumentEntity>>(emptyList())
-    val items: StateFlow<List<DocumentEntity>> = _items
+    // 🔁 OUTPUTS NOW RESOURCE-BASED
+    private val _items = MutableStateFlow<List<ResourceEntity>>(emptyList())
+    val items: StateFlow<List<ResourceEntity>> = _items
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
@@ -57,20 +55,28 @@ class ResourcesViewModel(
                 return@launch
             }
 
-            // Normalize UI -> API
-            val visApi = mapVisibility(visibilityLabel.value)             // "all" | "students" | "admins" | null
-            val facultyApi = faculty.value?.takeUnless { it.equals("All", true) }
-            val (sort, dir) = mapSort(sortKey.value)                      // ("alpha"|"date", "asc"|"desc")
-            val queryText = q.value.ifBlank { null }
+            val visApi: String? = when (visibilityLabel.value?.lowercase()) {
+                null, "", "all" -> "all"
+                "public"        -> "students"
+                "private"       -> "admins"
+                else            -> "all"
+            }
+            val facultyApi: String? = faculty.value?.takeUnless { it.equals("All", true) }
+            val (sort, dir) = when (sortKey.value) {
+                "alpha"      -> "alpha" to "asc"
+                "alpha_desc" -> "alpha" to "desc"
+                "date_asc"   -> "date"  to "asc"
+                else         -> "date"  to "desc"
+            }
+            val queryText: String? = q.value.ifBlank { null }
 
-            // Single network call (no duplication)
             val resp = api.listResources(
                 faculty = facultyApi,
-                visibility = visApi,     // server treats "all" as everyone
+                visibility = visApi,
                 q = queryText,
                 sort = sort,
                 dir = dir,
-                auth = authHeader        // 🔐 IMPORTANT
+                auth = authHeader
             )
 
             if (!resp.isSuccessful || resp.body() == null) {
@@ -82,26 +88,45 @@ class ResourcesViewModel(
                 return@launch
             }
 
-            val remote = resp.body()!!.map { it.toDocumentEntity() }
+            // 🔁 MAP DTO → ResourceEntity (define an extension below)
+            val remote: List<ResourceEntity> = resp.body()!!.map { it.toResourceEntity() }
 
-            // Merge with local (preserve offline fields)
-            val dao = localRepos.documents
-            val current = runCatching { dao.getAllByDate() }.getOrDefault(emptyList())
+            // 🔁 MERGE/UPSERT INTO resources DAO (NOT documents DAO)
+            val dao = localRepos.resources
+            // naive replace-or-upsert by remoteId
+            val existing = runCatching { dao.getAll() }.getOrDefault(emptyList())
+            val byRemote = existing.associateBy { it.remoteId }
             val merged = remote.map { r ->
-                val loc = current.find { it.id == r.id }
-                r.copy(localPath = loc?.localPath, downloadedAt = loc?.downloadedAt)
+                val old = r.remoteId?.let { byRemote[it] }
+                if (old == null) r.copy(updatedAt = System.currentTimeMillis())
+                else old.copy(
+                    title       = r.title,
+                    description = r.description ?: old.description,
+                    category    = r.category ?: old.category,
+                    faculty     = r.faculty ?: old.faculty,
+                    documentId  = r.documentId ?: old.documentId,
+                    fileName    = r.fileName ?: old.fileName,
+                    updatedAt   = System.currentTimeMillis()
+                )
+            }
+            // simple approach: update or insert one by one
+            merged.forEach { entity ->
+                if (entity.remoteId != null && byRemote.containsKey(entity.remoteId)) {
+                    dao.update(entity)
+                } else {
+                    dao.insert(entity)
+                }
             }
 
-            dao.upsertAll(merged)
+            // order locally according to sort
+            val out: List<ResourceEntity> = when (sortKey.value) {
+                "alpha"      -> dao.getAll().sortedBy { it.title.lowercase() }
+                "alpha_desc" -> dao.getAll().sortedByDescending { it.title.lowercase() }
+                "date_asc"   -> dao.getAll().sortedBy { it.updatedAt }
+                else         -> dao.getAll().sortedByDescending { it.updatedAt }
+            }
 
-            _items.emit(
-                when (sortKey.value) {
-                    "alpha"      -> dao.getAllAlpha()
-                    "alpha_desc" -> dao.getAllAlpha().asReversed()
-                    "date_asc"   -> dao.getAllByDate().asReversed()
-                    else         -> dao.getAllByDate() // "date" desc default
-                }
-            )
+            _items.emit(out)
         } catch (t: Throwable) {
             _error.emit(t.localizedMessage ?: "Unexpected error")
             _items.emit(emptyList())
@@ -110,54 +135,8 @@ class ResourcesViewModel(
         }
     }
 
-    suspend fun markOffline(docId: String, preferredName: String?): Result<File> {
-        val auth = buildAuthHeader()
-        return when (val res = docsRepo.downloadToDisk(docId, preferredName, auth = auth)) {
-            is com.example.citewise_mobile.data.NetResult.Ok -> {
-                val dao = localRepos.documents
-                val d = dao.getById(docId) ?: return Result.failure(IllegalStateException("Not found"))
-                dao.update(d.copy(localPath = res.data.absolutePath, downloadedAt = System.currentTimeMillis()))
-                refresh()
-                Result.success(res.data)
-            }
-            is com.example.citewise_mobile.data.NetResult.Err ->
-                Result.failure(Exception(res.message))
-        }
-    }
-
-
-    suspend fun removeOffline(docId: String) {
-        val dao = localRepos.documents
-        val d = dao.getById(docId) ?: return
-        d.localPath?.let { runCatching { File(it).delete() } }
-        dao.update(d.copy(localPath = null, downloadedAt = null))
-        refresh()
-    }
-
-    suspend fun deleteResourceEverywhere(id: String, strict: Boolean = false): Result<Unit> {
-        val auth = buildAuthHeader() ?: return Result.failure(IllegalStateException("Not signed in."))
-        return try {
-            when (val res = docsRepo.deleteResource(id, auth, strict)) {
-                is com.example.citewise_mobile.data.NetResult.Err ->
-                    Result.failure(Exception(res.message.ifBlank { "Delete failed" }))
-                is com.example.citewise_mobile.data.NetResult.Ok -> {
-                    // remove cached file + row locally (best effort)
-                    val dao = localRepos.documents
-                    val existing = runCatching { dao.getById(id) }.getOrNull()
-                    existing?.localPath?.let { runCatching { java.io.File(it).delete() } }
-                    runCatching { dao.deleteById(id) }  // see DAO addition below
-
-                    // refresh list from Room
-                    refresh()
-                    Result.success(Unit)
-                }
-            }
-        } catch (t: Throwable) {
-            Result.failure(t)
-        }
-    }
-
-    // ─────────── Helpers ───────────
+    // (optional) offline download still via Documents repo if you need it later
+    // suspend fun markOffline(...) { ... }
 
     private suspend fun buildAuthHeader(): String? = withContext(Dispatchers.IO) {
         val user = FirebaseAuth.getInstance().currentUser ?: return@withContext null
@@ -165,23 +144,27 @@ class ResourcesViewModel(
         token?.let { "Bearer $it" }
     }
 
-    private fun mapVisibility(label: String?): String? = when (label?.lowercase()) {
-        null, "", "all"   -> "all"      // you can also return null to omit the filter
-        "public"          -> "students" // public = visible to students
-        "private"         -> "admins"   // private = admins only
-        else              -> "all"
+    // In ResourcesViewModel
+    suspend fun deleteResource(res: ResourceEntity): Boolean {
+        val id = res.remoteId ?: return false
+        val token = buildAuthHeader() ?: return false
+        return try {
+            val resp = api.deleteResource(id, token, strict = false)
+            if (resp.isSuccessful) {
+                // remove locally so RecyclerView updates immediately
+                localRepos.resources.deleteByRemoteId(id)
+                // also refresh the stream to reflect server truth
+                refresh()
+                true
+            } else {
+                false
+            }
+        } catch (_: Throwable) { false }
     }
 
-    private fun mapSort(key: String): Pair<String, String> = when (key) {
-        "alpha"       -> "alpha" to "asc"
-        "alpha_desc"  -> "alpha" to "desc"
-        "date_asc"    -> "date"  to "asc"
-        else          -> "date"  to "desc" // default "Newest first"
-    }
 
-    // Factory
     class Factory(
-        private val api: DocumentsApi,
+        private val api: ResourcesApi,
         private val localRepos: LocalRepos,
         private val docsRepo: DocumentsRepository
     ) : ViewModelProvider.Factory {

@@ -16,7 +16,7 @@ class DocumentsRepository(
 ) {
     private val rawHttp by lazy { OkHttpClient() }
 
-    /** Public/authorized signed URL for DownloadManager. */
+    /** Get a public/authorized signed URL for a document download. */
     suspend fun getSignedUrl(
         documentId: String,
         auth: String? = null
@@ -37,7 +37,7 @@ class DocumentsRepository(
         NetResult.Ok(signed.body()!!.url)
     }
 
-    /** Private save for in-app viewing. */
+    /** Download a document (stream first, fallback to signed URL) and save to disk. */
     suspend fun downloadToDisk(
         documentId: String,
         preferredName: String?,
@@ -91,37 +91,7 @@ class DocumentsRepository(
         }
     }
 
-    /** Admin only. */
-    suspend fun deleteResource(
-        resourceId: String,
-        auth: String,
-        strict: Boolean = false
-    ): NetResult<Unit> {
-        val resp = runCatching { api.deleteResource(resourceId, auth = auth, strict = strict) }
-            .getOrElse { t -> return NetResult.Err(t.message ?: "Delete failed") }
-
-        if (!resp.isSuccessful) {
-            val msg = resp.errorBody()?.string().orEmpty().ifBlank { "HTTP ${resp.code()}" }
-            return NetResult.Err(msg, resp.code())
-        }
-        return NetResult.Ok(Unit)
-    }
-
-    /** Signed URL for a resource (server may require auth). */
-    suspend fun getResourceSignedUrl(
-        id: String,
-        disposition: String = "inline",
-        auth: String? = null
-    ): NetResult<String> = withContext(Dispatchers.IO) {
-        val resp = runCatching { api.resourceSignedUrl(id, disposition, null, auth) }
-            .getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Signed URL failed") }
-
-        if (!resp.isSuccessful || resp.body() == null) {
-            val msg = resp.errorBody()?.string().orEmpty().ifBlank { "HTTP ${resp.code()}" }
-            return@withContext NetResult.Err(msg, resp.code())
-        }
-        NetResult.Ok(resp.body()!!.url)
-    }
+    // -------- Internal helpers --------
 
     private fun saveBodyToFile(
         body: ResponseBody,

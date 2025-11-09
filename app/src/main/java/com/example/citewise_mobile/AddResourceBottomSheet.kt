@@ -1,4 +1,4 @@
-package com.example.citewise_mobile.ui
+package com.example.citewise_mobile
 
 import android.app.Activity
 import android.content.Context
@@ -12,23 +12,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doOnTextChanged
-import com.example.citewise_mobile.api.RetrofitInstance
-import com.example.citewise_mobile.api.DocumentsApi
+import androidx.lifecycle.lifecycleScope
 import com.example.citewise_mobile.databinding.SheetAddResourceBinding
+import com.example.citewise_mobile.offline.LocalRepos
+import com.example.citewise_mobile.offline.ResourceEntity
+import com.example.citewise_mobile.offline.ResourcesSyncWorker
+import com.example.citewise_mobile.offline.SyncState
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
 
@@ -38,7 +34,6 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
 
     private var _binding: SheetAddResourceBinding? = null
     private val binding get() = _binding!!
-    private val api: DocumentsApi by lazy { RetrofitInstance.documentsApi }
 
     private var pickedUri: Uri? = null
     private var pickedDisplayName: String? = null
@@ -50,15 +45,31 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
             NewResourceBottomSheet().also { it.show(fm, "new_resource") }
     }
 
+    // Keep these in sync with your filters
     private val faculties = listOf("Engineering", "Science", "Humanities", "Business")
     private val categoriesUi = listOf("Writing guide", "Template", "Tools")
+
+    // Map UI -> server category code
     private fun mapCategory(ui: String) = when (ui) {
         "Writing guide" -> "WRITING_GUIDE"
         "Template"      -> "TEMPLATE"
         else            -> "AI_USAGE"
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    // Normalize faculty to canonical values your backend expects
+    private fun normalizeFaculty(ui: String): String = when (ui.trim().lowercase()) {
+        "engineering" -> "Engineering"
+        "science"     -> "Science"
+        "humanities"  -> "Humanities"
+        "business"    -> "Business"
+        else          -> "General"
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = SheetAddResourceBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -70,14 +81,14 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
             .setSimpleItems(faculties.toTypedArray())
 
         binding.cardPicker.setOnClickListener { pickFile() }
-        binding.btnUpload.setOnClickListener { upload() }
+        binding.btnUpload.setOnClickListener { uploadToLocalAndQueueSync() }
         binding.btnBack.setOnClickListener { dismiss() }
         binding.tvFileName.text = "Select a file"
 
-        // KTX text change listeners
-        binding.actCategory.doOnTextChanged { _, _, _, _ -> updateButtonEnabled() }
-        binding.actFaculty.doOnTextChanged  { _, _, _, _ -> updateButtonEnabled() }
-        binding.etTitle.doOnTextChanged     { _, _, _, _ -> updateButtonEnabled() }
+        // reactive validation
+        binding.actCategory.addTextChangedListener { updateButtonEnabled() }
+        binding.actFaculty.addTextChangedListener  { updateButtonEnabled() }
+        binding.etTitle.addTextChangedListener     { updateButtonEnabled() }
 
         updateButtonEnabled()
     }
@@ -90,14 +101,17 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
         startActivityForResult(i, REQ_FILE)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQ_FILE && resultCode == Activity.RESULT_OK) {
             val uri = data?.data ?: return
             requireContext().takePersistable(uri)
             pickedUri = uri
+
             val (name, _) = queryMeta(uri)
             pickedDisplayName = name
             pickedMime = requireContext().contentResolver.getType(uri) ?: "application/octet-stream"
+
             binding.tvFileName.text = name ?: "Selected file"
             updateButtonEnabled()
         }
@@ -112,56 +126,60 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
         binding.btnUpload.isEnabled = ok && !binding.progress.isVisible
     }
 
-    private fun upload() {
+    /**
+     * Offline-first:
+     *  - Validate
+     *  - Copy the file into app cache
+     *  - Insert ResourceEntity with PENDING_UPLOAD (INCLUDING faculty!)
+     *  - Trigger ResourcesSyncWorker (which will POST to /resources)
+     */
+    private fun uploadToLocalAndQueueSync() {
         val uiCategory = binding.actCategory.text?.toString()?.trim().orEmpty()
         val category = mapCategory(uiCategory)
         val title = binding.etTitle.text?.toString()?.trim().orEmpty()
-        val faculty = binding.actFaculty.text?.toString()?.trim().orEmpty()
+        val facultyUi = binding.actFaculty.text?.toString()?.trim().orEmpty()
+        val faculty = normalizeFaculty(facultyUi) // <- normalization applied here
+        val description = binding.etDescription.text?.toString()?.trim().orEmpty()
         val uri = pickedUri ?: run { snack("Pick a file"); return }
 
         if (uiCategory.isBlank()) { snack("Pick a category"); return }
         if (title.isBlank()) { binding.tilTitle.error = "Required"; return } else binding.tilTitle.error = null
-        if (faculty.isBlank()) { snack("Pick a faculty"); return }
+        if (facultyUi.isBlank()) { snack("Pick a faculty"); return }
 
         setBusy(true)
 
-        runBlocking {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val tmp = copyToCache(requireContext(), uri, pickedDisplayName)
-                val mime = pickedMime ?: "application/octet-stream"
-                val filePart = MultipartBody.Part.createFormData(
-                    name = "file",
-                    filename = tmp.name,
-                    body = tmp.asRequestBody(mime.toMediaTypeOrNull())
+                // Stage into cache on IO thread
+                val staged: File = withContext(Dispatchers.IO) {
+                    copyToCache(requireContext(), uri, pickedDisplayName)
+                }
+
+                val adminUid = FirebaseAuth.getInstance().currentUser?.uid
+                val entity = ResourceEntity(
+                    adminUid    = adminUid,
+                    title       = title,
+                    description = description.ifBlank { null },
+                    category    = category,
+                    faculty     = faculty, // store normalized faculty
+                    fileName    = pickedDisplayName ?: "upload.bin",
+                    filePath    = staged.absolutePath,
+                    syncState   = SyncState.PENDING_UPLOAD
                 )
-                val namePart: RequestBody = title.toRequestBody("text/plain".toMediaTypeOrNull())
-                val facultyPart: RequestBody = faculty.toRequestBody("text/plain".toMediaTypeOrNull())
-                val categoryPart: RequestBody = category.toRequestBody("text/plain".toMediaTypeOrNull())
 
-                val auth = getAuthHeaderOrNull()
-                if (auth == null) { setBusy(false); snack("Not signed in."); return@runBlocking }
-
-                val resp = withContext(Dispatchers.IO) {
-                    api.createResource(
-                        name = namePart,
-                        faculty = facultyPart,
-                        category = categoryPart,
-                        file = filePart,
-                        auth = auth
-                    )
+                // Insert into Room and trigger background sync
+                withContext(Dispatchers.IO) {
+                    LocalRepos(requireContext()).resources.insert(entity)
+                    ResourcesSyncWorker.oneShot(requireContext())
                 }
 
                 setBusy(false)
-                if (resp.isSuccessful) {
-                    snack("Uploaded")
-                    (parentFragment as? Callback ?: activity as? Callback)?.onResourceCreated()
-                    dismiss()
-                } else {
-                    val msg = resp.errorBody()?.string().orEmpty()
-                    snack("Upload failed (${resp.code()}) ${msg.ifBlank { "" }}")
-                }
+                snack("Queued for upload")
+                (parentFragment as? Callback ?: activity as? Callback)?.onResourceCreated()
+                dismiss()
             } catch (t: Throwable) {
-                setBusy(false); snack(t.message ?: "Upload failed")
+                setBusy(false)
+                snack(t.message ?: "Failed to stage resource")
             }
         }
     }
@@ -177,12 +195,6 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
         binding.etDescription.isEnabled = !b
     }
 
-    private fun getAuthHeaderOrNull(): String? = runBlocking {
-        val user = FirebaseAuth.getInstance().currentUser ?: return@runBlocking null
-        val token = user.getIdToken(true).await().token ?: return@runBlocking null
-        "Bearer $token"
-    }
-
     private fun Context.takePersistable(uri: Uri) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -193,7 +205,9 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     private fun queryMeta(uri: Uri): Pair<String?, Long?> {
         var name: String? = null; var size: Long? = null
         val c = requireContext().contentResolver.query(
-            uri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null
+            uri,
+            arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
+            null, null, null
         )
         c?.use { if (it.moveToFirst()) { name = it.getString(0); size = it.getLong(1) } }
         return name to size
@@ -203,13 +217,19 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
         val safe = (displayName ?: "upload.bin").replace(Regex("""[\\/:*?"<>|]"""), "_")
         val out = File(ctx.cacheDir, "nr_$safe")
         ctx.contentResolver.openInputStream(uri).use { inS ->
-            FileOutputStream(out).use { outS -> requireNotNull(inS); inS.copyTo(outS) }
+            FileOutputStream(out).use { outS ->
+                requireNotNull(inS) { "Failed to open selected file" }
+                inS.copyTo(outS)
+            }
         }
         return out
     }
 
     private fun snack(msg: String) =
-        Snackbar.make(requireView(), msg, Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
 
-    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

@@ -15,11 +15,13 @@ open class BaseActivity : AppCompatActivity() {
 
     enum class UserRole { STUDENT, CONSULTANT, ADMIN }
 
+    // ---------------- Lifecycle ----------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
     }
 
+    // ---------------- Insets helpers ----------------
     protected fun applyInsets(rootId: Int) {
         val root = findViewById<View>(rootId)
         ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
@@ -29,11 +31,20 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    // ---- Role helpers ----
+    protected fun applyBottomNavInsets(bottomNav: BottomNavigationView) {
+        ViewCompat.setOnApplyWindowInsetsListener(bottomNav) { v, insets ->
+            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val extraPx = (16 * resources.displayMetrics.density).toInt()
+            (v.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin = sys.bottom + extraPx
+            v.requestLayout()
+            insets
+        }
+    }
+
+    // ---------------- Role helpers ----------------
     protected fun getCurrentUserRole(): UserRole {
         val sp = getSharedPreferences("user_prefs", MODE_PRIVATE)
         val roleString = sp.getString("user_role", "STUDENT")
-        // Convert the stored string (e.g., "consultant") to UPPERCASE before parsing
         val roleUpper = (roleString ?: "STUDENT").uppercase(java.util.Locale.ROOT)
         return runCatching { UserRole.valueOf(roleUpper) }.getOrDefault(UserRole.STUDENT)
     }
@@ -50,98 +61,90 @@ open class BaseActivity : AppCompatActivity() {
         UserRole.ADMIN      -> AdminProfileSettingsActivity::class.java
     }
 
-    //Additional destinations
+    // Additional destinations used by the nav
     protected fun getRequestsActivityClass(): Class<*> = ServiceRequestActivity::class.java
     protected fun getResourcesActivityClass(): Class<*> = ResourcesActivity::class.java
     protected fun getManageConsultantsActivityClass(): Class<*> = ManageConsultantsActivity::class.java
-    protected fun getResourceMgmtActivityClass(): Class<*> = ResourceManagementActivity::class.java
+    protected fun getResourceMgmtActivityClass(): Class<*> = ResourcesActivity::class.java
     protected fun getActiveTasksActivityClass(): Class<*> = ConsultantTasksActivity::class.java
     protected fun getMessagesActivityClass(): Class<*> = ChatsActivity::class.java
 
+    // ---------------- Bottom nav (3 separate menus) ----------------
     /**
-     * Handles bottom-nav behavior, visibility, and navigation logic based on the 5-item consolidated menu.
+     * Call from each Activity after setContentView:
+     * setupBottomNav(bottomNav, selectedItemIdForThisScreen)
+     *
+     * IMPORTANT: Pass the selectedItemId that exists in the *role-specific* menu.
+     *  - Admin menu IDs:      nav_dashboard, nav_manage_consultants, nav_resource_mgmt, nav_messages, nav_profile
+     *  - Consultant menu IDs: nav_dashboard, nav_active_tasks,      (no resources),     nav_messages, nav_profile
+     *  - Student menu IDs:    nav_dashboard, nav_request,           nav_resources,      nav_messages, nav_profile
      */
     protected open fun setupBottomNav(bottomNav: BottomNavigationView, selectedItemId: Int) {
         bottomNav.bringToFront()
+        applyBottomNavInsets(bottomNav)
 
-        ViewCompat.setOnApplyWindowInsetsListener(bottomNav) { v, insets ->
-            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val extraPx = (16 * resources.displayMetrics.density).toInt()
-            (v.layoutParams as ViewGroup.MarginLayoutParams).bottomMargin = sys.bottom + extraPx
-            v.requestLayout()
-            insets
-        }
-
-        bottomNav.setOnItemReselectedListener { /* no-op */ }
+        // Ensure clean slate
+        bottomNav.menu.clear()
 
         val role = getCurrentUserRole()
-        applyRoleVisibility(bottomNav, role)
 
-        if (bottomNav.selectedItemId != selectedItemId) {
+        // 1) Inflate the correct menu for the role
+        when (role) {
+            UserRole.ADMIN -> bottomNav.inflateMenu(R.menu.bottom_nav_admin)
+            UserRole.CONSULTANT -> bottomNav.inflateMenu(R.menu.bottom_nav_consultant)
+            UserRole.STUDENT -> bottomNav.inflateMenu(R.menu.bottom_nav_student)
+        }
+
+        // 2) Set currently-selected item if present in this role's menu
+        val existing = bottomNav.menu.findItem(selectedItemId)
+        if (existing != null && bottomNav.selectedItemId != selectedItemId) {
             bottomNav.selectedItemId = selectedItemId
         }
 
+        // 3) No-op on reselection
+        bottomNav.setOnItemReselectedListener { /* no-op */ }
+
+        // 4) Navigation by role-specific item IDs
         bottomNav.setOnItemSelectedListener { item ->
+            // If user taps the already-selected tab, stay put
             if (item.itemId == selectedItemId) return@setOnItemSelectedListener true
 
-            when (item.itemId) {
-                //Common targets
-                R.id.nav_dashboard -> launchTop(getDashboardActivityClass())
-                R.id.nav_messages  -> launchTop(getMessagesActivityClass())
-                R.id.nav_profile   -> launchTop(getProfileActivityClass())
-
-                //Consolidated action slot (Slot 2)
-                R.id.nav_role_action -> when (role) {
-                    UserRole.STUDENT    -> launchTop(getRequestsActivityClass())
-                    UserRole.CONSULTANT -> launchTop(getActiveTasksActivityClass())
-                    UserRole.ADMIN      -> launchTop(getManageConsultantsActivityClass())
-                    else -> false
-                }
-
-                //Consolidated action slot (Slot 3)
-                R.id.nav_role_secondary -> when (role) {
-                    UserRole.STUDENT    -> launchTop(getResourcesActivityClass())
-                    UserRole.ADMIN      -> launchTop(getResourceMgmtActivityClass())
-                    else -> false
-                }
-
-                else -> false
+            when (role) {
+                UserRole.ADMIN -> handleAdminSelection(item.itemId)
+                UserRole.CONSULTANT -> handleConsultantSelection(item.itemId)
+                UserRole.STUDENT -> handleStudentSelection(item.itemId)
             }
         }
     }
 
-    /** Shows/hides menu items based on role, using the 5 consolidated IDs. */
-    private fun applyRoleVisibility(bottomNav: BottomNavigationView, role: UserRole) {
-        val m = bottomNav.menu
-
-        //Hide ALL items first
-        for (i in 0 until m.size()) m.getItem(i).isVisible = false
-
-        when (role) {
-            UserRole.STUDENT -> {
-                m.findItem(R.id.nav_dashboard)?.isVisible = true
-                m.findItem(R.id.nav_role_action)?.isVisible = true
-                m.findItem(R.id.nav_role_secondary)?.isVisible = true
-                m.findItem(R.id.nav_messages)?.isVisible = true
-                m.findItem(R.id.nav_profile)?.isVisible = true
-            }
-            UserRole.CONSULTANT -> {
-                m.findItem(R.id.nav_dashboard)?.isVisible = true
-                m.findItem(R.id.nav_role_action)?.isVisible = true
-                // Secondary slot is hidden for consultant: m.findItem(R.id.nav_role_secondary)?.isVisible = false
-                m.findItem(R.id.nav_messages)?.isVisible = true
-                m.findItem(R.id.nav_profile)?.isVisible = true
-            }
-            UserRole.ADMIN -> {
-                m.findItem(R.id.nav_dashboard)?.isVisible = true
-                m.findItem(R.id.nav_role_action)?.isVisible = true
-                m.findItem(R.id.nav_role_secondary)?.isVisible = true
-                m.findItem(R.id.nav_messages)?.isVisible = true
-                m.findItem(R.id.nav_profile)?.isVisible = true
-            }
-        }
+    // ---- Role-specific item handling ----
+    private fun handleAdminSelection(itemId: Int): Boolean = when (itemId) {
+        R.id.nav_dashboard          -> launchTop(getDashboardActivityClass())
+        R.id.nav_manage_consultants -> launchTop(getManageConsultantsActivityClass())
+        R.id.nav_resource_mgmt      -> launchTop(getResourceMgmtActivityClass())
+        R.id.nav_messages           -> launchTop(getMessagesActivityClass())
+        R.id.nav_profile            -> launchTop(getProfileActivityClass())
+        else -> false
     }
 
+    private fun handleConsultantSelection(itemId: Int): Boolean = when (itemId) {
+        R.id.nav_dashboard    -> launchTop(getDashboardActivityClass())
+        R.id.nav_active_tasks -> launchTop(getActiveTasksActivityClass())
+        R.id.nav_messages     -> launchTop(getMessagesActivityClass())
+        R.id.nav_profile      -> launchTop(getProfileActivityClass())
+        else -> false
+    }
+
+    private fun handleStudentSelection(itemId: Int): Boolean = when (itemId) {
+        R.id.nav_dashboard -> launchTop(getDashboardActivityClass())
+        R.id.nav_request   -> launchTop(getRequestsActivityClass())
+        R.id.nav_resources -> launchTop(getResourcesActivityClass())
+        R.id.nav_messages  -> launchTop(getMessagesActivityClass())
+        R.id.nav_profile   -> launchTop(getProfileActivityClass())
+        else -> false
+    }
+
+    // ---------------- Navigation helper ----------------
     /** Starts a target Activity and finishes the current one. */
     protected fun launchTop(target: Class<*>) : Boolean {
         val intent = Intent(this, target).apply {

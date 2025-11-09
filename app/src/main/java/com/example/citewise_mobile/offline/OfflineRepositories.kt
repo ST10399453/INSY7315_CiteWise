@@ -10,42 +10,43 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 /**
- * Single access point to the local Room database DAOs.
- * Keeps a process-wide singleton instance so we can close/reset centrally.
+ * Central access point to Room DAOs.
+ * Holds a single process-wide DB instance and exposes typed DAO handles.
  */
 class LocalRepos(ctx: Context) {
 
-    // Shared singleton instance for the Room DB
-    private val db = getDb(ctx)
+    // Backed by the process-wide singleton instance.
+    private val db: OfflineDb = getDb(ctx)
 
-    val requests = db.requests()
-    val users = db.users()
-    val chats = db.chats()
-    val messages = db.messages()
+    val requests  = db.requests()
+    val users     = db.users()
+    val chats     = db.chats()
+    val messages  = db.messages()
     val documents = db.documents()
+    val resources = db.resources()
 
     companion object {
         @Volatile
         private var dbInstance: OfflineDb? = null
 
+        /**
+         * Obtain (or create) the process-wide OfflineDb instance.
+         */
         private fun getDb(ctx: Context): OfflineDb {
-            val cached = dbInstance
-            if (cached != null) return cached
+            // Fast-path read
+            dbInstance?.let { return it }
+
+            // Double-checked locking
             return synchronized(this) {
-                val again = dbInstance
-                if (again != null) again
-                else {
-                    // Use your existing Room builder inside OfflineDb.get(ctx)
-                    val created = OfflineDb.get(ctx)
+                dbInstance ?: OfflineDb.get(ctx).also { created ->
                     dbInstance = created
-                    created
                 }
             }
         }
 
         /**
-         * Closes the shared Room database instance and clears the cached ref.
-         * Call before deleting the DB file (e.g., in OfflineReset.resetLocalData()).
+         * Closes and clears the cached DB instance.
+         * Call this BEFORE deleting the DB file (e.g., during a full local reset).
          */
         fun closeAll() {
             synchronized(this) {
@@ -55,24 +56,25 @@ class LocalRepos(ctx: Context) {
         }
     }
 }
+
 /**
- * Bridges to cloud services that are NOT covered by Retrofit.
- * - Users: Firebase Realtime Database `/users`
- * - (Messages are handled via REST API workers; not here.)
- * - (Requests & documents are handled by Retrofit workers.)
+ * Cloud data sources that are not covered by your Retrofit layer.
+ * - Users are stored in Firestore (/users) and optionally mirrored in Realtime DB.
+ * - Messages/Requests/Documents are handled elsewhere (e.g., workers & repositories).
  */
 class CloudDataSources(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val rtdb: FirebaseDatabase = FirebaseDatabase.getInstance(),
     private val fs: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
+
     fun myUid(): String? = auth.currentUser?.uid
 
     /**
-     * Preferred: fetch all users from **Firestore** collection /users.
-     * - Falls back to doc.id as uid if "uid" field is missing
-     * - Normalizes role to lowercase
-     * - Pulls updatedAt robustly (supports Long or Timestamp)
+     * Preferred source of truth: Firestore `/users` collection.
+     * - Falls back to document id for uid if the "uid" field is missing.
+     * - Normalizes role to lowercase.
+     * - Derives updatedAt from supported fields (Long or Timestamp).
      */
     suspend fun fetchUsers(): List<UserEntity> = withContext(Dispatchers.IO) {
         val snap = fs.collection("users").get().await()
@@ -93,8 +95,9 @@ class CloudDataSources(
     }
 
     /**
-     * Legacy: fetch users from **Realtime Database** /users.
-     * Still normalizes role + supports missing "uid" by using the node key.
+     * Legacy/backup: Realtime Database `/users` node.
+     * - Still normalizes role.
+     * - Supports missing "uid" by using the node key.
      */
     suspend fun fetchUsersFromRtdb(): List<UserEntity> = withContext(Dispatchers.IO) {
         val snap = rtdb.reference.child("users").get().await()
@@ -113,8 +116,8 @@ class CloudDataSources(
     }
 
     /**
-     * Optional: merge Firestore + RTDB and keep the newest by uid.
-     * Use this if your deployment has users scattered in both places.
+     * Optional: merge Firestore + RTDB users and keep the newest per uid.
+     * Use only if your deployment has users stored across both backends.
      */
     suspend fun fetchAllUsersMerged(): List<UserEntity> = withContext(Dispatchers.IO) {
         val fsUsers = fetchUsers()
@@ -124,11 +127,16 @@ class CloudDataSources(
             .map { (_, list) -> list.maxByOrNull { it.updatedAt }!! }
     }
 
-    /** Example helper if you ever need consultants referenced in Firestore ServiceReviews. */
+    /**
+     * Example helper if you need consultants referenced by ServiceReviews (Firestore).
+     * Gathers consultant UIDs from "consultantUid" or a "consultant" DocumentReference field,
+     * then filters the user list to just those consultants.
+     */
     suspend fun fetchConsultantsAssignedInServiceReviews(): List<UserEntity> = withContext(Dispatchers.IO) {
         val reviews = fs.collection("ServiceReviews")
             .whereNotEqualTo("consultantUid", null)
-            .get().await()
+            .get()
+            .await()
 
         val uids = buildSet {
             for (d in reviews.documents) {

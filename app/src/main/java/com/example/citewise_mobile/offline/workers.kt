@@ -17,6 +17,7 @@ import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.data.DocumentsRepository
 import com.example.citewise_mobile.data.MessagesRepository
 import com.example.citewise_mobile.data.NetResult
+import com.example.citewise_mobile.data.ResourcesRepository
 import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,7 +42,7 @@ private object Net {
     }
 }
 
-private object WorkerCfg {
+internal object WorkerCfg {
     val connectedConstraints: Constraints = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
@@ -51,11 +52,12 @@ private object WorkerCfg {
 }
 
 private object WorkNames {
-    const val USERS_SYNC = "users_sync"
-    const val MESSAGES_SYNC = "messages_sync"
-    const val REQUESTS_SYNC = "requests_sync"
-    const val REQUESTS_PULL = "requests_pull"
-    const val DOCUMENTS_SYNC = "documents_sync"
+    const val USERS_SYNC      = "users_sync"
+    const val MESSAGES_SYNC   = "messages_sync"
+    const val REQUESTS_SYNC   = "requests_sync"
+    const val REQUESTS_PULL   = "requests_pull"
+    const val RESOURCES_SYNC  = "resources_sync"
+    const val DOCUMENTS_SYNC  = "documents_sync"
 }
 
 // ============================================================
@@ -71,21 +73,13 @@ class UsersSyncWorker(
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
 
         val local = LocalRepos(applicationContext)
-        val cloud = CloudDataSources() // uses Firestore under the hood
+        val cloud = CloudDataSources()
 
         return@withContext try {
-            // Preferred: Firestore-only (ensures you get all 16 from /users)
             val cloudUsers = cloud.fetchUsers()
-
-            // If you still have users in RTDB and want to merge newest by uid:
-            // val cloudUsers = cloud.fetchAllUsersMerged()
-
             val localUsersByUid = local.users.getAll().associateBy { it.uid }
 
-            // Normalize roles to lowercase before comparing/upserting
             val normalized = cloudUsers.map { u -> u.copy(role = u.role.trim().lowercase()) }
-
-            // Upsert only newer or missing
             val toUpsert = normalized.filter { cu ->
                 val existing = localUsersByUid[cu.uid]
                 existing == null || cu.updatedAt > existing.updatedAt
@@ -98,7 +92,8 @@ class UsersSyncWorker(
             Result.success()
         } catch (_: IOException) {
             Result.retry()
-        } catch (_: Throwable) {
+        } catch (t: Throwable) {
+            Log.e("UsersSyncWorker", "Failure: ${t.message}", t)
             Result.failure()
         }
     }
@@ -162,7 +157,6 @@ class MessagesSyncWorker(
                     local.messages.upsertMessages(listOf(entity))
                 }
                 is NetResult.Err -> {
-                    // 5xx: retry; else: permanent fail for this run
                     return@withContext if ((sent.code ?: 0) in 500..599) Result.retry() else Result.failure()
                 }
             }
@@ -170,7 +164,7 @@ class MessagesSyncWorker(
 
         // 2) Pull delta for my inbound (others → me)
         val since = local.messages.maxInboundTs(myUid) ?: 0L
-        when (val res = msgsRepo.since(since)) {
+        return@withContext when (val res = msgsRepo.since(since)) {
             is NetResult.Ok -> {
                 if (res.data.isNotEmpty()) {
                     val hydrated = res.data.map { d ->
@@ -190,9 +184,7 @@ class MessagesSyncWorker(
                 }
                 Result.success()
             }
-            is NetResult.Err -> {
-                if ((res.code ?: 0) in 500..599) Result.retry() else Result.failure()
-            }
+            is NetResult.Err -> if ((res.code ?: 0) in 500..599) Result.retry() else Result.failure()
         }
     }
 
@@ -222,6 +214,7 @@ class MessagesSyncWorker(
 
 // ============================================================
 // RequestsSyncWorker  (Room -> REST API POST /requests multipart)
+// Retries PENDING_UPLOAD and FAILED
 // ============================================================
 
 class RequestsSyncWorker(
@@ -238,7 +231,18 @@ class RequestsSyncWorker(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
 
-        val pending = local.requests.getBySyncState(SyncState.PENDING_UPLOAD)
+        // (Optional) auto-revive very old failures
+        runCatching {
+            local.requests.resetFailedOlderThan(System.currentTimeMillis() - 10 * 60 * 1000)
+        }
+
+        val pending = try {
+            local.requests.getBySyncStates(listOf(SyncState.PENDING_UPLOAD, SyncState.FAILED))
+        } catch (_: Throwable) {
+            // Fallback if you haven't added getBySyncStates to DAO yet
+            local.requests.getBySyncState(SyncState.PENDING_UPLOAD)
+        }
+
         if (pending.isEmpty()) return@withContext Result.success()
 
         pending.forEach { sr ->
@@ -255,8 +259,8 @@ class RequestsSyncWorker(
                 when (val result = repo.createRequestMultipart(
                     file = stagedFile,
                     mime = stagedFile.guessMimeOrDefault(),
-                    documentName = sr.documentName,                          // non-null in entity
-                    customName = sr.customName.takeIf { it.isNotBlank() },   // pass customName
+                    documentName = sr.documentName,
+                    customName = sr.customName.takeIf { it.isNotBlank() },
                     serviceType = sr.serviceType.orEmpty(),
                     description = sr.description.orEmpty(),
                     priority = sr.priority.orEmpty(),
@@ -265,14 +269,12 @@ class RequestsSyncWorker(
                     is NetResult.Ok -> {
                         val dto = result.data
 
-                        // optional: delete staged file
+                        // Delete staged only after server accepts
                         runCatching { if (stagedFile.exists()) stagedFile.delete() }
 
-                        // Prefer server ids; fallback to local; final fallback to current user
                         val newUserId = dto.userId ?: sr.userId ?: auth.currentUser?.uid
                         val newConsultantId = dto.consultantId ?: sr.consultantId
 
-                        // 1) Update Room
                         local.requests.update(
                             sr.copy(
                                 remoteId     = dto.id,
@@ -285,7 +287,6 @@ class RequestsSyncWorker(
                             )
                         )
 
-                        // 2) Mirror to Firestore (best-effort)
                         val fsId = dto.id ?: sr.remoteId ?: sr.localId.toString()
                         val fsData = hashMapOf(
                             "id" to fsId,
@@ -302,21 +303,18 @@ class RequestsSyncWorker(
                             "createdAt" to (dto.createdAt?.epochMillis ?: sr.createdAt),
                             "updatedAt" to serverTimestamp()
                         )
-
                         runCatching {
                             fs.collection("ServiceReviews")
                                 .document(fsId)
                                 .set(fsData, SetOptions.merge())
                                 .addOnSuccessListener { Log.d(TAG, "Firestore upsert ok id=$fsId") }
                                 .addOnFailureListener { e -> Log.w(TAG, "Firestore upsert failed id=$fsId: ${e.message}") }
-                        }.onFailure { e ->
-                            Log.w(TAG, "Firestore write threw: ${e.message}")
                         }
 
                         Log.d(TAG, "Uploaded localId=${sr.localId} -> remoteId=${dto.id}")
                     }
                     is NetResult.Err -> {
-                        Log.w(TAG, "Upload failed localId=${sr.localId}: ${result.message}")
+                        Log.w(TAG, "Upload failed localId=${sr.localId}: ${result.message} [code=${result.code}]")
                         if ((result.code ?: 0) in 500..599) {
                             return@withContext Result.retry()
                         } else {
@@ -375,6 +373,196 @@ class RequestsSyncWorker(
 }
 
 // ============================================================
+// ResourcesSyncWorker  (Room -> REST API POST /resources multipart)
+// Retries PENDING_UPLOAD and FAILED
+// ============================================================
+
+class ResourcesSyncWorker(
+    appContext: Context,
+    params: WorkerParameters
+) : CoroutineWorker(appContext, params) {
+
+    private val TAG = "ResourcesSyncWorker"
+    private val local by lazy { LocalRepos(applicationContext) }
+    private val auth by lazy { FirebaseAuth.getInstance() }
+    private val fs   by lazy { FirebaseFirestore.getInstance() }
+    private val repo by lazy { ResourcesRepository(RetrofitInstance.resourcesApi) }
+
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
+
+        // (Optional) auto-revive very old failures
+        runCatching {
+            local.resources.resetFailedOlderThan(System.currentTimeMillis() - 10 * 60 * 1000)
+        }
+
+        val toSync = try {
+            local.resources.getBySyncStates(listOf(SyncState.PENDING_UPLOAD, SyncState.FAILED))
+        } catch (_: Throwable) {
+            // Fallback if DAO doesn't have getBySyncStates yet
+            local.resources.getBySyncState(SyncState.PENDING_UPLOAD)
+        }
+
+        if (toSync.isEmpty()) return@withContext Result.success()
+
+        // Build bearer once; reuse for all uploads.
+        val authHeader = buildAuthHeader()
+
+        for (res in toSync) {
+            try {
+                val stagedFile = res.filePath?.let { File(it) }
+                if (stagedFile == null || !stagedFile.exists()) {
+                    Log.w(TAG, "Missing staged file for localId=${res.localId}")
+                    local.resources.update(
+                        res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                    )
+                    continue
+                }
+
+                // Normalize inputs to what the API expects
+                val name     = res.title.ifBlank { res.fileName ?: "Untitled" }
+                val faculty  = normalizeFaculty(res.faculty)
+                val category = normalizeCategory(res.category)
+                val mime     = stagedFile.guessMimeOrDefault()
+                val desc     = res.description
+
+                when (val result = repo.createResourceMultipart(
+                    file = stagedFile,
+                    mime = mime,
+                    name = name,
+                    faculty = faculty,
+                    category = category,
+                    description = desc,
+                    auth = authHeader
+                )) {
+                    is NetResult.Ok -> {
+                        val dto = result.data
+
+                        // remove staged file on success
+                        runCatching { if (stagedFile.exists()) stagedFile.delete() }
+
+                        local.resources.update(
+                            res.copy(
+                                remoteId  = dto.id,
+                                syncState = SyncState.SYNCED,
+                                updatedAt = System.currentTimeMillis()
+                            )
+                        )
+
+                        // Mirror to Firestore (optional)
+                        val fsId = dto.id ?: res.remoteId ?: res.localId.toString()
+                        val payload = hashMapOf(
+                            "id"          to fsId,
+                            "title"       to name,
+                            "description" to (desc ?: ""),
+                            "category"    to (category ?: "AI_USAGE"),
+                            "faculty"     to faculty,
+                            "documentId"  to (res.documentId ?: ""),
+                            "fileName"    to (res.fileName ?: stagedFile.name),
+                            "adminUid"    to (res.adminUid ?: auth.currentUser?.uid.orEmpty()),
+                            "createdAt"   to res.createdAt,
+                            "updatedAt"   to serverTimestamp()
+                        )
+                        runCatching {
+                            fs.collection("resources")
+                                .document(fsId)
+                                .set(payload, SetOptions.merge())
+                        }
+
+                        // Only kick downloader if we actually have a doc id locally
+                        if (!res.documentId.isNullOrBlank()) {
+                            DocumentsSyncWorker.oneShot(applicationContext)
+                        }
+
+                        Log.d(TAG, "Uploaded resource localId=${res.localId} -> remoteId=${dto.id}")
+                    }
+                    is NetResult.Err -> {
+                        Log.w(TAG, "Resource upload failed localId=${res.localId}: ${result.message} [code=${result.code}]")
+                        if ((result.code ?: 0) in 500..599) {
+                            return@withContext Result.retry()
+                        } else {
+                            local.resources.update(
+                                res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                            )
+                        }
+                    }
+                }
+            } catch (io: IOException) {
+                Log.e(TAG, "Network error: ${io.message}")
+                return@withContext Result.retry()
+            } catch (t: Throwable) {
+                Log.e(TAG, "Unexpected error: ${t.message}", t)
+                local.resources.update(
+                    res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                )
+            }
+        }
+
+        Result.success()
+    }
+
+    /** Map UI / free text to server enum values. */
+    private fun normalizeFaculty(input: String?): String =
+        when (input?.trim()?.lowercase()) {
+            "engineering" -> "ENGINEERING"
+            "science"     -> "SCIENCE"
+            "humanities"  -> "HUMANITIES"
+            "business"    -> "BUSINESS"
+            "general", "", null -> "GENERAL"
+            else -> "GENERAL"
+        }
+
+    /** Ensure only valid server categories are sent. */
+    private fun normalizeCategory(input: String?): String? =
+        when (input?.trim()?.uppercase()) {
+            "WRITING_GUIDE", "TEMPLATE", "AI_USAGE" -> input.trim().uppercase()
+            null, "" -> "AI_USAGE"
+            else -> "AI_USAGE"
+        }
+
+    private fun File.guessMimeOrDefault(): String =
+        when (extension.lowercase()) {
+            "pdf"  -> "application/pdf"
+            "doc"  -> "application/msword"
+            "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            "ppt"  -> "application/vnd.ms-powerpoint"
+            "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            "xls"  -> "application/vnd.ms-excel"
+            "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            "txt"  -> "text/plain"
+            else   -> "application/octet-stream"
+        }
+
+    private suspend fun buildAuthHeader(): String? = withContext(Dispatchers.IO) {
+        val user = auth.currentUser ?: return@withContext null
+        val token = try {
+            com.google.android.gms.tasks.Tasks.await(user.getIdToken(true)).token
+        } catch (_: Throwable) { null }
+        token?.let { "Bearer $it" }
+    }
+
+    companion object {
+        fun oneShot(context: Context) {
+            val req = OneTimeWorkRequestBuilder<ResourcesSyncWorker>()
+                .setConstraints(WorkerCfg.connectedConstraints)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueue(req)
+        }
+
+        fun schedule(context: Context) {
+            val req = PeriodicWorkRequestBuilder<ResourcesSyncWorker>(15, TimeUnit.MINUTES)
+                .setConstraints(WorkerCfg.connectedConstraints)
+                .setBackoffCriteria(WorkerCfg.backoffPolicy, WorkerCfg.backoffDelaySeconds, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                WorkNames.RESOURCES_SYNC, ExistingPeriodicWorkPolicy.UPDATE, req
+            )
+        }
+    }
+}
+
+// ============================================================
 // RequestsPullWorker  (fetch user’s requests -> Room)
 // ============================================================
 
@@ -402,9 +590,7 @@ class RequestsPullWorker(
                 DocumentsSyncWorker.oneShot(applicationContext)
                 Result.success()
             }
-            is NetResult.Err -> {
-                if ((res.code ?: 0) in 500..599) Result.retry() else Result.failure()
-            }
+            is NetResult.Err -> if ((res.code ?: 0) in 500..599) Result.retry() else Result.failure()
         }
     }
 
@@ -430,7 +616,9 @@ class RequestsPullWorker(
 }
 
 // ============================================================
-// DocumentsSyncWorker  (downloads by documentId and caches to disk)
+// DocumentsSyncWorker
+// - Downloads by documentId and caches to disk
+// - Supports BOTH request docs and resource docs
 // ============================================================
 
 class DocumentsSyncWorker(
@@ -447,17 +635,29 @@ class DocumentsSyncWorker(
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
         val uid = auth.currentUser?.uid ?: return@withContext Result.success()
 
-        val requestsWithDocs = local.requests.allWithDocumentId()
-        if (requestsWithDocs.isEmpty()) return@withContext Result.success()
+        // Gather docIds from requests + resources, de-duplicate
+        val requestDocs  = local.requests.allWithDocumentId()
+        val resourceDocs = local.resources.allWithDocumentId()
+        val docIdToPreferredName = linkedMapOf<String, String>()
 
-        for (req in requestsWithDocs) {
-            val docId = req.documentId ?: continue
+        requestDocs.forEach { sr ->
+            sr.documentId?.let { docId ->
+                val name = (sr.documentName).ifBlank { "document_$docId" }
+                docIdToPreferredName.putIfAbsent(docId, name)
+            }
+        }
+        resourceDocs.forEach { res ->
+            res.documentId?.let { docId ->
+                val name = (res.fileName ?: "").ifBlank { "resource_$docId" }
+                docIdToPreferredName.putIfAbsent(docId, name)
+            }
+        }
 
-            // Skip if already downloaded & exists on disk
+        if (docIdToPreferredName.isEmpty()) return@withContext Result.success()
+
+        for ((docId, preferredName) in docIdToPreferredName) {
             val existingDoc = local.documents.getById(docId)
             if (existingDoc?.localPath?.let { File(it).exists() } == true) continue
-
-            val preferredName = req.documentName
 
             when (val dl = docsRepo.downloadToDisk(docId, preferredName)) {
                 is NetResult.Ok -> {

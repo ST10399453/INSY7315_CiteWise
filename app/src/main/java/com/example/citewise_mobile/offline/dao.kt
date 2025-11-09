@@ -1,12 +1,20 @@
 package com.example.citewise_mobile.offline
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
-// ----- Service Requests -----
+// ============================================================
+// Service Requests
+// ============================================================
 
 @Dao
 interface ServiceRequestDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ServiceRequestEntity): Long
 
@@ -22,6 +30,9 @@ interface ServiceRequestDao {
     @Query("SELECT * FROM service_requests WHERE syncState = :state")
     suspend fun getBySyncState(state: SyncState): List<ServiceRequestEntity>
 
+    @Query("SELECT * FROM service_requests WHERE syncState IN (:states) ORDER BY updatedAt ASC")
+    suspend fun getBySyncStates(states: List<SyncState>): List<ServiceRequestEntity>
+
     @Query("SELECT * FROM service_requests WHERE localId = :localId LIMIT 1")
     suspend fun getByLocalId(localId: Long): ServiceRequestEntity?
 
@@ -31,42 +42,81 @@ interface ServiceRequestDao {
     @Query("SELECT * FROM service_requests WHERE documentId IS NOT NULL")
     suspend fun allWithDocumentId(): List<ServiceRequestEntity>
 
+    /**
+     * Reset FAILED rows older than a threshold back to PENDING_UPLOAD.
+     * Useful if you want periodic automatic retries.
+     */
+    @Query("""
+        UPDATE service_requests 
+        SET syncState = :pending, updatedAt = :now
+        WHERE syncState = :failed AND updatedAt <= :threshold
+    """)
+    suspend fun resetFailedOlderThan(
+        threshold: Long,
+        failed: SyncState = SyncState.FAILED,
+        pending: SyncState = SyncState.PENDING_UPLOAD,
+        now: Long = System.currentTimeMillis()
+    )
+
+    /**
+     * Bulk state flip (e.g., "Retry all failed").
+     */
+    @Query("""
+        UPDATE service_requests 
+        SET syncState = :toState, updatedAt = :now
+        WHERE syncState = :fromState
+    """)
+    suspend fun bulkSetState(
+        fromState: SyncState,
+        toState: SyncState,
+        now: Long = System.currentTimeMillis()
+    )
+
+    /**
+     * Upsert by remoteId while preserving important local fields when appropriate.
+     * Ensures SYNCED state and updates 'updatedAt'.
+     */
     @Transaction
     suspend fun upsertByRemoteId(entity: ServiceRequestEntity) {
-        if (entity.remoteId.isNullOrBlank()) {
+        val remoteId = entity.remoteId
+        if (remoteId.isNullOrBlank()) {
             insert(entity)
+            return
+        }
+
+        val existing = findByRemoteId(remoteId)
+        if (existing == null) {
+            insert(entity.copy(syncState = SyncState.SYNCED, updatedAt = System.currentTimeMillis()))
         } else {
-            val existing = findByRemoteId(entity.remoteId)
-            if (existing == null) {
-                insert(entity)
-            } else {
-                val merged = existing.copy(
+            update(
+                existing.copy(
                     remoteId     = entity.remoteId,
-                    userId       = entity.userId ?: existing.userId,
+                    userId       = entity.userId       ?: existing.userId,
                     consultantId = entity.consultantId ?: existing.consultantId,
-                    status       = entity.status,
+                    status       = entity.status       ?: existing.status,
                     serviceType  = entity.serviceType,
-                    //title        = entity.title ?: existing.title,
-                    quotationId = entity.quotationId ?: existing.quotationId,
-                    description  = entity.description,
-                    priority     = entity.priority,
-                    deadlineIso  = entity.deadlineIso,
-                    documentId   = entity.documentId ?: existing.documentId,
-                    filePath     = existing.filePath ?: entity.filePath,
+                    quotationId  = entity.quotationId  ?: existing.quotationId,
+                    description  = entity.description  ?: existing.description,
+                    priority     = entity.priority     ?: existing.priority,
+                    deadlineIso  = entity.deadlineIso  ?: existing.deadlineIso,
+                    documentId   = entity.documentId   ?: existing.documentId,
+                    filePath     = existing.filePath   ?: entity.filePath,
+                    documentName = if (entity.documentName.isNotBlank()) entity.documentName else existing.documentName,
                     syncState    = SyncState.SYNCED,
-                    updatedAt    = System.currentTimeMillis(),
-                    documentName = if (entity.documentName.isNotBlank()) entity.documentName else existing.documentName
+                    updatedAt    = System.currentTimeMillis()
                 )
-                update(merged)
-            }
+            )
         }
     }
 }
 
-// ----- Users -----
+// ============================================================
+// Users
+// ============================================================
 
 @Dao
 interface UserDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(users: List<UserEntity>)
 
@@ -80,10 +130,13 @@ interface UserDao {
     suspend fun getById(uid: String): UserEntity?
 }
 
-// ----- Chats -----
+// ============================================================
+// Chats
+// ============================================================
 
 @Dao
 interface ChatDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertChats(chats: List<ChatEntity>)
 
@@ -91,10 +144,13 @@ interface ChatDao {
     fun observeChats(): Flow<List<ChatEntity>>
 }
 
-// ----- Messages -----
+// ============================================================
+// Messages
+// ============================================================
 
 @Dao
 interface MessageDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertMessages(msgs: List<MessageEntity>)
 
@@ -108,10 +164,13 @@ interface MessageDao {
     suspend fun maxInboundTs(recipientId: String): Long?
 }
 
-// ----- Documents -----
+// ============================================================
+// Documents
+// ============================================================
 
 @Dao
 interface DocumentDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(docs: List<DocumentEntity>)
 
@@ -134,5 +193,101 @@ interface DocumentDao {
     suspend fun getAllByDate(): List<DocumentEntity>
 
     @Query("DELETE FROM documents WHERE id = :id")
-    fun deleteById(id: String)
+    suspend fun deleteById(id: String)
+}
+
+// ============================================================
+// Admin Resources (separate table from Service Requests)
+// ============================================================
+
+@Dao
+interface ResourceDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(entity: ResourceEntity): Long
+
+    @Update
+    suspend fun update(entity: ResourceEntity)
+
+    @Query("DELETE FROM resources WHERE remoteId = :remoteId")
+    suspend fun deleteByRemoteId(remoteId: String)
+
+    @Query("SELECT * FROM resources ORDER BY updatedAt DESC")
+    fun observeAll(): Flow<List<ResourceEntity>>
+
+    @Query("SELECT * FROM resources ORDER BY updatedAt DESC")
+    suspend fun getAll(): List<ResourceEntity>
+
+    @Query("SELECT * FROM resources WHERE syncState = :state")
+    suspend fun getBySyncState(state: SyncState): List<ResourceEntity>
+
+    @Query("SELECT * FROM resources WHERE syncState IN (:states) ORDER BY updatedAt ASC")
+    suspend fun getBySyncStates(states: List<SyncState>): List<ResourceEntity>
+
+    @Query("SELECT * FROM resources WHERE remoteId = :remoteId LIMIT 1")
+    suspend fun findByRemoteId(remoteId: String): ResourceEntity?
+
+    @Query("SELECT * FROM resources WHERE documentId IS NOT NULL")
+    suspend fun allWithDocumentId(): List<ResourceEntity>
+
+    @Query("""
+        UPDATE resources 
+        SET syncState = :toState, updatedAt = :now
+        WHERE syncState = :fromState
+    """)
+    suspend fun bulkSetState(
+        fromState: SyncState,
+        toState: SyncState,
+        now: Long = System.currentTimeMillis()
+    )
+
+    @Query("""
+        UPDATE resources
+        SET syncState = :pending, updatedAt = :now
+        WHERE syncState = :failed AND updatedAt <= :threshold
+    """)
+    suspend fun resetFailedOlderThan(
+        threshold: Long,
+        failed: SyncState = SyncState.FAILED,
+        pending: SyncState = SyncState.PENDING_UPLOAD,
+        now: Long = System.currentTimeMillis()
+    )
+
+    /**
+     * Upsert by remoteId while preserving staged file info and marking SYNCED.
+     * Also persists 'faculty'.
+     */
+    @Transaction
+    suspend fun upsertByRemoteId(entity: ResourceEntity) {
+        val remoteId = entity.remoteId
+        if (remoteId.isNullOrBlank()) {
+            insert(entity)
+            return
+        }
+
+        val existing = findByRemoteId(remoteId)
+        if (existing == null) {
+            insert(
+                entity.copy(
+                    syncState = SyncState.SYNCED,
+                    updatedAt = System.currentTimeMillis()
+                )
+            )
+        } else {
+            update(
+                existing.copy(
+                    title       = entity.title,
+                    description = entity.description ?: existing.description,
+                    category    = entity.category    ?: existing.category,
+                    faculty     = entity.faculty     ?: existing.faculty,
+                    documentId  = entity.documentId  ?: existing.documentId,
+                    fileName    = entity.fileName    ?: existing.fileName,
+                    filePath    = existing.filePath  ?: entity.filePath, // keep staged path if we had one
+                    remoteId    = entity.remoteId ?: existing.remoteId,
+                    syncState   = SyncState.SYNCED,
+                    updatedAt   = System.currentTimeMillis()
+                )
+            )
+        }
+    }
 }
