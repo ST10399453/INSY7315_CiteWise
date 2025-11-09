@@ -35,8 +35,13 @@ export async function createRequest(data) {
 export async function getRequests({ status, userId, consultantId, sort, dir }) {
   let q = db.collection(COLLECTION);
 
-  if (userId) q = q.where("userId", "==", userId);            // (Firebase, 2019a)
-  if (consultantId) q = q.where("consultantId", "==", consultantId); // (Firebase, 2019a)
+  // if (userId) q = q.where("userId", "==", userId);            // (Firebase, 2019a)
+  // if (consultantId) q = q.where("consultantId", "==", consultantId);// (Firebase, 2019a)
+  if(consultantId){
+    q=q.where("consultantId", "==", consultantId);
+  }else if(userId){
+    q=q.where("userId", "==", userId)
+  }
   if (status) q = q.where("status", "==", status);            // (Firebase, 2019a)
 
   if (sort === "updatedAt" || sort === "createdAt") {
