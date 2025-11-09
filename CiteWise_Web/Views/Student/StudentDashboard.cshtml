@@ -8,16 +8,16 @@
 <div class="dashboard-header">
     @* <h2>Good morning, Connor</h2> *@
     <h2>Good morning, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
-    <br/>
+    <br />
     <p>Here's what's happening with your assignments today.</p>
 </div>
 
-@* <div class="feature-section">
+<div class="feature-section">
     <div class="feature-buttons">
-        <div class="feature-btn">
-            <img src="~/icons/Request.png" alt="Request a Service" class="feature-icon" />
+        <a asp-controller="Student" asp-action="StudentServiceRequest" class="feature-btn">
+            <img src="~/icons/r.svg" alt="Request a Service" class="feature-icon" />
             <span>Request a Service</span>
-        </div>
+        </a>
         <div class="feature-btn">
             <img src="~/icons/view_requests.png" alt="View all Requests" class="feature-icon" />
             <span>View All Requests</span>
@@ -29,40 +29,9 @@
         <div class="feature-btn">
             <img src="~/icons/Resources.svg" alt="Resources" class="feature-icon" />
             <span>Resources</span>
-        </div> *@
-
-
-        @* DOnt make sence to me *@
-        @* <div class="feature-btn">
-            <img src="~/icons/Messages.svg" alt="Service Quote" class="feature-icon" />
-            <span>Service Quote</span>
         </div>
-
-        <div class="feature-btn">
-            <img src="~/icons/Rate.svg" alt="Rate Consultant" class="feature-icon" />
-            <span>Rate Consultant</span>
-        </div> *@
-        @* DOnt make sence to me *@
-@*     </div>
-</div> *@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    </div>
+</div>
 
 
 
@@ -72,64 +41,77 @@
 
         <!-- Service Request Progress -->
         <div class="dashboard-card">
-            <h3>Service Request Progress</h3>
+            <h3 class="dashboard-heading">
+                My Requests (@(Model?.Count() ?? 0))
+                <img src="~/icons/Icon.svg" alt="Progress Icon" class="heading-icon" />
+            </h3>
 
-            <div class="request-list">
-                <div class="request-item">
-                    <div class="request-header">
-                        <p class="request-title">Business Plan Draft</p>
-                        <span class="priority-badge low">Low</span>
-                    </div>
 
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress" style="width:25%"></div>
+            @if (Model != null && Model.Any())
+            {
+                // Find the request with the closest deadline
+                var closestRequest = Model
+                .Where(r => !string.IsNullOrEmpty(r.Deadline)).OrderBy(r => DateTime.Parse(r.Deadline)).FirstOrDefault();
+                if (closestRequest != null)
+                {
+                    <div class="request-list">
+                        <div class="request-item">
+                            <div class="category-header">
+                                @{
+                                    var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
+                                    closestRequest.ServiceType.Replace("_", " ").ToLower()
+                                    );
+
+                                    if (displayName.Contains("Proofreading Editing"))
+                                        displayName = displayName.Replace("Proofreading Editing", "Proofreading & Editing");
+
+                                    if (displayName.Contains("Formatting Referencing"))
+                                        displayName = displayName.Replace("Formatting Referencing", "Formatting & Referencing");
+                                }
+
+                                <p class="category-title">@displayName</p>
+                                <span class="priority-badge @(closestRequest.Priority?.ToLower())">@closestRequest.Priority</span>
+                            </div>
+
+                            <div class="request-content">
+                                <div class="content-left">
+                                    <h3 class="request-title">@closestRequest.File?.OriginalName</h3>
+                                    <p class="submission-date">
+                                        Submitted: @(closestRequest.CreatedAt.HasValue? closestRequest.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy"): "-")
+                                            </p>
+                                    <div class="request-footer">
+                                        <div class="status-group">
+                                            <span class="status-dot @(closestRequest.Status?.ToLower().Replace(" ", "-"))"></span>
+                                            <span class="status-text">@closestRequest.Status</span>
+                                        </div>
+                                        <span class="deadline-text">
+                                            Deadline: @(string.IsNullOrEmpty(closestRequest.Deadline)
+                                                                                ? "-" : closestRequest.Deadline)
+
+                                        </span>
+                                    </div>                                   
+                                </div>
+                            </div>
                         </div>
                     </div>
+                }
+                else
+                {
+                    <p>No valid deadlines found.</p>
+                }
+            }
+            else
+            {
+                <p>No service requests found.</p>
+            }
 
-                    <div class="request-footer">
-                        <span class="status-pill">Submitted</span>
-                        <span class="status-pill">Deadline: 26.08.2025</span>
-                    </div>
-                </div>
-            </div>
-            <a class="btn" asp-controller="Student" asp-action="StudentServiceRequest">Request a Service</a>
         </div>
 
-        @if (Model != null && Model.Any())
-        {
-            <div class="table-scroll">
-                <table class="table table-striped mt-4">
-                    <thead>
-                        <tr>
-                            <th>Service</th>
-                            <th>Description</th>
-                            <th>Priority</th>
-                            <th>Deadline</th>
-                            <th>Created At</th>
-                            <th>Last Updated</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var r in Model)
-                        {
-                            <tr>
-                                <td>@r.ServiceType</td>
-                                <td>@r.Description</td>
-                                <td>@r.Priority</td>
-                                <td>@(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)</td>
-                                <td>@(r.CreatedAt.HasValue? r.CreatedAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : "-")</td>
-                                <td>@(r.UpdatedAt.HasValue? r.UpdatedAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : "-")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
+
 
 
         <!-- Notifications -->
-        @* <div class="dashboard-card">
+        <div class="dashboard-card">
             <h3>Notifications</h3>
             <ul class="notification-list">
                 <li>📄 Missing documents</li>
@@ -138,7 +120,7 @@
                 <li>⭐ Rate your consultant</li>
                 <li>🔔 Status update</li>
             </ul>
-        </div> *@
+        </div>
 
         <!-- Service Quote -->
         <div class="dashboard-card">
@@ -153,32 +135,6 @@
                 <button class="btn btn-secondary">Request Review</button>
                 <button class="btn btn-outline">Download PDF</button>
             </div>
-        </div>
-
-        <!-- Ask AI Assistant -->
-        <div class="dashboard-card">
-            <h3>Ask an AI Assistant</h3>
-            <p>Our AI assistant is here to help with brainstorming, reviewing and refinement.</p>
-        </div>
-
-        <div class="dashboard-card">
-            <h3>Service Quote</h3>
-            <div class="request-item">
-                <p><strong>Business Plan Draft</strong></p>
-                <p>Total: <strong>R450.00</strong></p>
-                <p>Deadline: 25.08.2025</p>
-            </div>
-            <div class="btn-group">
-                <button class="btn">Accept</button>
-                <button class="btn btn-secondary">Request Review</button>
-                <button class="btn btn-outline">Download PDF</button>
-            </div>
-        </div>
-
-        <!-- Ask AI Assistant -->
-        <div class="dashboard-card">
-            <h3>Ask an AI Assistant</h3>
-            <p>Our AI assistant is here to help with brainstorming, reviewing and refinement.</p>
         </div>
 
     </div>
