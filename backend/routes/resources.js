@@ -256,31 +256,87 @@ router.get(
  * Deletes both Firestore record and R2 object (Cloudflare, 2024)
  * ============================================================
  */
-router.delete("/:id", 
-  checkAuth, 
-  attachRole,  
-  param("id").isString(), async (req, res) => {
-  const v = bailIfInvalid(req, res); if (v) return v;
-  try {
-    if (!isAdmin(req.user)) return res.status(403).json({ message: "Forbidden" });
+router.delete(
+  "/:id",
+  checkAuth,
+  attachRole,
+  param("id").isString().trim().notEmpty(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
 
+    const startedAt = Date.now();
+    const reqId = `${startedAt}-${Math.random().toString(36).slice(2, 8)}`;
+    const actor = req.user?.uid || "unknown";
+    const role = String(req.user?.role || req.user?.claims?.role || "").toLowerCase();
     const { id } = req.params;
-    const docSnap = await fsdb.collection("resources").doc(id).get();
-    if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
 
-    const doc = docSnap.data();
-    const { bucket, key } = (doc.storage && doc.storage.cloudflare) || {};
+    // ── Logs: request envelope
+    console.log("----- INCOMING DELETE /resources/%s [%s] -----", id, reqId);
+    console.log("Auth header present:", Boolean(req.headers.authorization));
+    console.log("User:", { uid: actor, role });
+    console.log("Params:", req.params);
 
-    if (bucket && key) {
-      await deleteFromR2({ bucket, key });
+    try {
+      // ── RBAC
+      if (role !== "admin") {
+        console.warn("❌ [%s] Forbidden: not admin (role=%s, uid=%s)", reqId, role, actor);
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // ── Load document
+      const ref = fsdb.collection("resources").doc(id);
+      const snap = await ref.get();
+      if (!snap.exists) {
+        console.warn("⚠️  [%s] Resource not found: %s", reqId, id);
+        return res.status(404).json({ message: "Not found" });
+      }
+
+      /** @type {{ storage?: { cloudflare?: { bucket?: string, key?: string } } }} */
+      const doc = snap.data() || {};
+      const bucket = doc?.storage?.cloudflare?.bucket;
+      const key = doc?.storage?.cloudflare?.key;
+
+      // ── Try to delete object from R2 (best effort)
+      if (bucket && key) {
+        try {
+          console.log("→ [%s] Deleting R2 object", reqId, { bucket, key });
+          await deleteFromR2({ bucket, key });
+          console.log("✓ [%s] R2 object deleted", reqId);
+        } catch (err) {
+          // Don’t fail the whole request if storage delete hiccups.
+          console.error("⚠️  [%s] R2 delete failed (continuing): %s", reqId, err?.message);
+        }
+      } else {
+        console.log("ℹ️  [%s] No R2 info on resource (bucket/key missing)", reqId);
+      }
+
+      // ── Delete Firestore doc
+      await ref.delete();
+      console.log("✓ [%s] Firestore doc deleted: %s", reqId, id);
+
+      // ── (Optional) Audit trail
+      try {
+        await fsdb
+          .collection("audit")
+          .add({
+            type: "resource.delete",
+            resourceId: id,
+            actor,
+            role,
+            ts: Date.now(),
+          });
+        console.log("ℹ️  [%s] Audit record written", reqId);
+      } catch (err) {
+        console.error("⚠️  [%s] Audit write failed: %s", reqId, err?.message);
+      }
+
+      console.log("✅ [%s] Done DELETE /resources/%s in %dms", reqId, id, Date.now() - startedAt);
+      return res.json({ ok: true, id });
+    } catch (e) {
+      console.error("💥 [%s] Error DELETE /resources/%s: %s", reqId, id, e?.message);
+      return res.status(400).json({ message: e?.message || "Delete failed" });
     }
-
-    await fsdb.collection("resources").doc(id).delete();
-    res.json({ ok: true, id });
-  } catch (e) {
-    console.error(e);
-    res.status(400).json({ message: e.message });
   }
-});
+);
 
 export default router;
