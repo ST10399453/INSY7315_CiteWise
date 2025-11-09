@@ -111,7 +111,8 @@ class ResourcesViewModel(
     }
 
     suspend fun markOffline(docId: String, preferredName: String?): Result<File> {
-        return when (val res = docsRepo.downloadToDisk(docId, preferredName)) {
+        val auth = buildAuthHeader()
+        return when (val res = docsRepo.downloadToDisk(docId, preferredName, auth = auth)) {
             is com.example.citewise_mobile.data.NetResult.Ok -> {
                 val dao = localRepos.documents
                 val d = dao.getById(docId) ?: return Result.failure(IllegalStateException("Not found"))
@@ -124,12 +125,36 @@ class ResourcesViewModel(
         }
     }
 
+
     suspend fun removeOffline(docId: String) {
         val dao = localRepos.documents
         val d = dao.getById(docId) ?: return
         d.localPath?.let { runCatching { File(it).delete() } }
         dao.update(d.copy(localPath = null, downloadedAt = null))
         refresh()
+    }
+
+    suspend fun deleteResourceEverywhere(id: String, strict: Boolean = false): Result<Unit> {
+        val auth = buildAuthHeader() ?: return Result.failure(IllegalStateException("Not signed in."))
+        return try {
+            when (val res = docsRepo.deleteResource(id, auth, strict)) {
+                is com.example.citewise_mobile.data.NetResult.Err ->
+                    Result.failure(Exception(res.message.ifBlank { "Delete failed" }))
+                is com.example.citewise_mobile.data.NetResult.Ok -> {
+                    // remove cached file + row locally (best effort)
+                    val dao = localRepos.documents
+                    val existing = runCatching { dao.getById(id) }.getOrNull()
+                    existing?.localPath?.let { runCatching { java.io.File(it).delete() } }
+                    runCatching { dao.deleteById(id) }  // see DAO addition below
+
+                    // refresh list from Room
+                    refresh()
+                    Result.success(Unit)
+                }
+            }
+        } catch (t: Throwable) {
+            Result.failure(t)
+        }
     }
 
     // ─────────── Helpers ───────────

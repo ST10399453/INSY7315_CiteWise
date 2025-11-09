@@ -112,6 +112,8 @@ interface DocumentsApi {
 
     @DELETE("resources/{id}")
     suspend fun deleteResource(
-        @Path("id") id: String
-    ): Response<DeleteResourceResult>
+        @Path("id") id: String,
+        @Header("Authorization") auth: String,
+        @Query("strict") strict: Boolean = false
+    ): Response<Unit>
 }

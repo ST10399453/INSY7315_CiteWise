@@ -159,9 +159,8 @@ class ResourcesActivity : BaseActivity() {
     private fun setupRoleSpecificUi() {
         binding.fabAdd.isVisible = isAdminRole
         binding.fabAdd.setOnClickListener {
-            Snackbar.make(binding.root, "Add resource (admin)", Snackbar.LENGTH_SHORT)
-                .setAnchorView(binding.fabAdd)
-                .show()
+            if (!isAdminRole) return@setOnClickListener
+            com.example.citewise_mobile.ui.NewResourceBottomSheet.show(supportFragmentManager)
         }
     }
 
@@ -254,31 +253,19 @@ class ResourcesActivity : BaseActivity() {
     private fun deleteDocumentAsAdmin(doc: DocumentEntity) {
         if (!isAdminRole) return
         lifecycleScope.launch(Dispatchers.IO) {
-            val auth = authHeaderOrNull()
-            if (auth == null) {
-                withContext(Dispatchers.Main) { snack("Not signed in.") }
-                return@launch
-            }
             try {
-                // Use repository if its deleteResource(resourceId, auth) is available:
-                val res = docsRepo.deleteResource(doc.id)
+                val result = vm.deleteResourceEverywhere(doc.id, strict = false)
                 withContext(Dispatchers.Main) {
-                    when (res) {
-                        is com.example.citewise_mobile.data.NetResult.Ok -> {
-                            snackShort("Deleted")
-                            vm.refresh()
-                        }
-                        is com.example.citewise_mobile.data.NetResult.Err -> {
-                            val code = res.code ?: -1
-                            when (code) {
-                                HttpURLConnection.HTTP_FORBIDDEN,
-                                HttpURLConnection.HTTP_UNAUTHORIZED ->
-                                    snack("You don’t have permission to delete this resource (code $code).")
-                                HttpURLConnection.HTTP_NOT_FOUND ->
-                                    snack("Resource not found (code $code).")
-                                else ->
-                                    snack("Delete failed${if (code > 0) " (code $code)" else ""}.")
-                            }
+                    if (result.isSuccess) {
+                        snackShort("Deleted")
+                    } else {
+                        val msg = result.exceptionOrNull()?.message.orEmpty()
+                        when {
+                            msg.contains("403") -> snack("You don’t have permission to delete this resource (code 403).")
+                            msg.contains("401") -> snack("You don’t have permission to delete this resource (code 401).")
+                            msg.contains("404") -> snack("Resource not found (code 404).")
+                            msg.isNotBlank()     -> snack(msg)
+                            else                 -> snack("Delete failed.")
                         }
                     }
                 }
@@ -287,6 +274,7 @@ class ResourcesActivity : BaseActivity() {
             }
         }
     }
+
 
     // ─────────────────── Helpers ───────────────────
 

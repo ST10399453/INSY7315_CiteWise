@@ -132,4 +132,7 @@ interface DocumentDao {
 
     @Query("SELECT * FROM documents ORDER BY updatedAt DESC")
     suspend fun getAllByDate(): List<DocumentEntity>
+
+    @Query("DELETE FROM documents WHERE id = :id")
+    fun deleteById(id: String)
 }

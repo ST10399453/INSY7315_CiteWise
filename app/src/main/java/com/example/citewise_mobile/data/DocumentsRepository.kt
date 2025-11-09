@@ -93,16 +93,18 @@ class DocumentsRepository(
 
     /** Admin only. */
     suspend fun deleteResource(
-        resourceId: String
-    ): NetResult<Unit> = withContext(Dispatchers.IO) {
-        val resp = runCatching { api.deleteResource(resourceId) }
-            .getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Delete failed") }
+        resourceId: String,
+        auth: String,
+        strict: Boolean = false
+    ): NetResult<Unit> {
+        val resp = runCatching { api.deleteResource(resourceId, auth = auth, strict = strict) }
+            .getOrElse { t -> return NetResult.Err(t.message ?: "Delete failed") }
 
         if (!resp.isSuccessful) {
             val msg = resp.errorBody()?.string().orEmpty().ifBlank { "HTTP ${resp.code()}" }
-            return@withContext NetResult.Err(msg, resp.code())
+            return NetResult.Err(msg, resp.code())
         }
-        NetResult.Ok(Unit)
+        return NetResult.Ok(Unit)
     }
 
     /** Signed URL for a resource (server may require auth). */
