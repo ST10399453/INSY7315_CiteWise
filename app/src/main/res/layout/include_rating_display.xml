@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/rounded_card_background"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="September"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/text_dark"
+        android:drawableEnd="@drawable/sharp_arrow_drop_down_24"
+        android:drawablePadding="8dp" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/tvRatingStars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="★★★★☆"
+        android:textSize="20sp"
+        android:textColor="@color/priority_Medium" />
+
+</LinearLayout>

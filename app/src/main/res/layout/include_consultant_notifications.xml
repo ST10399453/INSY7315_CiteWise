@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/btnOverdueTasks"
+        style="@style/NotificationItem">
+        <TextView
+            style="@style/NotificationItemText"
+            android:text="Overdue tasks" />
+        <ImageView
+            style="@style/NotificationItemChevron" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btnFeedback"
+        style="@style/NotificationItem">
+        <TextView
+            style="@style/NotificationItemText"
+            android:text="Feedback" />
+        <ImageView
+            style="@style/NotificationItemChevron" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btnNewMessages"
+        style="@style/NotificationItem">
+        <TextView
+            style="@style/NotificationItemText"
+            android:text="1 New message" />
+        <ImageView
+            style="@style/NotificationItemChevron" />
+    </LinearLayout>
+</LinearLayout>

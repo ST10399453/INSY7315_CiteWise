@@ -94,7 +94,6 @@ dependencies {
 
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    implementation("androidx.fragment:fragment-ktx:1.8.4")
 
 
 }
