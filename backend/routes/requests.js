@@ -307,6 +307,173 @@ router.post("/:id/self-assign",
   }
 );
 
+router.get(
+  "/consultants/unassigned",
+  checkAuth,
+  async (req, res) => {
+    try {
+      // Build assigned set (prefer not-null filter; fallback if needed)
+      let assignedIds = new Set();
+
+      try {
+        const qAssigned = await fsdb
+          .collection("ServiceReviews")
+          .where("consultantId", "!=", null)  // requires index
+          .limit(2000)
+          .get();
+
+        qAssigned.forEach(d => {
+          const cid = d.get("consultantId");
+          if (cid) assignedIds.add(cid);
+        });
+      } catch {
+        const qAssigned2 = await fsdb
+          .collection("ServiceReviews")
+          .orderBy("createdAt", "desc")
+          .limit(4000)
+          .get();
+        qAssigned2.forEach(d => {
+          const cid = d.get("consultantId");
+          if (cid) assignedIds.add(cid);
+        });
+      }
+
+      // All consultants
+      const qAll = await fsdb
+        .collection("users")
+        .where("role", "==", "consultant")
+        .orderBy("name", "asc")
+        .get();
+
+      const all = qAll.docs.map(d => ({
+        id: d.id,
+        uid: d.get("uid") || d.id,
+        name: d.get("name") || "",
+        email: d.get("email") || "",
+        specialty: d.get("specialty") || ""
+      }));
+
+      const unassigned = all.filter(c => !assignedIds.has(c.uid));
+      return res.json({ total: all.length, unassigned: unassigned.length, items: unassigned });
+    } catch (err) {
+      console.error("unassigned consultants failed:", err);
+      return res.status(500).json({ message: err.message });
+    }
+  }
+);
+
+router.post(
+  "/:id/annotated",
+  checkAuth,
+  upload.single("file"),
+  param("id").isString(),
+  body("status").optional().isIn(["review_submitted", "completed"]), // optional status bump
+  async (req, res) => {
+    const v = bailIfInvalid(req, res); if (v) return v;
+
+    try {
+      if (!req.file) return res.status(400).json({ message: "file is required" });
+
+      const reqId = req.params.id;
+      const actor = req.user;
+      const role = normRole(actor);
+
+      // Pull the request, check authorization
+      const snap = await fsdb.collection("ServiceReviews").doc(reqId).get();
+      if (!snap.exists) return res.status(404).json({ message: "Request not found" });
+
+      const doc = snap.data();
+      const assignedConsultantId = doc?.consultantId || null;
+
+      const allowed =
+        isAdmin(actor) ||
+        (isConsultant(actor) && assignedConsultantId && assignedConsultantId === actor.uid);
+
+      if (!allowed) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // Upload to R2
+      const original = req.file.originalname || "annotated.pdf";
+      const safe = safeName(original);
+      const mime = req.file.mimetype || "application/pdf";
+      const size = req.file.size || req.file.buffer?.length || 0;
+
+      const key = `annotations/${reqId}/${safe}`;
+      const r2Meta = await uploadToR2({
+        key,
+        body: req.file.buffer,
+        contentType: mime,
+      });
+
+      // Prepare update
+      const annotatedFile = {
+        fileName: safe,
+        mimeType: mime,
+        size,
+        uploadedAt: Date.now(),
+        uploadedBy: actor.uid,
+        storage: { cloudflare: r2Meta },
+      };
+
+      const updatePayload = {
+        annotatedFile,
+        updatedAt: Date.now(),
+      };
+
+      // optional status bump if provided and you're okay with it here
+      if (req.body.status) updatePayload.status = req.body.status;
+
+      await fsdb.collection("ServiceReviews").doc(reqId).set(updatePayload, { merge: true });
+
+      return res.status(201).json({
+        id: reqId,
+        annotatedFile,
+        status: updatePayload.status || doc?.status || null,
+      });
+    } catch (err) {
+      console.error("annotated upload failed:", err);
+      return res.status(500).json({ message: err.message });
+    }
+  }
+);
+
+
+router.get(
+  "requests/pending-assignments",
+  checkAuth,
+  async (req, res) => {
+    try {
+      // Primary: server-side null filter
+      const q = await fsdb
+        .collection("ServiceReviews")
+        .where("consultantId", "==", null)
+        .orderBy("createdAt", "desc")
+        .limit(200)
+        .get();
+
+      const out = q.docs.map(d => ({ id: d.id, ...d.data() }));
+      return res.json(out);
+    } catch (err) {
+      // Fallback: if index not present, pull recent slice and filter client-side
+      try {
+        const q2 = await fsdb
+          .collection("ServiceReviews")
+          .orderBy("createdAt", "desc")
+          .limit(400)
+          .get();
+        const out = q2.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter(x => x.consultantId == null || x.consultantId === "");
+        return res.json(out);
+      } catch (e2) {
+        console.error("pending-assignments failed:", e2);
+        return res.status(500).json({ message: e2.message });
+      }
+    }
+  }
+);
+
 
 export default router;
 
