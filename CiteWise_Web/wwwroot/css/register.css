@@ -276,24 +276,35 @@ select.input-validation-error {
 .action-icons {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
 }
 
 .icon-link,
 .icon-button {
-    color: #333;
     text-decoration: none;
     cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-    .icon-link:hover,
-    .icon-button:hover {
-        color: #007bff; /* blue hover effect */
-    }
-
-.icon-button {
+    transition: transform 0.2s ease, opacity 0.2s ease;
     background: none;
     border: none;
     padding: 0;
+}
+
+/* Colors for each icon */
+.icon-open svg {
+    stroke: #38E154B5; /* green */
+}
+
+.icon-download svg {
+    stroke: #0027B294; /* blue */
+}
+
+.icon-delete svg {
+    stroke: #FF0000D6; /* red */
+}
+
+/* Hover effects */
+.icon-link:hover svg,
+.icon-button:hover svg {
+    transform: scale(1.15);
+    opacity: 0.8;
 }
