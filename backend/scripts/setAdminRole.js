@@ -3,22 +3,37 @@ import admin from '../db/firebaseAdmin.js'; // adjust path if needed
 
 async function setAdminRole() {
   try {
-    const uid = '9qVsPYF0jEc7CvS7fFa9GiojaoE2'; // <-- your UID from the logs
-
-    const userRef = admin.firestore().collection('users').doc(uid);
-    await userRef.set(
+    const users = [
       {
-        role: 'admin',
+        uid: '9qVsPYF0jEc7CvS7fFa9GiojaoE2',
         email: 'ethan.huntley@gmail.com',
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
-      { merge: true }
-    );
+      {
+        uid: 'Uh0OqlSATvVwDopz7fG06n585m62',
+        email: 'akhiparshotam@gmail.com',
+      },
+      {
+        uid: 'KddBcEcH7FQYWEkeoc5hZV4C0es2',
+        email: 'greg@gmail.com',
+      },
+    ];
 
-    console.log(`✅ Set role=admin for uid=${uid}`);
+    for (const user of users) {
+      const userRef = admin.firestore().collection('users').doc(user.uid);
+      await userRef.set(
+        {
+          role: 'admin',
+          email: user.email,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+      console.log(`✅ Set role=admin for uid=${user.uid} (${user.email})`);
+    }
+
     process.exit(0);
   } catch (err) {
-    console.error('❌ Failed to set admin role:', err);
+    console.error('❌ Failed to set admin roles:', err);
     process.exit(1);
   }
 }
