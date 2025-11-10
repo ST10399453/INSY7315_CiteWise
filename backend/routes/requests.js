@@ -307,34 +307,43 @@ router.post("/:id/self-assign",
   }
 );
 
+// GET /consultants/unassigned
 router.get(
   "/consultants/unassigned",
   checkAuth,
   async (req, res) => {
     try {
       // Build assigned set (prefer not-null filter; fallback if needed)
-      let assignedIds = new Set();
+      const assignedIds = new Set();
 
       try {
+        // This will include empty strings too; we filter those out below.
         const qAssigned = await fsdb
           .collection("ServiceReviews")
-          .where("consultantId", "!=", null)  // requires index
+          .where("consultantId", "!=", null) // requires composite index
           .limit(2000)
           .get();
 
         qAssigned.forEach(d => {
           const cid = d.get("consultantId");
-          if (cid) assignedIds.add(cid);
+          // Only count truly assigned: non-null, non-empty
+          if (typeof cid === "string" ? cid.trim() !== "" : Boolean(cid)) {
+            assignedIds.add(cid);
+          }
         });
       } catch {
+        // Fallback: scan recent slice and pick non-empty consultantId
         const qAssigned2 = await fsdb
           .collection("ServiceReviews")
           .orderBy("createdAt", "desc")
           .limit(4000)
           .get();
+
         qAssigned2.forEach(d => {
           const cid = d.get("consultantId");
-          if (cid) assignedIds.add(cid);
+          if (typeof cid === "string" ? cid.trim() !== "" : Boolean(cid)) {
+            assignedIds.add(cid);
+          }
         });
       }
 
@@ -353,8 +362,14 @@ router.get(
         specialty: d.get("specialty") || ""
       }));
 
+      // Unassigned = not present in assignedIds (i.e., consultantId is null or "")
       const unassigned = all.filter(c => !assignedIds.has(c.uid));
-      return res.json({ total: all.length, unassigned: unassigned.length, items: unassigned });
+
+      return res.json({
+        total: all.length,
+        unassigned: unassigned.length,
+        items: unassigned
+      });
     } catch (err) {
       console.error("unassigned consultants failed:", err);
       return res.status(500).json({ message: err.message });
@@ -362,8 +377,9 @@ router.get(
   }
 );
 
+// POST /requests/:id/annotated  (unchanged except for keeping as-is)
 router.post(
-  "/:id/annotated",
+  "/requests/:id/annotated",
   checkAuth,
   upload.single("file"),
   param("id").isString(),
@@ -376,7 +392,6 @@ router.post(
 
       const reqId = req.params.id;
       const actor = req.user;
-      const role = normRole(actor);
 
       // Pull the request, check authorization
       const snap = await fsdb.collection("ServiceReviews").doc(reqId).get();
@@ -389,9 +404,7 @@ router.post(
         isAdmin(actor) ||
         (isConsultant(actor) && assignedConsultantId && assignedConsultantId === actor.uid);
 
-      if (!allowed) {
-        return res.status(403).json({ message: "Forbidden" });
-      }
+      if (!allowed) return res.status(403).json({ message: "Forbidden" });
 
       // Upload to R2
       const original = req.file.originalname || "annotated.pdf";
@@ -406,7 +419,6 @@ router.post(
         contentType: mime,
       });
 
-      // Prepare update
       const annotatedFile = {
         fileName: safe,
         mimeType: mime,
@@ -420,8 +432,6 @@ router.post(
         annotatedFile,
         updatedAt: Date.now(),
       };
-
-      // optional status bump if provided and you're okay with it here
       if (req.body.status) updatePayload.status = req.body.status;
 
       await fsdb.collection("ServiceReviews").doc(reqId).set(updatePayload, { merge: true });
@@ -438,33 +448,53 @@ router.post(
   }
 );
 
-
+// GET /requests/pending-assignments  (treat null OR "")
 router.get(
-  "requests/pending-assignments",
+  "/requests/pending-assignments",
   checkAuth,
   async (req, res) => {
     try {
-      // Primary: server-side null filter
-      const q = await fsdb
+      // You can't OR on Firestore, so do two queries and merge:
+      // (A) consultantId == null
+      const qNull = await fsdb
         .collection("ServiceReviews")
         .where("consultantId", "==", null)
         .orderBy("createdAt", "desc")
         .limit(200)
         .get();
 
-      const out = q.docs.map(d => ({ id: d.id, ...d.data() }));
+      // (B) consultantId == "" (empty string)
+      const qEmpty = await fsdb
+        .collection("ServiceReviews")
+        .where("consultantId", "==", "")
+        .orderBy("createdAt", "desc")
+        .limit(200)
+        .get();
+
+      // Merge, de-dupe by id, keep newest first
+      const byId = new Map();
+      [...qNull.docs, ...qEmpty.docs].forEach(d => {
+        const val = { id: d.id, ...d.data() };
+        byId.set(d.id, val);
+      });
+
+      const out = Array.from(byId.values())
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
       return res.json(out);
     } catch (err) {
-      // Fallback: if index not present, pull recent slice and filter client-side
+      // Fallback: pull recent slice and filter client-side for null OR ""
       try {
         const q2 = await fsdb
           .collection("ServiceReviews")
           .orderBy("createdAt", "desc")
           .limit(400)
           .get();
+
         const out = q2.docs
           .map(d => ({ id: d.id, ...d.data() }))
-          .filter(x => x.consultantId == null || x.consultantId === "");
+          .filter(x => x.consultantId == null || (typeof x.consultantId === "string" && x.consultantId.trim() === ""));
+
         return res.json(out);
       } catch (e2) {
         console.error("pending-assignments failed:", e2);
