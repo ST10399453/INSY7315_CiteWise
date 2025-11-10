@@ -428,3 +428,15 @@
         display: none;
     }
 }
+
+
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 3 equal columns horizontally */
+    gap: 25px; /* neat spacing between cards */
+    align-items: start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1400px; /* keeps layout centered and balanced */
+    margin: 0 auto;
+}

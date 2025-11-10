@@ -93,6 +93,16 @@ namespace CiteWise_Web.Controllers
             return View(items);
         }
 
+        public IActionResult AddResources()
+        {
+            string role = HttpContext.Session.GetString("UserRole")?.ToLower();
+            if (role != "admin")
+                return RedirectToAction("Login", "Account");
+
+            return View(); // returns AddResources.cshtml
+        }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadResource(CreateResourceRequest model)

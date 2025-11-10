@@ -271,3 +271,29 @@ select.input-validation-error {
     transform: translateY(-50%);
     pointer-events: none; /* Let clicks go through to the select */
 }
+
+
+.action-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-link,
+.icon-button {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+    .icon-link:hover,
+    .icon-button:hover {
+        color: #007bff; /* blue hover effect */
+    }
+
+.icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+}

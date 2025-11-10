@@ -1,0 +1,66 @@
+﻿
+@{
+    Layout = "_LayoutAuth";
+}
+
+
+
+
+<div class="studentbody">
+    <div class="centered">
+        <h2 class="page-title">New Resource</h2>
+        <div class="studentcard">
+
+            <form asp-action="UploadResource" asp-controller="Admin" method="post" enctype="multipart/form-data" class="register-form">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input name="Name" class="icon-input" placeholder="Enter resource title" required />
+                </div>
+                <div class="form-group">
+                    <label for="categorySelect">Category</label>
+                    <select name="Category" id="categorySelect" class="icon-input" required>
+                        <option value="">-- Select Category --</option>
+                        <option value="WRITING_GUIDE">Writing guide</option>
+                        <option value="TEMPLATE">Template</option>
+                        <option value="AI_USAGE">AI Usage</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="categorySelect">Faculty</label>
+                    <select name="Faculty" id="categorySelect" class="icon-input" required>
+                        <option value="">-- Select Faculty --</option>
+                        <option value="GENERAL">General</option>
+                        <option value="ENGINEERING">Engineering</option>
+                        <option value="SCIENCE">Science</option>
+                        <option value="BUSINESS">Business</option>
+                        <option value="LAW">Law</option>
+                        <option value="EDUCATION">Education</option>
+                        <option value="HEALTH_SCIENCES">Health Sciences</option>
+                        <option value="ARTS">Arts</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">File</label>
+                    <label class="file-upload-container" for="documentUpload">
+                        <img src="/icons/file_upload.svg" alt="Upload" class="upload-icon" />
+                        <div class="upload-text">
+                            <span class="upload-lines"></span>
+                            <span class="upload-label">Select a file</span>
+                            <span class="upload-lines"></span>
+                        </div>
+                        <input type="file" name="File" class="file-input-hidden" id="documentUpload"  required />
+                    </label>
+                    <div id="selectedFileName" class="selected-file-name"></div>
+                </div>
+
+                <div class="button-container">
+                    <button class="btn-next" type="submit">Upload</button>
+                </div>
+                @Html.AntiForgeryToken()
+            </form>
+        </div>
+    </div>
+</div>
+

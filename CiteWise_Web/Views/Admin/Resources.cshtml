@@ -1,9 +1,13 @@
-﻿@model IReadOnlyList<CiteWise_Web.Models.Resources.ResourceItem>
+﻿@*@model IReadOnlyList<CiteWise_Web.Models.Resources.ResourceItem>
 @{
     Layout = "_LayoutAuth";
     var message = TempData["Message"] as string;
     var error = TempData["Error"] as string;
 }
+
+
+
+
 
 <h2>Resources</h2>
 
@@ -116,4 +120,226 @@
             </tr>
         }
     </tbody>
-</table>
+</table> *@
+@model IReadOnlyList<CiteWise_Web.Models.Resources.ResourceItem>
+@{
+    Layout = "_LayoutAuth";
+    var message = TempData["Message"] as string;
+    var error = TempData["Error"] as string;
+}
+
+<div class="dashboard-header">
+    <h2>Resource management</h2>
+    <br />
+    <p>Upload resources for students</p>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="alert alert-success">@message</div>
+}
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<!-- Resource List -->
+
+<div class="dashboard-container">
+
+    <div class="resource-grid">
+
+        <div class="dashboard-card">
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="request-list">
+                    @foreach (var r in Model)
+                    {
+                        <div class="request-item">
+                            <div class="category-header">
+                                @{
+                                    var displayName = System.Globalization.CultureInfo
+                                    .CurrentCulture
+                                    .TextInfo
+                                    .ToTitleCase(r.Category.Replace("_", " ").ToLower());
+
+                                    // Optional replacements
+                                    if (displayName.Contains("Writing Guide"))
+                                        displayName = displayName.Replace("Writing Guide", "Writing Guide & Tips");
+
+                                    if (displayName.Contains("AI Usage"))
+                                        displayName = displayName.Replace("AI Usage", "AI Usage Guidelines");
+                                }
+                                <h3 class="category-title">@displayName</h3>
+                                <span class="priority-badge">@r.Faculty</span>
+                            </div>
+
+                            <div class="request-content">
+                                <div class="content-left">
+                                    <h3 class="request-title">@r.Name</h3>
+                                </div>
+                                <div class="request-footer">
+                                    <div class="status-group">
+                                        <!-- Open and Download buttons -->
+                                        <div class="action-icons">
+
+                                            <!-- Open -->
+                                            <a asp-action="DownloadResource"
+                                               asp-route-id="@r.Id"
+                                               asp-route-disposition="inline"
+                                               title="Open"
+                                               class="icon-link">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M14 3h7v7m-1.5-6.5L10 14" />
+                                                    <path d="M5 5v14h14v-5" />
+                                                </svg>
+                                            </a>
+
+                                            <!-- Download -->
+                                            <a asp-action="DownloadResource"
+                                               asp-route-id="@r.Id"
+                                               asp-route-disposition="attachment"
+                                               title="Download"
+                                               class="icon-link">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+                                                </svg>
+                                            </a>
+
+                                            <!-- Delete -->
+                                            <form asp-action="DeleteResource"
+                                                  method="post"
+                                                  class="icon-form"
+                                                  onsubmit="return confirm('Delete this resource?');">
+                                                <input type="hidden" name="id" value="@r.Id" />
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit"
+                                                        class="icon-button"
+                                                        title="Delete">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <path d="M3 6h18M9 6V4h6v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12z" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>No resources found.</p>
+            }
+
+        </div>
+        <div class="dashboard-card">
+            <h1>dd</h1>
+        </div>
+    </div>
+
+</div>
+
+<div class="dashboard-card">
+    @* @foreach (var r in Model)
+    {
+        <div class="resource-item d-flex justify-content-between align-items-center p-3 mb-2 rounded shadow-sm bg-white">
+            <div>
+                <h5 class="mb-1">@r.Name</h5>
+                <span class="text-muted small">@r.Category</span>
+            </div>
+            <div> *@
+                @* <a class="btn btn-sm btn-outline-primary me-1"
+                   asp-action="DownloadResource"
+                   asp-route-id="@r.Id"
+                   asp-route-disposition="inline">Open</a>
+
+                <a class="btn btn-sm btn-outline-secondary me-1"
+                   asp-action="DownloadResource"
+                   asp-route-id="@r.Id"
+                   asp-route-disposition="attachment">Download</a>
+
+                <form asp-action="DeleteResource" method="post" class="d-inline"
+                      onsubmit="return confirm('Delete this resource?');">
+                    <input type="hidden" name="id" value="@r.Id" />
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                </form> *@
+    @*         </div>
+        </div>
+    } *@
+</div>
+
+
+
+
+<!-- Filters -->
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input name="faculty" value="@ViewBag.Faculty" class="form-control" placeholder="Filter by faculty" />
+    </div>
+    <div class="col-md-3">
+        <input name="q" value="@ViewBag.Query" class="form-control" placeholder="Search name..." />
+    </div>
+    <div class="col-md-2">
+        <select name="sort" class="form-select">
+            <option value="date" selected="@(ViewBag.Sort == "date")">Sort by date</option>
+            <option value="alpha" selected="@(ViewBag.Sort == "alpha")">Sort A→Z</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="dir" class="form-select">
+            <option value="desc" selected="@(ViewBag.Dir == "desc")">Desc</option>
+            <option value="asc" selected="@(ViewBag.Dir == "asc")">Asc</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-outline-secondary w-100" type="submit">Apply</button>
+    </div>
+</form>
+
+<!-- Resource Table -->
+@* <table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Faculty</th>
+            <th>Category</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            var updatedLocal = r.UpdatedAt?.ToLocalTime();
+            <tr>
+                <td>@r.Name</td>
+                <td>@r.Faculty</td>
+                <td>@r.Category</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary"
+                       asp-action="DownloadResource"
+                       asp-route-id="@r.Id"
+                       asp-route-disposition="inline">Open</a>
+
+                    <a class="btn btn-sm btn-outline-secondary"
+                       asp-action="DownloadResource"
+                       asp-route-id="@r.Id"
+                       asp-route-disposition="attachment">Download</a>
+
+                    <form asp-action="DeleteResource" method="post" class="d-inline"
+                          onsubmit="return confirm('Delete this resource?');">
+                        <input type="hidden" name="id" value="@r.Id" />
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table> *@
