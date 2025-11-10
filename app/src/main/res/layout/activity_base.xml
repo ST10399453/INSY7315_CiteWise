@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background">
+    android:background="@color/ui_background">
 
     <!-- Screen-specific content is inflated here -->
     <FrameLayout
@@ -24,10 +24,11 @@
         android:layout_marginStart="48dp"
         android:layout_marginEnd="48dp"
         android:layout_marginBottom="56dp"
-        android:background="@drawable/btn_login"
+        android:background="@drawable/card_neumorphic_background"
         android:elevation="12dp"
         app:itemIconTint="@color/toggle_bg_selector"
         app:itemTextColor="@color/toggle_bg_selector"
+        app:itemActiveIndicatorStyle="@color/nav_toggle_selecter"
         app:itemRippleColor="@android:color/transparent"
         app:itemIconSize="24dp"
         app:labelVisibilityMode="unlabeled"

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background"
+    android:background="@color/ui_background"
     tools:context=".ConversationActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -26,7 +26,7 @@
         android:clipToPadding="false"
         android:padding="12dp"
         app:stackFromEnd="true"
-        android:background="@color/main_background"
+        android:background="@color/elements_background"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/topAppBar"
         app:layout_constraintBottom_toTopOf="@id/inputBar"

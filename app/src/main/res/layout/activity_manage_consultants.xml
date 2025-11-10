@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background">
+    android:background="@color/ui_background">
 
 
     <androidx.core.widget.NestedScrollView
@@ -113,12 +113,12 @@
                         android:layout_weight="1"
                         android:text="Total Consultants"
                         android:textColor="@color/text_dark"
-                        android:textSize="18sp"
+                        android:textSize="20sp"
                         android:fontFamily="@font/public_sans_medium" />
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:src="@drawable/ic_total_consultants"
                         android:contentDescription="@string/app_name" />
                 </LinearLayout>
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:text="30"
                     android:textColor="@color/gradient_end"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:fontFamily="@font/public_sans_bold"
                     android:layout_marginTop="6dp" />
             </LinearLayout>
@@ -164,13 +164,13 @@
                             android:layout_weight="1"
                             android:text="Active"
                             android:textColor="@color/text_dark"
-                            android:textSize="18sp"
+                            android:textSize="20sp"
                             android:fontFamily="@font/public_sans_medium" />
 
                         <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_total_consultants"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_active"
                             android:contentDescription="@string/app_name" />
                     </LinearLayout>
 
@@ -180,7 +180,7 @@
                         android:layout_height="wrap_content"
                         android:text="24"
                         android:textColor="@color/gradient_end"
-                        android:textSize="24sp"
+                        android:textSize="22sp"
                         android:fontFamily="@font/public_sans_bold"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
@@ -215,13 +215,13 @@
                             android:layout_weight="1"
                             android:text="On Leave"
                             android:textColor="@color/text_dark"
-                            android:textSize="18sp"
+                            android:textSize="20sp"
                             android:fontFamily="@font/public_sans_medium" />
 
                         <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_total_consultants"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_onleave"
                             android:contentDescription="@string/app_name" />
                     </LinearLayout>
 
@@ -231,21 +231,51 @@
                         android:layout_height="wrap_content"
                         android:text="6"
                         android:textColor="@color/gradient_end"
-                        android:textSize="24sp"
+                        android:textSize="22sp"
                         android:fontFamily="@font/public_sans_bold"
                         android:layout_marginTop="6dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/labelPendingConsultants"
-                android:layout_width="wrap_content"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPendingConsultants"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Pending Consultants"
-                android:textSize="16sp"
-                android:fontFamily="@font/public_sans_bold"
-                android:textColor="@color/text_dark" />
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="20dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@android:color/transparent"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/card_neumorphic_background"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/labelPendingConsultants"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Pending Consultants"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/public_sans_medium"
+                        android:textColor="@color/text_dark" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+<!--            <TextView-->
+<!--                android:id="@+id/labelPendingConsultants"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="16dp"-->
+<!--                android:text="Pending Consultants"-->
+<!--                android:textSize="16sp"-->
+<!--                android:fontFamily="@font/public_sans_bold"-->
+<!--                android:textColor="@color/text_dark" />-->
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -273,16 +303,84 @@
                     android:visibility="gone" />
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Pending Assignments -->
-            <TextView
-                android:id="@+id/labelPendingAssignments"
-                android:layout_width="wrap_content"
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPendingAssignments"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Pending Assignments"
-                android:textSize="16sp"
-                android:fontFamily="@font/public_sans_bold"
-                android:textColor="@color/text_dark" />
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="20dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@android:color/transparent"
+                app:cardBackgroundColor="@android:color/transparent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/card_neumorphic_background"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/labelPendingAssignments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Pending Assignments"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/public_sans_medium"
+                        android:textColor="@color/text_dark" />
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/groupPriority"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        app:singleSelection="true"
+                        app:checkedButton="@id/btnFilterAll">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilterAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:text="All" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilterUrgent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:text="Urgent" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilterMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:text="Medium" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilterLow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:text="Low" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pending Assignments -->
+<!--            <TextView-->
+<!--                android:id="@+id/labelPendingAssignments"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="16dp"-->
+<!--                android:text="Pending Assignments"-->
+<!--                android:textSize="16sp"-->
+<!--                android:fontFamily="@font/public_sans_bold"-->
+<!--                android:textColor="@color/text_dark" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -292,42 +390,42 @@
                 android:orientation="vertical"
                 android:layout_marginTop="8dp">
 
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/groupPriority"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    app:singleSelection="true"
-                    app:checkedButton="@id/btnFilterAll">
+<!--                <com.google.android.material.button.MaterialButtonToggleGroup-->
+<!--                    android:id="@+id/groupPriority"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_margin="8dp"-->
+<!--                    app:singleSelection="true"-->
+<!--                    app:checkedButton="@id/btnFilterAll">-->
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:text="All" />
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/btnFilterAll"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        style="@style/Widget.Material3.Button.TonalButton"-->
+<!--                        android:text="All" />-->
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterUrgent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:text="Urgent" />
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/btnFilterUrgent"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        style="@style/Widget.Material3.Button.OutlinedButton"-->
+<!--                        android:text="Urgent" />-->
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterMedium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:text="Medium" />
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/btnFilterMedium"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        style="@style/Widget.Material3.Button.OutlinedButton"-->
+<!--                        android:text="Medium" />-->
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterLow"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:text="Low" />
-                </com.google.android.material.button.MaterialButtonToggleGroup>
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/btnFilterLow"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        style="@style/Widget.Material3.Button.OutlinedButton"-->
+<!--                        android:text="Low" />-->
+<!--                </com.google.android.material.button.MaterialButtonToggleGroup>-->
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvPendingAssignments"
