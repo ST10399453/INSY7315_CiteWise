@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:id="@+id/main"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/main_background"
+    android:background="@color/ui_background"
     tools:context=".UploadCvActivity">
 
     <ImageView
