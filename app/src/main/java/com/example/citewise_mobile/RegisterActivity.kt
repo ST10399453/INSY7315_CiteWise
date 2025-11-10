@@ -9,7 +9,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textview.MaterialTextView
 import com.google.firebase.Firebase
@@ -28,23 +27,22 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var sectionStudent: View
     private lateinit var sectionConsultant: View
 
-    // Inputs (no TextInputLayout anywhere)
+    // Inputs
     private lateinit var etFirst: TextInputEditText
     private lateinit var etSur: TextInputEditText
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPass: TextInputEditText
     private lateinit var etPassConfirm: TextInputEditText
-    private lateinit var etFieldOfStudy: TextInputEditText     // student
-    private lateinit var etSpecialisation: TextInputEditText   // consultant
+    private lateinit var etFieldOfStudy: TextInputEditText
+    private lateinit var etSpecialisation: TextInputEditText
 
-    // Actions / progress
+    // Actions
     private lateinit var btnSign: MaterialButton
     private lateinit var tvGoLogin: MaterialTextView
 
-    // Mode (if launched for Google profile completion)
     private var isGoogleMode: Boolean = false
 
-    // Optional: seed admins by email
+    // Optional seed admins
     private val adminSeedEmails = setOf(
         "admin@citewise.com",
         "you@example.com"
@@ -77,7 +75,6 @@ class RegisterActivity : AppCompatActivity() {
         toggle.check(btnStudent.id)
         showRole("student")
 
-        // Let selectors drive appearance; only swap sections here
         toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
             when (checkedId) {
@@ -86,11 +83,9 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        // Revalidate on input changes
         listOf(etFirst, etSur, etEmail, etPass, etPassConfirm, etFieldOfStudy, etSpecialisation)
             .forEach { it.addTextChangedListener { revalidate() } }
 
-        // Google mode: prefill + hide password fields
         if (isGoogleMode) {
             val gUser = auth.currentUser
             if (gUser == null) {
@@ -112,7 +107,6 @@ class RegisterActivity : AppCompatActivity() {
             etPassConfirm.isVisible = true
         }
 
-        // Actions
         btnSign.setOnClickListener {
             if (isGoogleMode) doRegisterGoogleMode() else doRegisterEmailMode()
         }
@@ -121,7 +115,6 @@ class RegisterActivity : AppCompatActivity() {
             finish()
         }
 
-        // Initial state
         revalidate()
     }
 
@@ -134,13 +127,10 @@ class RegisterActivity : AppCompatActivity() {
     private fun showRole(role: String) {
         sectionStudent.visibility = if (role == "student") View.VISIBLE else View.GONE
         sectionConsultant.visibility = if (role == "consultant") View.VISIBLE else View.GONE
-        // Also revalidate because required fields change by role
         revalidate()
     }
 
-    /** Validate inputs and enable/disable the Sign Up button. */
     private fun revalidate() {
-        // Clear previous inline errors
         etEmail.error = null
         etPass.error = null
         etPassConfirm.error = null
@@ -210,6 +200,10 @@ class RegisterActivity : AppCompatActivity() {
                 "consultant" -> profile["specialisation"] = etSpecialisation.text?.toString()?.trim().orEmpty()
             }
 
+            if (finalRole == "consultant") {
+                profile["isApproved"] = false
+            }
+
             db.reference.child("users").child(uid).setValue(profile).addOnCompleteListener {
                 setLoading(false)
                 if (it.isSuccessful) routeByRole(finalRole)
@@ -253,6 +247,10 @@ class RegisterActivity : AppCompatActivity() {
                 "consultant" -> profile["specialisation"] = etSpecialisation.text?.toString()?.trim().orEmpty()
             }
 
+            if (finalRole == "consultant") {
+                profile["isApproved"] = false
+            }
+
             ref.updateChildren(profile as Map<String, Any>).addOnCompleteListener { done ->
                 setLoading(false)
                 if (done.isSuccessful) routeByRole(finalRole)
@@ -266,13 +264,48 @@ class RegisterActivity : AppCompatActivity() {
         btnSign.isEnabled = !loading
     }
 
+    /**
+     * Route by role. Consultants are sent to PendingApproval if not approved yet.
+     */
     private fun routeByRole(role: String) {
         when (role.lowercase()) {
-            "student"    -> startActivity(Intent(this, StudentDashboardActivity::class.java))
-            "consultant" -> startActivity(Intent(this, ConsultantDashboardActivity::class.java))
-            "admin"      -> startActivity(Intent(this, AdminDashboardActivity::class.java))
-            else         -> startActivity(Intent(this, StudentDashboardActivity::class.java))
+            "student" -> {
+                startActivity(Intent(this, StudentDashboardActivity::class.java))
+                finish()
+            }
+            "consultant" -> {
+                val uid = auth.currentUser?.uid
+                if (uid == null) {
+                    // Fallback if somehow no user
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                    return
+                }
+                db.reference.child("users").child(uid).child("isApproved").get()
+                    .addOnSuccessListener { snap ->
+                        val approved = snap.getValue(Boolean::class.java) == true
+                        val next = if (approved) {
+                            Intent(this, ConsultantDashboardActivity::class.java)
+                        } else {
+                            Intent(this, PendingApprovalActivity::class.java)
+                        }
+                        startActivity(next)
+                        finish()
+                    }
+                    .addOnFailureListener {
+                        // If we can't read, be safe and show pending page
+                        startActivity(Intent(this, PendingApprovalActivity::class.java))
+                        finish()
+                    }
+            }
+            "admin" -> {
+                startActivity(Intent(this, AdminDashboardActivity::class.java))
+                finish()
+            }
+            else -> {
+                startActivity(Intent(this, StudentDashboardActivity::class.java))
+                finish()
+            }
         }
-        finish()
     }
 }

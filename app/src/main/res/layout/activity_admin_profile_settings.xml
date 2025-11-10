@@ -1,10 +1,388 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/main_background"
+    android:fillViewport="true"
+    android:padding="8dp"
+    android:paddingBottom="88dp"
     tools:context=".AdminProfileSettingsActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:id="@+id/rootColumn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/tvProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp"
+            android:text="Profile"
+            android:textColor="@color/gradient_end"
+            android:textSize="36sp"
+            android:fontFamily="@font/poppins_extra_bold"
+            android:textStyle="bold" />
+
+        <!-- Toggle (full width, comfy margins) -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleSettings"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_gravity="center"
+            android:background="@drawable/toggle_group_track"
+            android:clipToPadding="false"
+        android:padding="0dp"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOverview"
+            style="@style/Widget.CiteWise.ProfileToggle"
+            android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Overview"
+        android:checkable="true" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProfileSettings"
+            style="@style/Widget.CiteWise.ProfileToggle"
+            android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Settings"
+        android:checkable="true"
+        android:checked="true" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+    <!-- ===================== OVERVIEW SECTION ===================== -->
+        <LinearLayout
+            android:id="@+id/sectionOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <!-- Card container -->
+            <LinearLayout
+                android:id="@+id/overviewCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/rounded_card_background"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Avatar + name + email -->
+                <LinearLayout
+                    android:id="@+id/rowHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@drawable/ic_user_avatar"
+                        android:background="@drawable/circle_bg"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="@string/profile_picture" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+
+                        <TextView
+                            android:id="@+id/tvOverviewName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Your Name"
+                            android:textColor="@color/text_dark"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/poppins_sembold" />
+
+                        <TextView
+                            android:id="@+id/tvOverviewEmail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="you@example.com"
+                            android:textColor="@color/text_faded"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/poppins" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Stats row -->
+                <LinearLayout
+                    android:id="@+id/rowStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal"
+                    android:weightSum="4">
+
+                    <!-- Stat 1 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatRequests"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Requests"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
+                    </LinearLayout>
+
+                    <!-- Stat 2 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatCompleted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Completed"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
+                    </LinearLayout>
+
+                    <!-- Stat 3 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatInProgress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="In progress"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
+                    </LinearLayout>
+
+                    <!-- Stat 4 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatPending"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pending"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/dark_shadow" />
+
+                <!-- Overview rows (value rows) -->
+                <include
+                    android:id="@+id/rowOverviewAcademic"
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/rowOverviewInstitution"
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/rowOverviewRole"
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/rowOverviewLanguage"
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===================== SETTINGS SECTION ===================== -->
+        <LinearLayout
+            android:id="@+id/sectionSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:visibility="visible">
+
+            <!-- Account -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Account"
+                android:textColor="@color/gradient_end"
+                android:textSize="18sp" />
+
+            <!-- Edit profile -->
+            <include
+                android:id="@+id/rowEditProfile"
+                layout="@layout/item_row_nav"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Change password -->
+            <include
+                android:id="@+id/rowChangePassword"
+                layout="@layout/item_row_nav"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Notifications -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Notifications"
+                android:textColor="@color/gradient_end"
+                android:textSize="18sp" />
+
+            <!-- Push -->
+            <include
+                android:id="@+id/rowPushNotifications"
+                layout="@layout/item_row_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- App -->
+            <include
+                android:id="@+id/rowAppNotifications"
+                layout="@layout/item_row_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Email -->
+            <include
+                android:id="@+id/rowEmailNotifications"
+                layout="@layout/item_row_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Language -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Language"
+                android:textColor="@color/gradient_end"
+                android:textSize="18sp" />
+
+            <include
+                android:id="@+id/rowLanguage"
+                layout="@layout/item_row_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Logout -->
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/btn_login"
+                android:fontFamily="@font/poppins_bold"
+                android:text="LOG OUT"
+                android:textAllCaps="true"
+                android:textColor="@color/text_dark"
+                app:backgroundTint="@null" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

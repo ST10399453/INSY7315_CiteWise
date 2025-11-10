@@ -96,6 +96,7 @@ class LoginActivity : AppCompatActivity() {
 
     /**
      * If already signed in, route immediately and ensure syncs are running.
+     * Added: consultants are routed via isApproved check.
      */
     override fun onStart() {
         super.onStart()
@@ -106,9 +107,16 @@ class LoginActivity : AppCompatActivity() {
 
         val cachedRole = prefs.getString("user_role", null)
         if (cachedRole != null) {
-            startActivity(Intent(this, destForRole(cachedRole)))
-            finish()
-            lifecycleScope.launch { refreshRoleCache(user.uid) }
+            if (cachedRole.equals("CONSULTANT", ignoreCase = true)) {
+                // Check approval before routing
+                routeConsultantByApproval(user.uid)
+                // Also refresh role cache in the background
+                lifecycleScope.launch { refreshRoleCache(user.uid) }
+            } else {
+                startActivity(Intent(this, destForRole(cachedRole)))
+                finish()
+                lifecycleScope.launch { refreshRoleCache(user.uid) }
+            }
         } else {
             // No cache yet – read DB; if user/role missing, go to Register.
             routeByRole(fetchAndCache = true)
@@ -185,7 +193,7 @@ class LoginActivity : AppCompatActivity() {
 
     /**
      * After Google auth:
-     *  - If /users/{uid} exists -> start syncs + route by role
+     *  - If /users/{uid} exists -> start syncs + route by role (with consultant approval check)
      *  - Else -> registration flow
      */
     private fun handleFirstTimeGoogleUserOrRoute() {
@@ -209,6 +217,7 @@ class LoginActivity : AppCompatActivity() {
     /**
      * Reads /users/{uid}; if missing or role missing -> Register.
      * Otherwise route and (optionally) cache role. (Role normalized to UPPERCASE)
+     * For CONSULTANT, checks isApproved and routes to PendingApproval if false/missing.
      */
     private fun routeByRole(fetchAndCache: Boolean) {
         val uid = auth.currentUser?.uid ?: run {
@@ -229,7 +238,34 @@ class LoginActivity : AppCompatActivity() {
             if (roleUpper.isNullOrBlank()) { goToRegister(); return@addOnCompleteListener }
 
             if (fetchAndCache) prefs.edit().putString("user_role", roleUpper).apply()
-            startActivity(Intent(this, destForRole(roleUpper)))
+
+            if (roleUpper == "CONSULTANT") {
+                routeConsultantByApproval(uid)
+            } else {
+                startActivity(Intent(this, destForRole(roleUpper)))
+                finish()
+            }
+        }
+    }
+
+    /**
+     * Consultant-specific router. Reads /users/{uid}/isApproved once.
+     * - true  -> ConsultantDashboard
+     * - false -> PendingApproval
+     * - null/error -> PendingApproval (safe default)
+     */
+    private fun routeConsultantByApproval(uid: String) {
+        val ref = FirebaseDatabase.getInstance().reference
+            .child("users").child(uid).child("isApproved")
+
+        ref.get().addOnCompleteListener { t ->
+            val approved = t.isSuccessful && (t.result?.getValue(Boolean::class.java) == true)
+            val next = if (approved) {
+                ConsultantDashboardActivity::class.java
+            } else {
+                PendingApprovalActivity::class.java
+            }
+            startActivity(Intent(this, next))
             finish()
         }
     }
@@ -241,7 +277,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun destForRole(role: String): Class<*> = when (role.uppercase()) {
         "STUDENT"    -> StudentDashboardActivity::class.java
-        "CONSULTANT" -> ConsultantDashboardActivity::class.java
+        "CONSULTANT" -> ConsultantDashboardActivity::class.java // NOTE: not used for consultants anymore without approval check
         "ADMIN"      -> AdminDashboardActivity::class.java
         else         -> StudentDashboardActivity::class.java
     }

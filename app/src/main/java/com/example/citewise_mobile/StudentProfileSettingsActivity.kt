@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -33,32 +34,32 @@ class StudentProfileSettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1) Shell
+        // Shell
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
-        // 2) Inflate page (child) and keep a reference to it
+        // Inflate page
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
         val page = layoutInflater.inflate(
             R.layout.activity_student_profile_settings,
             baseContent,
-            false /* attachToRoot */
+            false
         )
         baseContent.addView(page)
 
-        // 3) Bottom nav from shell
+        // Bottom nav
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         setupBottomNav(bottomNav, R.id.nav_profile)
 
-        // 4) Find views **on the page**, not on the Activity
+        // Views
         toggle          = page.findViewById(R.id.toggleSettings)
         btnOverview     = page.findViewById(R.id.btnOverview)
         btnSettings     = page.findViewById(R.id.btnProfileSettings)
         sectionOverview = page.findViewById(R.id.sectionOverview)
         sectionSettings = page.findViewById(R.id.sectionSettings)
 
-        // Default = Overview tab
-        toggle.check(btnOverview.id)
+        // Default = Overview tab (visually + content)
+        toggle.post { toggle.check(btnOverview.id) }
         showTab("overview")
 
         toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -75,11 +76,10 @@ class StudentProfileSettingsActivity : BaseActivity() {
 
     private fun showTab(which: String) {
         val isOverview = which == "overview"
-        sectionOverview.visibility = if (isOverview) View.VISIBLE else View.GONE
-        sectionSettings.visibility = if (isOverview) View.GONE else View.VISIBLE
+        sectionOverview.isVisible = isOverview
+        sectionSettings.isVisible = !isOverview
     }
 
-    // ---------------- Overview binding ----------------
     private fun bindOverview(page: View) {
         val ivAvatar       = page.findViewById<ImageView>(R.id.ivAvatar)
         val tvName         = page.findViewById<TextView>(R.id.tvOverviewName)
@@ -89,29 +89,23 @@ class StudentProfileSettingsActivity : BaseActivity() {
         val tvInProgress   = page.findViewById<TextView>(R.id.tvStatInProgress)
         val tvPending      = page.findViewById<TextView>(R.id.tvStatPending)
 
-        // Pull simple user info
         val user = auth.currentUser
-        val displayName = user?.displayName?.takeIf { it.isNotBlank() }
-            ?: "Student"
+        val displayName = user?.displayName?.takeIf { !it.isNullOrBlank() } ?: "Student"
         val email = user?.email ?: "you@example.com"
 
         tvName.text = displayName
         tvEmail.text = email
-        // ivAvatar.setImageResource(...) // If you have a photo URL, load via Glide/Picasso.
 
-        // Example: set stats (replace with real data later)
         tvReq.text = "0"
         tvCompleted.text = "0"
         tvInProgress.text = "0"
         tvPending.text = "0"
 
-        // Value rows (the includes)
         val rowAcademic     = page.findViewById<View>(R.id.rowOverviewAcademic)
         val rowInstitution  = page.findViewById<View>(R.id.rowOverviewInstitution)
         val rowRole         = page.findViewById<View>(R.id.rowOverviewRole)
         val rowLanguage     = page.findViewById<View>(R.id.rowOverviewLanguage)
 
-        // Label + Value setters
         rowAcademic.findViewById<TextView>(R.id.tvLabel).text = "Academic Level"
         rowAcademic.findViewById<TextView>(R.id.tvValue).text = "Honours"
 
@@ -124,31 +118,27 @@ class StudentProfileSettingsActivity : BaseActivity() {
         rowLanguage.findViewById<TextView>(R.id.tvLabel).text = "Language"
         rowLanguage.findViewById<TextView>(R.id.tvValue).text = "English"
 
-        // Optional click actions
-        rowAcademic.setOnClickListener { /* show academic picker */ }
-        rowInstitution.setOnClickListener { /* navigate to institution */ }
-        rowRole.setOnClickListener { /* show role info */ }
-        rowLanguage.setOnClickListener { /* change language */ }
+        rowAcademic.setOnClickListener { }
+        rowInstitution.setOnClickListener { }
+        rowRole.setOnClickListener { }
+        rowLanguage.setOnClickListener { }
     }
 
-    // ---------------- Settings binding ----------------
     private fun initSettingsSection(page: View) {
         rowEditProfile    = page.findViewById(R.id.rowEditProfile)
         rowChangePassword = page.findViewById(R.id.rowChangePassword)
         rowLanguage       = page.findViewById(R.id.rowLanguage)
         btnLogout         = page.findViewById(R.id.btnLogout)
 
-        // Label the included nav rows
         rowEditProfile.findViewById<TextView>(R.id.rowLabel).text = "Edit profile"
         rowChangePassword.findViewById<TextView>(R.id.rowLabel).text = "Change password"
 
-        // ----- Switch rows (each include has switch id = switchView) -----
         val rowPush = page.findViewById<View>(R.id.rowPushNotifications).apply {
             findViewById<TextView>(R.id.rowLabel).text = "Push notifications"
         }
         rowPush.findViewById<MaterialSwitch>(R.id.switchView).apply {
             isChecked = true
-            setOnCheckedChangeListener { _, _ -> /* persist push pref */ }
+            setOnCheckedChangeListener { _, _ -> }
         }
 
         val rowApp = page.findViewById<View>(R.id.rowAppNotifications).apply {
@@ -156,7 +146,7 @@ class StudentProfileSettingsActivity : BaseActivity() {
         }
         rowApp.findViewById<MaterialSwitch>(R.id.switchView).apply {
             isChecked = false
-            setOnCheckedChangeListener { _, _ -> /* persist app pref */ }
+            setOnCheckedChangeListener { _, _ -> }
         }
 
         val rowEmail = page.findViewById<View>(R.id.rowEmailNotifications).apply {
@@ -164,26 +154,50 @@ class StudentProfileSettingsActivity : BaseActivity() {
         }
         rowEmail.findViewById<MaterialSwitch>(R.id.switchView).apply {
             isChecked = false
-            setOnCheckedChangeListener { _, _ -> /* persist email pref */ }
+            setOnCheckedChangeListener { _, _ -> }
         }
-        // ---------------------------------------------------------------
 
-        // Settings value row: Language in settings
         rowLanguage.findViewById<TextView>(R.id.tvLabel).text = "Language"
         rowLanguage.findViewById<TextView>(R.id.tvValue).text = "English"
-        rowLanguage.setOnClickListener { /* open language picker */ }
+        rowLanguage.setOnClickListener { }
 
-        // Clicks
-        rowEditProfile.setOnClickListener {
+        makeRowClickable(rowEditProfile)
+        makeRowClickable(rowChangePassword)
+
+        rowEditProfile.safeClick {
             startActivity(Intent(this, EditProfileActivity::class.java))
         }
-        rowChangePassword.setOnClickListener {
+        rowChangePassword.safeClick {
             startActivity(Intent(this, ChangePasswordActivity::class.java))
         }
+
         btnLogout.setOnClickListener {
             auth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
+        }
+    }
+
+    private fun makeRowClickable(row: View) {
+        if (!row.isClickable) row.isClickable = true
+        if (!row.isFocusable) row.isFocusable = true
+        if (row.foreground == null) {
+            val attrs = intArrayOf(android.R.attr.selectableItemBackground)
+            val ta = obtainStyledAttributes(attrs)
+            val ripple = ta.getDrawable(0)
+            ta.recycle()
+            row.foreground = ripple
+        }
+    }
+
+    private fun View.safeClick(intervalMs: Long = 600L, onSafeClick: (View) -> Unit) {
+        var lastClick = 0L
+        setOnClickListener { v ->
+            val now = System.currentTimeMillis()
+            if (now - lastClick > intervalMs) {
+                lastClick = now
+                onSafeClick(v)
+            }
         }
     }
 }

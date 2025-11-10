@@ -35,8 +35,8 @@
 
         <!-- Driven entirely by state lists -->
         <item name="backgroundTint">@color/toggle_bg_selector</item>
-        <item name="android:textColor">@color/toggle_text_selector</item>
-        <item name="strokeColor">@color/toggle_stroke_selector</item>
+        <item name="android:textColor">@color/toggle_text_color</item>
+        <item name="strokeColor">@color/toggle_stroke_color</item>
         <item name="strokeWidth">1dp</item>
     </style>
 

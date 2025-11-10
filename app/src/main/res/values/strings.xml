@@ -144,10 +144,22 @@
     <string name="title_active_tasks">Tasks</string>
     <string name="navigate">Navigate</string>
     <string name="profile_picture">profile\n</string>
-<!-- Consultant -->
+    <!-- Consultant -->
     <string name="loading_name_placeholder">Loading Profile...</string>
     <string name="loading_expertise_placeholder">Specialization Not Set</string>
     <string name="availability_placeholder">Checking Status...</string>
     <string name="loading_email_placeholder">erinchis124@gmail.com</string>
+
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="current_month">Month</string>
+    <string name="Monday">Mon</string>
+    <string name="Tuesday">Tue</string>
+    <string name="Wednesday">Wed</string>
+    <string name="Thursday">Thu</string>
+    <string name="Friday">Fri</string>
+    <string name="Saturday">Sat</string>
+    <string name="Sunday">Sun</string>
+
 
 </resources>

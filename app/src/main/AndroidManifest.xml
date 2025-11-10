@@ -18,10 +18,10 @@
         android:theme="@style/Theme.CiteWise_Mobile"
         tools:targetApi="31">
         <activity
-            android:name=".ActiveTasksActivity"
+            android:name=".PendingApprovalActivity"
             android:exported="false" />
         <activity
-            android:name=".ResourceManagementActivity"
+            android:name=".ActiveTasksActivity"
             android:exported="false" />
         <activity
             android:name=".ManageConsultantsActivity"
@@ -63,6 +63,9 @@
             android:name=".ChatsActivity"
             android:exported="false" />
         <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".AdminDashboardActivity"
             android:exported="false" />
         <activity
@@ -94,6 +97,9 @@
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfileActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

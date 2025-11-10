@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/datePickerRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/rounded_dialog_bg">
+
+    <!-- Header with month, year and navigation -->
+    <RelativeLayout
+        android:id="@+id/headerRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp">
+
+        <ImageButton
+            android:id="@+id/prevMonth"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_chevron_left"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/previous_month" />
+
+        <TextView
+            android:id="@+id/monthYearText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="@font/poppins_sembold"
+            android:textColor="@color/gradient_end"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/nextMonth"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_chevron_right"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/next_month" />
+    </RelativeLayout>
+
+    <!-- Days of week header -->
+    <LinearLayout
+        android:id="@+id/dowHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp">
+
+        <TextView style="@style/CalendarDow" android:text="@string/Monday"/>
+        <TextView style="@style/CalendarDow" android:text="@string/Tuesday"/>
+        <TextView style="@style/CalendarDow" android:text="@string/Wednesday"/>
+        <TextView style="@style/CalendarDow" android:text="@string/Thursday"/>
+        <TextView style="@style/CalendarDow" android:text="@string/Friday"/>
+        <TextView style="@style/CalendarDow" android:text="@string/Saturday"/>
+        <TextView style="@style/CalendarDow" android:text="@string/Sunday"/>
+    </LinearLayout>
+
+    <!-- Calendar grid -->
+    <GridView
+        android:id="@+id/calendarGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="7"
+        android:verticalSpacing="8dp"
+        android:horizontalSpacing="0dp"
+        android:stretchMode="columnWidth" />
+</LinearLayout>

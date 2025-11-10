@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Bottom sheet -->
     <style name="AppBottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog" />
 
+    <!-- Task Filter Button -->
     <style name="TaskFilterButton">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
@@ -17,6 +19,7 @@
         <item name="android:textSize">16dp</item>
     </style>
 
+    <!-- History list items -->
     <style name="HistoryListItem">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -32,10 +35,9 @@
         <item name="android:drawableStart">@drawable/ic_doc_preview_placeholder</item>
     </style>
 
-    <style name="ProgressStatusItem" parent="HistoryListItem">
-    </style>
+    <style name="ProgressStatusItem" parent="HistoryListItem" />
 
-
+    <!-- Summary chip -->
     <style name="SummaryChip">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -47,6 +49,7 @@
         <item name="android:background">@drawable/chip_new_assigned</item>
     </style>
 
+    <!-- Notification row -->
     <style name="NotificationItem">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -71,6 +74,7 @@
         <item name="android:tint">@color/gradient_end</item>
     </style>
 
+    <!-- (Legacy) Profile toggle base; keep if referenced elsewhere -->
     <style name="ProfileToggleBase" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
@@ -93,6 +97,7 @@
         <item name="android:textColor">@color/text_faded</item>
     </style>
 
+    <!-- Overview rows -->
     <style name="OverviewLabel">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
@@ -118,7 +123,7 @@
         <item name="android:paddingVertical">4dp</item>
     </style>
 
-
+    <!-- Headers & controls -->
     <style name="HeaderTitleStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -138,6 +143,7 @@
         <item name="android:layout_marginStart">4dp</item>
     </style>
 
+    <!-- Form inputs -->
     <style name="InputLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -166,6 +172,7 @@
         <item name="android:layout_marginBottom">8dp</item>
     </style>
 
+    <!-- Stats -->
     <style name="StatValue">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -190,4 +197,41 @@
         <item name="android:gravity">center</item>
         <item name="android:paddingVertical">8dp</item>
     </style>
+
+    <!-- Reusable Material toggle button (blue selected / white unselected) -->
+    <style name="Widget.CiteWise.ProfileToggle" parent="Widget.Material3.Button.OutlinedButton">
+        <!-- Typography -->
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">14sp</item>
+
+        <!-- Shape -->
+        <item name="cornerRadius">16dp</item>
+        <item name="strokeWidth">2dp</item>
+
+        <!-- Color state lists (you’ve defined these in /res/color) -->
+        <item name="backgroundTint">@color/toggle_bg_tint</item>
+        <item name="strokeColor">@color/toggle_stroke_color</item>
+        <item name="android:textColor">@color/toggle_text_color</item>
+
+        <!-- Spacing (avoid non-public inset attrs) -->
+        <item name="android:paddingHorizontal">0dp</item>
+        <item name="android:paddingVertical">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+
+        <!-- No extra icon padding when there is no icon -->
+        <item name="iconPadding">0dp</item>
+    </style>
+
+    <style name="CalendarDow">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:fontFamily">@font/poppins_sembold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_faded</item>
+    </style>
+
+
 </resources>

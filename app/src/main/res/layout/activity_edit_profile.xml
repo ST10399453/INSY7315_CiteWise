@@ -11,6 +11,7 @@
         style="@style/BackArrowStyle"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/tvHeaderTitle"
         style="@style/HeaderTitleStyle"
@@ -28,29 +29,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Full name -->
         <TextView
             style="@style/InputLabel"
             android:text="Full name" />
         <EditText
+            android:id="@+id/etFullName"
             style="@style/SettingsInput"
-            tools:text="Erin Chisholm" />
+            tools:text="Erin Chisholm"
+            android:inputType="textPersonName" />
 
+        <!-- Phone number -->
         <TextView
             style="@style/InputLabel"
             android:text="Phone number" />
         <EditText
+            android:id="@+id/etPhone"
             style="@style/SettingsInput"
             tools:text="078 123 4567"
             android:inputType="phone" />
 
+        <!-- Email -->
         <TextView
             style="@style/InputLabel"
             android:text="Email address" />
         <EditText
+            android:id="@+id/etEmail"
             style="@style/SettingsInput"
             tools:text="erin@consult.com"
             android:inputType="textEmailAddress" />
 
+        <!-- Save button -->
         <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"

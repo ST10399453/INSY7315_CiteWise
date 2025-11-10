@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/RequestServiceStepsActivity.kt
 package com.example.citewise_mobile
 
 import android.animation.ObjectAnimator
@@ -12,12 +11,11 @@ import android.view.animation.AnimationUtils
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.LinearLayout
-import android.widget.Spinner
-import android.widget.TextView
-import android.widget.Toast
 import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -48,6 +46,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var tvHeader: TextView
     private lateinit var btnNext: MaterialButton
+    private lateinit var btnBack: View
     private lateinit var sections: List<View>
     private var currentStep = 0
     private val totalSteps = 5 // 4 steps + success
@@ -66,9 +65,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
     private var pickedFileUri: Uri? = null
 
     // Step 4
-    //private lateinit var urgencySpinner: Spinner
     private lateinit var dropdownUrgency: AutoCompleteTextView
-
     private lateinit var etDeadline: TextInputEditText
 
     // Cached state
@@ -89,7 +86,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_request_services)
 
-        // edge-to-edge insets
+        // Edge-to-edge insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root)) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
@@ -103,7 +100,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
                     contentResolver.takePersistableUriPermission(
                         uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
-                } catch (_: SecurityException) {}
+                } catch (_: SecurityException) { /* ignore */ }
                 pickedFileUri = uri
                 tvFileName.text = displayNameFromUri(uri) ?: getString(R.string.file_selected)
             } else {
@@ -113,9 +110,26 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         }
 
         bindViews()
-//        setupSpinners()
         setupUrgencyDropdown()
         setupListeners()
+
+        // Back arrow: go to previous step if possible
+        btnBack.setOnClickListener {
+            if (currentStep in 1..(totalSteps - 2)) {
+                val prev = currentStep - 1
+                animateProgress(stepToPercent(currentStep), stepToPercent(prev))
+                currentStep = prev
+                showStep(currentStep, forward = false)
+                // ensure CTA label is correct when going back
+                btnNext.text = if (currentStep == totalSteps - 1) {
+                    getString(R.string.done)
+                } else {
+                    getString(R.string.next)
+                }
+            } else {
+                onBackPressedDispatcher.onBackPressed()
+            }
+        }
 
         showStep(0, forward = true)
         animateProgress(0, stepToPercent(0))
@@ -125,6 +139,7 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         progressBar   = findViewById(R.id.progressService)
         tvHeader      = findViewById(R.id.tvHeader)
         btnNext       = findViewById(R.id.btnNext)
+        btnBack       = findViewById(R.id.btnBack)
 
         sections = listOf(
             findViewById(R.id.sectionStep1),
@@ -147,25 +162,15 @@ class RequestServiceStepsActivity : AppCompatActivity() {
         progressUpload  = findViewById(R.id.progressUpload)
 
         // Step 4
-        //urgencySpinner  = findViewById(R.id.urgencySpinner)
         dropdownUrgency = findViewById(R.id.dropdownUrgency)
-
         etDeadline      = findViewById(R.id.etDeadline)
     }
 
-//    private fun setupSpinners() {
-//        val urgencyItems = resources.getStringArray(R.array.urgency_array).toList()
-//        val urgencyAdapter = ArrayAdapter(
-//            this, R.layout.item_service_selected, android.R.id.text1, urgencyItems
-//        ).apply { setDropDownViewResource(R.layout.item_service_dropdown) }
-//        urgencySpinner.adapter = urgencyAdapter
-//    }
-private fun setupUrgencyDropdown() {
-    val urgencyItems = resources.getStringArray(R.array.urgency_array).toList()
-    val adapter = ArrayAdapter(this, R.layout.item_service_selected, urgencyItems)
-    dropdownUrgency.setAdapter(adapter)
-}
-
+    private fun setupUrgencyDropdown() {
+        val urgencyItems = resources.getStringArray(R.array.urgency_array).toList()
+        val adapter = ArrayAdapter(this, R.layout.item_service_selected, urgencyItems)
+        dropdownUrgency.setAdapter(adapter)
+    }
 
     private fun setupListeners() {
         btnNext.setOnClickListener {
@@ -179,10 +184,10 @@ private fun setupUrgencyDropdown() {
                     val selectedRadio = findViewById<RadioButton>(selectedRadioId)
                     selectedService = selectedRadio.text.toString()
                 }
-                1 -> { // Step 2 – capture DESCRIPTION (title removed)
+                1 -> { // Step 2 – capture DESCRIPTION
                     additionalInfo = etAdditionalInfo.text?.toString()?.trim()
                 }
-                2 -> { // Step 3 (validate only) — customName required if file chosen
+                2 -> { // Step 3 — file + customName required
                     customName = etDocName.text?.toString()?.trim()
                     if (pickedFileUri == null) {
                         toast(getString(R.string.choose_file_first)); return@setOnClickListener
@@ -224,8 +229,14 @@ private fun setupUrgencyDropdown() {
             animateProgress(stepToPercent(currentStep), stepToPercent(next))
             currentStep = next
             showStep(currentStep, forward = true)
-            if (currentStep == totalSteps - 1) btnNext.text = getString(R.string.done)
-        } else finish()
+            btnNext.text = if (currentStep == totalSteps - 1) {
+                getString(R.string.done)
+            } else {
+                getString(R.string.next)
+            }
+        } else {
+            finish()
+        }
     }
 
     private fun showStep(stepIndex: Int, forward: Boolean) {
@@ -246,7 +257,9 @@ private fun setupUrgencyDropdown() {
                 val animOut = if (forward) R.anim.slide_out_left else R.anim.slide_out_right
                 section.startAnimation(AnimationUtils.loadAnimation(this, animOut))
                 section.visibility = View.GONE
-            } else section.visibility = View.GONE
+            } else {
+                section.visibility = View.GONE
+            }
         }
     }
 
@@ -261,14 +274,15 @@ private fun setupUrgencyDropdown() {
         ((step.coerceIn(0, totalSteps - 1).toFloat() / (totalSteps - 1)) * 100f).toInt()
 
     private fun showDatePicker() {
-        val cal = Calendar.getInstance()
-        DatePickerDialog(
-            this,
-            { _, y, m, d -> etDeadline.setText(String.format("%02d/%02d/%04d", d, m + 1, y)) },
-            cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH),
-            cal.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        val dialog = CustomDatePickerDialog(
+            context = this,
+            onPicked = { date ->
+                val fmt = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                etDeadline.setText(fmt.format(date))
+            },
+            minDate = java.util.Date() // today; you can pass a different min if needed
+        )
+        dialog.show()
     }
 
     override fun onBackPressed() {
@@ -277,7 +291,10 @@ private fun setupUrgencyDropdown() {
             animateProgress(stepToPercent(currentStep), stepToPercent(prev))
             currentStep = prev
             showStep(currentStep, forward = false)
-        } else super.onBackPressed()
+            btnNext.text = getString(R.string.next)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
