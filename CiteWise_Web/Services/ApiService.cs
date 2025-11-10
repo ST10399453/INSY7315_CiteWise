@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using CiteWise_Web.Models.ServiceRequest;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -38,12 +39,52 @@ namespace CiteWise_Web.Services
             return await _client.PostAsJsonAsync($"requests/{requestId}/self-assign", body);
         }
 
+        public async Task<HttpResponseMessage> AssignRequestToConsultantAsync(string requestId,
+            string consultantId, string firebaseToken, string? deadline = null)
+        {
+
+            _client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", firebaseToken);
+
+            var body = new Dictionary<string, object>
+{
+    { "consultantId", consultantId }
+};
+
+            if (!string.IsNullOrEmpty(deadline))
+            {
+                body["deadline"] = deadline;
+            }
+
+            return await _client.PostAsJsonAsync($"requests/{requestId}/assign", body);
+        }
+
+            
+
         public async Task<HttpResponseMessage> GetUnassignedRequestsAsync(string firebaseToken)
         {
             _client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", firebaseToken);
 
-            return await _client.GetAsync("requests?userId=");
+            var response = await _client.GetAsync("requests?userId=");
+
+            if (!response.IsSuccessStatusCode)
+                return response; 
+
+            var json = await response.Content.ReadAsStringAsync();
+            var allRequests = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(json)
+                ?? new List<ServiceRequestItem>();
+
+            var unassigned = allRequests
+                .Where(r => string.IsNullOrEmpty(r.ConsultantId))
+                .ToList();
+
+            var filteredResponse = new HttpResponseMessage(response.StatusCode)
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(unassigned))
+            };
+
+            return filteredResponse;
         }
 
 

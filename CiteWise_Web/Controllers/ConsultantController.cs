@@ -3,6 +3,9 @@ using CiteWise_Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using CiteWise_Web.Models.ViewModels;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
 namespace CiteWise_Web.Controllers
 {
     public class ConsultantController : Controller
@@ -14,30 +17,28 @@ namespace CiteWise_Web.Controllers
             _apiService = apiService;
         }
 
-
         public async Task<IActionResult> ConsultantDashboard()
         {
-
             string role = HttpContext.Session.GetString("UserRole")?.ToLower();
             string token = HttpContext.Session.GetString("FirebaseToken");
             string consultantId = HttpContext.Session.GetString("UserUid");
 
-
             if (role != "consultant" || string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
 
-
+            // 🔹 Get unassigned requests
             var unassignedResponse = await _apiService.GetUnassignedRequestsAsync(token);
             var unassignedJson = await unassignedResponse.Content.ReadAsStringAsync();
             var unassigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(unassignedJson)
                 ?? new List<ServiceRequestItem>();
 
+            // 🔹 Get requests assigned to this consultant
             var assignedResponse = await _apiService.GetAssignedRequestsAsync(token, consultantId);
             var assignedJson = await assignedResponse.Content.ReadAsStringAsync();
-            var assigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(assignedJson)
+            var assigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(assignedJson) 
                 ?? new List<ServiceRequestItem>();
 
-
+            
 
             var vm = new ConsultantDashboardViewModel
             {
@@ -46,10 +47,6 @@ namespace CiteWise_Web.Controllers
             };
 
             return View(vm);
-
-
-
-
         }
 
         [HttpPost]
@@ -59,11 +56,12 @@ namespace CiteWise_Web.Controllers
             if (string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
 
+            // 🔹 Perform self-assignment
             var response = await _apiService.SelfAssignRequestAsync(id, token);
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["Message"] = "Successfully assigned request to yourself";
+                TempData["Message"] = "Successfully assigned request to yourself.";
             }
             else
             {
@@ -71,6 +69,7 @@ namespace CiteWise_Web.Controllers
                 TempData["Error"] = $"Failed to self-assign: {error}";
             }
 
+            // 🔹 Always reload the dashboard so data refreshes
             return RedirectToAction("ConsultantDashboard");
         }
 
@@ -91,6 +90,6 @@ namespace CiteWise_Web.Controllers
 
             return Redirect(url);
         }
-
     }
 }
+
