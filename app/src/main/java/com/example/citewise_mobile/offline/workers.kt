@@ -76,6 +76,7 @@ class UsersSyncWorker(
         val cloud = CloudDataSources()
 
         return@withContext try {
+            // CloudDataSources.fetchUsers() now tolerates Timestamp/Number/String for updatedAt
             val cloudUsers = cloud.fetchUsers()
             val localUsersByUid = local.users.getAll().associateBy { it.uid }
 
@@ -231,7 +232,7 @@ class RequestsSyncWorker(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
 
-        // (Optional) auto-revive very old failures
+        // Optional: auto-revive older failures
         runCatching {
             local.requests.resetFailedOlderThan(System.currentTimeMillis() - 10 * 60 * 1000)
         }
@@ -239,7 +240,6 @@ class RequestsSyncWorker(
         val pending = try {
             local.requests.getBySyncStates(listOf(SyncState.PENDING_UPLOAD, SyncState.FAILED))
         } catch (_: Throwable) {
-            // Fallback if you haven't added getBySyncStates to DAO yet
             local.requests.getBySyncState(SyncState.PENDING_UPLOAD)
         }
 
@@ -269,7 +269,7 @@ class RequestsSyncWorker(
                     is NetResult.Ok -> {
                         val dto = result.data
 
-                        // Delete staged only after server accepts
+                        // Delete staged after server accepts
                         runCatching { if (stagedFile.exists()) stagedFile.delete() }
 
                         val newUserId = dto.userId ?: sr.userId ?: auth.currentUser?.uid
@@ -289,19 +289,19 @@ class RequestsSyncWorker(
 
                         val fsId = dto.id ?: sr.remoteId ?: sr.localId.toString()
                         val fsData = hashMapOf(
-                            "id" to fsId,
-                            "userId" to (newUserId ?: ""),
-                            "consultantId" to (newConsultantId ?: ""),
-                            "serviceType" to ((dto.serviceType?.name) ?: sr.serviceType),
-                            "description" to (dto.description ?: sr.description ?: ""),
-                            "priority" to ((dto.priority?.name) ?: sr.priority ?: "MEDIUM"),
-                            "status" to (dto.status ?: "submitted"),
-                            "documentId" to (dto.documentId ?: sr.documentId),
+                            "id"               to fsId,
+                            "userId"           to (newUserId ?: ""),
+                            "consultantId"     to (newConsultantId ?: ""),
+                            "serviceType"      to ((dto.serviceType?.name) ?: sr.serviceType),
+                            "description"      to (dto.description ?: sr.description ?: ""),
+                            "priority"         to ((dto.priority?.name) ?: sr.priority ?: "MEDIUM"),
+                            "status"           to (dto.status ?: "submitted"),
+                            "documentId"       to (dto.documentId ?: sr.documentId),
                             "originalFileName" to (dto.originalFileName ?: sr.documentName),
-                            "customName" to (dto.customName ?: sr.customName),
-                            "deadline" to (sr.deadlineIso ?: dto.deadline ?: sr.deadlineIso),
-                            "createdAt" to (dto.createdAt?.epochMillis ?: sr.createdAt),
-                            "updatedAt" to serverTimestamp()
+                            "customName"       to (dto.customName ?: sr.customName),
+                            "deadline"         to (sr.deadlineIso ?: dto.deadline ?: sr.deadlineIso),
+                            "createdAt"        to (dto.createdAt?.epochMillis ?: sr.createdAt),
+                            "updatedAt"        to serverTimestamp()
                         )
                         runCatching {
                             fs.collection("ServiceReviews")
@@ -391,7 +391,7 @@ class ResourcesSyncWorker(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
 
-        // (Optional) auto-revive very old failures
+        // Optional: auto-revive older failures
         runCatching {
             local.resources.resetFailedOlderThan(System.currentTimeMillis() - 10 * 60 * 1000)
         }
@@ -399,13 +399,12 @@ class ResourcesSyncWorker(
         val toSync = try {
             local.resources.getBySyncStates(listOf(SyncState.PENDING_UPLOAD, SyncState.FAILED))
         } catch (_: Throwable) {
-            // Fallback if DAO doesn't have getBySyncStates yet
             local.resources.getBySyncState(SyncState.PENDING_UPLOAD)
         }
 
         if (toSync.isEmpty()) return@withContext Result.success()
 
-        // Build bearer once; reuse for all uploads.
+        // Build bearer once
         val authHeader = buildAuthHeader()
 
         for (res in toSync) {
@@ -419,7 +418,6 @@ class ResourcesSyncWorker(
                     continue
                 }
 
-                // Normalize inputs to what the API expects
                 val name     = res.title.ifBlank { res.fileName ?: "Untitled" }
                 val faculty  = normalizeFaculty(res.faculty)
                 val category = normalizeCategory(res.category)
@@ -438,7 +436,6 @@ class ResourcesSyncWorker(
                     is NetResult.Ok -> {
                         val dto = result.data
 
-                        // remove staged file on success
                         runCatching { if (stagedFile.exists()) stagedFile.delete() }
 
                         local.resources.update(
@@ -469,7 +466,6 @@ class ResourcesSyncWorker(
                                 .set(payload, SetOptions.merge())
                         }
 
-                        // Only kick downloader if we actually have a doc id locally
                         if (!res.documentId.isNullOrBlank()) {
                             DocumentsSyncWorker.oneShot(applicationContext)
                         }
@@ -586,7 +582,6 @@ class RequestsPullWorker(
                     val mapped = dto.toEntityPreservingLocalFallback(existing)
                     local.requests.upsertByRemoteId(mapped)
                 }
-                // Kick document downloader when new/updated documentIds show up
                 DocumentsSyncWorker.oneShot(applicationContext)
                 Result.success()
             }
@@ -635,7 +630,6 @@ class DocumentsSyncWorker(
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
         val uid = auth.currentUser?.uid ?: return@withContext Result.success()
 
-        // Gather docIds from requests + resources, de-duplicate
         val requestDocs  = local.requests.allWithDocumentId()
         val resourceDocs = local.resources.allWithDocumentId()
         val docIdToPreferredName = linkedMapOf<String, String>()

@@ -1,7 +1,7 @@
+// app/src/main/java/com/example/citewise_mobile/data/ServiceReviewsRepository.kt
 package com.example.citewise_mobile.data
 
-import com.example.citewise_mobile.api.ServiceRequestDto
-import com.example.citewise_mobile.api.ServiceReviewsApi
+import com.example.citewise_mobile.api.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -36,7 +36,6 @@ class ServiceReviewsRepository(
             filename = documentName,
             body = file.asRequestBody(mediaType)
         )
-
         api.createRequestMultipart(
             file = filePart,
             documentName = documentName.toRb(),
@@ -58,6 +57,57 @@ class ServiceReviewsRepository(
             status = status,
             userId = userId,
             consultantId = null
+        )
+    }
+
+    /**
+     * Fetches service requests by filter (consultant, status, user).
+     */
+    suspend fun listGeneralRequests(
+        consultantId: String? = null,
+        status: String? = null,
+        userId: String? = null
+    ): NetResult<List<ServiceRequestDto>> = safe {
+        api.listRequests(
+            consultantId = consultantId,
+            status = status,
+            userId = userId
+        )
+    }
+
+
+    /** Unassigned ServiceReviews (pending assignments). */
+    suspend fun listPendingAssignments(): NetResult<List<ServiceRequestDto>> = safe {
+        api.listPendingAssignments()
+    }
+
+    /** Consultants who currently have no assignments. */
+    suspend fun listUnassignedConsultants(): NetResult<List<ConsultantDto>> =
+        when (val resp = safe { api.listUnassignedConsultants() }) {
+            is NetResult.Ok -> NetResult.Ok(resp.data.items)
+            is NetResult.Err -> resp
+        }
+
+    /**
+     * Upload annotated file for a request (consultant/admin).
+     * Optionally pass a new status, e.g. "review_submitted".
+     */
+    suspend fun uploadAnnotatedFile(
+        requestId: String,
+        file: File,
+        mime: String = "application/pdf",
+        newStatus: String? = null
+    ): NetResult<ServiceRequestDto> = safe {
+        val filePart = MultipartBody.Part.createFormData(
+            name = "file",
+            filename = file.name,
+            body = file.asRequestBody(mime.toMediaTypeOrNull())
+        )
+        val statusRb: RequestBody? = newStatus?.toRb()
+        api.uploadAnnotated(
+            id = requestId,
+            file = filePart,
+            status = statusRb
         )
     }
 
@@ -84,19 +134,4 @@ class ServiceReviewsRepository(
                 NetResult.Err(e.message ?: "Network error")
             }
         }
-
-    /**
-     * Fetches all service requests assigned to a specific consultant.
-     */
-    suspend fun listGeneralRequests(
-        consultantId: String? = null,
-        status: String? = null,
-        userId: String? = null
-    ): NetResult<List<ServiceRequestDto>> = safe {
-        api.listRequests(
-            consultantId = consultantId,
-            status = status,
-            userId = userId
-        )
-    }
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@drawable/bg_row_selector">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/elements_background">
+
+        <TextView
+            android:id="@+id/tvAvatarInitials"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="AO"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/text_dark"/>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
+
+        <TextView
+            android:id="@+id/tvConsultantName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alicia Orren"
+            android:textSize="14sp"
+            android:textColor="@color/text_dark"
+            android:fontFamily="@font/public_sans_bold"/>
+
+        <TextView
+            android:id="@+id/tvConsultantEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="aorren12@gmail.com"
+            android:textSize="12sp"
+            android:textColor="@color/text_faded"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSpecialty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Proofreading and Editing"
+        android:textSize="11sp"
+        android:textColor="@color/gradient_end"
+        android:background="@drawable/bg_chip_outline"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"/>
+</LinearLayout>

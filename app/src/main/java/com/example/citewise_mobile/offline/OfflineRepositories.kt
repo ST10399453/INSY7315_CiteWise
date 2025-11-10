@@ -4,10 +4,13 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 /**
  * Central access point to Room DAOs.
@@ -74,23 +77,42 @@ class CloudDataSources(
      * Preferred source of truth: Firestore `/users` collection.
      * - Falls back to document id for uid if the "uid" field is missing.
      * - Normalizes role to lowercase.
-     * - Derives updatedAt from supported fields (Long or Timestamp).
+     * - Derives updatedAt from supported fields (Timestamp/Number/Date/ISO/numeric String).
      */
     suspend fun fetchUsers(): List<UserEntity> = withContext(Dispatchers.IO) {
         val snap = fs.collection("users").get().await()
         snap.documents.mapNotNull { d ->
-            val uid = (d.getString("uid") ?: d.id).takeIf { !it.isNullOrBlank() } ?: return@mapNotNull null
-            val first = d.getString("firstName") ?: d.getString("firstname") ?: ""
-            val sur   = d.getString("surname")   ?: d.getString("lastName")  ?: ""
+            val uid = (d.getString("uid") ?: d.id).takeIf { it.isNotBlank() } ?: return@mapNotNull null
+
+            // Prefer explicit first/surname; fall back to a single "name"
+            val first   = (d.getString("firstName") ?: d.getString("firstname") ?: "").trim()
+            val sur     = (d.getString("surname")   ?: d.getString("lastName")  ?: "").trim()
+            val nameRaw = (d.getString("name") ?: "").trim()
+            val (firstName, surname) =
+                if (first.isNotEmpty() || sur.isNotEmpty()) {
+                    first to sur
+                } else if (nameRaw.contains(" ")) {
+                    val parts = nameRaw.split(Regex("\\s+"), limit = 2)
+                    (parts.getOrNull(0) ?: "") to (parts.getOrNull(1) ?: "")
+                } else {
+                    nameRaw to ""
+                }
+
             val email = d.getString("email") ?: ""
             val role  = (d.getString("role") ?: "").trim().lowercase()
 
-            val updatedFromLong  = d.getLong("updatedAt")
-            val createdFromLong  = d.getLong("createdAt")
-            val updatedFromStamp = (d.getTimestamp("updatedAt") ?: d.getTimestamp("createdAt"))?.toDate()?.time
-            val updatedAt = updatedFromLong ?: updatedFromStamp ?: createdFromLong ?: 0L
+            // Robust updatedAt (accept Timestamp/Number/Date/ISO string/numeric string)
+            val updatedAt = d.readMillis("updatedAt").takeIf { it > 0 }
+                ?: d.readMillis("createdAt")
 
-            UserEntity(uid, first, sur, email, role, updatedAt)
+            UserEntity(
+                uid        = uid,
+                firstName  = firstName,
+                surname    = surname,
+                email      = email,
+                role       = role,
+                updatedAt  = updatedAt
+            )
         }
     }
 
@@ -117,10 +139,9 @@ class CloudDataSources(
 
     /**
      * Optional: merge Firestore + RTDB users and keep the newest per uid.
-     * Use only if your deployment has users stored across both backends.
      */
     suspend fun fetchAllUsersMerged(): List<UserEntity> = withContext(Dispatchers.IO) {
-        val fsUsers = fetchUsers()
+        val fsUsers   = fetchUsers()
         val rtdbUsers = fetchUsersFromRtdb()
         (fsUsers + rtdbUsers)
             .groupBy { it.uid }
@@ -129,8 +150,6 @@ class CloudDataSources(
 
     /**
      * Example helper if you need consultants referenced by ServiceReviews (Firestore).
-     * Gathers consultant UIDs from "consultantUid" or a "consultant" DocumentReference field,
-     * then filters the user list to just those consultants.
      */
     suspend fun fetchConsultantsAssignedInServiceReviews(): List<UserEntity> = withContext(Dispatchers.IO) {
         val reviews = fs.collection("ServiceReviews")
@@ -140,11 +159,31 @@ class CloudDataSources(
 
         val uids = buildSet {
             for (d in reviews.documents) {
-                d.getString("consultantUid")?.takeIf { it.isNotBlank() }?.let { add(it) }
-                (d.get("consultant") as? DocumentReference)?.id?.let { add(it) }
+                d.getString("consultantUid")?.takeIf { it.isNotBlank() }?.let(::add)
+                (d.get("consultant") as? DocumentReference)?.id?.let(::add)
             }
         }
         if (uids.isEmpty()) return@withContext emptyList()
         fetchUsers().filter { it.uid in uids }
     }
+}
+
+/* -------------------- helpers: robust timestamp parsing -------------------- */
+
+private fun DocumentSnapshot.readMillis(field: String): Long {
+    val v = get(field) ?: return 0L
+    return when (v) {
+        is Number     -> v.toLong()
+        is Timestamp  -> v.toDate().time
+        is Date       -> v.time
+        is String     -> parseIsoToMillis(v) ?: v.toLongOrNull() ?: 0L
+        else          -> 0L
+    }
+}
+
+private fun parseIsoToMillis(s: String): Long? = try {
+    java.time.Instant.parse(s).toEpochMilli()
+} catch (_: Throwable) {
+    // Add more patterns here if you store "2025-11-10 12:34:56" etc.
+    null
 }

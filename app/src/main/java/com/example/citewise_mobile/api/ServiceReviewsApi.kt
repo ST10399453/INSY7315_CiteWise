@@ -33,13 +33,13 @@ interface ServiceReviewsApi {
         @Query("consultantId") consultantId: String? = null
     ): Response<List<ServiceRequestDto>>
 
-
     // 3) Details — GET /requests/{id}
     @GET("/requests/{id}")
     suspend fun getRequest(
         @Path("id") id: String
     ): Response<ServiceRequestDto>
 
+    // Convenience: list by consultant
     @GET("/requests")
     suspend fun listAssignedRequests(
         @Query("consultantId") consultantId: String
@@ -61,9 +61,7 @@ interface ServiceReviewsApi {
 
     // 6) Start review — POST /requests/{id}/start-review
     @POST("/requests/{id}/start-review")
-    suspend fun startReview(
-        @Path("id") id: String
-    ): Response<ServiceRequestDto>
+    suspend fun startReview(@Path("id") id: String): Response<ServiceRequestDto>
 
     // 7) Submit review outcome — POST /requests/{id}/review
     @POST("/requests/{id}/review")
@@ -74,13 +72,38 @@ interface ServiceReviewsApi {
 
     // 8) Resubmit — POST /requests/{id}/resubmit
     @POST("/requests/{id}/resubmit")
-    suspend fun resubmit(
-        @Path("id") id: String
-    ): Response<ServiceRequestDto>
+    suspend fun resubmit(@Path("id") id: String): Response<ServiceRequestDto>
 
     // 9) Cancel — POST /requests/{id}/cancel
     @POST("/requests/{id}/cancel")
-    suspend fun cancel(
-        @Path("id") id: String
+    suspend fun cancel(@Path("id") id: String): Response<ServiceRequestDto>
+
+    @GET("/requests/pending-assignments")
+    suspend fun listPendingAssignments(): Response<List<ServiceRequestDto>>
+
+    @GET("/consultants/unassigned")
+    suspend fun listUnassignedConsultants(): Response<UnassignedConsultantsResponse>
+
+    @Multipart
+    @POST("/requests/{id}/annotated")
+    suspend fun uploadAnnotated(
+        @Path("id") id: String,
+        @Part file: MultipartBody.Part,
+        @Part("status") status: RequestBody? = null
     ): Response<ServiceRequestDto>
 }
+
+/* ---------- NEW DTOs ---------- */
+
+data class ConsultantDto(
+    val uid: String,
+    val name: String,
+    val email: String,
+    val specialty: String?
+)
+
+data class UnassignedConsultantsResponse(
+    val total: Int,
+    val unassigned: Int,
+    val items: List<ConsultantDto>
+)
