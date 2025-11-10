@@ -9,6 +9,7 @@
     android:background="@color/main_background"
     tools:context=".ResourcesActivity">
 
+
     <!-- Top bar / header area -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -251,6 +252,7 @@
         </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.appbar.AppBarLayout>
 
+
     <!-- Content list (the scroller) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDocuments"
@@ -262,6 +264,7 @@
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_document_card"/>
+
 
     <!-- Offline/empty/error state overlays (toggle visibility in code) -->
     <LinearLayout

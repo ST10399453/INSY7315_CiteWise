@@ -1,5 +1,6 @@
 package com.example.citewise_mobile
 
+import android.R
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.provider.OpenableColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
@@ -75,20 +77,33 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        (binding.actCategory as MaterialAutoCompleteTextView)
-            .setSimpleItems(categoriesUi.toTypedArray())
-        (binding.actFaculty as MaterialAutoCompleteTextView)
-            .setSimpleItems(faculties.toTypedArray())
+//        (binding.actCategory as MaterialAutoCompleteTextView)
+//            .setSimpleItems(categoriesUi.toTypedArray())
+//        (binding.actFaculty as MaterialAutoCompleteTextView)
+//            .setSimpleItems(faculties.toTypedArray())
+        val categoryAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.simple_dropdown_item_1line,
+            categoriesUi
+        )
+        (binding.actCategory as MaterialAutoCompleteTextView).setAdapter(categoryAdapter)
+
+        val facultyAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            faculties
+        )
+        (binding.actFaculty as MaterialAutoCompleteTextView).setAdapter(facultyAdapter)
 
         binding.cardPicker.setOnClickListener { pickFile() }
         binding.btnUpload.setOnClickListener { uploadToLocalAndQueueSync() }
-        binding.btnBack.setOnClickListener { dismiss() }
-        binding.tvFileName.text = "Select a file"
+//        binding.btnBack.setOnClickListener { dismiss() }
+        binding.tvFileName.text = ""
 
         // reactive validation
         binding.actCategory.addTextChangedListener { updateButtonEnabled() }
         binding.actFaculty.addTextChangedListener  { updateButtonEnabled() }
-        binding.etTitle.addTextChangedListener     { updateButtonEnabled() }
+        binding.tilTitle.addTextChangedListener     { updateButtonEnabled() }
 
         updateButtonEnabled()
     }
@@ -121,7 +136,7 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     private fun updateButtonEnabled() {
         val ok = binding.actCategory.text?.isNotBlank() == true &&
                 binding.actFaculty.text?.isNotBlank() == true &&
-                binding.etTitle.text?.isNotBlank() == true &&
+                binding.tilTitle.text?.isNotBlank() == true &&
                 pickedUri != null
         binding.btnUpload.isEnabled = ok && !binding.progress.isVisible
     }
@@ -136,7 +151,7 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     private fun uploadToLocalAndQueueSync() {
         val uiCategory = binding.actCategory.text?.toString()?.trim().orEmpty()
         val category = mapCategory(uiCategory)
-        val title = binding.etTitle.text?.toString()?.trim().orEmpty()
+        val title = binding.tilTitle.text?.toString()?.trim().orEmpty()
         val facultyUi = binding.actFaculty.text?.toString()?.trim().orEmpty()
         val faculty = normalizeFaculty(facultyUi) // <- normalization applied here
         val description = binding.etDescription.text?.toString()?.trim().orEmpty()
@@ -189,7 +204,7 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
         binding.btnUpload.isVisible = !b
         binding.btnUpload.isEnabled = !b
         binding.cardPicker.isEnabled = !b
-        binding.etTitle.isEnabled = !b
+        binding.tilTitle.isEnabled = !b
         binding.actCategory.isEnabled = !b
         binding.actFaculty.isEnabled = !b
         binding.etDescription.isEnabled = !b
