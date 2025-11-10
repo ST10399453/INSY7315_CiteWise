@@ -82,13 +82,13 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
 
         binding.cardPicker.setOnClickListener { pickFile() }
         binding.btnUpload.setOnClickListener { uploadToLocalAndQueueSync() }
-        binding.btnBack.setOnClickListener { dismiss() }
+//        binding.btnBack.setOnClickListener { dismiss() }
         binding.tvFileName.text = "Select a file"
 
         // reactive validation
         binding.actCategory.addTextChangedListener { updateButtonEnabled() }
         binding.actFaculty.addTextChangedListener  { updateButtonEnabled() }
-        binding.etTitle.addTextChangedListener     { updateButtonEnabled() }
+        binding.tilTitle.addTextChangedListener     { updateButtonEnabled() }
 
         updateButtonEnabled()
     }
@@ -121,7 +121,7 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     private fun updateButtonEnabled() {
         val ok = binding.actCategory.text?.isNotBlank() == true &&
                 binding.actFaculty.text?.isNotBlank() == true &&
-                binding.etTitle.text?.isNotBlank() == true &&
+                binding.tilTitle.text?.isNotBlank() == true &&
                 pickedUri != null
         binding.btnUpload.isEnabled = ok && !binding.progress.isVisible
     }
@@ -136,7 +136,7 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     private fun uploadToLocalAndQueueSync() {
         val uiCategory = binding.actCategory.text?.toString()?.trim().orEmpty()
         val category = mapCategory(uiCategory)
-        val title = binding.etTitle.text?.toString()?.trim().orEmpty()
+        val title = binding.tilTitle.text?.toString()?.trim().orEmpty()
         val facultyUi = binding.actFaculty.text?.toString()?.trim().orEmpty()
         val faculty = normalizeFaculty(facultyUi) // <- normalization applied here
         val description = binding.etDescription.text?.toString()?.trim().orEmpty()
@@ -189,7 +189,7 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
         binding.btnUpload.isVisible = !b
         binding.btnUpload.isEnabled = !b
         binding.cardPicker.isEnabled = !b
-        binding.etTitle.isEnabled = !b
+        binding.tilTitle.isEnabled = !b
         binding.actCategory.isEnabled = !b
         binding.actFaculty.isEnabled = !b
         binding.etDescription.isEnabled = !b
