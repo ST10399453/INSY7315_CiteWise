@@ -5,25 +5,29 @@
     Layout = "_LayoutAuth";
 }
 
+<!-- ✅ Success / Error Alerts -->
 @if (TempData["Message"] != null)
 {
-    <div class="alert alert-success">@TempData["Message"]</div>
+    <div class="alert alert-success fade show" id="alertMessage">
+        @TempData["Message"]
+    </div>
 }
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@TempData["Error"]</div>
+    <div class="alert alert-danger fade show" id="alertError">
+        @TempData["Error"]
+    </div>
 }
 
 <div class="dashboard-container">
-
     <div class="dashboard-grid">
 
         <!-- Card: Overview -->
-        <div class="dashboard-card">
+        <div class="dashboard-card text-center">
             <h3>Available Requests</h3>
             <p><strong>@Model.Unassigned.Count</strong> unassigned requests.</p>
-            <p>Click "Assign to Me" to claim one.</p>
+            <p>Click <b>"Assign to Me"</b> to claim one.</p>
         </div>
 
         <!-- Unassigned Requests -->
@@ -33,19 +37,19 @@
             <div class="table-scroll">
                 @if (!Model.Unassigned.Any())
                 {
-                    <p style="color:#777;">No unassigned requests at the moment.</p>
+                    <p class="text-muted">No unassigned requests at the moment.</p>
                 }
                 else
                 {
-                    <table class="table table-striped mt-2">
-                        <thead>
+                    <table class="table table-striped table-sm mt-2">
+                        <thead class="table-light">
                             <tr>
                                 <th>Document</th>
                                 <th>Service</th>
                                 <th>Priority</th>
                                 <th>Deadline</th>
                                 <th>File</th>
-                                <th></th>
+                                <th style="width: 100px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,12 +72,12 @@
                                         }
                                         else
                                         {
-                                            <span style="color:#888;">No File</span>
+                                            <span class="text-muted">No File</span>
                                         }
                                     </td>
 
                                     <td>
-                                        <form asp-action="AssignToMe" method="post">
+                                        <form asp-action="AssignToMe" method="post" class="assign-form">
                                             <input type="hidden" name="id" value="@r.Id" />
                                             <button type="submit" class="btn btn-success btn-sm">Assign to Me</button>
                                         </form>
@@ -88,11 +92,11 @@
 
         <!-- Assigned Requests -->
         <div class="dashboard-card" style="grid-column: span 3;">
-            <h3>My Assigned Requests</h3>
+            <h3>My Assigned Requests (@Model.Assigned.Count)</h3>
 
             @if (!Model.Assigned.Any())
             {
-                <p style="color:#777;">You haven’t claimed any requests yet.</p>
+                <p class="text-muted">You haven’t claimed any requests yet.</p>
             }
             else
             {
@@ -103,6 +107,7 @@
                             <th>Service</th>
                             <th>Status</th>
                             <th>Deadline</th>
+                            <th>File</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -113,12 +118,46 @@
                                 <td>@r.ServiceType</td>
                                 <td>@r.Status</td>
                                 <td>@(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)</td>
+
+                                <td>
+                                    @if (!string.IsNullOrEmpty(r.File?.FileId))
+                                    {
+                                        <a asp-action="DownloadFile"
+                                           asp-route-fileId="@r.File.FileId"
+                                           class="btn btn-outline-primary btn-sm">
+                                            Download
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:#888;">No File</span>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
                 </table>
+
             }
         </div>
-
-    </div>
+    </div>
 </div>
+
+<!-- ✅ Smooth UI Feedback -->
+@section Scripts {
+    <script>
+        // Fade out alert after 3 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(a => a.classList.remove('show'));
+        }, 3000);
+
+        // Add a mini loading state when assigning
+        document.querySelectorAll('.assign-form').forEach(form => {
+            form.addEventListener('submit', () => {
+                const btn = form.querySelector('button');
+                btn.innerText = "Assigning...";
+                btn.disabled = true;
+            });
+        });
+    </script>
+}

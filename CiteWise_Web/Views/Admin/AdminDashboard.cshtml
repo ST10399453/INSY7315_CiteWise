@@ -1,6 +1,59 @@
-﻿@{
+﻿@model List<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem>
+@{
+    ViewData["Title"] = "Admin Dashboard";
     Layout = "_LayoutAuth";
 }
 
-
 <h2>Admin Dashboard</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No unassigned service requests at the moment.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Document</th>
+                <th>Service Type</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assign Consultant</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.DocumentName</td>
+                    <td>@r.ServiceType</td>
+                    <td>@r.Priority</td>
+                    <td>@r.Status</td>
+                    <td>
+                        <form asp-action="Assign" method="post" class="d-flex gap-2 align-items-center">
+                            <input type="hidden" name="requestId" value="@r.Id" />
+                            <select name="consultantId" class="form-select form-select-sm w-auto">
+                                @foreach (var c in ViewBag.Consultants)
+                                {
+                                    <option value="@c.Id">@c.Name</option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-success btn-sm">Assign</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
