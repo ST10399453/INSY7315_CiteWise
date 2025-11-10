@@ -1,5 +1,6 @@
 package com.example.citewise_mobile
 
+import android.R
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.provider.OpenableColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
@@ -75,15 +77,28 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        (binding.actCategory as MaterialAutoCompleteTextView)
-            .setSimpleItems(categoriesUi.toTypedArray())
-        (binding.actFaculty as MaterialAutoCompleteTextView)
-            .setSimpleItems(faculties.toTypedArray())
+//        (binding.actCategory as MaterialAutoCompleteTextView)
+//            .setSimpleItems(categoriesUi.toTypedArray())
+//        (binding.actFaculty as MaterialAutoCompleteTextView)
+//            .setSimpleItems(faculties.toTypedArray())
+        val categoryAdapter = ArrayAdapter(
+            requireContext(),
+            R.layout.simple_dropdown_item_1line,
+            categoriesUi
+        )
+        (binding.actCategory as MaterialAutoCompleteTextView).setAdapter(categoryAdapter)
+
+        val facultyAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            faculties
+        )
+        (binding.actFaculty as MaterialAutoCompleteTextView).setAdapter(facultyAdapter)
 
         binding.cardPicker.setOnClickListener { pickFile() }
         binding.btnUpload.setOnClickListener { uploadToLocalAndQueueSync() }
 //        binding.btnBack.setOnClickListener { dismiss() }
-        binding.tvFileName.text = "Select a file"
+        binding.tvFileName.text = ""
 
         // reactive validation
         binding.actCategory.addTextChangedListener { updateButtonEnabled() }
