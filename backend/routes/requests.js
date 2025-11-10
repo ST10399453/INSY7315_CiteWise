@@ -290,15 +290,23 @@ router.post("/:id/self-assign",
   param("id").isString(),
   body("deadline").optional().isString(), // (express-validator, 2019)
   async (req, res) => {
-    const v = bailIfInvalid(req, res); if (v) return v;
+    const v = bailIfInvalid(req, res);
+    if (v) return v;
+
     try {
-      const out = await transitionAssign({
+      const data = {
         id: req.params.id,
         consultantId: req.user.uid,        // self-assign to the actor
-        deadline: req.body.deadline ?? null,
         allowUpdate: false,                // create assignment (not update)
         actor: req.user,                   // used by transition for authz
-      }); // (Firebase, 2019a)
+      };
+
+      // Only include deadline if it is a non-empty string
+      if (req.body.deadline && req.body.deadline.trim() !== "") {
+        data.deadline = req.body.deadline;
+      }
+
+      const out = await transitionAssign(data); // (Firebase, 2019a)
       res.json(out);
     } catch (err) {
       console.error(err);
