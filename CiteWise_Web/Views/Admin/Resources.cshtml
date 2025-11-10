@@ -1,6 +1,119 @@
-﻿@{
+﻿@model IReadOnlyList<CiteWise_Web.Models.Resources.ResourceItem>
+@{
     Layout = "_LayoutAuth";
+    var message = TempData["Message"] as string;
+    var error = TempData["Error"] as string;
 }
 
+<h2>Resources</h2>
 
-<h2>Admin Dashboard</h2>
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="alert alert-success">@message</div>
+}
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<!-- Upload form -->
+<form asp-action="UploadResource" asp-controller="Admin" method="post" enctype="multipart/form-data" class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">Name</label>
+            <input name="Name" class="form-control" required />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Faculty</label>
+            <input name="Faculty" class="form-control" required />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Category</label>
+            <select name="Category" class="form-select" required>
+                <option value="WRITING_GUIDE">WRITING_GUIDE</option>
+                <option value="TEMPLATE">TEMPLATE</option>
+                <option value="AI_USAGE">AI_USAGE</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">File</label>
+            <input type="file" name="File" class="form-control" required />
+        </div>
+    </div>
+    <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Upload</button>
+    </div>
+    @Html.AntiForgeryToken()
+</form>
+
+<!-- Filters (optional UI) -->
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input name="faculty" value="@ViewBag.Faculty" class="form-control" placeholder="Filter by faculty" />
+    </div>
+    <div class="col-md-3">
+        <input name="q" value="@ViewBag.Query" class="form-control" placeholder="Search name..." />
+    </div>
+    <div class="col-md-2">
+        <select name="sort" class="form-select">
+            <option value="date" selected="@(ViewBag.Sort == "date")">Sort by date</option>
+            <option value="alpha" selected="@(ViewBag.Sort == "alpha")">Sort A→Z</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="dir" class="form-select">
+            <option value="desc" selected="@(ViewBag.Dir == "desc")">Desc</option>
+            <option value="asc" selected="@(ViewBag.Dir == "asc")">Asc</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-outline-secondary w-100" type="submit">Apply</button>
+    </div>
+</form>
+
+<!-- List / table -->
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Faculty</th>
+            <th>Category</th>
+            <th>MIME</th>
+            <th class="text-end">Size</th>
+            <th class="text-end">Updated</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            var updatedLocal = r.UpdatedAt?.ToLocalTime();
+            <tr>
+                <td>@r.Name</td>
+                <td>@r.Faculty</td>
+                <td>@r.Category</td>
+                <td>@r.MimeType</td>
+                <td class="text-end">@String.Format("{0:N0}", r.Size) B</td>
+                <td class="text-end">@((updatedLocal?.ToString("yyyy-MM-dd HH:mm")) ?? "-")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary"
+                       asp-action="DownloadResource"
+                       asp-route-id="@r.Id"
+                       asp-route-disposition="inline">Open</a>
+
+                    <a class="btn btn-sm btn-outline-secondary"
+                       asp-action="DownloadResource"
+                       asp-route-id="@r.Id"
+                       asp-route-disposition="attachment">Download</a>
+
+                    <form asp-action="DeleteResource" method="post" class="d-inline"
+                          onsubmit="return confirm('Delete this resource?');">
+                        <input type="hidden" name="id" value="@r.Id" />
+                        @Html.AntiForgeryToken()
+                        <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
