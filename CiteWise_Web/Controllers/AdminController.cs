@@ -10,10 +10,12 @@ namespace CiteWise_Web.Controllers
     public class AdminController : Controller
     {
         private readonly ApiService _apiService;
+        private readonly FirebaseService _firebaseService;
 
-        public AdminController(ApiService apiService)
+        public AdminController(ApiService apiService, FirebaseService firebaseService)
         {
             _apiService = apiService;
+            _firebaseService = firebaseService;
         }
 
         // =======================
@@ -29,15 +31,13 @@ namespace CiteWise_Web.Controllers
 
             var unassignedResponse = await _apiService.GetUnassignedRequestsAsync(token);
             var unassignedJson = await unassignedResponse.Content.ReadAsStringAsync();
+
             var unassigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(unassignedJson)
                              ?? new List<ServiceRequestItem>();
 
             // Simulated consultant list (replace with Firebase)
-            var consultants = new List<ConsultantItem>
-            {
-                new ConsultantItem {Id = "consultant1UID", Name = "John Smith"},
-                new ConsultantItem {Id = "consultant2UID", Name = "Sarah Lee"}
-            };
+            var consultants = await _firebaseService.GetConsultantAsync();
+
 
             ViewBag.Consultants = consultants;
 

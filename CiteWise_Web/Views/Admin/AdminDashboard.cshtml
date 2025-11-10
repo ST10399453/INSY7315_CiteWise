@@ -1,10 +1,10 @@
 ﻿@model List<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem>
+
 @{
     ViewData["Title"] = "Admin Dashboard";
     Layout = "_LayoutAuth";
+    var consultants = ViewBag.Consultants as List<CiteWise_Web.Models.ConsultantItem>;
 }
-
-<h2>Admin Dashboard</h2>
 
 @if (TempData["Message"] != null)
 {
@@ -16,44 +16,112 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-@if (!Model.Any())
-{
-    <p class="text-muted">No unassigned service requests at the moment.</p>
-}
-else
-{
-    <table class="table table-bordered table-striped mt-3">
-        <thead class="table-dark">
-            <tr>
-                <th>Document</th>
-                <th>Service Type</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Assign Consultant</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var r in Model)
+<div class="dashboard-container mt-4">
+    <h2 class="mb-4 text-center">Admin Dashboard</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4>Unassigned Requests</h4>
+                    <p><strong>@Model.Count</strong> waiting for assignment.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4>Available Consultants</h4>
+                    <p>
+                        <strong>@(consultants?.Count ?? 0)</strong> consultants loaded from Firebase.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="mb-3">Pending Service Requests</h4>
+
+            @if (!Model.Any())
             {
-                <tr>
-                    <td>@r.DocumentName</td>
-                    <td>@r.ServiceType</td>
-                    <td>@r.Priority</td>
-                    <td>@r.Status</td>
-                    <td>
-                        <form asp-action="Assign" method="post" class="d-flex gap-2 align-items-center">
-                            <input type="hidden" name="requestId" value="@r.Id" />
-                            <select name="consultantId" class="form-select form-select-sm w-auto">
-                                @foreach (var c in ViewBag.Consultants)
-                                {
-                                    <option value="@c.Id">@c.Name</option>
-                                }
-                            </select>
-                            <button type="submit" class="btn btn-success btn-sm">Assign</button>
-                        </form>
-                    </td>
-                </tr>
+                <p class="text-muted">No unassigned service requests found.</p>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Document</th>
+                                <th>Service</th>
+                                <th>Priority</th>
+                                <th>Deadline</th>
+                                <th>Consultant</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var req in Model)
+                            {
+                                <tr>
+                                    <td>@req.DocumentName</td>
+                                    <td>@req.ServiceType</td>
+                                    <td>@req.Priority</td>
+                                    <td>@(string.IsNullOrEmpty(req.Deadline) ? "-" : req.Deadline)</td>
+                                    <td colspan="2">
+                                        <form asp-action="Assign" method="post" class="d-flex align-items-center">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="requestId" value="@req.Id" />
+
+                                            <select class="form-select form-select-sm me-2" name="consultantId" required>
+                                                <option value="">-- Select Consultant --</option>
+                                                @if (consultants != null && consultants.Any())
+                                                {
+                                                    foreach (var c in consultants)
+                                                    {
+                                                        <option value="@c.Id">@c.Name (@c.Email)</option>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <option disabled>No consultants available</option>
+                                                }
+                                            </select>
+
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                Assign
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: none;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    .btn-sm {
+        padding: 4px 10px;
+    }
+</style>
