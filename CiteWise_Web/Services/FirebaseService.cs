@@ -1,4 +1,7 @@
 ﻿using CiteWise_Web.Models;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Util;
 using CiteWise_Web.Models.Account;
 using CiteWise_Web.Models.ServiceRequest;
 using Newtonsoft.Json;
@@ -10,6 +13,7 @@ namespace CiteWise_Web.Services
 {
     public class FirebaseService
     {
+
         private static readonly HttpClient _client = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(15)
@@ -160,5 +164,81 @@ namespace CiteWise_Web.Services
 
             return JsonConvert.DeserializeObject<UserProfile>(json);
         }
+
+        // ------------------------------
+        // GET THE CONSULTANTS 
+        // ------------------------------
+
+        public async Task<List<ConsultantItem>> GetConsultantAsync()
+        {
+
+            var response = await _client.GetAsync($"{_databaseUrl}/users.json");
+
+            if (!response.IsSuccessStatusCode)
+                return new List<ConsultantItem>();
+
+            var json = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(json) || json == "null")
+                return new List<ConsultantItem>();
+
+            var allUsers = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
+            var consultants = new List<ConsultantItem>();
+
+            if(allUsers != null)
+            {
+                foreach(var(key,user) in allUsers)
+                {
+                    try
+                    {
+                        if(user.role == "consultant")
+                        {
+                            consultants.Add(new ConsultantItem
+                            {
+                                Id = key,
+                                Name = user.name,
+                                Email = user.email,
+                                Speciality = user.speciality,
+                            });
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+
+            return consultants;
+        }
+
+        // --------------------------
+        // ADD A CONSULTANT AS AN ADMIN
+        // --------------------------
+        public async Task<bool> AddConsultantAsync(string name, string email, string password, string speciality)
+        {
+
+            var authResponse = await RegisterUserAsync(email, password);
+            if (authResponse == null || string.IsNullOrEmpty(authResponse.LocalId))
+                return false;
+
+            var profile = new
+            {
+                name,
+                email,
+                role = "consultant",
+                speciality
+            };
+
+            var json = JsonConvert.SerializeObject(profile);
+
+            var response = await _client.PutAsync(
+                $"{_databaseUrl}/users/{authResponse.LocalId}.json?auth={authResponse.IdToken}",
+                new StringContent(json, Encoding.UTF8, "application.json"));
+
+            return response.IsSuccessStatusCode;
+        }
+        
+        
+
     }
 }
