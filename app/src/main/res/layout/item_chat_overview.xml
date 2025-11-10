@@ -11,17 +11,17 @@
     <!-- Avatar (initial) -->
     <TextView
         android:id="@+id/tvInitial"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="22dp"
+        android:layout_height="24dp"
+        android:background="@drawable/bg_avatar_circle"
+        android:fontFamily="@font/poppins_bold"
         android:gravity="center"
-        android:textStyle="bold"
         android:textColor="@android:color/white"
         android:textSize="18sp"
-        android:fontFamily="@font/poppins_bold"
-        android:background="@drawable/bg_avatar_circle"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="R" />
 
     <!-- Name -->

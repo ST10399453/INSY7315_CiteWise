@@ -84,159 +84,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardTotalConsultants"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                app:cardCornerRadius="20dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@android:color/transparent"
-                app:cardBackgroundColor="@android:color/transparent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/card_neumorphic_background"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Total Consultants"
-                        android:textColor="@color/text_dark"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/public_sans_medium" />
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_total_consultants"
-                        android:contentDescription="@string/app_name" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvConsultantsValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="30"
-                    android:textColor="@color/gradient_end"
-                    android:textSize="24sp"
-                    android:fontFamily="@font/public_sans_bold"
-                    android:layout_marginTop="6dp" />
-            </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardActiveConsultants"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                app:cardCornerRadius="20dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@android:color/transparent"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@drawable/card_neumorphic_background"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Active"
-                            android:textColor="@color/text_dark"
-                            android:textSize="18sp"
-                            android:fontFamily="@font/public_sans_medium" />
-
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_total_consultants"
-                            android:contentDescription="@string/app_name" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvActiveValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="24"
-                        android:textColor="@color/gradient_end"
-                        android:textSize="24sp"
-                        android:fontFamily="@font/public_sans_bold"
-                        android:layout_marginTop="6dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardOnLeaveConsultants"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                app:cardCornerRadius="20dp"
-                app:cardUseCompatPadding="true"
-                app:strokeColor="@android:color/transparent"
-                app:cardBackgroundColor="@android:color/transparent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@drawable/card_neumorphic_background"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="On Leave"
-                            android:textColor="@color/text_dark"
-                            android:textSize="18sp"
-                            android:fontFamily="@font/public_sans_medium" />
-
-                        <ImageView
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:src="@drawable/ic_total_consultants"
-                            android:contentDescription="@string/app_name" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvOnLeaveValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="6"
-                        android:textColor="@color/gradient_end"
-                        android:textSize="24sp"
-                        android:fontFamily="@font/public_sans_bold"
-                        android:layout_marginTop="6dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
             <TextView
                 android:id="@+id/labelPendingConsultants"
                 android:layout_width="wrap_content"
@@ -370,7 +217,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Search consultants"
-                    app:boxBackgroundMode="none"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -379,6 +225,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_dark"
                         android:textColorHint="@color/text_faded"
+                        android:background="@drawable/outline_edittext"
                         android:imeOptions="actionSearch" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -394,7 +241,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="All consultants are assigned 🎉"
+                    android:text="All consultants are assigned"
                     android:textColor="@color/text_faded"
                     android:gravity="center"
                     android:visibility="gone" />

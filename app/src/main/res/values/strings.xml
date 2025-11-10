@@ -160,6 +160,8 @@
     <string name="Friday">Fri</string>
     <string name="Saturday">Sat</string>
     <string name="Sunday">Sun</string>
+    <string name="reject">reject</string>
+    <string name="accept">accept</string>
 
 
 </resources>

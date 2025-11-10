@@ -1,75 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
+    android:minHeight="72dp"
     android:padding="12dp"
-    android:background="@drawable/bg_row_selector">
+    android:background="@color/ui_background">
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/blue_400">
+    <!-- Initials bubble -->
+    <TextView
+        android:id="@+id/tvInitial"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:fontFamily="@font/poppins_bold"
+        android:background="@drawable/bg_avatar_circle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
-            android:id="@+id/tvInitials"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="JW"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textColor="@color/text_light"/>
-    </com.google.android.material.card.MaterialCardView>
-
+    <!-- Right-side action buttons (tick/cross) -->
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp">
-
-        <TextView
-            android:id="@+id/tvName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="John West"
-            android:textSize="14sp"
-            android:textColor="@color/text_dark"
-            android:fontFamily="@font/public_sans_bold"/>
-
-        <TextView
-            android:id="@+id/tvEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="john.west@example.com"
-            android:textSize="12sp"
-            android:textColor="@color/text_faded"/>
-    </LinearLayout>
-
-    <LinearLayout
+        android:id="@+id/actionGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="end|center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvInitial"
+        app:layout_constraintBottom_toBottomOf="@id/tvInitial">
 
-        <com.google.android.material.button.MaterialButton
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btnReject"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="Reject"
-            android:textColor="@color/priority_High"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnApprove"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="Approve"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_marginStart="8dp"
-            android:backgroundTint="@color/gradient_end"
-            android:textColor="@color/text_light"/>
+            android:background="@drawable/bg_circle_outline"
+            android:contentDescription="@string/reject"
+            android:padding="0dp"
+            android:scaleType="center"
+            app:srcCompat="@drawable/ic_close_24"
+            app:tint="@android:color/holo_red_light" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnAccept"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_circle_filled"
+            android:contentDescription="@string/accept"
+            android:padding="0dp"
+            android:scaleType="center"
+            app:srcCompat="@drawable/ic_check_24"
+            app:tint="@color/green_500" />
     </LinearLayout>
 
-</LinearLayout>
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/actionsBarrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="start"
+        app:barrierAllowsGoneWidgets="false"
+        app:constraint_referenced_ids="actionGroup" />
+
+    <!-- Top line: email -->
+    <TextView
+        android:id="@+id/tvUsername"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/gradient_middle"
+        android:fontFamily="@font/poppins"
+        android:textSize="14sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@id/tvInitial"
+        app:layout_constraintTop_toTopOf="@id/tvInitial"
+        app:layout_constraintEnd_toStartOf="@id/actionsBarrier"
+        android:layout_marginStart="12dp" />
+
+    <!-- Second line: first name -->
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/primary_text_dark"
+        android:fontFamily="@font/poppins_sembold"
+        android:textSize="10sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@id/tvUsername"
+        app:layout_constraintTop_toBottomOf="@id/tvUsername"
+        app:layout_constraintEnd_toStartOf="@id/actionsBarrier" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

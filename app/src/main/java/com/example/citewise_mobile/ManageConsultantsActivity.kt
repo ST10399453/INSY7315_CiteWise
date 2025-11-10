@@ -7,82 +7,85 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.citewise_mobile.api.ServicePriority
-import com.example.citewise_mobile.api.ServiceRequestDto
-import com.example.citewise_mobile.api.ServiceType
-import com.example.citewise_mobile.api.UnassignedConsultantsResponse
 import com.example.citewise_mobile.databinding.ActivityManageConsultantsBinding
-import com.example.citewise_mobile.api.RetrofitInstance
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.card.MaterialCardView
+import com.google.firebase.database.*
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.Locale
 import java.util.Date
+import java.util.Locale
 
-class ManageConsultantsActivity : AppCompatActivity() {
+class ManageConsultantsActivity : BaseActivity() {
 
     private lateinit var binding: ActivityManageConsultantsBinding
 
-    // Firestore (only for pending consultant approvals)
+    // Firestore
     private val db by lazy { FirebaseFirestore.getInstance() }
 
-    // REST API
-    private val api by lazy { RetrofitInstance.api }
+    // Realtime Database for pending consultant approvals
+    private val rtdb by lazy { FirebaseDatabase.getInstance() }
+    private var usersRef: DatabaseReference? = null
+    private var pendingConsListener: ValueEventListener? = null
 
-    // ── In-memory state
-    private val pendingConsultants = mutableListOf<Consultant>()   // approvals
-    private val pendingAssignments = mutableListOf<Assignment>()   // unassigned requests (from API)
-    private val unassignedConsultants = mutableListOf<Consultant>()// from API
+    // In-memory lists
+    private val pendingConsultants = mutableListOf<Consultant>()
+    private val pendingAssignments = mutableListOf<Assignment>()
+    private val unassignedConsultants = mutableListOf<Consultant>()
 
-    // ── Adapters
+    // Adapters
     private lateinit var pendingConsAdapter: PendingConsultantAdapter
     private lateinit var assignmentAdapter: AssignmentAdapter
     private lateinit var unassignedAdapter: ConsultantRowAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivityManageConsultantsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
-            insets
-        }
+        // Use the shared base shell (contains BottomNavigationView & a container)
+        setContentView(R.layout.activity_base)
+        applyInsets(R.id.main)
+
+        // Inflate this screen's layout into the base container
+        val baseContent = findViewById<ViewGroup>(R.id.baseContent)
+        binding = ActivityManageConsultantsBinding.inflate(layoutInflater, baseContent, true)
+
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        setupBottomNav(bottomNav, selectedItemId = R.id.bottomNav)
 
         setupLists()
         setupPriorityChips()
         setupSearch()
 
-        // Load data
-        fetchPendingConsultantsFromFirestore() // approvals
-        fetchPendingAssignmentsFromApi()       // unassigned requests
-        fetchUnassignedConsultantsFromApi()    // unassigned consultants
+        // Load / listen
+        fetchPendingConsultantsFromRealtimeDb()
+        fetchPendingAssignmentsFromFirestoreOr()
+        fetchUnassignedConsultantsFromFirestoreOr()
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // UI wiring
-    // ─────────────────────────────────────────────────────────────────────
+    override fun onDestroy() {
+        super.onDestroy()
+        usersRef?.let { ref -> pendingConsListener?.let { ref.removeEventListener(it) } }
+    }
+
+    // ───────────────────────── UI ─────────────────────────
+
     private fun setupLists() {
-        // Pending consultants (approvals)
+        // Pending consultants (approvals from RTDB)
         pendingConsAdapter = PendingConsultantAdapter(
             data = pendingConsultants,
-            onApprove = { /* TODO: approve in Firestore */ },
-            onReject  = { /* TODO: reject in Firestore  */ }
+            onApprove = { c ->
+                rtdb.getReference("users/${c.uid}").child("isApproved").setValue(true)
+            },
+            onReject = { c ->
+                rtdb.getReference("users/${c.uid}").removeValue()
+            }
         )
         binding.rvPendingConsultants.apply {
             layoutManager = LinearLayoutManager(this@ManageConsultantsActivity)
@@ -90,20 +93,37 @@ class ManageConsultantsActivity : AppCompatActivity() {
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
 
-        // Pending assignments (unassigned) from API
-        assignmentAdapter = AssignmentAdapter(pendingAssignments) { /* on click */ }
+        // Pending assignments (from Firestore)
+        assignmentAdapter = AssignmentAdapter(pendingAssignments) { /* open details if needed */ }
         binding.rvPendingAssignments.apply {
             layoutManager = LinearLayoutManager(this@ManageConsultantsActivity)
             adapter = assignmentAdapter
         }
 
-        // Unassigned consultants (from API) with search filter
+        // Unassigned consultants (from Firestore)
         unassignedAdapter = ConsultantRowAdapter(unassignedConsultants) { /* on click */ }
         binding.rvAssignedConsultants.apply {
             layoutManager = LinearLayoutManager(this@ManageConsultantsActivity)
             adapter = unassignedAdapter
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
+
+        // Initial empty-state visibility
+        toggleEmptyState(
+            empty = pendingConsultants.isEmpty(),
+            list = binding.rvPendingConsultants,
+            placeholder = binding.emptyPendingConsultants
+        )
+        toggleEmptyState(
+            empty = pendingAssignments.isEmpty(),
+            list = binding.rvPendingAssignments,
+            placeholder = binding.emptyPendingAssignments
+        )
+        toggleEmptyState(
+            empty = unassignedConsultants.isEmpty(),
+            list = binding.rvAssignedConsultants,
+            placeholder = binding.emptyUnassignedConsultants
+        )
     }
 
     private fun setupPriorityChips() {
@@ -132,149 +152,112 @@ class ManageConsultantsActivity : AppCompatActivity() {
         })
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Firestore (only for pending consultant approvals)
-    // ─────────────────────────────────────────────────────────────────────
-    private fun fetchPendingConsultantsFromFirestore() {
-        db.collection(COL_USERS)
-            .whereIn(F_ROLE, listOf(ROLE_PENDING, ROLE_PENDING_CONSULTANT))
-            .orderBy(F_NAME, Query.Direction.ASCENDING)
-            .get()
-            .addOnSuccessListener { snap ->
+    // ─────────────── Realtime DB: pending consultants ───────────────
+
+    private fun fetchPendingConsultantsFromRealtimeDb() {
+        usersRef = rtdb.getReference("users")
+        val query = usersRef!!.orderByChild("isApproved").equalTo(false)
+
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
                 pendingConsultants.clear()
-                for (d in snap.documents) {
+                for (u in snapshot.children) {
+                    val uid       = u.key ?: continue
+                    val firstName = u.child("firstName").getValue(String::class.java) ?: "(no name)"
+                    val email     = u.child("email").getValue(String::class.java).orEmpty()
+                    val specialty = u.child("specialty").getValue(String::class.java).orEmpty()
+
                     pendingConsultants += Consultant(
-                        uid = d.getString(F_UID) ?: d.id,
-                        name = d.getString(F_NAME) ?: "(no name)",
-                        email = d.getString(F_EMAIL).orEmpty(),
-                        specialty = d.getString(F_SPECIALTY).orEmpty()
+                        uid = uid,
+                        firstName = firstName,
+                        email = email,
+                        specialty = specialty
                     )
                 }
                 pendingConsAdapter.notifyDataSetChanged()
                 toggleEmptyState(
                     empty = pendingConsultants.isEmpty(),
                     list = binding.rvPendingConsultants,
-                    placeholder = null // keep optional-safe (no placeholder view required)
+                    placeholder = binding.emptyPendingConsultants
                 )
             }
-            .addOnFailureListener {
-                toggleEmptyState(empty = true, list = binding.rvPendingConsultants, placeholder = null)
-            }
-    }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // REST API fetches
-    // ─────────────────────────────────────────────────────────────────────
-    /** GET /requests/pending-assignments */
-    private fun fetchPendingAssignmentsFromApi() {
-        lifecycleScope.launch {
-            val resp = withContext(Dispatchers.IO) { api.listPendingAssignments() }
-            if (resp.isSuccessful) {
-                val list = resp.body().orEmpty()
-                pendingAssignments.clear()
-                pendingAssignments += list.map(::dtoToAssignment)
-                assignmentAdapter.resetBase(pendingAssignments)
-                toggleEmptyState(
-                    empty = pendingAssignments.isEmpty(),
-                    list = binding.rvPendingAssignments,
-                    placeholder = null
-                )
-            } else {
-                // Optional fallback to Firestore if your API is unavailable:
-                fetchPendingAssignmentsFallbackFirestore()
+            override fun onCancelled(error: DatabaseError) {
+                pendingConsultants.clear()
+                pendingConsAdapter.notifyDataSetChanged()
+                toggleEmptyState(true, binding.rvPendingConsultants, binding.emptyPendingConsultants)
             }
         }
+
+        pendingConsListener = listener
+        query.addValueEventListener(listener)
     }
 
-    // Optional fallback to the old Firestore path
-    private fun fetchPendingAssignmentsFallbackFirestore() {
+    // ─────────────── Firestore: assignments where consultantId == null OR "" ───────────────
+
+    private fun fetchPendingAssignmentsFromFirestoreOr() {
         db.collection(COL_REVIEWS)
-            .whereEqualTo(F_CONSULTANT_ID, null)
-            .orderBy(F_CREATED_AT, Query.Direction.DESCENDING)
+            .where(
+                Filter.or(
+                    Filter.equalTo(F_CONSULTANT_ID, null),
+                    Filter.equalTo(F_CONSULTANT_ID, "")
+                )
+            )
+            .orderBy(F_CREATED_AT, Query.Direction.DESCENDING) // may require a composite index
             .limit(50)
             .get()
             .addOnSuccessListener { snap ->
+                val items = snap.documents.map { it.toAssignmentFirestore() }
                 pendingAssignments.clear()
-                for (d in snap.documents) pendingAssignments += d.toAssignmentFirestore()
+                pendingAssignments.addAll(items)
                 assignmentAdapter.resetBase(pendingAssignments)
                 toggleEmptyState(
                     empty = pendingAssignments.isEmpty(),
                     list = binding.rvPendingAssignments,
-                    placeholder = null
+                    placeholder = binding.emptyPendingAssignments
                 )
+            }
+            .addOnFailureListener {
+                pendingAssignments.clear()
+                assignmentAdapter.resetBase(pendingAssignments)
+                toggleEmptyState(true, binding.rvPendingAssignments, binding.emptyPendingAssignments)
             }
     }
 
-    /** GET /consultants/unassigned */
-    private fun fetchUnassignedConsultantsFromApi() {
-        lifecycleScope.launch {
-            val resp = withContext(Dispatchers.IO) { api.listUnassignedConsultants() }
-            if (resp.isSuccessful) {
-                val payload: UnassignedConsultantsResponse? = resp.body()
+    // ─────────────── Firestore: UNASSIGNED consultants (no REST) ───────────────
+    private fun fetchUnassignedConsultantsFromFirestoreOr() {
+        db.collection(COL_CONSULTANTS)
+            .where(
+                Filter.or(
+                    Filter.equalTo(F_IS_ASSIGNED, false),
+                    Filter.equalTo(F_ASSIGNED_REQUEST_ID, null),
+                    Filter.equalTo(F_ASSIGNED_REQUEST_ID, "")
+                )
+            )
+            .orderBy(F_CREATED_AT, Query.Direction.DESCENDING)
+            .limit(100)
+            .get()
+            .addOnSuccessListener { snap ->
                 unassignedConsultants.clear()
-                payload?.items.orEmpty().forEach { c ->
-                    unassignedConsultants += Consultant(
-                        uid = c.uid,
-                        name = c.name,
-                        email = c.email,
-                        specialty = c.specialty.orEmpty()
-                    )
+                snap.documents.forEach { d ->
+                    unassignedConsultants += d.toConsultant()
                 }
                 unassignedAdapter.reset()
                 toggleEmptyState(
                     empty = unassignedConsultants.isEmpty(),
                     list = binding.rvAssignedConsultants,
-                    placeholder = null
-                )
-            } else {
-                // If the API fails, just show empty (or add your own fallback)
-                toggleEmptyState(
-                    empty = true,
-                    list = binding.rvAssignedConsultants,
-                    placeholder = null
+                    placeholder = binding.emptyUnassignedConsultants
                 )
             }
-        }
+            .addOnFailureListener {
+                unassignedConsultants.clear()
+                unassignedAdapter.reset()
+                toggleEmptyState(true, binding.rvAssignedConsultants, binding.emptyUnassignedConsultants)
+            }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Mapping
-    // ─────────────────────────────────────────────────────────────────────
-    private fun dtoToAssignment(d: ServiceRequestDto): Assignment {
-        val pr = when (d.priority ?: ServicePriority.MEDIUM) {
-            ServicePriority.HIGH   -> Priority.HIGH
-            ServicePriority.MEDIUM -> Priority.MEDIUM
-            ServicePriority.LOW    -> Priority.LOW
-        }
-        val titleCandidate = d.customName
-            ?: d.originalFileName
-            ?: d.description
-            ?: d.serviceType?.name
-            ?: "Request"
+    // ─────────────── Mapping helpers ───────────────
 
-        return Assignment(
-            id = d.id.orEmpty(),
-            serviceType = d.serviceType?.let { prettyCategory(it) },
-            customName = d.customName,
-            originalFileName = d.originalFileName,
-            description = d.description,
-            status = d.status,
-            priority = pr,
-            createdAt = d.createdAt?.epochMillis,
-            deadline = d.deadline?.epochMillis
-        ).copy(titleOverride = titleCandidate)
-    }
-
-    private fun prettyCategory(t: ServiceType): String = when (t) {
-        ServiceType.PROOFREADING_EDITING          -> "Proofreading & Editing"
-        ServiceType.FORMATTING_REFERENCING        -> "Formatting & Referencing"
-        ServiceType.DATA_ANALYSIS_SUPPORT         -> "Data Analysis Support"
-        ServiceType.RESEARCH_METHODOLOGY_COACHING -> "Research/Methodology Coaching"
-        ServiceType.TRANSLATION                   -> "Translation"
-        ServiceType.OTHER                         -> "Other"
-    }
-
-    // Old Firestore mapping for fallback only
     private fun com.google.firebase.firestore.DocumentSnapshot.toAssignmentFirestore(): Assignment {
         val pr = when ((getString(F_PRIORITY) ?: "LOW").uppercase(Locale.US)) {
             "HIGH", "URGENT" -> Priority.HIGH
@@ -304,20 +287,29 @@ class ManageConsultantsActivity : AppCompatActivity() {
         ).copy(titleOverride = titleCandidate)
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Small helpers
-    // ─────────────────────────────────────────────────────────────────────
-    private fun toggleEmptyState(empty: Boolean, list: View, placeholder: View?) {
-        placeholder?.visibility = if (empty) View.VISIBLE else View.GONE
+    private fun com.google.firebase.firestore.DocumentSnapshot.toConsultant(): Consultant {
+        val uid        = getString("uid") ?: id
+        val firstName  = getString("firstName") ?: getString("name") ?: "(no name)"
+        val email      = getString("email").orEmpty()
+        val specialty  = getString("specialty").orEmpty()
+        return Consultant(
+            uid = uid,
+            firstName = firstName,
+            email = email,
+            specialty = specialty
+        )
+    }
+
+    private fun toggleEmptyState(empty: Boolean, list: View, placeholder: View) {
+        placeholder.visibility = if (empty) View.VISIBLE else View.GONE
         list.visibility = if (empty) View.GONE else View.VISIBLE
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Models
-    // ─────────────────────────────────────────────────────────────────────
+    // ─────────────── Models ───────────────
+
     data class Consultant(
         val uid: String,
-        val name: String,
+        val firstName: String,
         val email: String,
         val specialty: String
     )
@@ -334,7 +326,6 @@ class ManageConsultantsActivity : AppCompatActivity() {
         val priority: Priority,
         val createdAt: Long?,
         val deadline: Long?,
-        // internal: lets us keep the best title without recomputing in adapter
         val titleOverride: String? = null
     ) {
         fun title(): String =
@@ -347,21 +338,21 @@ class ManageConsultantsActivity : AppCompatActivity() {
             }
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // Adapters
-    // ─────────────────────────────────────────────────────────────────────
+    // ─────────────── Adapters ───────────────
+
+    /** Pending consultants row (uses item_pending_consultant.xml). */
     private class PendingConsultantAdapter(
-        private val data: List<Consultant>,
+        private val data: MutableList<Consultant>,
         private val onApprove: (Consultant) -> Unit,
         private val onReject: (Consultant) -> Unit
     ) : RecyclerView.Adapter<PendingConsultantAdapter.VH>() {
 
         class VH(v: View) : RecyclerView.ViewHolder(v) {
-            val initials: TextView = v.findViewById(R.id.tvInitials)
-            val name: TextView     = v.findViewById(R.id.tvName)
-            val email: TextView    = v.findViewById(R.id.tvEmail)
-            val btnApprove: View   = v.findViewById(R.id.btnApprove)
-            val btnReject: View    = v.findViewById(R.id.btnReject)
+            val tvInitial: TextView  = v.findViewById(R.id.tvInitial)
+            val tvUsername: TextView = v.findViewById(R.id.tvUsername) // email
+            val tvName: TextView     = v.findViewById(R.id.tvName)     // first name
+            val btnAccept: View      = v.findViewById(R.id.btnAccept)
+            val btnReject: View      = v.findViewById(R.id.btnReject)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -372,21 +363,23 @@ class ManageConsultantsActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(h: VH, position: Int) {
             val c = data[position]
-            h.initials.text = initialsOf(c.name)
-            h.name.text = c.name
-            h.email.text = c.email
-            h.btnApprove.setOnClickListener { onApprove(c) }
+            val initial = (c.firstName.trim().firstOrNull()
+                ?: c.email.trim().firstOrNull() ?: '?').uppercaseChar().toString()
+            h.tvInitial.text = initial
+            h.tvUsername.text = c.email
+            h.tvName.text = if (c.firstName.isBlank()) "(no name)" else c.firstName
+
+            h.btnAccept.setOnClickListener { onApprove(c) }
             h.btnReject.setOnClickListener { onReject(c) }
         }
 
         override fun getItemCount(): Int = data.size
 
-        private fun initialsOf(name: String): String =
-            name.trim()
-                .split(Regex("\\s+"))
-                .take(2)
-                .map { it.firstOrNull()?.uppercaseChar() ?: ' ' }
-                .joinToString("")
+        fun reset(newItems: List<Consultant>) {
+            data.clear()
+            data.addAll(newItems)
+            notifyDataSetChanged()
+        }
     }
 
     private enum class PriorityFilter { ALL, LOW, MEDIUM, HIGH }
@@ -499,7 +492,9 @@ class ManageConsultantsActivity : AppCompatActivity() {
                 visible.addAll(all)
             } else {
                 visible.addAll(
-                    all.filter { it.name.lowercase().contains(f) || it.email.lowercase().contains(f) }
+                    all.filter {
+                        it.firstName.lowercase().contains(f) || it.email.lowercase().contains(f)
+                    }
                 )
             }
             notifyDataSetChanged()
@@ -520,36 +515,19 @@ class ManageConsultantsActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(h: VH, position: Int) {
             val c = visible[position]
-            h.tvInitials.text = initialsOf(c.name)
-            h.tvName.text = c.name
+            h.tvInitials.text = c.firstName.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+            h.tvName.text = c.firstName
             h.tvEmail.text = c.email
             h.tvSpecialty.text = if (c.specialty.isBlank()) "General" else c.specialty
             h.itemView.setOnClickListener { onClick(c) }
         }
 
         override fun getItemCount(): Int = visible.size
-
-        private fun initialsOf(name: String): String =
-            name.trim()
-                .split(Regex("\\s+"))
-                .take(2)
-                .map { it.firstOrNull()?.uppercaseChar() ?: ' ' }
-                .joinToString("")
     }
 
     companion object {
-        // Firestore Collections (only for approvals)
-        private const val COL_USERS   = "users"
+        // Firestore: ServiceReviews (assignments)
         private const val COL_REVIEWS = "ServiceReviews"
-
-        // User fields
-        private const val F_UID       = "uid"
-        private const val F_NAME      = "name"
-        private const val F_EMAIL     = "email"
-        private const val F_ROLE      = "role"
-        private const val F_SPECIALTY = "specialty"
-
-        // Review fields (Firestore fallback)
         private const val F_CONSULTANT_ID      = "consultantId"
         private const val F_CREATED_AT         = "createdAt"
         private const val F_DEADLINE           = "deadline"
@@ -560,11 +538,11 @@ class ManageConsultantsActivity : AppCompatActivity() {
         private const val F_DESCRIPTION        = "description"
         private const val F_STATUS             = "status"
 
-        // Roles
-        private const val ROLE_PENDING            = "pending"
-        private const val ROLE_PENDING_CONSULTANT = "pending_consultant"
+        // Firestore: Consultants (unassigned list)
+        private const val COL_CONSULTANTS = "Consultants"
+        private const val F_IS_ASSIGNED = "isAssigned"
+        private const val F_ASSIGNED_REQUEST_ID = "assignedRequestId"
 
-        // Date format
         private val DATE_FMT = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     }
 }
