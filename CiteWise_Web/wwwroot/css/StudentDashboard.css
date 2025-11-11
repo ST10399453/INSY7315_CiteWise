@@ -432,11 +432,27 @@
 
 .resource-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 3 equal columns horizontally */
-    gap: 25px; /* neat spacing between cards */
+    grid-template-columns: 1fr 2fr;
+    gap: 25px;
     align-items: start;
     justify-content: center;
     width: 100%;
-    max-width: 1400px; /* keeps layout centered and balanced */
+    max-width: 1400px;
     margin: 0 auto;
 }
+
+
+.btn-clear {
+    background: #ebecf0;
+    color: black;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 8px 7px 21px 0 rgba(0, 0, 0, 0.15), -6px -7px 11px 0 rgba(255, 255, 255, 0.84);
+}
+
+    .btn-clear:hover {
+        border-radius: 13px;
+        background: #ebecf0;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }

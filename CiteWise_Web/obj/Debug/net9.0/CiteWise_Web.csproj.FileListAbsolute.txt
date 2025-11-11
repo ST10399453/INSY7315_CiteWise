@@ -637,7 +637,7 @@ C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compresse
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-a6fqlhd22b.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\33lxpgvfex-zuilnjfmf8.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\vxsbww6udl-a6fqlhd22b.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-z7ef6u58d2.gz
-C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\17hw1yooy8-u12geg59lr.gz
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\17hw1yooy8-gepyrf3gdo.gz
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-z7ef6u58d2.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\17hw1yooy8-gepyrf3gdo.gz
+C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-1fg9gt8sef.gz

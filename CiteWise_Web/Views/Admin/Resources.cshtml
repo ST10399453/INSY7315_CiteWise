@@ -134,20 +134,66 @@
     <p>Upload resources for students</p>
 </div>
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <div class="alert alert-success">@message</div>
-}
-@if (!string.IsNullOrWhiteSpace(error))
-{
-    <div class="alert alert-danger">@error</div>
-}
+
 
 <!-- Resource List -->
+
+<div class="feature-section">
+    <div class="feature-buttons">
+        <a asp-controller="Admin" asp-action="AddResources" class="feature-btn">
+            <img src="~/icons/Resources.svg" alt="Request a Service" class="feature-icon" />
+            <span>Add Resources</span>
+        </a>
+    </div>
+</div>
 
 <div class="dashboard-container">
 
     <div class="resource-grid">
+
+        <div class="dashboard-card">
+            <form method="get" class="row g-2 mb-3">
+                <div class="form-group col-md-4">
+                    <input name="q"
+                           value="@ViewBag.Query"
+                           class="icon-input"
+                           placeholder="Search by name..." />
+                </div>
+            </form>
+            <hr/>
+            <form method="get" class="row g-2 mb-3">
+                <div class="form-group">
+                    <select name="faculty" class="icon-input">
+                        <option value="">-- Filter by Faculty --</option>
+                        <option value="GENERAL" selected="@(ViewBag.Faculty == "GENERAL")">General</option>
+                        <option value="ENGINEERING" selected="@(ViewBag.Faculty == "ENGINEERING")">Engineering</option>
+                        <option value="SCIENCE" selected="@(ViewBag.Faculty == "SCIENCE")">Science</option>
+                        <option value="BUSINESS" selected="@(ViewBag.Faculty == "BUSINESS")">Business</option>
+                        <option value="LAW" selected="@(ViewBag.Faculty == "LAW")">Law</option>
+                        <option value="EDUCATION" selected="@(ViewBag.Faculty == "EDUCATION")">Education</option>
+                        <option value="HEALTH_SCIENCES" selected="@(ViewBag.Faculty == "HEALTH_SCIENCES")">Health Sciences</option>
+                        <option value="ARTS" selected="@(ViewBag.Faculty == "ARTS")">Arts</option>
+                    </select>
+                </div>
+               
+                @* <div class="form-group">
+                    <input name="q" value="@ViewBag.Query" class="icon-input" placeholder="Search name..." />
+                </div> *@
+                @* <div class="col-md-2">
+                    <button class="btn-next" type="submit">Apply</button>
+
+                    <a href="@Url.Action("Resources", "Admin")" class="btn-clear">
+                        Clear Filter
+                    </a>
+                </div> *@
+                <div class="hero-buttons">
+                    <button class="btn-next" type="submit">Apply</button>
+                    <button type="button" class="btn-next" onclick="window.location='@Url.Action("Resources", "Admin")'">
+                        Clear Filter
+                    </button>
+                </div>
+            </form>
+        </div>
 
         <div class="dashboard-card">
 
@@ -166,7 +212,7 @@
 
                                     // Optional replacements
                                     if (displayName.Contains("Writing Guide"))
-                                        displayName = displayName.Replace("Writing Guide", "Writing Guide & Tips");
+                                        displayName = displayName.Replace("Writing Guide", "Writing Guide");
 
                                     if (displayName.Contains("AI Usage"))
                                         displayName = displayName.Replace("AI Usage", "AI Usage Guidelines");
@@ -239,38 +285,10 @@
             }
 
         </div>
-        <div class="dashboard-card">
-            <h1>dd</h1>
-        </div>
     </div>
 
 </div>
 
 
-
-<!-- Filters -->
-<form method="get" class="row g-2 mb-3">
-    <div class="col-md-3">
-        <input name="faculty" value="@ViewBag.Faculty" class="form-control" placeholder="Filter by faculty" />
-    </div>
-    <div class="col-md-3">
-        <input name="q" value="@ViewBag.Query" class="form-control" placeholder="Search name..." />
-    </div>
-    <div class="col-md-2">
-        <select name="sort" class="form-select">
-            <option value="date" selected="@(ViewBag.Sort == "date")">Sort by date</option>
-            <option value="alpha" selected="@(ViewBag.Sort == "alpha")">Sort A→Z</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <select name="dir" class="form-select">
-            <option value="desc" selected="@(ViewBag.Dir == "desc")">Desc</option>
-            <option value="asc" selected="@(ViewBag.Dir == "asc")">Asc</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button class="btn btn-outline-secondary w-100" type="submit">Apply</button>
-    </div>
-</form>
 
 
