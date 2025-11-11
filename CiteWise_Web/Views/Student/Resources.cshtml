@@ -1,29 +1,18 @@
-﻿
-@model IReadOnlyList<CiteWise_Web.Models.Resources.ResourceItem>
+﻿@model IReadOnlyList<CiteWise_Web.Models.Resources.ResourceItem>
+
 @{
     Layout = "_LayoutAuth";
-    var message = TempData["Message"] as string;
-    var error = TempData["Error"] as string;
 }
 
 <div class="dashboard-header">
-    <h2>Resource management</h2>
+    @* <h2>Good morning, Connor</h2> *@
+    <h2>Find Resources</h2>
     <br />
-    <p>Upload resources for students</p>
+    <p>Postgrad resources to assist you in your research </p>
 </div>
-
-
 
 <!-- Resource List -->
 
-<div class="resource-section">
-    <div class="resource-buttons">
-        <a asp-controller="Admin" asp-action="AddResources" class="feature-btn">
-            <img src="~/icons/Resources.svg" alt="Request a Service" class="feature-icon" />
-            <span>Add Resources</span>
-        </a>
-    </div>
-</div>
 
 <div class="dashboard-container">
 
@@ -38,7 +27,7 @@
                            placeholder="Search by name..." />
                 </div>
             </form>
-            <hr/>
+            <hr />
             <form method="get" class="row g-2 mb-3">
                 <div class="form-group">
                     <select name="faculty" class="icon-input">
@@ -53,7 +42,7 @@
                         <option value="ARTS" selected="@(ViewBag.Faculty == "ARTS")">Arts</option>
                     </select>
                 </div>
-               
+
                 @* <div class="form-group">
                     <input name="q" value="@ViewBag.Query" class="icon-input" placeholder="Search name..." />
                 </div> *@
@@ -129,24 +118,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
                                                     <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
                                                 </svg>
-                                            </a>
-
-                                            <!-- Delete -->
-                                            <form asp-action="DeleteResource"
-                                                  method="post"
-                                                  class="icon-form"
-                                                  onsubmit="return confirm('Delete this resource?');">
-                                                <input type="hidden" name="id" value="@r.Id" />
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit"
-                                                        class="icon-button icon-delete"
-                                                        title="Delete">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-                                                        <path d="M3 6h18M9 6V4h6v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6h12z" />
-                                                    </svg>
-                                                </button>
-                                            </form>
-
+                                            </a>                                        
                                         </div>
 
 
@@ -166,7 +138,4 @@
     </div>
 
 </div>
-
-
-
 

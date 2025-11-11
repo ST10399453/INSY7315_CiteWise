@@ -1,4 +1,5 @@
-﻿using CiteWise_Web.Models.ServiceRequest;
+﻿using CiteWise_Web.Models.Resources;
+using CiteWise_Web.Models.ServiceRequest;
 using CiteWise_Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -178,5 +179,56 @@ namespace CiteWise_Web.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> Resources(string? faculty = null, string? q = null, string sort = "date", string dir = "desc")
+        {
+            var role = HttpContext.Session.GetString("UserRole");
+            var token = HttpContext.Session.GetString("FirebaseToken");
+
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(role) || role.ToLower() != "student")
+                return RedirectToAction("Login", "Account");
+
+            IReadOnlyList<ResourceItem> items;
+            try
+            {
+                items = await _apiService.ListResourcesAsync(
+                    token,
+                    faculty: faculty,
+                    visibility: "students", // only resources visible to students
+                    q: q,
+                    sort: sort,
+                    dir: dir
+                );
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load resources: {ex.Message}";
+                items = new List<ResourceItem>();
+            }
+
+            ViewBag.Faculty = faculty;
+            ViewBag.Query = q;
+            ViewBag.Sort = sort;
+            ViewBag.Dir = dir;
+
+            return View(items);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadResource(string id)
+        {
+            var token = HttpContext.Session.GetString("FirebaseToken");
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Account");
+
+            var url = await _apiService.GetResourceSignedUrlAsync(token, id, "inline");
+            if (string.IsNullOrEmpty(url))
+            {
+                TempData["Error"] = "Could not generate download URL.";
+                return RedirectToAction("Resources");
+            }
+
+            return Redirect(url); // redirect student to the signed URL
+        }
     }
 }

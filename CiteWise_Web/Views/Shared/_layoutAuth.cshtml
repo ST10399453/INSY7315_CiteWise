@@ -68,11 +68,10 @@
                     </div>
                 </div>
 
-            <a href="#"
+            <a asp-controller="Student" asp-action="Resources"
             class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
                 Resources
             </a>
-
             <a href="#"
             class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Chats" ? "active" : "")">
             Chats
@@ -177,7 +176,10 @@
                 </a>
 
 
-                <a href="#" class="mobile-nav-link">Resources</a>
+                <a asp-controller="Student" asp-action="Resources"
+                   class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Resources" ? "active" : "")">
+                   Resources
+                </a>
                 <a href="#" class="mobile-nav-link">Chats</a>
             }
             else if (userRole == "consultant")

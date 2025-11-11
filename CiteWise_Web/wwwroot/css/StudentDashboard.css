@@ -456,3 +456,24 @@
         background: #ebecf0;
         box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
     }
+
+
+
+
+.resource-section {
+    width: 94%;
+    margin: 18px auto 25px auto;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+.resource-buttons {
+    --gap: 35px;
+    display: flex;
+    gap: var(--gap);
+    justify-content: space-between;
+    align-items: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+}
