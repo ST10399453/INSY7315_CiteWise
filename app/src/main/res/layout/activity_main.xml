@@ -10,9 +10,9 @@
         <LinearLayout
             android:id="@+id/cardContainer"
             android:layout_width="0dp"
-            android:layout_height="512dp"
+            android:layout_height="600dp"
             android:layout_margin="32dp"
-            android:background="@drawable/card_neumorphic_background"
+            android:background="@drawable/rounded_card_background"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             app:cardCornerRadius="32dp"
@@ -23,18 +23,17 @@
 
             <ImageView
                 android:id="@+id/logo"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_margin="24dp"
-                android:layout_marginBottom="24dp"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
                 android:src="@drawable/logo"/>
 
             <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="24dp"
                 android:fontFamily="@font/poppins_bold"
                 android:text="Welcome to CiteWise"
                 android:textColor="@color/gradient_end"
@@ -45,11 +44,10 @@
                 android:id="@+id/tvDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
                 android:layout_marginBottom="32dp"
                 android:gravity="center_horizontal"
                 android:fontFamily="@font/poppins_regular"
-                android:text="CiteWise is a research support system for postgraduate students"
+                android:text="CiteWise services include data analysis (quantitative and qualitative), academic proofreading, structured writing guidance, and research coaching."
                 android:textColor="@color/text_faded"
                 android:textSize="14sp" />
 
