@@ -9,5 +9,7 @@
         public string Email { get; set; }
 
         public string Speciality { get; set; }
+
+        public bool IsApproved { get; set; }
     }
 }

@@ -3,4 +3,84 @@
 }
 
 
-<h2>Admin Dashboard</h2>
+@{
+    ViewData["Title"] = "Manage Consultants";
+    var pending = ViewBag.Pending as List<CiteWise_Web.Models.ConsultantItem>;
+    var approved = ViewBag.Approved as List<CiteWise_Web.Models.ConsultantItem>;
+}
+
+<h2>Manage Consultants</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<h3>Pending Consultants</h3>
+@if (pending != null && pending.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Speciality</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in pending)
+            {
+                <tr>
+                    <td>@c.Name</td>
+                    <td>@c.Email</td>
+                    <td>@c.Speciality</td>
+                    <td>
+                        <form asp-action="ApproveConsultant" method="post">
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No pending consultants.</p>
+}
+
+<hr />
+
+<h3>Approved Consultants</h3>
+@if (approved != null && approved.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Speciality</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in approved)
+            {
+                <tr>
+                    <td>@c.Name</td>
+                    <td>@c.Email</td>
+                    <td>@c.Speciality</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No approved consultants yet.</p>
+}

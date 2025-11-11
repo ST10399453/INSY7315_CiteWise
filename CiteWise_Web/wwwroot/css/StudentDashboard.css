@@ -477,3 +477,14 @@
     box-sizing: border-box;
     padding: 0;
 }
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr; /* first 2 columns smaller, last column wider */
+    gap: 25px;
+    align-items: start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}

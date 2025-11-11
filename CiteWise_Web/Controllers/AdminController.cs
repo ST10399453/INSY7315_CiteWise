@@ -37,9 +37,11 @@ namespace CiteWise_Web.Controllers
 
             // Simulated consultant list (replace with Firebase)
             var consultants = await _firebaseService.GetConsultantAsync();
+            var students = await _firebaseService.GetStudentsAsync();
 
 
             ViewBag.Consultants = consultants;
+            ViewBag.Students = students;
 
             return View(unassigned);
         }
@@ -157,5 +159,39 @@ namespace CiteWise_Web.Controllers
 
             return RedirectToAction("Resources");
         }
+
+        // =======================
+        // MANAGE CONSULTANTS PAGE
+        // =======================
+        public async Task<IActionResult> ManageConsultants()
+        {
+            string token = HttpContext.Session.GetString("FirebaseToken");
+            string role = HttpContext.Session.GetString("UserRole")?.ToLower();
+
+            if (string.IsNullOrEmpty(token) || role != "admin")
+                return RedirectToAction("Login", "Account");
+
+            var consultants = await _firebaseService.GetAllConsultantsAsync();
+
+            ViewBag.Pending = consultants.Where(c => !c.IsApproved).ToList();
+            ViewBag.Approved = consultants.Where(c => c.IsApproved).ToList();
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveConsultant(string id)
+        {
+            string role = HttpContext.Session.GetString("UserRole")?.ToLower();
+            if (role != "admin")
+                return RedirectToAction("Login", "Account");
+
+            bool ok = await _firebaseService.ApproveConsultantAsync(id);
+            TempData[ok ? "Message" : "Error"] = ok ? "✅ Consultant approved!" : "❌ Approval failed.";
+
+            return RedirectToAction("ManageConsultants");
+        }
+
     }
 }

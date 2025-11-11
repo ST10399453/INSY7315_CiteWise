@@ -237,8 +237,115 @@ namespace CiteWise_Web.Services
 
             return response.IsSuccessStatusCode;
         }
-        
-        
+
+        // ===============================
+        // GET ALL CONSULTANTS (pending + approved)
+        // ===============================
+        public async Task<List<ConsultantItem>> GetAllConsultantsAsync()
+        {
+            var response = await _client.GetAsync($"{_databaseUrl}/users.json");
+
+            if (!response.IsSuccessStatusCode)
+                return new List<ConsultantItem>();
+
+            var json = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(json) || json == "null")
+                return new List<ConsultantItem>();
+
+            var allUsers = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
+            var consultants = new List<ConsultantItem>();
+
+            if (allUsers != null)
+            {
+                foreach (var (key, user) in allUsers)
+                {
+                    try
+                    {
+                        if (user.role == "consultant")
+                        {
+                            consultants.Add(new ConsultantItem
+                            {
+                                Id = key,
+                                Name = user.firstName + " " + user.surname,
+                                Email = user.email,
+                                Speciality = user.specialisation,
+                                IsApproved = user.isApproved == true
+                            });
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            return consultants;
+        }
+
+        // ===============================
+        // APPROVE CONSULTANT
+        // ===============================
+        public async Task<bool> ApproveConsultantAsync(string consultantId)
+        {
+            var updateData = new { isApproved = true };
+            var json = JsonConvert.SerializeObject(updateData);
+
+            var request = new HttpRequestMessage(
+                new HttpMethod("PATCH"),
+                $"{_databaseUrl}/users/{consultantId}.json"
+            )
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+
+            var response = await _client.SendAsync(request);
+            return response.IsSuccessStatusCode;
+        }
+
+        // --------------------------
+        // GET THE STUDENTS
+        // --------------------------
+        public async Task<List<UserProfile>> GetStudentsAsync()
+        {
+            var response = await _client.GetAsync($"{_databaseUrl}/users.json");
+
+            if (!response.IsSuccessStatusCode)
+                return new List<UserProfile>();
+
+            var json = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(json) || json == "null")
+                return new List<UserProfile>();
+
+            var allUsers = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
+            var students = new List<UserProfile>();
+
+            if (allUsers != null)
+            {
+                foreach (var (key, user) in allUsers)
+                {
+                    try
+                    {
+                        if (user.role == "student")
+                        {
+                            students.Add(new UserProfile
+                            {
+                                uid = key,
+                                firstName = user.firstName,
+                                surname = user.surname,
+                                email = user.email,
+                                institution = user.institution,
+                                fieldOfStudy = user.fieldOfStudy
+                            });
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore malformed entries
+                    }
+                }
+            }
+
+            return students;
+        }
+
 
     }
 }
