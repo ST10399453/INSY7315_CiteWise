@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ServiceRequestDao {
 
-    // Use ABORT so conflicts surface during drafts; server merges go via upsertByRemoteId.
+    // Use REPLACE so local drafts can be edited; server merges go via upsertByRemoteId.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ServiceRequestEntity): Long
 
@@ -46,7 +46,6 @@ interface ServiceRequestDao {
 
     /**
      * Reset FAILED rows older than a threshold back to PENDING_UPLOAD.
-     * Useful for periodic automatic retries.
      */
     @Query("""
         UPDATE service_requests 
@@ -76,13 +75,11 @@ interface ServiceRequestDao {
 
     /**
      * Upsert by remoteId while preserving important local fields.
-     * Marks SYNCED and bumps updatedAt.
      */
     @Transaction
     suspend fun upsertByRemoteId(entity: ServiceRequestEntity) {
         val remoteId = entity.remoteId
         if (remoteId.isNullOrBlank()) {
-            // Offline draft: no remote id yet
             insert(entity)
             return
         }
@@ -111,6 +108,34 @@ interface ServiceRequestDao {
             )
         }
     }
+
+    // ============================================================
+    // Role-aware, distinct lookups for chat contacts
+    // ============================================================
+
+    /** For STUDENT: consultants assigned on this student's requests */
+    @Query("""
+        SELECT DISTINCT consultantId 
+        FROM service_requests 
+        WHERE userId = :studentUid AND consultantId IS NOT NULL
+    """)
+    suspend fun consultantsForStudent(studentUid: String): List<String>
+
+    /** For CONSULTANT: students who have requests assigned to this consultant */
+    @Query("""
+        SELECT DISTINCT userId 
+        FROM service_requests 
+        WHERE consultantId = :consultantUid AND userId IS NOT NULL
+    """)
+    suspend fun studentsForConsultant(consultantUid: String): List<String>
+
+    /** For ADMIN: all consultants that appear on any service request */
+    @Query("""
+        SELECT DISTINCT consultantId 
+        FROM service_requests 
+        WHERE consultantId IS NOT NULL
+    """)
+    suspend fun allConsultantsAssigned(): List<String>
 }
 
 // ============================================================
@@ -120,7 +145,6 @@ interface ServiceRequestDao {
 @Dao
 interface UserDao {
 
-    // Upsert avoids REPLACE side effects (requires Room 2.5+).
     @Upsert
     suspend fun upsertAll(users: List<UserEntity>)
 
@@ -201,13 +225,12 @@ interface DocumentDao {
 }
 
 // ============================================================
-// Admin Resources (separate table from Service Requests)
+// Admin Resources
 // ============================================================
 
 @Dao
 interface ResourceDao {
 
-    // ABORT prevents silent data loss; server merges go via upsertByRemoteId.
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: ResourceEntity): Long
 
@@ -258,15 +281,10 @@ interface ResourceDao {
         now: Long = System.currentTimeMillis()
     )
 
-    /**
-     * Upsert by remoteId while preserving staged file info and marking SYNCED.
-     * Also persists 'faculty'.
-     */
     @Transaction
     suspend fun upsertByRemoteId(entity: ResourceEntity) {
         val remoteId = entity.remoteId
         if (remoteId.isNullOrBlank()) {
-            // Offline draft without remote id yet
             insert(entity)
             return
         }
@@ -288,7 +306,7 @@ interface ResourceDao {
                     faculty     = entity.faculty     ?: existing.faculty,
                     documentId  = entity.documentId  ?: existing.documentId,
                     fileName    = entity.fileName    ?: existing.fileName,
-                    filePath    = existing.filePath  ?: entity.filePath, // keep staged path if present
+                    filePath    = existing.filePath  ?: entity.filePath,
                     remoteId    = entity.remoteId ?: existing.remoteId,
                     syncState   = SyncState.SYNCED,
                     updatedAt   = System.currentTimeMillis()

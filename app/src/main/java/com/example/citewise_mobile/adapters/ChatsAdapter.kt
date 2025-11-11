@@ -13,7 +13,7 @@ import java.util.*
 
 data class ChatPreview(
     val chatId: String,
-    val peerUid: String,        // <-- added: used when launching ConversationActivity
+    val peerUid: String,
     val displayName: String,
     val lastMessage: String,
     val lastTimestamp: Long     // epoch millis
@@ -70,16 +70,25 @@ class ChatsAdapter(
 
         private fun formatTime(epochMillis: Long): String {
             if (epochMillis <= 0L) return ""
-            val now = Calendar.getInstance()
-            val then = Calendar.getInstance().apply { timeInMillis = epochMillis }
 
-            val sameDay = now.get(Calendar.YEAR) == then.get(Calendar.YEAR) &&
-                    now.get(Calendar.DAY_OF_YEAR) == then.get(Calendar.DAY_OF_YEAR)
+            val now = System.currentTimeMillis()
+            val diff = now - epochMillis
 
-            return if (sameDay) {
-                SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(epochMillis))
-            } else {
-                SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(epochMillis))
+            // Convert to seconds, minutes, hours, days
+            val seconds = diff / 1000
+            val minutes = seconds / 60
+            val hours = minutes / 60
+            val days = hours / 24
+
+            return when {
+                seconds < 60 -> "Just now"
+                minutes < 60 -> "${minutes}m ago"
+                hours < 24 -> "${hours}h ago"
+                days < 7 -> "${days}d ago"
+                else -> {
+                    // For older messages, show date
+                    SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(epochMillis))
+                }
             }
         }
     }

@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="4dp">
+    android:paddingVertical="4dp"
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -10,13 +11,13 @@
         android:layout_gravity="start"
         android:background="@drawable/bg_message_received"
         android:padding="10dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:maxWidth="280dp">
 
         <TextView
             android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="I will send through the updated doc"
             android:textColor="@color/text_dark"
             android:textSize="15sp"/>
 
@@ -24,9 +25,9 @@
             android:id="@+id/tvTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2 minutes ago"
             android:textSize="10sp"
             android:textColor="@color/text_faded"
+            android:alpha="0.85"
             android:layout_marginTop="4dp"/>
     </LinearLayout>
 </FrameLayout>

@@ -28,6 +28,7 @@
             android:exported="false" />
         <activity
             android:name=".ConversationActivity"
+            android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
             android:name=".ResourcesActivity"
@@ -126,7 +127,8 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service> <!-- Default Firebase notification configuration -->
+        </service>
+        <!-- Default Firebase notification configuration -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />

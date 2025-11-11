@@ -1,14 +1,19 @@
 package com.example.citewise_mobile
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Patterns
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
@@ -35,6 +40,8 @@ import com.example.citewise_mobile.offline.UsersSyncWorker
 import com.example.citewise_mobile.offline.MessagesSyncWorker
 import com.example.citewise_mobile.offline.DocumentsSyncWorker
 import com.example.citewise_mobile.offline.RequestsSyncWorker
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginActivity : AppCompatActivity() {
 
@@ -48,12 +55,21 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvForgot: MaterialTextView
     private lateinit var tvGoSignUp: MaterialTextView
 
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        // Whether granted or denied, continue to dashboard
+        // User can enable notifications later in settings if denied
+        proceedToDashboard()
+    }
+
+    private var pendingNavigation: Intent? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
 
-        // Bind views
         etEmail        = findViewById(R.id.etEmail)
         etPassword     = findViewById(R.id.etPassword)
         btnLogin       = findViewById(R.id.btnLogin)
@@ -63,21 +79,17 @@ class LoginActivity : AppCompatActivity() {
 
         btnLogin.isEnabled = true
 
-        // Clear errors while typing
         etEmail.addTextChangedListener { etEmail.error = null }
         etPassword.addTextChangedListener { etPassword.error = null }
 
-        // Email/password login
         btnLogin.setOnClickListener { tryEmailPasswordLogin() }
 
-        // IME action "done" triggers login
         etPassword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 tryEmailPasswordLogin(); true
             } else false
         }
 
-        // Forgot password
         tvForgot.setOnClickListener {
             startActivity(
                 Intent(this, ForgotPasswordActivity::class.java)
@@ -85,45 +97,35 @@ class LoginActivity : AppCompatActivity() {
             )
         }
 
-        // Go to Register
         tvGoSignUp.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
 
-        // Google Sign-In
         btnGoogleLogin.setOnClickListener { signInWithGoogle() }
     }
 
-    /**
-     * If already signed in, route immediately and ensure syncs are running.
-     * Added: consultants are routed via isApproved check.
-     */
     override fun onStart() {
         super.onStart()
         val user = auth.currentUser ?: return
 
-        // Start/ensure background syncs even when user is already signed in
         startAllSyncs()
+        requestFcmToken()
 
         val cachedRole = prefs.getString("user_role", null)
         if (cachedRole != null) {
             if (cachedRole.equals("CONSULTANT", ignoreCase = true)) {
-                // Check approval before routing
                 routeConsultantByApproval(user.uid)
-                // Also refresh role cache in the background
                 lifecycleScope.launch { refreshRoleCache(user.uid) }
             } else {
-                startActivity(Intent(this, destForRole(cachedRole)))
-                finish()
+                checkNotificationPermissionAndNavigate(Intent(this, destForRole(cachedRole)))
                 lifecycleScope.launch { refreshRoleCache(user.uid) }
             }
         } else {
-            // No cache yet – read DB; if user/role missing, go to Register.
             routeByRole(fetchAndCache = true)
         }
     }
 
-    // ───────────────────────── Email/Password ─────────────────────────
+
     private fun tryEmailPasswordLogin() {
         val email = etEmail.text?.toString()?.trim().orEmpty()
         val pass  = etPassword.text?.toString().orEmpty()
@@ -141,8 +143,8 @@ class LoginActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, pass)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Kick all syncs on every fresh login
                     startAllSyncs()
+                    requestFcmToken()
                     routeByRole(fetchAndCache = true)
                 } else {
                     etPassword.error = task.exception?.localizedMessage ?: "Login failed"
@@ -150,7 +152,6 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    // ───────────────────────── Google Sign-In ─────────────────────────
     private fun signInWithGoogle() {
         val serverClientId = getString(R.string.default_web_client_id)
         val googleOption = GetSignInWithGoogleOption.Builder(serverClientId).build()
@@ -184,6 +185,7 @@ class LoginActivity : AppCompatActivity() {
                         etPassword.error = task.exception?.localizedMessage ?: "Google sign-in failed"
                         return@addOnCompleteListener
                     }
+                    requestFcmToken()
                     handleFirstTimeGoogleUserOrRoute()
                 }
         } else {
@@ -191,11 +193,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * After Google auth:
-     *  - If /users/{uid} exists -> start syncs + route by role (with consultant approval check)
-     *  - Else -> registration flow
-     */
     private fun handleFirstTimeGoogleUserOrRoute() {
         val uid = auth.currentUser?.uid ?: return
         val ref = FirebaseDatabase.getInstance().reference.child("users").child(uid)
@@ -213,12 +210,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // ───────────────────────── Role Routing ─────────────────────────
-    /**
-     * Reads /users/{uid}; if missing or role missing -> Register.
-     * Otherwise route and (optionally) cache role. (Role normalized to UPPERCASE)
-     * For CONSULTANT, checks isApproved and routes to PendingApproval if false/missing.
-     */
     private fun routeByRole(fetchAndCache: Boolean) {
         val uid = auth.currentUser?.uid ?: run {
             startActivity(Intent(this, LoginActivity::class.java)); finish(); return
@@ -242,18 +233,11 @@ class LoginActivity : AppCompatActivity() {
             if (roleUpper == "CONSULTANT") {
                 routeConsultantByApproval(uid)
             } else {
-                startActivity(Intent(this, destForRole(roleUpper)))
-                finish()
+                checkNotificationPermissionAndNavigate(Intent(this, destForRole(roleUpper)))
             }
         }
     }
 
-    /**
-     * Consultant-specific router. Reads /users/{uid}/isApproved once.
-     * - true  -> ConsultantDashboard
-     * - false -> PendingApproval
-     * - null/error -> PendingApproval (safe default)
-     */
     private fun routeConsultantByApproval(uid: String) {
         val ref = FirebaseDatabase.getInstance().reference
             .child("users").child(uid).child("isApproved")
@@ -265,7 +249,37 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 PendingApprovalActivity::class.java
             }
-            startActivity(Intent(this, next))
+            checkNotificationPermissionAndNavigate(Intent(this, next))
+        }
+    }
+
+    private fun checkNotificationPermissionAndNavigate(destination: Intent) {
+        pendingNavigation = destination
+
+        // Only check for Android 13+ (API 33+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted, proceed
+                    proceedToDashboard()
+                }
+                else -> {
+                    // Request permission
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            // Android 12 and below don't need runtime permission
+            proceedToDashboard()
+        }
+    }
+
+    private fun proceedToDashboard() {
+        pendingNavigation?.let {
+            startActivity(it)
             finish()
         }
     }
@@ -277,7 +291,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun destForRole(role: String): Class<*> = when (role.uppercase()) {
         "STUDENT"    -> StudentDashboardActivity::class.java
-        "CONSULTANT" -> ConsultantDashboardActivity::class.java // NOTE: not used for consultants anymore without approval check
+        "CONSULTANT" -> ConsultantDashboardActivity::class.java
         "ADMIN"      -> AdminDashboardActivity::class.java
         else         -> StudentDashboardActivity::class.java
     }
@@ -294,26 +308,16 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // ───────────────────────── Sync Kickers ─────────────────────────
-    /**
-     * Call this after any successful sign-in AND when app opens with an existing session.
-     * It:
-     *  - Schedules periodic workers (idempotent).
-     *  - Triggers one-shot initial pulls to populate local DB quickly.
-     */
     private fun startAllSyncs() {
-        // Periodic (idempotent enqueueUnique… UPDATE)
         UsersSyncWorker.schedule(this)
         MessagesSyncWorker.schedule(this)
         DocumentsSyncWorker.schedule(this)
         RequestsSyncWorker.schedulePeriodic(this)
 
-        // One-shot “prime” pulls for faster first-run UX
-        RequestsPullWorker.oneShot(this)   // pulls my service requests into Room
-        UsersSyncWorker.oneShot(this)      // fetches all users immediately
+        RequestsPullWorker.oneShot(this)
+        UsersSyncWorker.oneShot(this)
     }
 
-    // ───────────────────────── Helpers ─────────────────────────
     private fun isValidEmail(value: String?) =
         !value.isNullOrBlank() && Patterns.EMAIL_ADDRESS.matcher(value).matches()
 
@@ -321,6 +325,38 @@ class LoginActivity : AppCompatActivity() {
         currentFocus?.let { v ->
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(v.windowToken, 0)
+        }
+    }
+
+    private fun requestFcmToken() {
+        val uid = auth.currentUser?.uid
+        if (uid.isNullOrEmpty()) {
+            android.util.Log.w("LoginActivity", "Cannot request FCM token: No user logged in")
+            return
+        }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                android.util.Log.w("LoginActivity", "Fetching FCM token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            android.util.Log.d("LoginActivity", "FCM token retrieved: $token")
+
+            // Save token to Firestore
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(uid)
+                .collection("fcmTokens")
+                .document(token)
+                .set(mapOf("createdAt" to System.currentTimeMillis()))
+                .addOnSuccessListener {
+                    android.util.Log.d("LoginActivity", "FCM token saved to Firestore for user=$uid")
+                }
+                .addOnFailureListener { e ->
+                    android.util.Log.e("LoginActivity", "Failed to save FCM token to Firestore", e)
+                }
         }
     }
 }

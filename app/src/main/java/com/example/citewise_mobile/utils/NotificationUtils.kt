@@ -58,7 +58,10 @@ object NotificationUtils {
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setPriority(NotificationCompat.PRIORITY_HIGH) // High priority for heads-up display
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE) // Message category for chat
             .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL) // Sound, vibrate, lights
             .apply { if (pendingIntent != null) setContentIntent(pendingIntent) }
             .build()
 
@@ -75,12 +78,16 @@ object NotificationUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
                 val channel = NotificationChannel(
                     channelId,
-                    context.getString(R.string.echannel_messages_name),
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    context.getString(R.string.channel_messages_name),
+                    NotificationManager.IMPORTANCE_HIGH // High importance for heads-up notifications
                 ).apply {
                     description = context.getString(R.string.channel_messages_desc)
+                    enableVibration(true) // Enable vibration
+                    enableLights(true) // Enable LED indicator
+                    setShowBadge(true) // Show badge on app icon
                 }
                 nm.createNotificationChannel(channel)
             } catch (_: SecurityException) {

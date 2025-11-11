@@ -19,6 +19,13 @@
         <item name="android:textSize">16dp</item>
     </style>
 
+    <style name="Widget.App.Chip.Filter.Blue" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="chipIconTint">@android:color/white</item>
+        <item name="checkedIconTint">@android:color/white</item>
+    </style>
+
     <!-- History list items -->
     <style name="HistoryListItem">
         <item name="android:layout_width">match_parent</item>

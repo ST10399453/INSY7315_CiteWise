@@ -1,13 +1,17 @@
 package com.example.citewise_mobile.api
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.example.citewise_mobile.ConversationActivity
-import com.example.citewise_mobile.offline.MessagesSyncWorker
-import com.example.citewise_mobile.utils.NotificationUtils
+import com.example.citewise_mobile.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -15,30 +19,55 @@ import com.google.firebase.messaging.RemoteMessage
 
 class AppMessagingService : FirebaseMessagingService() {
 
+    companion object {
+        private const val TAG = "AppMessagingService"
+        private const val CHANNEL_MESSAGES = "messages"
+    }
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        Log.d(TAG, "[FCM] onNewToken called with token: ${token.take(20)}...")
+
         if (uid.isNullOrEmpty()) {
-            Log.w(TAG, "onNewToken: No user logged in; skipping token save")
+            Log.w(TAG, "[FCM] No user logged in; skipping token save")
             return
         }
 
+        Log.d(TAG, "[FCM] Saving token for user=$uid to Firestore")
+
         try {
-            FirebaseFirestore.getInstance()
+            val tokenRef = FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(uid)
                 .collection("fcmTokens")
                 .document(token)
-                .set(mapOf("createdAt" to System.currentTimeMillis()))
-                .addOnSuccessListener { Log.d(TAG, "Token saved for user=$uid") }
-                .addOnFailureListener { e -> Log.e(TAG, "Failed to save token", e) }
+
+            Log.d(TAG, "[FCM] Firestore path: users/$uid/fcmTokens/$token")
+
+            tokenRef.set(mapOf(
+                "createdAt" to System.currentTimeMillis(),
+                "platform" to "android",
+                "lastRefreshed" to System.currentTimeMillis()
+            ))
+                .addOnSuccessListener {
+                    Log.d(TAG, "[FCM] ✓ Token saved successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "[FCM] ✗ Failed to save token", e)
+                }
         } catch (se: SecurityException) {
-            Log.e(TAG, "SecurityException while saving token", se)
+            Log.e(TAG, "[FCM] SecurityException while saving token", se)
+        } catch (e: Exception) {
+            Log.e(TAG, "[FCM] Unexpected error while saving token", e)
         }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+
+        Log.d(TAG, "onMessageReceived: notification=${message.notification}, data=${message.data}")
 
         // Prefer FCM "notification" payload, then fall back to "data"
         val title = message.notification?.title ?: message.data["title"] ?: "Notification"
@@ -48,6 +77,8 @@ class AppMessagingService : FirebaseMessagingService() {
         val chatId    = message.data["chatId"]
         val chatTitle = message.data["chatTitle"] ?: title
         val peerUid   = message.data["peerUid"]   // if your server sends it
+
+        Log.d(TAG, "Message data: title=$title, body=$body, chatId=$chatId, peerUid=$peerUid")
 
         // Only show if we have permission on API 33+
         val canPost = if (android.os.Build.VERSION.SDK_INT >= 33) {
@@ -60,43 +91,53 @@ class AppMessagingService : FirebaseMessagingService() {
             return
         }
 
-        // Kick a quick background sync so the UI is fresh when the user opens the app
-        try {
-            MessagesSyncWorker.oneShot(applicationContext)
-        } catch (t: Throwable) {
-            Log.w(TAG, "Failed to enqueue MessagesSyncWorker: ${t.message}")
-        }
+        Log.d(TAG, "Notification permission granted, showing notification")
 
-        // Build an intent to open the conversation if chat info is present
-        val contentIntent = if (!chatId.isNullOrBlank()) {
-            Intent(this, ConversationActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                putExtra(ConversationActivity.EXTRA_CHAT_ID, chatId)
-                putExtra(ConversationActivity.EXTRA_CHAT_TITLE, chatTitle)
-                if (!peerUid.isNullOrBlank()) {
-                    putExtra(ConversationActivity.EXTRA_PEER_UID, peerUid)
-                }
+        ensureMessageChannel()
+
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_MESSAGES)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+
+        if (!chatId.isNullOrEmpty()) {
+            val intent = Intent(this, Class.forName("com.example.citewise_mobile.ConversationActivity")).apply {
+                putExtra("chatId", chatId)
+                putExtra("chatTitle", chatTitle)
+                putExtra("peerUid", peerUid)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
-        } else {
-            null
+            val pendingIntent = PendingIntent.getActivity(
+                this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            notificationBuilder.setContentIntent(pendingIntent)
         }
 
-        try {
-            NotificationUtils.show(
-                context = this,
-                title = title,
-                message = body,
-                channelId = CHANNEL_MESSAGES,
-                notificationId = (chatId ?: title).hashCode(),
-                contentIntent = contentIntent
-            )
-        } catch (se: SecurityException) {
-            Log.e(TAG, "SecurityException while showing notification", se)
-        }
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
+
+        Log.d(TAG, "Notification displayed successfully")
     }
 
-    companion object {
-        private const val TAG = "AppFMS"
-        const val CHANNEL_MESSAGES = "messages"
+    private fun ensureMessageChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_messages_name)
+            val descriptionText = getString(R.string.channel_messages_desc)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(CHANNEL_MESSAGES, name, importance).apply {
+                description = descriptionText
+                enableVibration(true)
+                enableLights(true)
+                setShowBadge(true)
+            }
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }

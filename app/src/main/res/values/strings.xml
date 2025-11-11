@@ -130,7 +130,6 @@
     <string name="search_name">Search Name</string>
     <string name="frequently_contacted">Frequently Contacted</string>
     <string name="echannel_messages_name">Messages\n</string>
-    <string name="channel_messages_desc">Chat and conversation notification</string>
     <string name="search_chats">Search Chats</string>
 
     <string name="title_dashboard">Dashboard</string>
@@ -162,6 +161,13 @@
     <string name="Sunday">Sun</string>
     <string name="reject">reject</string>
     <string name="accept">accept</string>
+    <string name="no_related_contacts">No related contacts</string>
+    <string name="students">students</string>
+    <string name="consultants">consultants</string>
+    <string name="all">all</string>
+    <string name="no_results_found">No results found</string>
+    <string name="send">send</string>
 
-
+    <string name="channel_messages_name">messages</string>
+    <string name="channel_messages_desc">Chat message notifications</string>
 </resources>
