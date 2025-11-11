@@ -1,14 +1,14 @@
 package com.example.citewise_mobile
 
-import com.example.citewise_mobile.adapters.ResourcesAdapter
 import android.app.DownloadManager
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Lifecycle
@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.citewise_mobile.adapters.ResourcesAdapter
 import com.example.citewise_mobile.api.ResourcesViewModel
 import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.data.DocumentsRepository
@@ -27,6 +27,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -36,7 +38,7 @@ import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 
-class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
+class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
 
     private lateinit var binding: ActivityResourcesBinding
     private lateinit var vm: ResourcesViewModel
@@ -45,31 +47,55 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
 
     private val isAdminRole get() = getCurrentUserRole() == UserRole.ADMIN
 
+    // UI state gates
+    private var lastItemsCount: Int = 0
+    private var hasError: Boolean = false
+    private var isLoading: Boolean = false
+    private var hasAttemptedFirstLoad: Boolean = false
+
+    // Search debounce
+    private var searchJob: Job? = null
+    private val searchDelayMs = 300L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Base chrome (status/nav handling & bottom nav container)
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
+        // Inflate actual screen into base container
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
         val content = layoutInflater.inflate(R.layout.activity_resources, baseContent, false)
         binding = ActivityResourcesBinding.bind(content)
         baseContent.addView(content)
 
+        // Bottom nav selection per role
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         val selectedId = if (isAdminRole) R.id.nav_resource_mgmt else R.id.nav_resources
         setupBottomNav(bottomNav, selectedId)
 
-        setupRecycler()
         setupViewModel()
+        setupRecycler()
         setupSearch()
-        setupSpinners()
-        setupRoleSpecificUi()
+        setupDropdowns()
+        setupRoleUi()
 
         vm.refresh()
     }
 
-    // ─────────────────── Setup ───────────────────
+    // ─────────────────── Recycler ───────────────────
+    private fun setupRecycler() {
+        adapter = ResourcesAdapter(
+            onOverflow = ::showOverflow,
+            onOpen = ::openResource
+        )
+        val spanCount = if (resources.configuration.smallestScreenWidthDp >= 600) 3 else 2
+        binding.rvDocuments.layoutManager = GridLayoutManager(this, spanCount)
+        binding.rvDocuments.adapter = adapter
+    }
+
+    // ─────────────────── ViewModel / collectors ───────────────────
     private fun setupViewModel() {
         val localRepos = LocalRepos(applicationContext)
         docsRepo = DocumentsRepository(RetrofitInstance.documentsApi, applicationContext)
@@ -81,125 +107,142 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
         )
         vm = ViewModelProvider(this, factory)[ResourcesViewModel::class.java]
 
+        // Items stream
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.items.collectLatest { list: List<ResourceEntity> ->
                     adapter.submitList(list)
-                    val empty = list.isEmpty()
-                    binding.stateEmpty.isVisible = empty
-                    // If we have any items, we definitely have network at least recently
-                    if (!empty) binding.stateNoInternet.isVisible = false
+                    lastItemsCount = list.size
+                    if (list.isNotEmpty()) hasError = false
+                    renderState()
                 }
             }
         }
 
+        // Error presence stream
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.error.collectLatest { err ->
-                    binding.stateNoInternet.isVisible = err != null
+                    hasError = (err != null)
+                    // If we already have items, prefer showing the list.
+                    if (lastItemsCount > 0) hasError = false
+                    renderState()
+                }
+            }
+        }
+
+        // Loading stream
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.loading.collectLatest { loading ->
+                    isLoading = loading
+                    if (!loading) hasAttemptedFirstLoad = true
+                    renderState()
                 }
             }
         }
     }
 
-    private fun setupRecycler() {
-        adapter = ResourcesAdapter(
-            onOverflow = ::showOverflow,
-            onOpen = ::openResource
-        )
-        val spanCount = if (resources.configuration.smallestScreenWidthDp >= 600) 3 else 2
-        binding.rvDocuments.layoutManager = GridLayoutManager(this, spanCount)
-        binding.rvDocuments.adapter = adapter
+    // Prefer showing the list. Overlays only show after a completed load.
+    private fun renderState() {
+        val showNoInternet = hasAttemptedFirstLoad && !isLoading && hasError && lastItemsCount == 0
+        val showEmpty = hasAttemptedFirstLoad && !isLoading && !hasError && lastItemsCount == 0
+        val showList = lastItemsCount > 0 || isLoading || !hasAttemptedFirstLoad
 
-        binding.rvDocuments.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                if (!isAdminRole) return
-                when {
-                    dy > 6  -> binding.fabAdd.shrink()
-                    dy < -6 -> binding.fabAdd.extend()
-                }
-            }
-        })
+        binding.stateNoInternet.isVisible = showNoInternet
+        binding.stateEmpty.isVisible = showEmpty
+        binding.rvDocuments.isVisible = showList
     }
 
+    // ─────────────────── Search (debounced) ───────────────────
     private fun setupSearch() {
         binding.etSearch.addTextChangedListener { editable ->
-            vm.setQuery(editable?.toString().orEmpty())
-        }
-        binding.etSearch.setOnEditorActionListener { v, _, _ ->
-            vm.setQuery(v.text?.toString().orEmpty()); true
+            val text = editable?.toString()?.trim().orEmpty() // never "null"
+            searchJob?.cancel()
+            searchJob = lifecycleScope.launch {
+                delay(searchDelayMs)
+                vm.setQuery(text)        // VM should treat empty string as "no search"
+                vm.refresh()
+            }
         }
         binding.btnRetry.setOnClickListener { vm.refresh() }
     }
 
-    private fun setupSpinners() {
+    // ─────────────────── Filters (Exposed dropdowns) ───────────────────
+    private fun setupDropdowns() {
         val visibilityOptions = listOf("All", "Public", "Private")
         val facultyOptions = listOf("All", "Engineering", "Science", "Humanities", "Business")
         val sortOptions = listOf("Newest first", "Oldest first", "A–Z", "Z–A")
 
-        fun spinnerAdapter(items: List<String>) =
-            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
+        // Visibility — pass labels; VM maps labels → API params internally
+        (binding.actVisibility as? AutoCompleteTextView)?.apply {
+            setAdapter(ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, visibilityOptions))
+            setOnItemClickListener { parent, _, pos, _ ->
+                val label = parent.getItemAtPosition(pos)?.toString()
+                vm.setVisibility(label) // "All" | "Public" | "Private"
+                vm.refresh()
+            }
+            setText(visibilityOptions.first(), false) // "All"
+            vm.setVisibility("All")
+        }
 
-        binding.actVisibility.adapter = spinnerAdapter(visibilityOptions)
-        binding.actFaculty.adapter = spinnerAdapter(facultyOptions)
-        binding.actSort.adapter = spinnerAdapter(sortOptions)
+        // Faculty — send null for “All”
+        (binding.actFaculty as? AutoCompleteTextView)?.apply {
+            setAdapter(ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, facultyOptions))
+            setOnItemClickListener { parent, _, pos, _ ->
+                val v = parent.getItemAtPosition(pos)?.toString()
+                vm.setFaculty(v?.takeUnless { it.equals("All", true) })
+                vm.refresh()
+            }
+            setText(facultyOptions.first(), false) // "All"
+            vm.setFaculty(null)
+        }
 
-        var sortReady = false
-        binding.actSort.post { sortReady = true }
-
-        binding.actVisibility.onItemSelected { parent, pos ->
-            val label = parent.getItemAtPosition(pos)?.toString()
-            vm.setVisibility(
-                when (label?.lowercase()) {
-                    "public"  -> "students"
-                    "private" -> "admins"
-                    else      -> "all"
+        // Sort
+        (binding.actSort as? AutoCompleteTextView)?.apply {
+            setAdapter(ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, sortOptions))
+            setOnItemClickListener { _, _, pos, _ ->
+                when (pos) {
+                    0 -> vm.setSort("date")
+                    1 -> vm.setSort("date_asc")
+                    2 -> vm.setSort("alpha")
+                    3 -> vm.setSort("alpha_desc")
                 }
-            )
+                vm.refresh()
+            }
+            setText(sortOptions.first(), false)
+            vm.setSort("date")
         }
-        binding.actFaculty.onItemSelected { parent, pos ->
-            val label = parent.getItemAtPosition(pos)?.toString()
-            vm.setFaculty(label)
-        }
-        binding.actSort.onItemSelected { _, pos ->
-            if (!sortReady) return@onItemSelected
-            when (pos) {
-                0 -> vm.setSort("date")
-                1 -> vm.setSort("date_asc")
-                2 -> vm.setSort("alpha")
-                3 -> vm.setSort("alpha_desc")
+    }
+
+    // ─────────────────── Role-specific UI ───────────────────
+    private fun setupRoleUi() {
+        binding.fabAdd.apply {
+            isVisible = isAdminRole
+            if (isAdminRole) {
+                isExtended = true
+                setOnClickListener { AddResourceBottom.show(supportFragmentManager) }
+                backgroundTintList = ColorStateList.valueOf(getColor(R.color.gradient_end))
+                setIconTintResource(android.R.color.white)
             }
         }
-
-        binding.actVisibility.setSelection(0)
-        binding.actFaculty.setSelection(0)
-        binding.actSort.setSelection(0)
     }
 
-    private fun setupRoleSpecificUi() {
-        binding.fabAdd.isVisible = isAdminRole
-        binding.fabAdd.setOnClickListener {
-            if (!isAdminRole) return@setOnClickListener
-            NewResourceBottomSheet.show(supportFragmentManager)
-        }
-    }
-
-    // ─────────────────── NewResourceBottomSheet.Callback ───────────────────
+    // ─────────────────── AddResourceBottom.Callback ───────────────────
     override fun onResourceCreated() {
         vm.refresh()
         snackShort("Resource queued for upload")
     }
 
-    // ─────────────────── Actions ───────────────────
+    // ─────────────────── Overflow / actions ───────────────────
     private fun showOverflow(res: ResourceEntity, anchor: View) {
         val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
         val menuId = if (isAdminRole) R.menu.menu_document_admin else R.menu.menu_document_item
         popup.menuInflater.inflate(menuId, popup.menu)
-
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_download -> { openResource(res); true }
-                R.id.action_delete -> { confirmDelete(res); true }
+                R.id.action_delete   -> { confirmDelete(res); true }
                 else -> false
             }
         }
@@ -214,13 +257,11 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
             .setPositiveButton("Delete") { _, _ ->
                 lifecycleScope.launch {
                     val ok = vm.deleteResource(res)
-                    if (ok) snackShort("Deleted")
-                    else snack("Delete failed")
+                    if (ok) snackShort("Deleted") else snack("Delete failed")
                 }
             }
             .show()
     }
-
 
     private fun openResource(res: ResourceEntity) {
         val docId = res.documentId
@@ -232,11 +273,7 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
         downloadByDocumentId(docId, displayName)
     }
 
-    /**
-     * Download using Documents API only:
-     * 1) Try signed URL (/documents/{id}/download) -> DownloadManager
-     * 2) Fallback to streaming (/documents/{id}/file) -> save to app downloads
-     */
+    // ─────────────────── Download helpers ───────────────────
     private fun downloadByDocumentId(documentId: String, fileName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -247,10 +284,7 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
                 }
 
                 // 1) Prefer a signed URL
-                when (val urlRes = docsRepo.getSignedUrl(
-                    documentId = documentId,
-                    auth = auth
-                )) {
+                when (val urlRes = docsRepo.getSignedUrl(documentId = documentId, auth = auth)) {
                     is com.example.citewise_mobile.data.NetResult.Ok -> {
                         withContext(Dispatchers.Main) {
                             enqueueDownload(urlRes.data, fileName)
@@ -259,11 +293,11 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
                         return@launch
                     }
                     is com.example.citewise_mobile.data.NetResult.Err -> {
-                        // fall back to streaming
+                        // fall through to streaming
                     }
                 }
 
-                // 2) Fallback: authorized streaming proxy
+                // 2) Fallback streaming
                 val streamResp = RetrofitInstance.documentsApi.streamFile(
                     documentId = documentId,
                     provider = null,
@@ -293,9 +327,6 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
         }
     }
 
-    // ─────────────────── Helpers ───────────────────
-
-    /** Build "Bearer <idToken>" or null if not signed in. */
     private suspend fun authHeaderOrNull(): String? = withContext(Dispatchers.IO) {
         val user = FirebaseAuth.getInstance().currentUser ?: return@withContext null
         val token = runCatching { user.getIdToken(true).await().token }.getOrNull()
@@ -345,17 +376,5 @@ class ResourcesActivity : BaseActivity(), NewResourceBottomSheet.Callback {
         Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT)
             .setAnchorView(if (binding.fabAdd.isVisible) binding.fabAdd else null)
             .show()
-    }
-}
-
-/** Spinner helper */
-private inline fun android.widget.Spinner.onItemSelected(
-    crossinline block: (parent: AdapterView<*>, position: Int) -> Unit
-) {
-    onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-        override fun onItemSelected(
-            parent: AdapterView<*>, view: View?, position: Int, id: Long
-        ) = block(parent, position)
-        override fun onNothingSelected(parent: AdapterView<*>) = Unit
     }
 }

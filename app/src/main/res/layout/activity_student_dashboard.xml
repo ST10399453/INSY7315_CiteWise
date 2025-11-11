@@ -38,7 +38,8 @@
                     android:layout_height="26dp"
                     android:src="@drawable/hamburger"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Menu" />
+                    android:contentDescription="Menu"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <!--  Greeting Card -->

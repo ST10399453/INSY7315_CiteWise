@@ -4,56 +4,41 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat.getColorStateList
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.R
 import com.example.citewise_mobile.api.ServiceRequestDto
-import com.example.citewise_mobile.api.ServiceReviewsApi
-import com.example.citewise_mobile.toPrettyTag
 import com.example.citewise_mobile.toPretty
+import com.example.citewise_mobile.toPrettyTag
 
 class ScheduleTaskAdapter(
     private var tasks: List<ServiceRequestDto>,
     private val onClick: (ServiceRequestDto) -> Unit
-) : RecyclerView.Adapter<ScheduleTaskAdapter.ScheduleTaskViewHolder>() {
+) : RecyclerView.Adapter<ScheduleTaskAdapter.VH>() {
 
-    class ScheduleTaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Match IDs from item_schedule_task.xml
-        val statusDot: View = itemView.findViewById(R.id.statusDot)
-        val serviceType: TextView = itemView.findViewById(R.id.scheduleServiceType)
-        val documentName: TextView = itemView.findViewById(R.id.scheduleDocumentName)
-        val urgencyTag: TextView = itemView.findViewById(R.id.scheduleUrgencyTag)
+    class VH(v: View) : RecyclerView.ViewHolder(v) {
+        val statusDot: View       = v.findViewById(R.id.statusDot)
+        val serviceType: TextView = v.findViewById(R.id.scheduleServiceType)
+        val documentName: TextView= v.findViewById(R.id.scheduleDocumentName)
+        val urgencyTag: TextView  = v.findViewById(R.id.scheduleUrgencyTag)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScheduleTaskViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_schedule_task, parent, false)
-        return ScheduleTaskViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val v = LayoutInflater.from(parent.context).inflate(R.layout.item_schedule_task, parent, false)
+        return VH(v)
     }
 
     override fun getItemCount(): Int = tasks.size
 
-    override fun onBindViewHolder(holder: ScheduleTaskViewHolder, position: Int) {
+    override fun onBindViewHolder(h: VH, position: Int) {
         val task = tasks[position]
-
-        //Service Type
-        holder.serviceType.text = task.serviceType?.toPretty() ?: "Other Service"
-
-        //Document Name
-        holder.documentName.text = task.customName?.takeIf { it.isNotBlank() } ?: "Document"
-
-        //Urgency Tag (Text only, since the dot and text color imply urgency)
-        holder.urgencyTag.text = task.priority?.toPrettyTag() ?: "Low"
-
-        //Status Dot (You would dynamically change the color of the dot drawable here)
-      //  holder.statusDot.backgroundTintList = getColorStateList(context, R.color.priority_Low)
-
-        //Click Listener
-        holder.itemView.setOnClickListener { onClick(task) }
+        h.serviceType.text  = task.serviceType?.toPretty() ?: "Other Service"
+        h.documentName.text = task.customName?.takeIf { it.isNotBlank() } ?: "Document"
+        h.urgencyTag.text   = task.priority?.toPrettyTag() ?: "Low"
+        h.itemView.setOnClickListener { onClick(task) }
     }
 
     fun updateList(newList: List<ServiceRequestDto>) {
-        this.tasks = newList
+        tasks = newList
         notifyDataSetChanged()
     }
 }

@@ -20,18 +20,22 @@ class EditProfileActivity : AppCompatActivity() {
     private val auth = Firebase.auth
     private lateinit var usersRef: DatabaseReference
 
-    // Views (IDs must match your XML)
+    // Views
     private lateinit var btnBack: ImageView
     private lateinit var tvHeaderTitle: TextView
     private lateinit var etFullName: EditText
     private lateinit var etPhone: EditText
     private lateinit var etEmail: EditText
+    private lateinit var etFieldOfStudy: EditText
+    private lateinit var etInstitution: EditText
     private lateinit var btnSave: Button
 
-    // Local snapshot
+    // Originals to detect changes
     private var originalFullName: String = ""
     private var originalPhone: String = ""
     private var originalEmail: String? = null
+    private var originalFieldOfStudy: String = ""
+    private var originalInstitution: String = ""
 
     private var loading = false
         set(value) {
@@ -44,18 +48,20 @@ class EditProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        // Bind views
-        btnBack       = findViewById(R.id.btnBack)
-        tvHeaderTitle = findViewById(R.id.tvHeaderTitle)
-        etFullName    = findViewById(R.id.etFullName)
-        etPhone       = findViewById(R.id.etPhone)
-        etEmail       = findViewById(R.id.etEmail)
-        btnSave       = findViewById(R.id.btnSave)
+        // Bind
+        btnBack        = findViewById(R.id.btnBack)
+        tvHeaderTitle  = findViewById(R.id.tvHeaderTitle)
+        etFullName     = findViewById(R.id.etFullName)
+        etPhone        = findViewById(R.id.etPhone)
+        etEmail        = findViewById(R.id.etEmail)
+        etFieldOfStudy = findViewById(R.id.etFieldOfStudy)
+        etInstitution  = findViewById(R.id.etInstitution)
+        btnSave        = findViewById(R.id.btnSave)
 
         tvHeaderTitle.text = "Edit Profile"
         btnBack.setOnClickListener { finish() }
 
-        // Init DB ref
+        // DB ref
         val uid = auth.currentUser?.uid
         if (uid == null) {
             Toast.makeText(this, "No authenticated user", Toast.LENGTH_SHORT).show()
@@ -64,14 +70,16 @@ class EditProfileActivity : AppCompatActivity() {
         }
         usersRef = FirebaseDatabase.getInstance().reference.child("users").child(uid)
 
-        // Prefill data
+        // Load current values
         loadProfile()
 
-        // Re-validate + toggle SAVE only when necessary
+        // Enable save on edits
         val watcher = SimpleTextWatcher { btnSave.isEnabled = !loading && canSave() }
         etFullName.addTextChangedListener(watcher)
         etPhone.addTextChangedListener(watcher)
         etEmail.addTextChangedListener(watcher)
+        etFieldOfStudy.addTextChangedListener(watcher)
+        etInstitution.addTextChangedListener(watcher)
 
         btnSave.setOnClickListener { saveChanges() }
     }
@@ -84,10 +92,15 @@ class EditProfileActivity : AppCompatActivity() {
             val user = auth.currentUser
 
             val snap = t.result
-            val first = snap?.child("firstName")?.getValue(String::class.java)?.trim().orEmpty()
-            val sur   = snap?.child("surname")?.getValue(String::class.java)?.trim().orEmpty()
-            val phone = snap?.child("phoneNumber")?.getValue(String::class.java)?.trim().orEmpty()
+            val first   = snap?.child("firstName")?.getValue(String::class.java)?.trim().orEmpty()
+            val sur     = snap?.child("surname")?.getValue(String::class.java)?.trim().orEmpty()
+            val phone   = snap?.child("phoneNumber")?.getValue(String::class.java)?.trim().orEmpty()
             val dbEmail = snap?.child("email")?.getValue(String::class.java)?.trim()
+
+            val fieldOfStudy = snap?.child("fieldOfStudy")?.getValue(String::class.java)?.trim().orEmpty()
+            // prefer new key "institution", fall back to legacy "organisation"
+            val institution = (snap?.child("institution")?.getValue(String::class.java)
+                ?: snap?.child("organisation")?.getValue(String::class.java))?.trim().orEmpty()
 
             val full = buildFullName(first, sur).ifBlank { user?.displayName ?: "" }
             val finalEmail = dbEmail ?: user?.email ?: ""
@@ -95,11 +108,15 @@ class EditProfileActivity : AppCompatActivity() {
             etFullName.setText(full)
             etPhone.setText(phone)
             etEmail.setText(finalEmail)
+            etFieldOfStudy.setText(fieldOfStudy)
+            etInstitution.setText(institution)
 
-            // Store originals for change detection
+            // Originals
             originalFullName = full
             originalPhone = phone
             originalEmail = finalEmail
+            originalFieldOfStudy = fieldOfStudy
+            originalInstitution = institution
 
             btnSave.isEnabled = canSave()
         }
@@ -115,11 +132,13 @@ class EditProfileActivity : AppCompatActivity() {
                 .hideSoftInputFromWindow(v.windowToken, 0)
         }
 
-        val fullName = etFullName.text.toString().trim()
-        val phone    = etPhone.text.toString().trim()
-        val emailNew = etEmail.text.toString().trim()
+        val fullName      = etFullName.text.toString().trim()
+        val phone         = etPhone.text.toString().trim()
+        val emailNew      = etEmail.text.toString().trim()
+        val fieldOfStudy  = etFieldOfStudy.text.toString().trim()
+        val institution   = etInstitution.text.toString().trim()
 
-        // Validate
+        // Validate required basics
         if (fullName.isBlank()) { etFullName.error = "Full name is required"; etFullName.requestFocus(); return }
         if (emailNew.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(emailNew).matches()) {
             etEmail.error = "Enter a valid email address"; etEmail.requestFocus(); return
@@ -128,8 +147,8 @@ class EditProfileActivity : AppCompatActivity() {
             etPhone.error = "Enter a valid phone number"; etPhone.requestFocus(); return
         }
 
-        // Short-circuit if nothing changed (paranoid guard)
-        if (!hasChanges(fullName, phone, emailNew)) {
+        // Nothing changed?
+        if (!hasChanges(fullName, phone, emailNew, fieldOfStudy, institution)) {
             Toast.makeText(this, "No changes to save", Toast.LENGTH_SHORT).show()
             return
         }
@@ -143,17 +162,23 @@ class EditProfileActivity : AppCompatActivity() {
             return
         }
 
-        // Build DB updates only for changed fields
+        // DB updates only for actually changed fields
         val updates = hashMapOf<String, Any>()
-        if (!originalFullName.equals(fullName, ignoreCase = false)) {
+        if (originalFullName != fullName) {
             updates["firstName"] = first
             updates["surname"] = sur
         }
-        if (!originalPhone.equals(phone, ignoreCase = false)) {
+        if (originalPhone != phone) {
             updates["phoneNumber"] = phone
         }
         if (!originalEmail.equals(emailNew, ignoreCase = true)) {
             updates["email"] = emailNew
+        }
+        if (originalFieldOfStudy != fieldOfStudy) {
+            updates["fieldOfStudy"] = fieldOfStudy
+        }
+        if (originalInstitution != institution) {
+            updates["institution"] = institution
         }
         updates["updatedAt"] = System.currentTimeMillis()
 
@@ -169,15 +194,21 @@ class EditProfileActivity : AppCompatActivity() {
                     originalFullName = fullName
                     originalPhone = phone
                     originalEmail = emailNew
+                    originalFieldOfStudy = fieldOfStudy
+                    originalInstitution = institution
                     Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show()
                     finish()
                 } else {
-                    Toast.makeText(this, done.exception?.localizedMessage ?: "Failed to save profile", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        done.exception?.localizedMessage ?: "Failed to save profile",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
 
-        // If email changed: update Auth first, then DB
+        // If email changed, update Auth first
         if (!originalEmail.equals(emailNew, ignoreCase = true)) {
             user.updateEmail(emailNew).addOnCompleteListener { res ->
                 if (res.isSuccessful) {
@@ -187,11 +218,9 @@ class EditProfileActivity : AppCompatActivity() {
                     val msg = res.exception?.localizedMessage
                         ?: "Failed to update email. You may need to re-authenticate."
                     Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
-                    // Optional: show re-auth dialog and retry, if you support password users.
                 }
             }
         } else {
-            // Email unchanged → just DB
             pushDbUpdate()
         }
     }
@@ -204,16 +233,26 @@ class EditProfileActivity : AppCompatActivity() {
         val changed = hasChanges(
             full,
             etPhone.text?.toString()?.trim().orEmpty(),
-            email
+            email,
+            etFieldOfStudy.text?.toString()?.trim().orEmpty(),
+            etInstitution.text?.toString()?.trim().orEmpty()
         )
         return !loading && full.isNotBlank() && emailOk && changed
     }
 
-    private fun hasChanges(full: String, phone: String, email: String): Boolean {
+    private fun hasChanges(
+        full: String,
+        phone: String,
+        email: String,
+        fieldOfStudy: String,
+        institution: String
+    ): Boolean {
         val emailChanged = !originalEmail.equals(email, ignoreCase = true)
-        val fullChanged = originalFullName != full
-        val phoneChanged = originalPhone != phone
-        return emailChanged || fullChanged || phoneChanged
+        return emailChanged ||
+                originalFullName != full ||
+                originalPhone != phone ||
+                originalFieldOfStudy != fieldOfStudy ||
+                originalInstitution != institution
     }
 
     private fun splitName(full: String): Pair<String, String> {
@@ -228,7 +267,6 @@ class EditProfileActivity : AppCompatActivity() {
     private fun buildFullName(first: String, sur: String): String =
         listOf(first, sur).filter { it.isNotBlank() }.joinToString(" ")
 
-    // Minimal TextWatcher
     private class SimpleTextWatcher(val onChange: () -> Unit) : android.text.TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { onChange() }

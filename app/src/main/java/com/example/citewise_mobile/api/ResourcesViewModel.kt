@@ -26,7 +26,6 @@ class ResourcesViewModel(
     private val visibilityLabel = MutableStateFlow<String?>("All")
     private val sortKey = MutableStateFlow("date")
 
-    // 🔁 OUTPUTS NOW RESOURCE-BASED
     private val _items = MutableStateFlow<List<ResourceEntity>>(emptyList())
     val items: StateFlow<List<ResourceEntity>> = _items
 
@@ -88,10 +87,8 @@ class ResourcesViewModel(
                 return@launch
             }
 
-            // 🔁 MAP DTO → ResourceEntity (define an extension below)
             val remote: List<ResourceEntity> = resp.body()!!.map { it.toResourceEntity() }
 
-            // 🔁 MERGE/UPSERT INTO resources DAO (NOT documents DAO)
             val dao = localRepos.resources
             // naive replace-or-upsert by remoteId
             val existing = runCatching { dao.getAll() }.getOrDefault(emptyList())

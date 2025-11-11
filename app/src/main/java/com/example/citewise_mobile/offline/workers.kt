@@ -24,6 +24,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.FieldValue.serverTimestamp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
@@ -215,7 +217,7 @@ class MessagesSyncWorker(
 
 // ============================================================
 // RequestsSyncWorker  (Room -> REST API POST /requests multipart)
-// Retries PENDING_UPLOAD and FAILED
+// Retries PENDING_UPLOAD and FAILED — now batched
 // ============================================================
 
 class RequestsSyncWorker(
@@ -237,105 +239,123 @@ class RequestsSyncWorker(
             local.requests.resetFailedOlderThan(System.currentTimeMillis() - 10 * 60 * 1000)
         }
 
-        val pending = try {
+        val pendingAll = try {
             local.requests.getBySyncStates(listOf(SyncState.PENDING_UPLOAD, SyncState.FAILED))
         } catch (_: Throwable) {
             local.requests.getBySyncState(SyncState.PENDING_UPLOAD)
         }
 
-        if (pending.isEmpty()) return@withContext Result.success()
+        if (pendingAll.isEmpty()) return@withContext Result.success()
 
-        pending.forEach { sr ->
+        val BATCH_SIZE = 3
+        var shouldRetry = false
+
+        // Process in batches, with limited concurrency inside each batch
+        for (batch in pendingAll.chunked(BATCH_SIZE)) {
             try {
-                val stagedFile = sr.filePath?.let { File(it) }
-                if (stagedFile == null || !stagedFile.exists()) {
-                    Log.w(TAG, "Missing staged file for localId=${sr.localId}")
-                    local.requests.update(
-                        sr.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
-                    )
-                    return@forEach
-                }
+                coroutineScope {
+                    val jobs = batch.map { sr ->
+                        async(Dispatchers.IO) {
+                            try {
+                                val stagedFile = sr.filePath?.let { File(it) }
+                                if (stagedFile == null || !stagedFile.exists()) {
+                                    Log.w(TAG, "Missing staged file for localId=${sr.localId}")
+                                    local.requests.update(
+                                        sr.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                                    )
+                                    return@async false
+                                }
 
-                when (val result = repo.createRequestMultipart(
-                    file = stagedFile,
-                    mime = stagedFile.guessMimeOrDefault(),
-                    documentName = sr.documentName,
-                    customName = sr.customName.takeIf { it.isNotBlank() },
-                    serviceType = sr.serviceType.orEmpty(),
-                    description = sr.description.orEmpty(),
-                    priority = sr.priority.orEmpty(),
-                    deadlineIso = sr.deadlineIso
-                )) {
-                    is NetResult.Ok -> {
-                        val dto = result.data
+                                when (val result = repo.createRequestMultipart(
+                                    file = stagedFile,
+                                    mime = stagedFile.guessMimeOrDefault(),
+                                    documentName = sr.documentName,
+                                    customName = sr.customName.takeIf { it.isNotBlank() },
+                                    serviceType = sr.serviceType.orEmpty(),
+                                    description = sr.description.orEmpty(),
+                                    priority = sr.priority.orEmpty(),
+                                    deadlineIso = sr.deadlineIso
+                                )) {
+                                    is NetResult.Ok -> {
+                                        val dto = result.data
 
-                        // Delete staged after server accepts
-                        runCatching { if (stagedFile.exists()) stagedFile.delete() }
+                                        runCatching { if (stagedFile.exists()) stagedFile.delete() }
 
-                        val newUserId = dto.userId ?: sr.userId ?: auth.currentUser?.uid
-                        val newConsultantId = dto.consultantId ?: sr.consultantId
+                                        val newUserId = dto.userId ?: sr.userId ?: auth.currentUser?.uid
+                                        val newConsultantId = dto.consultantId ?: sr.consultantId
 
-                        local.requests.update(
-                            sr.copy(
-                                remoteId     = dto.id,
-                                documentId   = dto.documentId,
-                                status       = dto.status ?: "submitted",
-                                userId       = newUserId,
-                                consultantId = newConsultantId,
-                                syncState    = SyncState.SYNCED,
-                                updatedAt    = System.currentTimeMillis()
-                            )
-                        )
+                                        local.requests.update(
+                                            sr.copy(
+                                                remoteId     = dto.id,
+                                                documentId   = dto.documentId,
+                                                status       = dto.status ?: "submitted",
+                                                userId       = newUserId,
+                                                consultantId = newConsultantId,
+                                                syncState    = SyncState.SYNCED, // keep original? or SYNCED
+                                                updatedAt    = System.currentTimeMillis()
+                                            )
+                                        )
 
-                        val fsId = dto.id ?: sr.remoteId ?: sr.localId.toString()
-                        val fsData = hashMapOf(
-                            "id"               to fsId,
-                            "userId"           to (newUserId ?: ""),
-                            "consultantId"     to (newConsultantId ?: ""),
-                            "serviceType"      to ((dto.serviceType?.name) ?: sr.serviceType),
-                            "description"      to (dto.description ?: sr.description ?: ""),
-                            "priority"         to ((dto.priority?.name) ?: sr.priority ?: "MEDIUM"),
-                            "status"           to (dto.status ?: "submitted"),
-                            "documentId"       to (dto.documentId ?: sr.documentId),
-                            "originalFileName" to (dto.originalFileName ?: sr.documentName),
-                            "customName"       to (dto.customName ?: sr.customName),
-                            "deadline"         to (sr.deadlineIso ?: dto.deadline ?: sr.deadlineIso),
-                            "createdAt"        to (dto.createdAt?.epochMillis ?: sr.createdAt),
-                            "updatedAt"        to serverTimestamp()
-                        )
-                        runCatching {
-                            fs.collection("ServiceReviews")
-                                .document(fsId)
-                                .set(fsData, SetOptions.merge())
-                                .addOnSuccessListener { Log.d(TAG, "Firestore upsert ok id=$fsId") }
-                                .addOnFailureListener { e -> Log.w(TAG, "Firestore upsert failed id=$fsId: ${e.message}") }
+                                        val fsId = dto.id ?: sr.remoteId ?: sr.localId.toString()
+                                        val fsData = hashMapOf(
+                                            "id"               to fsId,
+                                            "userId"           to (newUserId ?: ""),
+                                            "consultantId"     to (newConsultantId ?: ""),
+                                            "serviceType"      to ((dto.serviceType?.name) ?: sr.serviceType),
+                                            "description"      to (dto.description ?: sr.description ?: ""),
+                                            "priority"         to ((dto.priority?.name) ?: sr.priority ?: "MEDIUM"),
+                                            "status"           to (dto.status ?: "submitted"),
+                                            "documentId"       to (dto.documentId ?: sr.documentId),
+                                            "originalFileName" to (dto.originalFileName ?: sr.documentName),
+                                            "customName"       to (dto.customName ?: sr.customName),
+                                            "deadline"         to (sr.deadlineIso ?: dto.deadline ?: sr.deadlineIso),
+                                            "createdAt"        to (dto.createdAt?.epochMillis ?: sr.createdAt),
+                                            "updatedAt"        to serverTimestamp()
+                                        )
+                                        runCatching {
+                                            fs.collection("ServiceReviews")
+                                                .document(fsId)
+                                                .set(fsData, SetOptions.merge())
+                                        }
+
+                                        Log.d(TAG, "Uploaded localId=${sr.localId} -> remoteId=${dto.id}")
+                                        true
+                                    }
+                                    is NetResult.Err -> {
+                                        Log.w(TAG, "Upload failed localId=${sr.localId}: ${result.message} [code=${result.code}]")
+                                        if ((result.code ?: 0) in 500..599) {
+                                            shouldRetry = true
+                                        } else {
+                                            local.requests.update(
+                                                sr.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                                            )
+                                        }
+                                        false
+                                    }
+                                }
+                            } catch (io: IOException) {
+                                Log.e(TAG, "Network error: ${io.message}")
+                                shouldRetry = true
+                                false
+                            } catch (t: Throwable) {
+                                Log.e(TAG, "Unexpected error: ${t.message}", t)
+                                local.requests.update(
+                                    sr.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                                )
+                                false
+                            }
                         }
-
-                        Log.d(TAG, "Uploaded localId=${sr.localId} -> remoteId=${dto.id}")
                     }
-                    is NetResult.Err -> {
-                        Log.w(TAG, "Upload failed localId=${sr.localId}: ${result.message} [code=${result.code}]")
-                        if ((result.code ?: 0) in 500..599) {
-                            return@withContext Result.retry()
-                        } else {
-                            local.requests.update(
-                                sr.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
-                            )
-                        }
-                    }
+                    // Wait all jobs in the batch
+                    jobs.forEach { it.await() }
                 }
-            } catch (io: IOException) {
-                Log.e(TAG, "Network error: ${io.message}")
-                return@withContext Result.retry()
             } catch (t: Throwable) {
-                Log.e(TAG, "Unexpected error: ${t.message}", t)
-                local.requests.update(
-                    sr.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
-                )
+                Log.e(TAG, "Batch failed: ${t.message}", t)
+                shouldRetry = true
             }
         }
 
-        Result.success()
+        if (shouldRetry) Result.retry() else Result.success()
     }
 
     private fun File.guessMimeOrDefault(): String =
@@ -374,7 +394,7 @@ class RequestsSyncWorker(
 
 // ============================================================
 // ResourcesSyncWorker  (Room -> REST API POST /resources multipart)
-// Retries PENDING_UPLOAD and FAILED
+// Retries PENDING_UPLOAD and FAILED — now batched
 // ============================================================
 
 class ResourcesSyncWorker(
@@ -396,105 +416,124 @@ class ResourcesSyncWorker(
             local.resources.resetFailedOlderThan(System.currentTimeMillis() - 10 * 60 * 1000)
         }
 
-        val toSync = try {
+        val toSyncAll = try {
             local.resources.getBySyncStates(listOf(SyncState.PENDING_UPLOAD, SyncState.FAILED))
         } catch (_: Throwable) {
             local.resources.getBySyncState(SyncState.PENDING_UPLOAD)
         }
 
-        if (toSync.isEmpty()) return@withContext Result.success()
+        if (toSyncAll.isEmpty()) return@withContext Result.success()
 
         // Build bearer once
         val authHeader = buildAuthHeader()
 
-        for (res in toSync) {
+        val BATCH_SIZE = 3
+        var shouldRetry = false
+
+        for (batch in toSyncAll.chunked(BATCH_SIZE)) {
             try {
-                val stagedFile = res.filePath?.let { File(it) }
-                if (stagedFile == null || !stagedFile.exists()) {
-                    Log.w(TAG, "Missing staged file for localId=${res.localId}")
-                    local.resources.update(
-                        res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
-                    )
-                    continue
-                }
+                coroutineScope {
+                    val jobs = batch.map { res ->
+                        async(Dispatchers.IO) {
+                            try {
+                                val stagedFile = res.filePath?.let { File(it) }
+                                if (stagedFile == null || !stagedFile.exists()) {
+                                    Log.w(TAG, "Missing staged file for localId=${res.localId}")
+                                    local.resources.update(
+                                        res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                                    )
+                                    return@async false
+                                }
 
-                val name     = res.title.ifBlank { res.fileName ?: "Untitled" }
-                val faculty  = normalizeFaculty(res.faculty)
-                val category = normalizeCategory(res.category)
-                val mime     = stagedFile.guessMimeOrDefault()
-                val desc     = res.description
+                                val name     = res.title.ifBlank { res.fileName ?: "Untitled" }
+                                val faculty  = normalizeFaculty(res.faculty)
+                                val category = normalizeCategory(res.category)
+                                val mime     = stagedFile.guessMimeOrDefault()
+                                val desc     = res.description
 
-                when (val result = repo.createResourceMultipart(
-                    file = stagedFile,
-                    mime = mime,
-                    name = name,
-                    faculty = faculty,
-                    category = category,
-                    description = desc,
-                    auth = authHeader
-                )) {
-                    is NetResult.Ok -> {
-                        val dto = result.data
+                                when (val result = repo.createResourceMultipart(
+                                    file = stagedFile,
+                                    mime = mime,
+                                    name = name,
+                                    faculty = faculty,
+                                    category = category,
+                                    description = desc,
+                                    auth = authHeader
+                                )) {
+                                    is NetResult.Ok -> {
+                                        val dto = result.data
 
-                        runCatching { if (stagedFile.exists()) stagedFile.delete() }
+                                        runCatching { if (stagedFile.exists()) stagedFile.delete() }
 
-                        local.resources.update(
-                            res.copy(
-                                remoteId  = dto.id,
-                                syncState = SyncState.SYNCED,
-                                updatedAt = System.currentTimeMillis()
-                            )
-                        )
+                                        local.resources.update(
+                                            res.copy(
+                                                remoteId  = dto.id,
+                                                syncState = SyncState.SYNCED,
+                                                updatedAt = System.currentTimeMillis()
+                                            )
+                                        )
 
-                        // Mirror to Firestore (optional)
-                        val fsId = dto.id ?: res.remoteId ?: res.localId.toString()
-                        val payload = hashMapOf(
-                            "id"          to fsId,
-                            "title"       to name,
-                            "description" to (desc ?: ""),
-                            "category"    to (category ?: "AI_USAGE"),
-                            "faculty"     to faculty,
-                            "documentId"  to (res.documentId ?: ""),
-                            "fileName"    to (res.fileName ?: stagedFile.name),
-                            "adminUid"    to (res.adminUid ?: auth.currentUser?.uid.orEmpty()),
-                            "createdAt"   to res.createdAt,
-                            "updatedAt"   to serverTimestamp()
-                        )
-                        runCatching {
-                            fs.collection("resources")
-                                .document(fsId)
-                                .set(payload, SetOptions.merge())
+                                        // Mirror to Firestore (optional)
+                                        val fsId = dto.id ?: res.remoteId ?: res.localId.toString()
+                                        val payload = hashMapOf(
+                                            "id"          to fsId,
+                                            "title"       to name,
+                                            "description" to (desc ?: ""),
+                                            "category"    to (category ?: "AI_USAGE"),
+                                            "faculty"     to faculty,
+                                            "documentId"  to (res.documentId ?: ""),
+                                            "fileName"    to (res.fileName ?: stagedFile.name),
+                                            "adminUid"    to (res.adminUid ?: auth.currentUser?.uid.orEmpty()),
+                                            "createdAt"   to res.createdAt,
+                                            "updatedAt"   to serverTimestamp()
+                                        )
+                                        runCatching {
+                                            fs.collection("resources")
+                                                .document(fsId)
+                                                .set(payload, SetOptions.merge())
+                                        }
+
+                                        if (!res.documentId.isNullOrBlank()) {
+                                            DocumentsSyncWorker.oneShot(applicationContext)
+                                        }
+
+                                        Log.d(TAG, "Uploaded resource localId=${res.localId} -> remoteId=${dto.id}")
+                                        true
+                                    }
+                                    is NetResult.Err -> {
+                                        Log.w(TAG, "Resource upload failed localId=${res.localId}: ${result.message} [code=${result.code}]")
+                                        if ((result.code ?: 0) in 500..599) {
+                                            shouldRetry = true
+                                        } else {
+                                            local.resources.update(
+                                                res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                                            )
+                                        }
+                                        false
+                                    }
+                                }
+                            } catch (io: IOException) {
+                                Log.e(TAG, "Network error: ${io.message}")
+                                shouldRetry = true
+                                false
+                            } catch (t: Throwable) {
+                                Log.e(TAG, "Unexpected error: ${t.message}", t)
+                                local.resources.update(
+                                    res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
+                                )
+                                false
+                            }
                         }
-
-                        if (!res.documentId.isNullOrBlank()) {
-                            DocumentsSyncWorker.oneShot(applicationContext)
-                        }
-
-                        Log.d(TAG, "Uploaded resource localId=${res.localId} -> remoteId=${dto.id}")
                     }
-                    is NetResult.Err -> {
-                        Log.w(TAG, "Resource upload failed localId=${res.localId}: ${result.message} [code=${result.code}]")
-                        if ((result.code ?: 0) in 500..599) {
-                            return@withContext Result.retry()
-                        } else {
-                            local.resources.update(
-                                res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
-                            )
-                        }
-                    }
+                    jobs.forEach { it.await() }
                 }
-            } catch (io: IOException) {
-                Log.e(TAG, "Network error: ${io.message}")
-                return@withContext Result.retry()
             } catch (t: Throwable) {
-                Log.e(TAG, "Unexpected error: ${t.message}", t)
-                local.resources.update(
-                    res.copy(syncState = SyncState.FAILED, updatedAt = System.currentTimeMillis())
-                )
+                Log.e(TAG, "Batch failed: ${t.message}", t)
+                shouldRetry = true
             }
         }
 
-        Result.success()
+        if (shouldRetry) Result.retry() else Result.success()
     }
 
     /** Map UI / free text to server enum values. */

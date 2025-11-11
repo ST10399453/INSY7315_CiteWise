@@ -5,18 +5,27 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class AdminProfileSettingsActivity : BaseActivity() {
 
     private val auth by lazy { FirebaseAuth.getInstance() }
+    private val rtdb by lazy { FirebaseDatabase.getInstance() }
+    private val firestore by lazy { FirebaseFirestore.getInstance() }
 
     // Toggle & sections
     private lateinit var toggle: MaterialButtonToggleGroup
@@ -25,43 +34,61 @@ class AdminProfileSettingsActivity : BaseActivity() {
     private lateinit var sectionOverview: View
     private lateinit var sectionSettings: View
 
-    // Settings rows (containers)
+    // Settings rows
     private lateinit var rowEditProfile: View
     private lateinit var rowChangePassword: View
     private lateinit var rowLanguage: View
     private lateinit var btnLogout: Button
 
+    // Overview views (for Firestore stats binding)
+    private lateinit var tvName: TextView
+    private lateinit var tvEmail: TextView
+    private lateinit var tvStatRequests: TextView
+    private lateinit var tvStatCompleted: TextView
+    private lateinit var tvStatInProgress: TextView
+    private lateinit var tvStatPending: TextView
+    private lateinit var rowDept: View
+    private lateinit var rowOrg: View
+    private lateinit var rowRole: View
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1) Shell
+        // Shell (Chats pattern)
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
-        // 2) Inflate page into shell
+        // Inflate this screen into the shell container
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
-        val page = layoutInflater.inflate(
-            R.layout.activity_admin_profile_settings,
-            baseContent,
-            false
-        )
+        val page = layoutInflater.inflate(R.layout.activity_admin_profile_settings, baseContent, false)
         baseContent.addView(page)
 
-        // 3) Bottom nav
+        // Bottom nav
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         setupBottomNav(bottomNav, R.id.nav_profile)
 
-        // 4) Views
+        // Views from the inflated page
         toggle          = page.findViewById(R.id.toggleSettings)
         btnOverview     = page.findViewById(R.id.btnOverview)
         btnSettings     = page.findViewById(R.id.btnProfileSettings)
         sectionOverview = page.findViewById(R.id.sectionOverview)
         sectionSettings = page.findViewById(R.id.sectionSettings)
 
-        // Default = Settings tab (and selected visually)
-        toggle.post { toggle.check(btnSettings.id) }
-        showTab("settings")
+        // Cache overview subviews we’ll update
+        tvName           = page.findViewById(R.id.tvOverviewName)
+        tvEmail          = page.findViewById(R.id.tvOverviewEmail)
+        tvStatRequests   = page.findViewById(R.id.tvStatRequests)
+        tvStatCompleted  = page.findViewById(R.id.tvStatCompleted)
+        tvStatInProgress = page.findViewById(R.id.tvStatInProgress)
+        tvStatPending    = page.findViewById(R.id.tvStatPending)
+        rowDept          = page.findViewById(R.id.rowOverviewAcademic)     // “Field of Study”
+        rowOrg           = page.findViewById(R.id.rowOverviewInstitution)  // “Institution”
+        rowRole          = page.findViewById(R.id.rowOverviewRole)
+        rowLanguage      = page.findViewById(R.id.rowOverviewLanguage)
 
+        // Default to Overview tab
+        toggle.post { toggle.check(btnOverview.id) }
+        showTab("overview")
         toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
             when (checkedId) {
@@ -70,7 +97,10 @@ class AdminProfileSettingsActivity : BaseActivity() {
             }
         }
 
-        bindOverview(page)
+        // Bind UI
+        prepareOverviewLabels()
+        bindOverviewProfile()      // RTDB /users/{uid}
+        bindServiceReviewStats()   // Firestore /ServiceReviews
         initSettingsSection(page)
     }
 
@@ -80,49 +110,107 @@ class AdminProfileSettingsActivity : BaseActivity() {
         sectionSettings.isVisible = !isOverview
     }
 
-    private fun bindOverview(page: View) {
-        val ivAvatar       = page.findViewById<ImageView>(R.id.ivAvatar)
-        val tvName         = page.findViewById<TextView>(R.id.tvOverviewName)
-        val tvEmail        = page.findViewById<TextView>(R.id.tvOverviewEmail)
-        val tvReq          = page.findViewById<TextView>(R.id.tvStatRequests)
-        val tvCompleted    = page.findViewById<TextView>(R.id.tvStatCompleted)
-        val tvInProgress   = page.findViewById<TextView>(R.id.tvStatInProgress)
-        val tvPending      = page.findViewById<TextView>(R.id.tvStatPending)
-
-        val user = auth.currentUser
-        val displayName = user?.displayName?.takeIf { !it.isNullOrBlank() } ?: "Admin"
-        val email = user?.email ?: "admin@example.com"
-
-        tvName.text = displayName
-        tvEmail.text = email
-        // ivAvatar: load via Glide/Picasso if available
-
-        tvReq.text = "0"
-        tvCompleted.text = "0"
-        tvInProgress.text = "0"
-        tvPending.text = "0"
-
-        val rowAcademic     = page.findViewById<View>(R.id.rowOverviewAcademic)
-        val rowInstitution  = page.findViewById<View>(R.id.rowOverviewInstitution)
-        val rowRole         = page.findViewById<View>(R.id.rowOverviewRole)
-        val rowLanguage     = page.findViewById<View>(R.id.rowOverviewLanguage)
-
-        rowAcademic.findViewById<TextView>(R.id.tvLabel).text = "Department"
-        rowAcademic.findViewById<TextView>(R.id.tvValue).text = "Operations"
-
-        rowInstitution.findViewById<TextView>(R.id.tvLabel).text = "Organization"
-        rowInstitution.findViewById<TextView>(R.id.tvValue).text = "CiteWise"
-
+    private fun prepareOverviewLabels() {
+        rowDept.findViewById<TextView>(R.id.tvLabel).text = "Field of Study"
+        rowOrg.findViewById<TextView>(R.id.tvLabel).text  = "Institution"
         rowRole.findViewById<TextView>(R.id.tvLabel).text = "Role"
-        rowRole.findViewById<TextView>(R.id.tvValue).text = "Admin"
-
         rowLanguage.findViewById<TextView>(R.id.tvLabel).text = "Language"
+
+        // Safe defaults before data arrives
+        tvName.text  = "Admin"
+        tvEmail.text = auth.currentUser?.email ?: "admin@example.com"
+
+        rowDept.findViewById<TextView>(R.id.tvValue).text = "—"
+        rowOrg.findViewById<TextView>(R.id.tvValue).text = "CiteWise"
+        rowRole.findViewById<TextView>(R.id.tvValue).text = "Admin"
         rowLanguage.findViewById<TextView>(R.id.tvValue).text = "English"
 
-        rowAcademic.setOnClickListener { }
-        rowInstitution.setOnClickListener { }
+        tvStatRequests.text   = "0"
+        tvStatCompleted.text  = "0"
+        tvStatInProgress.text = "0"
+        tvStatPending.text    = "0"
+    }
+
+    /** Pulls admin profile from RTDB `/users/{uid}` and binds name/email/role/fieldOfStudy/institution. */
+    private fun bindOverviewProfile() {
+        val uid = auth.currentUser?.uid ?: return
+        lifecycleScope.launch(Dispatchers.IO) {
+            runCatching { rtdb.reference.child("users").child(uid).get().await() }
+                .onSuccess { snap ->
+                    val firstName    = snap.child("firstName").getValue(String::class.java).orEmpty()
+                    val surname      = snap.child("surname").getValue(String::class.java).orEmpty()
+                    val email        = snap.child("email").getValue(String::class.java)
+                        ?: auth.currentUser?.email
+                    val roleRaw      = snap.child("role").getValue(String::class.java).orEmpty()
+                    val fieldOfStudy = snap.child("fieldOfStudy").getValue(String::class.java).orEmpty()
+                    // read institution, fall back to legacy "organisation" if present
+                    val institution  = snap.child("institution").getValue(String::class.java)
+                        ?: snap.child("organisation").getValue(String::class.java)
+
+                    val name = listOf(firstName, surname).filter { it.isNotBlank() }.joinToString(" ")
+                        .ifBlank { auth.currentUser?.displayName ?: "Admin" }
+                    val role = roleRaw.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+                    }.ifBlank { "Admin" }
+
+                    withContext(Dispatchers.Main) {
+                        tvName.text = name
+                        tvEmail.text = email ?: "admin@example.com"
+                        rowDept.findViewById<TextView>(R.id.tvValue).text = fieldOfStudy.ifBlank { "—" }
+                        rowOrg.findViewById<TextView>(R.id.tvValue).text = institution?.ifBlank { "CiteWise" } ?: "CiteWise"
+                        rowRole.findViewById<TextView>(R.id.tvValue).text = role
+                    }
+                }
+                .onFailure {
+                    // keep defaults; no crash
+                }
+        }
+
+        // Optional row taps
+        rowDept.setOnClickListener { }
+        rowOrg.setOnClickListener { }
         rowRole.setOnClickListener { }
         rowLanguage.setOnClickListener { }
+    }
+
+    /**
+     * Pulls counts from Firestore `ServiceReviews`:
+     * - total
+     * - completed (status == completed)
+     * - inProgress (status == assigned OR in_progress)
+     * - pending (status == pending OR submitted)
+     */
+    private fun bindServiceReviewStats() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            runCatching {
+                firestore.collection("ServiceReviews").get().await()
+            }.onSuccess { snap ->
+                var total = 0
+                var completed = 0
+                var assignedOrInProgress = 0
+                var pendingOrSubmitted = 0
+
+                for (doc in snap) {
+                    total += 1
+                    val status = (doc.get("status") as? String)?.lowercase(Locale.ROOT) ?: ""
+                    when (status) {
+                        "completed", "complete", "done" -> completed += 1
+                        "assigned", "in_progress", "inprogress" -> assignedOrInProgress += 1
+                        "pending", "submitted", "awaiting", "awaiting_review" -> pendingOrSubmitted += 1
+                        else -> { /* ignore other states */ }
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    tvStatRequests.text   = total.toString()
+                    tvStatCompleted.text  = completed.toString()
+                    tvStatInProgress.text = assignedOrInProgress.toString()
+                    tvStatPending.text    = pendingOrSubmitted.toString()
+                }
+            }.onFailure {
+                // Leave defaults if Firestore fails
+            }
+        }
     }
 
     private fun initSettingsSection(page: View) {
@@ -165,12 +253,8 @@ class AdminProfileSettingsActivity : BaseActivity() {
         makeRowClickable(rowEditProfile)
         makeRowClickable(rowChangePassword)
 
-        rowEditProfile.safeClick {
-            startActivity(Intent(this, EditProfileActivity::class.java))
-        }
-        rowChangePassword.safeClick {
-            startActivity(Intent(this, ChangePasswordActivity::class.java))
-        }
+        rowEditProfile.safeClick { startActivity(Intent(this, EditProfileActivity::class.java)) }
+        rowChangePassword.safeClick { startActivity(Intent(this, ChangePasswordActivity::class.java)) }
 
         btnLogout.setOnClickListener {
             auth.signOut()

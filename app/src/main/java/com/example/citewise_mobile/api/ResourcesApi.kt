@@ -31,29 +31,29 @@ data class ResourceDto(
     val fileName: String? = null,
     val mimeType: String? = null,
     val size: Long? = null,
-    val createdAt: FirestoreTimestamp? = null,
-    val updatedAt: FirestoreTimestamp? = null,
+    val createdAt: FlexTime? = null,
+    val updatedAt: FlexTime? = null,
     val etag: String? = null,
     val signedUrlHint: String? = null
 )
 
 /** Map DTO -> Room entity used by your UI. */
 fun ResourceDto.toResourceEntity(): ResourceEntity {
-    val titleResolved = (displayName ?: name).ifBlank { "Untitled" }
-    val fileNameResolved = fileName ?: (displayName ?: name)
-    val updatedMs = updatedAt?.toEpochMillis() ?: System.currentTimeMillis()
-    val createdMs = createdAt?.toEpochMillis() ?: updatedMs
+    val title = (displayName ?: name).trim().ifEmpty { "Untitled" }
+    val file  = (fileName ?: displayName ?: name).trim().ifEmpty { null }
+    val updatedMs = updatedAt?.epochMillis ?: System.currentTimeMillis()
+    val createdMs = createdAt?.epochMillis ?: updatedMs
 
     return ResourceEntity(
         remoteId   = id,
         adminUid   = adminUid,
-        title      = titleResolved,
+        title      = title,
         description= description,
         category   = category,
         faculty    = faculty,
         documentId = documentId,
-        fileName   = fileNameResolved,
-        filePath   = null,                 // only set for local staged uploads
+        fileName   = file,
+        filePath   = null,
         syncState  = SyncState.SYNCED,
         createdAt  = createdMs,
         updatedAt  = updatedMs

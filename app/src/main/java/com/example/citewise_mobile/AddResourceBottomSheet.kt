@@ -14,7 +14,12 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
 import com.example.citewise_mobile.databinding.SheetAddResourceBinding
 import com.example.citewise_mobile.offline.LocalRepos
 import com.example.citewise_mobile.offline.ResourceEntity
@@ -30,7 +35,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
-class NewResourceBottomSheet : BottomSheetDialogFragment() {
+class AddResourceBottom : BottomSheetDialogFragment() {
 
     interface Callback { fun onResourceCreated() }
 
@@ -43,22 +48,22 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
 
     companion object {
         private const val REQ_FILE = 42
-        fun show(fm: androidx.fragment.app.FragmentManager) =
-            NewResourceBottomSheet().also { it.show(fm, "new_resource") }
+        private const val UNIQUE_WORK = "resources_sync_once"
+
+        fun show(fm: FragmentManager) =
+            AddResourceBottom().also { it.show(fm, "add_resource_bottom") }
     }
 
     // Keep these in sync with your filters
     private val faculties = listOf("Engineering", "Science", "Humanities", "Business")
     private val categoriesUi = listOf("Writing guide", "Template", "Tools")
 
-    // Map UI -> server category code
     private fun mapCategory(ui: String) = when (ui) {
         "Writing guide" -> "WRITING_GUIDE"
         "Template"      -> "TEMPLATE"
         else            -> "AI_USAGE"
     }
 
-    // Normalize faculty to canonical values your backend expects
     private fun normalizeFaculty(ui: String): String = when (ui.trim().lowercase()) {
         "engineering" -> "Engineering"
         "science"     -> "Science"
@@ -77,10 +82,6 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        (binding.actCategory as MaterialAutoCompleteTextView)
-//            .setSimpleItems(categoriesUi.toTypedArray())
-//        (binding.actFaculty as MaterialAutoCompleteTextView)
-//            .setSimpleItems(faculties.toTypedArray())
         val categoryAdapter = ArrayAdapter(
             requireContext(),
             R.layout.simple_dropdown_item_1line,
@@ -97,13 +98,11 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
 
         binding.cardPicker.setOnClickListener { pickFile() }
         binding.btnUpload.setOnClickListener { uploadToLocalAndQueueSync() }
-//        binding.btnBack.setOnClickListener { dismiss() }
         binding.tvFileName.text = ""
 
-        // reactive validation
         binding.actCategory.addTextChangedListener { updateButtonEnabled() }
         binding.actFaculty.addTextChangedListener  { updateButtonEnabled() }
-        binding.tilTitle.addTextChangedListener     { updateButtonEnabled() }
+        binding.tilTitle.addTextChangedListener    { updateButtonEnabled() }
 
         updateButtonEnabled()
     }
@@ -144,16 +143,16 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
     /**
      * Offline-first:
      *  - Validate
-     *  - Copy the file into app cache
-     *  - Insert ResourceEntity with PENDING_UPLOAD (INCLUDING faculty!)
-     *  - Trigger ResourcesSyncWorker (which will POST to /resources)
+     *  - Copy file to app cache
+     *  - Insert ResourceEntity with PENDING_UPLOAD
+     *  - Trigger ResourcesSyncWorker immediately (REPLACE + expedited)
      */
     private fun uploadToLocalAndQueueSync() {
         val uiCategory = binding.actCategory.text?.toString()?.trim().orEmpty()
         val category = mapCategory(uiCategory)
         val title = binding.tilTitle.text?.toString()?.trim().orEmpty()
         val facultyUi = binding.actFaculty.text?.toString()?.trim().orEmpty()
-        val faculty = normalizeFaculty(facultyUi) // <- normalization applied here
+        val faculty = normalizeFaculty(facultyUi)
         val description = binding.etDescription.text?.toString()?.trim().orEmpty()
         val uri = pickedUri ?: run { snack("Pick a file"); return }
 
@@ -165,7 +164,6 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // Stage into cache on IO thread
                 val staged: File = withContext(Dispatchers.IO) {
                     copyToCache(requireContext(), uri, pickedDisplayName)
                 }
@@ -176,17 +174,17 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
                     title       = title,
                     description = description.ifBlank { null },
                     category    = category,
-                    faculty     = faculty, // store normalized faculty
+                    faculty     = faculty,
                     fileName    = pickedDisplayName ?: "upload.bin",
                     filePath    = staged.absolutePath,
                     syncState   = SyncState.PENDING_UPLOAD
                 )
 
-                // Insert into Room and trigger background sync
                 withContext(Dispatchers.IO) {
                     LocalRepos(requireContext()).resources.insert(entity)
-                    ResourcesSyncWorker.oneShot(requireContext())
                 }
+
+                enqueueResourceSyncNow()
 
                 setBusy(false)
                 snack("Queued for upload")
@@ -197,6 +195,18 @@ class NewResourceBottomSheet : BottomSheetDialogFragment() {
                 snack(t.message ?: "Failed to stage resource")
             }
         }
+    }
+
+    /** Force-run the sync worker immediately, even if a previous instance exists. */
+    private fun enqueueResourceSyncNow() {
+        val ctx = requireContext().applicationContext
+        val req = OneTimeWorkRequestBuilder<ResourcesSyncWorker>()
+            .build()
+        WorkManager.getInstance(ctx).enqueueUniqueWork(
+            UNIQUE_WORK,
+            ExistingWorkPolicy.REPLACE,
+            req
+        )
     }
 
     private fun setBusy(b: Boolean) {

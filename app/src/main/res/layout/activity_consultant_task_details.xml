@@ -49,6 +49,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Task info card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,6 +102,7 @@
                     android:layout_marginEnd="8dp"/>
             </LinearLayout>
 
+            <!-- Files -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -110,23 +112,26 @@
                 android:textColor="@color/gradient_end"
                 android:layout_marginBottom="12dp"/>
 
+            <!-- IMPORTANT: contains tvDocName -->
             <LinearLayout
                 android:id="@+id/cardQualitativeStudy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:padding="12dp"
                 android:background="@drawable/rounded_card_background"
-                android:elevation="2dp"
-                android:padding="16dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:layout_marginTop="8dp">
+
                 <TextView
+                    android:id="@+id/tvDocName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Qualitative Study"
+                    android:text="Qualitative Study Document"
                     android:textSize="16sp"
-                    android:textColor="@color/text_dark"/>
+                    android:textColor="@color/text_dark" />
+
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -134,6 +139,7 @@
                     android:contentDescription="Document" />
             </LinearLayout>
 
+            <!-- Upload feedback row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -163,6 +169,7 @@
                     app:cornerRadius="8dp" />
             </LinearLayout>
 
+            <!-- Version history -->
             <LinearLayout
                 android:id="@+id/versionHistoryPanel"
                 android:layout_width="match_parent"
@@ -204,6 +211,7 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Progress -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -270,9 +278,9 @@
                         android:text="Completed"
                         android:drawableStart="@drawable/ic_dot_blue" />
                 </LinearLayout>
-
             </LinearLayout>
 
+            <!-- Quote -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -344,6 +352,7 @@
                 </TableRow>
             </TableLayout>
 
+            <!-- Footer actions -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -353,16 +362,16 @@
                 android:layout_marginBottom="100dp">
 
                 <Button
-                android:id="@+id/btnRevise"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Revise"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:textColor="@color/gradient_end"
-                android:textAllCaps="true"
-                app:strokeColor="@color/gradient_end"
-                android:layout_marginEnd="8dp" />
+                    android:id="@+id/btnRevise"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Revise"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:textColor="@color/gradient_end"
+                    android:textAllCaps="true"
+                    app:strokeColor="@color/gradient_end"
+                    android:layout_marginEnd="8dp" />
 
                 <Button
                     android:id="@+id/btnSendToStudent"

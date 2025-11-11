@@ -3,17 +3,18 @@ package com.example.citewise_mobile
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.example.citewise_mobile.adapters.TaskAdapter
 import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceRequestDto
 import com.example.citewise_mobile.data.ServiceReviewsRepository
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,10 +22,10 @@ import kotlinx.coroutines.withContext
 
 class ConsultantTasksActivity : BaseActivity() {
 
-    // Same enum used in the dashboard
-    enum class Urgency {ALL, URGENT, MEDIUM, LOW}
+    enum class Urgency { ALL, URGENT, MEDIUM, LOW }
 
-    private lateinit var fullTaskList: List<ServiceRequestDto>
+    private var fullTaskList: List<ServiceRequestDto> = emptyList()
+
     private lateinit var taskAdapter: TaskAdapter
     private lateinit var tasksRecyclerView: RecyclerView
     private lateinit var urgencyFilterGroup: MaterialButtonToggleGroup
@@ -34,103 +35,89 @@ class ConsultantTasksActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_consultant_tasks)
 
-        // Find and Setup Bottom Nav
+        setContentView(R.layout.activity_base)
+        applyInsets(R.id.main)
+
+        val baseContent = findViewById<ViewGroup>(R.id.baseContent)
+        val content = layoutInflater.inflate(R.layout.activity_consultant_tasks, baseContent, false)
+        baseContent.addView(content)
+
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        // Set the active item to the Tasks tab
-        setupBottomNav(bottomNav, R.id.nav_role_action)
+        setupBottomNav(bottomNav, R.id.nav_active_tasks)
 
-        //Find UI Components
-        tasksRecyclerView = findViewById(R.id.tasksRecyclerView)
-        urgencyFilterGroup = findViewById(R.id.urgencyFilterGroup)
-        findViewById<View>(R.id.btnBack).setOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        tasksRecyclerView  = content.findViewById(R.id.tasksRecyclerView)
+        urgencyFilterGroup = content.findViewById(R.id.urgencyFilterGroup)
 
-        //Setup Task List (Adapter)
+        content.findViewById<View>(R.id.btnBack)
+            .setOnClickListener { onBackPressedDispatcher.onBackPressed() }
+
+        // Default selected
+        urgencyFilterGroup.check(R.id.filterAll)
+
         setupTaskListAdapter()
-
-        //Setup Filtering
         setupUrgencyFilter()
-
-        //Load Data
         fetchAssignedTasks()
     }
 
-    //Data Fetching
     private fun fetchAssignedTasks() {
-        val consultantUid = auth.currentUser?.uid
-        if (consultantUid.isNullOrBlank()) {
+        val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_LONG).show()
             fullTaskList = emptyList()
             filterTasks(Urgency.ALL)
             return
         }
-
         lifecycleScope.launch(Dispatchers.IO) {
-            val result = repo.listGeneralRequests(consultantUid)
-
+            val result = repo.listGeneralRequests(uid)
             withContext(Dispatchers.Main) {
                 fullTaskList = when (result) {
-                    is com.example.citewise_mobile.data.NetResult.Ok -> result.data.orEmpty()
+                    is com.example.citewise_mobile.data.NetResult.Ok  -> result.data.orEmpty()
                     is com.example.citewise_mobile.data.NetResult.Err -> {
-                        Toast.makeText(this@ConsultantTasksActivity,
-                            "Failed to load tasks: ${result.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@ConsultantTasksActivity,
+                            "Failed to load tasks: ${result.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
                         emptyList()
                     }
                 }
-                // Initial update loads all data
                 filterTasks(Urgency.ALL)
             }
         }
     }
 
-    //Adapter Setup
     private fun setupTaskListAdapter() {
-        val clickHandler: (ServiceRequestDto) -> Unit = { requestDto ->
-            // Reuses the navigation to the details screen
-            openTaskDetails(requestDto)
+        val click: (ServiceRequestDto) -> Unit = { req ->
+            val intent = Intent(this, ConsultantTaskDetailsActivity::class.java)
+                .putExtra(ConsultantTaskDetailsActivity.EXTRA_REQUEST, req)
+            startActivity(intent)
         }
-
         tasksRecyclerView.layoutManager = LinearLayoutManager(this)
-        taskAdapter = TaskAdapter(emptyList(), clickHandler)
+        taskAdapter = TaskAdapter(emptyList(), click)
         tasksRecyclerView.adapter = taskAdapter
     }
 
-    //Filtering Logic
     private fun setupUrgencyFilter() {
-        urgencyFilterGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            if (isChecked) {
-                val selectedUrgency = when (checkedId) {
-                    R.id.filterUrgent -> Urgency.URGENT
-                    R.id.filterMedium -> Urgency.MEDIUM
-                    R.id.filterLow -> Urgency.LOW
-                    R.id.filterAll -> Urgency.ALL
-                    else -> Urgency.ALL
-                }
-                filterTasks(selectedUrgency)
-                // updateFilterButtonStyles(checkedId)
+        urgencyFilterGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            val u = when (checkedId) {
+                R.id.filterUrgent -> Urgency.URGENT
+                R.id.filterMedium -> Urgency.MEDIUM
+                R.id.filterLow    -> Urgency.LOW
+                else              -> Urgency.ALL
             }
+            filterTasks(u)
         }
     }
 
     private fun filterTasks(urgency: Urgency) {
-        val filteredList = if (urgency == Urgency.ALL) {
-            fullTaskList
-        } else {
-            val targetPriority = when(urgency) {
-                Urgency.URGENT -> ServicePriority.HIGH
-                Urgency.MEDIUM -> ServicePriority.MEDIUM
-                Urgency.LOW -> ServicePriority.LOW
-                else -> null
-            }
-            fullTaskList.filter { it.priority == targetPriority }
+        val filtered = when (urgency) {
+            Urgency.ALL    -> fullTaskList
+            Urgency.URGENT -> fullTaskList.filter { it.priority == ServicePriority.HIGH }
+            Urgency.MEDIUM -> fullTaskList.filter { it.priority == ServicePriority.MEDIUM }
+            Urgency.LOW    -> fullTaskList.filter { it.priority == ServicePriority.LOW }
         }
-        taskAdapter.updateList(filteredList)
-    }
-
-    private fun openTaskDetails(requestDto: ServiceRequestDto) {
-        val intent = Intent(this, ConsultantTaskDetailsActivity::class.java).apply {
-            putExtra(ConsultantTaskDetailsActivity.EXTRA_REQUEST, requestDto)
-        }
-        startActivity(intent)
+        taskAdapter.updateList(filtered)
     }
 }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ui_background">
-
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll"
@@ -15,16 +15,18 @@
         android:fillViewport="true"
         android:padding="8dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
+            android:id="@+id/root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Greeting card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/greetingCard"
                 android:layout_width="match_parent"
@@ -84,6 +86,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- KPI: Total consultants -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardTotalConsultants"
                 android:layout_width="match_parent"
@@ -94,47 +97,48 @@
                 app:strokeColor="@android:color/transparent"
                 app:cardBackgroundColor="@android:color/transparent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/card_neumorphic_background"
-                android:padding="16dp">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:orientation="vertical"
+                    android:background="@drawable/card_neumorphic_background"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Total Consultants"
+                            android:textColor="@color/text_dark"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/public_sans_medium" />
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_total_consultants"
+                            android:contentDescription="@string/app_name" />
+                    </LinearLayout>
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:id="@+id/tvConsultantsValue"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Total Consultants"
-                        android:textColor="@color/text_dark"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/public_sans_medium" />
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_total_consultants"
-                        android:contentDescription="@string/app_name" />
+                        android:text="30"
+                        android:textColor="@color/gradient_end"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/public_sans_bold"
+                        android:layout_marginTop="6dp" />
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvConsultantsValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="30"
-                    android:textColor="@color/gradient_end"
-                    android:textSize="24sp"
-                    android:fontFamily="@font/public_sans_bold"
-                    android:layout_marginTop="6dp" />
-            </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- KPI: Active consultants -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardActiveConsultants"
                 android:layout_width="match_parent"
@@ -186,6 +190,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- KPI: On leave -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardOnLeaveConsultants"
                 android:layout_width="match_parent"
@@ -237,372 +242,202 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- PENDING CONSULTANTS -->
             <TextView
                 android:id="@+id/labelPendingConsultants"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Pending Consultants"
-                android:textSize="16sp"
-                android:fontFamily="@font/public_sans_bold"
-                android:textColor="@color/text_dark" />
+                android:text="Pending Consultant Approvals"
+                android:textSize="18sp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/gradient_end"
+                android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.card.MaterialCardView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPendingConsultants"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="1dp"
-                app:cardBackgroundColor="@color/ui_background">
+                android:nestedScrollingEnabled="false"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvPendingConsultants"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:overScrollMode="never"
-                    android:padding="8dp" />
-
-                <TextView
-                    android:id="@+id/emptyPendingConsultants"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="No pending consultant applications"
-                    android:textColor="@color/text_faded"
-                    android:gravity="center"
-                    android:visibility="gone" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Pending Assignments -->
             <TextView
-                android:id="@+id/labelPendingAssignments"
+                android:id="@+id/emptyPendingConsultants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No pending consultants."
+                android:textAlignment="center"
+                android:textColor="@color/text_faded"
+                android:padding="24dp"
+                android:visibility="gone"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="@color/dark_shadow" />
+
+            <!-- UNASSIGNED REVIEWS / ASSIGNMENTS -->
+            <TextView
+                android:id="@+id/labelAssignments"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Pending Assignments"
-                android:textSize="16sp"
-                android:fontFamily="@font/public_sans_bold"
-                android:textColor="@color/text_dark" />
+                android:text="Unassigned Service Reviews"
+                android:textSize="18sp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/gradient_end"
+                android:layout_marginBottom="8dp"/>
 
-            <LinearLayout
+            <!-- Priority filter (MATCHES ManageConsultants) -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupPriority"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/toggle_group_track"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFilterAll"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="All"
+                    android:checkable="true"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFilterUrgent"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="High"
+                    android:checkable="true"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFilterMedium"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Medium"
+                    android:checkable="true"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFilterLow"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Low"
+                    android:checkable="true"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPendingAssignments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/card_neumorphic_background"
-                android:padding="8dp"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp">
+                android:nestedScrollingEnabled="false"/>
 
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/groupPriority"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    app:singleSelection="true"
-                    app:checkedButton="@id/btnFilterAll">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:text="All" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterUrgent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:text="Urgent" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterMedium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:text="Medium" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterLow"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:text="Low" />
-                </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvPendingAssignments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:overScrollMode="never"
-                    android:paddingTop="4dp" />
-
-                <TextView
-                    android:id="@+id/emptyPendingAssignments"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="No unassigned requests"
-                    android:textColor="@color/text_faded"
-                    android:gravity="center"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <!-- Unassigned Consultants -->
             <TextView
-                android:id="@+id/labelAssignedConsultants"
+                android:id="@+id/emptyPendingAssignments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="All caught up — no unassigned reviews."
+                android:textAlignment="center"
+                android:textColor="@color/text_faded"
+                android:padding="24dp"
+                android:visibility="gone"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="@color/dark_shadow" />
+
+            <!-- CONSULTANTS LIST HEADER -->
+            <TextView
+                android:id="@+id/labelConsultants"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Unassigned Consultants"
-                android:textSize="16sp"
-                android:fontFamily="@font/public_sans_bold"
-                android:textColor="@color/text_dark" />
+                android:text="Consultants"
+                android:textSize="18sp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/gradient_end"
+                android:layout_marginBottom="8dp"/>
 
-            <LinearLayout
+            <!-- Search (hidden for now) -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/card_neumorphic_background"
-                android:padding="8dp"
-                android:orientation="vertical"
-                android:layout_marginTop="8dp">
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:hint="Search consultants"
+                android:visibility="gone">
 
-                <com.google.android.material.textfield.TextInputLayout
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearchConsultants"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Search consultants"
-                    app:boxBackgroundMode="none"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    android:layout_height="wrap_content"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSearchConsultants"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/text_dark"
-                        android:textColorHint="@color/text_faded"
-                        android:imeOptions="actionSearch" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <!-- Unassigned / Assigned toggle (MATCHES ManageConsultants) -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupConsultants"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/toggle_group_track"
+                app:singleSelection="true"
+                app:selectionRequired="true">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvAssignedConsultants"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:overScrollMode="never"
-                    android:paddingTop="8dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShowUnassigned"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Unassigned"
+                    android:checkable="true"/>
 
-                <TextView
-                    android:id="@+id/emptyUnassignedConsultants"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="All consultants are assigned 🎉"
-                    android:textColor="@color/text_faded"
-                    android:gravity="center"
-                    android:visibility="gone" />
-            </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShowAssigned"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Assigned"
+                    android:checkable="true"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
 
+            <!-- Shared RecyclerView; adapter swapped by toggle -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAssignedConsultants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="8dp"/>
 
+            <!-- Empty states for each sub-tab -->
+            <TextView
+                android:id="@+id/emptyUnassignedConsultants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No unassigned consultants."
+                android:textAlignment="center"
+                android:textColor="@color/text_faded"
+                android:padding="24dp"
+                android:visibility="gone"/>
 
-
-
-
-
+            <TextView
+                android:id="@+id/emptyAssignedConsultants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No assigned consultants yet."
+                android:textAlignment="center"
+                android:textColor="@color/text_faded"
+                android:padding="24dp"
+                android:visibility="gone"/>
         </LinearLayout>
-
-
-
-
-        <!--        &lt;!&ndash; Pending consultants &ndash;&gt;-->
-        <!--        <TextView-->
-        <!--            android:id="@+id/labelPendingConsultants"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="Pending Consultants"-->
-        <!--            android:textSize="16sp"-->
-        <!--            android:fontFamily="@font/public_sans_bold"-->
-        <!--            android:textColor="@color/text_dark"-->
-        <!--            tools:layout_conversion_absoluteHeight="22dp"-->
-        <!--            tools:layout_editor_absoluteY="119dp"-->
-        <!--            tools:layout_editor_absoluteX="16dp"-->
-        <!--            tools:layout_conversion_absoluteWidth="159dp" />-->
-
-        <!--        <com.google.android.material.card.MaterialCardView-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            app:cardCornerRadius="16dp"-->
-        <!--            app:cardElevation="1dp"-->
-        <!--            app:cardBackgroundColor="@color/ui_background"-->
-        <!--            tools:layout_conversion_absoluteHeight="210dp"-->
-        <!--            tools:layout_editor_absoluteY="149dp"-->
-        <!--            tools:layout_editor_absoluteX="16dp"-->
-        <!--            tools:layout_conversion_absoluteWidth="379dp">-->
-
-
-        <!--            <androidx.recyclerview.widget.RecyclerView-->
-        <!--                android:id="@+id/rvPendingConsultants"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:overScrollMode="never"-->
-        <!--                tools:layout_conversion_absoluteHeight="194dp"-->
-        <!--                tools:layout_editor_absoluteY="157dp"-->
-        <!--                tools:layout_editor_absoluteX="24dp"-->
-        <!--                tools:layout_conversion_absoluteWidth="363dp" />-->
-
-        <!--            <TextView-->
-        <!--                android:id="@+id/emptyPendingConsultants"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:padding="16dp"-->
-        <!--                android:text="No pending consultant applications"-->
-        <!--                android:textColor="@color/text_faded"-->
-        <!--                android:visibility="gone"-->
-        <!--                android:gravity="center"-->
-        <!--                tools:layout_conversion_absoluteHeight="0dp"-->
-        <!--                tools:layout_editor_absoluteY="149dp"-->
-        <!--                tools:layout_editor_absoluteX="16dp"-->
-        <!--                tools:layout_conversion_absoluteWidth="0dp" />-->
-
-        <!--        </com.google.android.material.card.MaterialCardView>-->
-
-        <!--        &lt;!&ndash; Pending assignments &ndash;&gt;-->
-        <!--        <TextView-->
-        <!--            android:id="@+id/labelPendingAssignments"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="Pending Assignments"-->
-        <!--            android:textSize="16sp"-->
-        <!--            android:fontFamily="@font/public_sans_bold"-->
-        <!--            android:textColor="@color/text_dark"-->
-        <!--            tools:layout_conversion_absoluteHeight="22dp"-->
-        <!--            tools:layout_editor_absoluteY="380dp"-->
-        <!--            tools:layout_editor_absoluteX="16dp"-->
-        <!--            tools:layout_conversion_absoluteWidth="166dp" />-->
-
-        <!--        <LinearLayout-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:background="@drawable/card_neumorphic_background"-->
-        <!--            android:padding="8dp"-->
-        <!--            android:orientation="vertical"-->
-        <!--            tools:layout_conversion_absoluteHeight="278dp"-->
-        <!--            tools:layout_editor_absoluteY="410dp"-->
-        <!--            tools:layout_editor_absoluteX="16dp"-->
-        <!--            tools:layout_conversion_absoluteWidth="379dp">-->
-
-        <!--            <com.google.android.material.button.MaterialButtonToggleGroup-->
-        <!--                android:id="@+id/groupPriority"-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_margin="8dp"-->
-        <!--                app:singleSelection="true"-->
-        <!--                app:checkedButton="@id/btnFilterAll">-->
-
-        <!--                <com.google.android.material.button.MaterialButton-->
-        <!--                    android:id="@+id/btnFilterAll"-->
-        <!--                    android:layout_width="wrap_content"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    style="@style/Widget.Material3.Button.TonalButton"-->
-        <!--                    android:text="All" />-->
-
-        <!--                <com.google.android.material.button.MaterialButton-->
-        <!--                    android:id="@+id/btnFilterUrgent"-->
-        <!--                    android:layout_width="wrap_content"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    style="@style/Widget.Material3.Button.OutlinedButton"-->
-        <!--                    android:text="Urgent" />-->
-
-        <!--                <com.google.android.material.button.MaterialButton-->
-        <!--                    android:id="@+id/btnFilterMedium"-->
-        <!--                    android:layout_width="wrap_content"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    style="@style/Widget.Material3.Button.OutlinedButton"-->
-        <!--                    android:text="Medium" />-->
-
-        <!--                <com.google.android.material.button.MaterialButton-->
-        <!--                    android:id="@+id/btnFilterLow"-->
-        <!--                    android:layout_width="wrap_content"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    style="@style/Widget.Material3.Button.OutlinedButton"-->
-        <!--                    android:text="Low" />-->
-        <!--            </com.google.android.material.button.MaterialButtonToggleGroup>-->
-
-        <!--            <androidx.recyclerview.widget.RecyclerView-->
-        <!--                android:id="@+id/rvPendingAssignments"-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:overScrollMode="never"-->
-        <!--                android:paddingTop="4dp" />-->
-
-        <!--            <TextView-->
-        <!--                android:id="@+id/emptyPendingAssignments"-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:padding="16dp"-->
-        <!--                android:text="No unassigned requests"-->
-        <!--                android:textColor="@color/text_faded"-->
-        <!--                android:visibility="gone"-->
-        <!--                android:gravity="center" />-->
-        <!--        </LinearLayout>-->
-
-        <!--        &lt;!&ndash; Unassigned consultants &ndash;&gt;-->
-        <!--        <TextView-->
-        <!--            android:id="@+id/labelAssignedConsultants"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="Unassigned Consultants"-->
-        <!--            android:textSize="16sp"-->
-        <!--            android:fontFamily="@font/public_sans_bold"-->
-        <!--            android:textColor="@color/text_dark"-->
-        <!--            tools:layout_conversion_absoluteHeight="22dp"-->
-        <!--            tools:layout_editor_absoluteY="709dp"-->
-        <!--            tools:layout_editor_absoluteX="16dp"-->
-        <!--            tools:layout_conversion_absoluteWidth="186dp" />-->
-
-        <!--        <LinearLayout-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:background="@drawable/card_neumorphic_background"-->
-        <!--            android:padding="8dp"-->
-        <!--            android:orientation="vertical"-->
-        <!--            tools:layout_conversion_absoluteHeight="285dp"-->
-        <!--            tools:layout_editor_absoluteY="739dp"-->
-        <!--            tools:layout_editor_absoluteX="16dp"-->
-        <!--            tools:layout_conversion_absoluteWidth="379dp">-->
-
-        <!--            <com.google.android.material.textfield.TextInputLayout-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:hint="Search consultants"-->
-        <!--                app:boxBackgroundMode="none"-->
-        <!--                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">-->
-
-        <!--                <com.google.android.material.textfield.TextInputEditText-->
-        <!--                    android:id="@+id/etSearchConsultants"-->
-        <!--                    android:layout_width="match_parent"-->
-        <!--                    android:layout_height="wrap_content"-->
-        <!--                    android:textColor="@color/text_dark"-->
-        <!--                    android:textColorHint="@color/text_faded"-->
-        <!--                    android:imeOptions="actionSearch" />-->
-        <!--            </com.google.android.material.textfield.TextInputLayout>-->
-
-        <!--            <androidx.recyclerview.widget.RecyclerView-->
-        <!--                android:id="@+id/rvAssignedConsultants"-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:overScrollMode="never"-->
-        <!--                android:paddingTop="8dp" />-->
-
-        <!--            <TextView-->
-        <!--                android:id="@+id/emptyUnassignedConsultants"-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:padding="16dp"-->
-        <!--                android:text="All consultants are assigned 🎉"-->
-        <!--                android:textColor="@color/text_faded"-->
-        <!--                android:visibility="gone"-->
-        <!--                android:gravity="center" />-->
-        <!--        </LinearLayout>-->
-
-
     </androidx.core.widget.NestedScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

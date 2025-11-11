@@ -8,15 +8,31 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.util.Locale
+
+// NEW imports for service reviews
+import com.example.citewise_mobile.api.RetrofitInstance
+import com.example.citewise_mobile.data.NetResult
+import com.example.citewise_mobile.data.ServiceReviewsRepository
 
 class StudentProfileSettingsActivity : BaseActivity() {
 
     private val auth by lazy { FirebaseAuth.getInstance() }
+    private val db by lazy { FirebaseDatabase.getInstance() }
+
+    // NEW: service reviews repo
+    private val reviewsRepo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
 
     // Toggle & sections
     private lateinit var toggle: MaterialButtonToggleGroup
@@ -34,11 +50,9 @@ class StudentProfileSettingsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Shell
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
-        // Inflate page
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
         val page = layoutInflater.inflate(
             R.layout.activity_student_profile_settings,
@@ -47,21 +61,17 @@ class StudentProfileSettingsActivity : BaseActivity() {
         )
         baseContent.addView(page)
 
-        // Bottom nav
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         setupBottomNav(bottomNav, R.id.nav_profile)
 
-        // Views
         toggle          = page.findViewById(R.id.toggleSettings)
         btnOverview     = page.findViewById(R.id.btnOverview)
         btnSettings     = page.findViewById(R.id.btnProfileSettings)
         sectionOverview = page.findViewById(R.id.sectionOverview)
         sectionSettings = page.findViewById(R.id.sectionSettings)
 
-        // Default = Overview tab (visually + content)
         toggle.post { toggle.check(btnOverview.id) }
         showTab("overview")
-
         toggle.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
             when (checkedId) {
@@ -70,7 +80,7 @@ class StudentProfileSettingsActivity : BaseActivity() {
             }
         }
 
-        bindOverview(page)
+        bindOverview(page)          // RTDB + stats
         initSettingsSection(page)
     }
 
@@ -80,6 +90,10 @@ class StudentProfileSettingsActivity : BaseActivity() {
         sectionSettings.isVisible = !isOverview
     }
 
+    /**
+     * Populates the Overview using Firebase RTDB (profile)
+     * and ServiceReviewsRepository (counts for this student).
+     */
     private fun bindOverview(page: View) {
         val ivAvatar       = page.findViewById<ImageView>(R.id.ivAvatar)
         val tvName         = page.findViewById<TextView>(R.id.tvOverviewName)
@@ -89,35 +103,90 @@ class StudentProfileSettingsActivity : BaseActivity() {
         val tvInProgress   = page.findViewById<TextView>(R.id.tvStatInProgress)
         val tvPending      = page.findViewById<TextView>(R.id.tvStatPending)
 
-        val user = auth.currentUser
-        val displayName = user?.displayName?.takeIf { !it.isNullOrBlank() } ?: "Student"
-        val email = user?.email ?: "you@example.com"
-
-        tvName.text = displayName
-        tvEmail.text = email
-
-        tvReq.text = "0"
-        tvCompleted.text = "0"
-        tvInProgress.text = "0"
-        tvPending.text = "0"
-
         val rowAcademic     = page.findViewById<View>(R.id.rowOverviewAcademic)
         val rowInstitution  = page.findViewById<View>(R.id.rowOverviewInstitution)
         val rowRole         = page.findViewById<View>(R.id.rowOverviewRole)
         val rowLanguage     = page.findViewById<View>(R.id.rowOverviewLanguage)
 
-        rowAcademic.findViewById<TextView>(R.id.tvLabel).text = "Academic Level"
-        rowAcademic.findViewById<TextView>(R.id.tvValue).text = "Honours"
-
+        // Labels
+        rowAcademic.findViewById<TextView>(R.id.tvLabel).text = "Field of Study"
         rowInstitution.findViewById<TextView>(R.id.tvLabel).text = "Institution"
-        rowInstitution.findViewById<TextView>(R.id.tvValue).text = "IE"
-
         rowRole.findViewById<TextView>(R.id.tvLabel).text = "Role"
-        rowRole.findViewById<TextView>(R.id.tvValue).text = "Student"
-
         rowLanguage.findViewById<TextView>(R.id.tvLabel).text = "Language"
+
+        // Defaults
+        tvName.text = "Student"
+        tvEmail.text = "you@example.com"
+        tvReq.text = "0"
+        tvCompleted.text = "0"
+        tvInProgress.text = "0"
+        tvPending.text = "0"
+        rowAcademic.findViewById<TextView>(R.id.tvValue).text = "—"
+        rowInstitution.findViewById<TextView>(R.id.tvValue).text = "—"
+        rowRole.findViewById<TextView>(R.id.tvValue).text = "Student"
         rowLanguage.findViewById<TextView>(R.id.tvValue).text = "English"
 
+        val uid = auth.currentUser?.uid ?: return
+
+        // 1) Profile from RTDB
+        lifecycleScope.launch(Dispatchers.IO) {
+            runCatching { db.reference.child("users").child(uid).get().await() }
+                .onSuccess { snap ->
+                    val firstName    = snap.child("firstName").getValue(String::class.java).orEmpty()
+                    val surname      = snap.child("surname").getValue(String::class.java).orEmpty()
+                    val email        = snap.child("email").getValue(String::class.java)
+                        ?: auth.currentUser?.email
+                    val role         = snap.child("role").getValue(String::class.java).orEmpty()
+                    val fieldOfStudy = snap.child("fieldOfStudy").getValue(String::class.java).orEmpty()
+                    // NEW: institution (prefers new key, falls back to legacy "organisation")
+                    val institution  = (snap.child("institution").getValue(String::class.java)
+                        ?: snap.child("organisation").getValue(String::class.java))
+                        ?.trim()
+                        .orEmpty()
+
+                    val name = listOf(firstName, surname)
+                        .filter { it.isNotBlank() }
+                        .joinToString(" ")
+                        .ifBlank { auth.currentUser?.displayName ?: "Student" }
+
+                    withContext(Dispatchers.Main) {
+                        tvName.text = name
+                        tvEmail.text = email ?: "you@example.com"
+                        rowAcademic.findViewById<TextView>(R.id.tvValue).text =
+                            fieldOfStudy.ifBlank { "—" }
+                        rowInstitution.findViewById<TextView>(R.id.tvValue).text =
+                            institution.ifBlank { "—" }
+                        rowRole.findViewById<TextView>(R.id.tvValue).text =
+                            role.replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
+                            }.ifBlank { "Student" }
+                    }
+                }
+        }
+
+        // 2) STATS from Service Reviews (for this student uid)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val all = when (val res = reviewsRepo.listGeneralRequests(userId = uid)) {
+                is NetResult.Ok  -> res.data.orEmpty()
+                is NetResult.Err -> emptyList()
+            }
+
+            val total = all.size
+            val completed = all.count { it.status.equalsCI("completed") }
+            val assigned  = all.count { it.status.equalsCI("assigned") }
+            val pendingOrSubmitted = all.count {
+                it.status.equalsCI("pending") || it.status.equalsCI("submitted")
+            }
+
+            withContext(Dispatchers.Main) {
+                tvReq.text = total.toString()
+                tvCompleted.text = completed.toString()
+                tvInProgress.text = assigned.toString()
+                tvPending.text = pendingOrSubmitted.toString()
+            }
+        }
+
+        // Optional taps
         rowAcademic.setOnClickListener { }
         rowInstitution.setOnClickListener { }
         rowRole.setOnClickListener { }
@@ -201,3 +270,7 @@ class StudentProfileSettingsActivity : BaseActivity() {
         }
     }
 }
+
+/** Case-insensitive equals helper for nullable strings */
+private fun String?.equalsCI(value: String): Boolean =
+    this != null && this.equals(value, ignoreCase = true)

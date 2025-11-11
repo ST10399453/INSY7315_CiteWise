@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tvName"
+        android:text="(Name)"
+        android:textSize="20sp"
+        android:fontFamily="@font/poppins_sembold"
+        android:textColor="@color/text_dark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/tvEmail"
+        android:text="email@example.com"
+        android:textColor="@color/text_faded"
+        android:layout_marginTop="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/dark_shadow" />
+
+    <TextView
+        android:id="@+id/tvRole"
+        android:text="Consultant"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/text_dark"
+        android:fontFamily="@font/poppins_medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/tvSpecialty"
+        android:text="General"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/text_dark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/tvStats"
+        android:text="Total: 0 • Completed: 0 • Assigned: 0 • Pending: 0"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/gradient_end"
+        android:fontFamily="@font/poppins_sembold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

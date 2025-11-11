@@ -31,7 +31,7 @@
             android:fontFamily="@font/poppins_extra_bold"
             android:textStyle="bold" />
 
-        <!-- Toggle (full width, comfy margins) -->
+        <!-- Toggle -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/toggleSettings"
             android:layout_width="match_parent"
@@ -41,42 +41,38 @@
             android:layout_gravity="center"
             android:background="@drawable/toggle_group_track"
             android:clipToPadding="false"
-        android:padding="0dp"
-        app:singleSelection="true"
-        app:selectionRequired="true">
+            android:padding="0dp"
+            app:singleSelection="true"
+            app:selectionRequired="true">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOverview"
-            style="@style/Widget.CiteWise.ProfileToggle"
-            android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Overview"
-        android:checkable="true" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOverview"
+                style="@style/Widget.CiteWise.ProfileToggle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Overview"
+                android:checkable="true" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnProfileSettings"
-            style="@style/Widget.CiteWise.ProfileToggle"
-            android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Settings"
-        android:checkable="true"
-        android:checked="true" />
-    </com.google.android.material.button.MaterialButtonToggleGroup>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnProfileSettings"
+                style="@style/Widget.CiteWise.ProfileToggle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Settings"
+                android:checkable="true" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
-
-    <!-- ===================== OVERVIEW SECTION ===================== -->
+        <!-- ===================== OVERVIEW ===================== -->
         <LinearLayout
             android:id="@+id/sectionOverview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="12dp"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:visibility="visible">
 
-            <!-- Card container -->
             <LinearLayout
                 android:id="@+id/overviewCard"
                 android:layout_width="match_parent"
@@ -140,7 +136,7 @@
                     android:orientation="horizontal"
                     android:weightSum="4">
 
-                    <!-- Stat 1 -->
+                    <!-- Requests -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -167,7 +163,7 @@
                             android:fontFamily="@font/poppins"/>
                     </LinearLayout>
 
-                    <!-- Stat 2 -->
+                    <!-- Completed -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -194,7 +190,7 @@
                             android:fontFamily="@font/poppins"/>
                     </LinearLayout>
 
-                    <!-- Stat 3 -->
+                    <!-- In progress -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -221,7 +217,7 @@
                             android:fontFamily="@font/poppins"/>
                     </LinearLayout>
 
-                    <!-- Stat 4 -->
+                    <!-- Pending -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -256,7 +252,7 @@
                     android:layout_marginTop="12dp"
                     android:background="@color/dark_shadow" />
 
-                <!-- Overview rows (value rows) -->
+                <!-- Overview value rows (must contain tvLabel & tvValue) -->
                 <include
                     android:id="@+id/rowOverviewAcademic"
                     layout="@layout/item_row_value"
@@ -273,26 +269,27 @@
                     android:id="@+id/rowOverviewRole"
                     layout="@layout/item_row_value"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
 
                 <include
                     android:id="@+id/rowOverviewLanguage"
                     layout="@layout/item_row_value"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===================== SETTINGS SECTION ===================== -->
+        <!-- ===================== SETTINGS ===================== -->
         <LinearLayout
             android:id="@+id/sectionSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginTop="12dp"
-            android:visibility="visible">
+            android:visibility="gone">
 
-            <!-- Account -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -304,21 +301,18 @@
                 android:textColor="@color/gradient_end"
                 android:textSize="18sp" />
 
-            <!-- Edit profile -->
             <include
                 android:id="@+id/rowEditProfile"
                 layout="@layout/item_row_nav"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Change password -->
             <include
                 android:id="@+id/rowChangePassword"
                 layout="@layout/item_row_nav"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Notifications -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -330,28 +324,24 @@
                 android:textColor="@color/gradient_end"
                 android:textSize="18sp" />
 
-            <!-- Push -->
             <include
                 android:id="@+id/rowPushNotifications"
                 layout="@layout/item_row_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- App -->
             <include
                 android:id="@+id/rowAppNotifications"
                 layout="@layout/item_row_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Email -->
             <include
                 android:id="@+id/rowEmailNotifications"
                 layout="@layout/item_row_switch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Language -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -369,7 +359,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <!-- Logout -->
             <Button
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"

@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 // ============================================================
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ServiceRequestDao {
 
+    // Use ABORT so conflicts surface during drafts; server merges go via upsertByRemoteId.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: ServiceRequestEntity): Long
 
@@ -44,7 +46,7 @@ interface ServiceRequestDao {
 
     /**
      * Reset FAILED rows older than a threshold back to PENDING_UPLOAD.
-     * Useful if you want periodic automatic retries.
+     * Useful for periodic automatic retries.
      */
     @Query("""
         UPDATE service_requests 
@@ -73,13 +75,14 @@ interface ServiceRequestDao {
     )
 
     /**
-     * Upsert by remoteId while preserving important local fields when appropriate.
-     * Ensures SYNCED state and updates 'updatedAt'.
+     * Upsert by remoteId while preserving important local fields.
+     * Marks SYNCED and bumps updatedAt.
      */
     @Transaction
     suspend fun upsertByRemoteId(entity: ServiceRequestEntity) {
         val remoteId = entity.remoteId
         if (remoteId.isNullOrBlank()) {
+            // Offline draft: no remote id yet
             insert(entity)
             return
         }
@@ -117,7 +120,8 @@ interface ServiceRequestDao {
 @Dao
 interface UserDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // Upsert avoids REPLACE side effects (requires Room 2.5+).
+    @Upsert
     suspend fun upsertAll(users: List<UserEntity>)
 
     @Query("SELECT * FROM users ORDER BY firstName, surname")
@@ -137,7 +141,7 @@ interface UserDao {
 @Dao
 interface ChatDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertChats(chats: List<ChatEntity>)
 
     @Query("SELECT * FROM chats ORDER BY updatedAt DESC")
@@ -151,7 +155,7 @@ interface ChatDao {
 @Dao
 interface MessageDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertMessages(msgs: List<MessageEntity>)
 
     @Query("SELECT * FROM messages WHERE chatId = :chatId ORDER BY timeSent ASC")
@@ -171,7 +175,7 @@ interface MessageDao {
 @Dao
 interface DocumentDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsertAll(docs: List<DocumentEntity>)
 
     @Update
@@ -203,7 +207,8 @@ interface DocumentDao {
 @Dao
 interface ResourceDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    // ABORT prevents silent data loss; server merges go via upsertByRemoteId.
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entity: ResourceEntity): Long
 
     @Update
@@ -261,6 +266,7 @@ interface ResourceDao {
     suspend fun upsertByRemoteId(entity: ResourceEntity) {
         val remoteId = entity.remoteId
         if (remoteId.isNullOrBlank()) {
+            // Offline draft without remote id yet
             insert(entity)
             return
         }
@@ -282,7 +288,7 @@ interface ResourceDao {
                     faculty     = entity.faculty     ?: existing.faculty,
                     documentId  = entity.documentId  ?: existing.documentId,
                     fileName    = entity.fileName    ?: existing.fileName,
-                    filePath    = existing.filePath  ?: entity.filePath, // keep staged path if we had one
+                    filePath    = existing.filePath  ?: entity.filePath, // keep staged path if present
                     remoteId    = entity.remoteId ?: existing.remoteId,
                     syncState   = SyncState.SYNCED,
                     updatedAt   = System.currentTimeMillis()

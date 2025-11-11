@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +19,7 @@ import com.example.citewise_mobile.offline.LocalRepos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 class ConsultantTaskDetailsActivity : AppCompatActivity() {
 
     companion object {
@@ -27,7 +28,7 @@ class ConsultantTaskDetailsActivity : AppCompatActivity() {
 
     private lateinit var currentRequest: ServiceRequestDto
 
-    //UI Elements for Binding
+    // UI Elements
     private lateinit var tvServiceName: TextView
     private lateinit var chipPriority: TextView
     private lateinit var tvDeadlineInfo: TextView
@@ -35,24 +36,23 @@ class ConsultantTaskDetailsActivity : AppCompatActivity() {
     private lateinit var tvQualitativeStudyFileName: TextView
     private lateinit var btnUploadFeedback: Button
 
-    //Quote Table Elements
+    // Quote table
     private lateinit var tvWordCount: TextView
     private lateinit var tvCostPerWord: TextView
     private lateinit var tvUrgencyIncrease: TextView
     private lateinit var tvTotalQuote: TextView
 
-    //Repositories for data/file operations
+    // Repos
     private val localRepos by lazy { LocalRepos(this) }
     private val docsRepo by lazy { DocumentsRepository(getDocumentsApi(), applicationContext) }
     private fun getDocumentsApi() = com.example.citewise_mobile.api.RetrofitInstance.documentsApi
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_consultant_task_details)
 
-        //Data Setup
+        // Retrieve data
         val requestDto = intent.getSerializableExtra(EXTRA_REQUEST) as? ServiceRequestDto
         if (requestDto == null) {
             Toast.makeText(this, "Task data missing.", Toast.LENGTH_SHORT).show()
@@ -61,70 +61,69 @@ class ConsultantTaskDetailsActivity : AppCompatActivity() {
         }
         currentRequest = requestDto
 
-        //Initialize Views (Bind UI components from the XML layout)
-        findViewById<ImageButton>(R.id.btnBack).setOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        // Back button (ImageView in XML)
+        findViewById<ImageView>(R.id.btnBack).setOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
-        // --- Task Info Card Initialization ---
-        tvServiceName = findViewById(R.id.tvServiceName)
-        chipPriority = findViewById(R.id.chipPriority)
+        // --- Task Info Card ---
+        tvServiceName  = findViewById(R.id.tvServiceName)
+        chipPriority   = findViewById(R.id.chipPriority)
         tvDeadlineInfo = findViewById(R.id.tvDeadline)
-        tvStudentInfo = findViewById(R.id.tvStudent)
+        tvStudentInfo  = findViewById(R.id.tvStudent)
 
-        // --- Files Section Initialization ---
-        val cardFileLayout = findViewById<View>(R.id.cardQualitativeStudy)
+        // --- Files section ---
+        val cardFileLayout: View = findViewById(R.id.cardQualitativeStudy)
+        // tvDocName MUST exist in the XML inside cardQualitativeStudy
         tvQualitativeStudyFileName = cardFileLayout.findViewById(R.id.tvDocName)
 
         btnUploadFeedback = findViewById(R.id.btnUploadFeedback)
         cardFileLayout.setOnClickListener { handleOpenFile() }
         btnUploadFeedback.setOnClickListener { handleUploadFeedback() }
 
-
-        // --- Quote Table Initialization ---
-        tvWordCount = findViewById(R.id.tvWordCount)
-        tvCostPerWord = findViewById(R.id.tvCostPerWord)
+        // --- Quote table ---
+        tvWordCount       = findViewById(R.id.tvWordCount)
+        tvCostPerWord     = findViewById(R.id.tvCostPerWord)
         tvUrgencyIncrease = findViewById(R.id.tvUrgencyIncrease)
-        tvTotalQuote = findViewById(R.id.tvTotalQuote)
+        tvTotalQuote      = findViewById(R.id.tvTotalQuote)
 
-        // --- Action Buttons ---
+        // --- Footer actions ---
         findViewById<Button>(R.id.btnRevise).setOnClickListener { handleRevise() }
         findViewById<Button>(R.id.btnSendToStudent).setOnClickListener { handleSendToStudent() }
         findViewById<Button>(R.id.btnDownloadPdf).setOnClickListener { handleDownloadPdf() }
 
-        //Bind Data
+        // Bind data
         bindRequest(currentRequest)
     }
-
-    // --- Data Binding Logic ---
 
     private fun bindRequest(req: ServiceRequestDto) {
         val priority = req.priority ?: ServicePriority.LOW
 
-        //Task Info Card
+        // Task info
         tvServiceName.text = req.serviceType?.toPretty() ?: "Untitled Task"
-        chipPriority.text = priority.toPrettyTag()
+        chipPriority.text  = priority.toPrettyTag()
 
-        //Async data binding (Deadline and Student Name)
+        // Async fields: deadline & student name
         lifecycleScope.launch(Dispatchers.IO) {
             val deadlineText = req.deadline.toUiDate()
-            val studentName = tryFindStudentName(req)
-
+            val studentName  = tryFindStudentName(req)
             withContext(Dispatchers.Main) {
-                tvDeadlineInfo.text = "Deadline: ${deadlineText}"
-                tvStudentInfo.text = "Student: $studentName"
+                tvDeadlineInfo.text = "Deadline: $deadlineText"
+                tvStudentInfo.text  = "Student: $studentName"
             }
         }
 
-        //Files Section
+        // Files
         tvQualitativeStudyFileName.text = req.originalFileName ?: "Student Document"
 
-        //Quote Table (Hardcoded placeholder data for demonstration)
-        tvWordCount.text = "8 000"
-        tvCostPerWord.text = "15c"
+        // Quote (placeholder demo values)
+        tvWordCount.text       = "8 000"
+        tvCostPerWord.text     = "15c"
         tvUrgencyIncrease.text = "n/a"
-        tvTotalQuote.text = "R 1 200"
+        tvTotalQuote.text      = "R 1 200"
     }
 
-    //Action Handlers
+    // --- Actions ---
 
     private fun handleOpenFile() {
         val docId = currentRequest.documentId ?: return toast("Document not available yet.")
@@ -148,16 +147,17 @@ class ConsultantTaskDetailsActivity : AppCompatActivity() {
         toast("Downloading Quote PDF...")
     }
 
-    //Helper Functions
+    // --- Helpers ---
 
-    /** Download file privately then open in in-app viewer. */
     private fun downloadAndOpenInApp(documentId: String, preferredName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             when (val result = docsRepo.downloadToDisk(documentId, preferredName)) {
                 is NetResult.Ok -> withContext(Dispatchers.Main) {
                     val file = result.data
-                    val intent = Intent(this@ConsultantTaskDetailsActivity, DocumentViewerActivity::class.java)
-                        .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
+                    val intent = Intent(
+                        this@ConsultantTaskDetailsActivity,
+                        DocumentViewerActivity::class.java
+                    ).putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
                     startActivity(intent)
                 }
                 is NetResult.Err -> withContext(Dispatchers.Main) {
@@ -167,7 +167,6 @@ class ConsultantTaskDetailsActivity : AppCompatActivity() {
         }
     }
 
-    /** Looks up student name from local DB. */
     private suspend fun tryFindStudentName(req: ServiceRequestDto): String =
         withContext(Dispatchers.IO) {
             val uid = req.userId

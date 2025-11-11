@@ -27,40 +27,51 @@ class FlexTimeAdapter : JsonDeserializer<FlexTime> {
         }
     }
 
-    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): FlexTime {
-        try {
-            return when {
+    override fun deserialize(
+        json: JsonElement,
+        typeOfT: Type,
+        context: JsonDeserializationContext
+    ): FlexTime {
+        return try {
+            when {
                 json.isJsonNull -> FlexTime(null)
 
-                json.isJsonPrimitive && json.asJsonPrimitive.isString -> {
-                    // Try parsing plain string or ISO date
-                    val millis = parseIsoToMillis(json.asString)
-                    FlexTime(millis)
-                }
-
+                // Firestore object: {"_seconds":..., "_nanoseconds":...}
                 json.isJsonObject -> {
                     val obj = json.asJsonObject
                     if (obj.has("_seconds")) {
-                        // Firestore timestamp object
-                        val sec = obj.get("_seconds").asLong
+                        val sec = obj.get("_seconds")?.asLong ?: 0L
                         val nsec = obj.get("_nanoseconds")?.asLong ?: 0L
-                        FlexTime(sec * 1000L + nsec / 1_000_000L)
-                    } else FlexTime(null)
+                        FlexTime(sec * 1_000L + nsec / 1_000_000L)
+                    } else {
+                        FlexTime(null)
+                    }
+                }
+
+                // Raw number (millis)
+                json.isJsonPrimitive && json.asJsonPrimitive.isNumber ->
+                    FlexTime(json.asLong)
+
+                // String: try ISO, then numeric string
+                json.isJsonPrimitive && json.asJsonPrimitive.isString -> {
+                    val s = json.asString
+                    parseIsoToMillis(s)?.let { FlexTime(it) }
+                        ?: FlexTime(s.toLongOrNull())
                 }
 
                 else -> FlexTime(null)
             }
         } catch (_: Exception) {
-            return FlexTime(null)
+            FlexTime(null)
         }
     }
 
     private fun parseIsoToMillis(s: String): Long? {
         for (fmt in isoFormats) {
             try {
-                val date = fmt.parse(s)
-                if (date != null) return date.time
-            } catch (_: ParseException) {}
+                fmt.parse(s)?.let { return it.time }
+            } catch (_: ParseException) {
+            }
         }
         return null
     }

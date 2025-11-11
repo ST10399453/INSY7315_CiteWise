@@ -3,38 +3,31 @@ package com.example.citewise_mobile.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.R
-import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceRequestDto
-import com.example.citewise_mobile.api.ServiceType
-import com.example.citewise_mobile.api.toUiDate
+import com.google.android.material.card.MaterialCardView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ServiceReviewAdapter(
-    private val items: List<ServiceRequestDto>,
-    private val onItemClick: (ServiceRequestDto) -> Unit
+    private val data: MutableList<ServiceRequestDto>,
+    private val onClick: (ServiceRequestDto) -> Unit
 ) : RecyclerView.Adapter<ServiceReviewAdapter.VH>() {
 
-    class VH(view: View) : RecyclerView.ViewHolder(view) {
-        val root: View = view
+    private val dateFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-        // Top row
-        val tvCategory: TextView = view.findViewById(R.id.tvCategory)
-        val tvPriority: TextView = view.findViewById(R.id.tvPriority)
-
-        // Title + chevron
-        val tvServiceTitle: TextView = view.findViewById(R.id.tvServiceTitle)
-        val ivChevron: ImageView = view.findViewById(R.id.ivChevron)
-
-        // Meta
-        val tvSubmittedDate: TextView = view.findViewById(R.id.tvSubmittedDate)
-        val tvStatusLabel: TextView = view.findViewById(R.id.tvStatusLabel)
-
-        // Deadline row
-        val tvDeadline: TextView = view.findViewById(R.id.tvDeadline)
+    class VH(v: View) : RecyclerView.ViewHolder(v) {
+        val card: MaterialCardView   = v.findViewById(R.id.taskCard)
+        val tvServiceType: TextView  = v.findViewById(R.id.tvCategory)
+        val tvServiceTitle: TextView = v.findViewById(R.id.tvServiceTitle)
+        val tvStatus: TextView       = v.findViewById(R.id.tvStatusLabel)
+        val tvPriority: TextView     = v.findViewById(R.id.tvPriority)
+        val tvCreated: TextView      = v.findViewById(R.id.tvSubmittedDate)
+        val tvDeadline: TextView     = v.findViewById(R.id.tvDeadline)
+        val statusDot: View          = v.findViewById(R.id.statusDot)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -43,67 +36,63 @@ class ServiceReviewAdapter(
         return VH(v)
     }
 
-    override fun onBindViewHolder(h: VH, position: Int) {
-        val item = items[position]
+    override fun getItemCount(): Int = data.size
 
-        // Category
-        h.tvCategory.text = item.serviceType.toPretty()
+    override fun onBindViewHolder(h: VH, pos: Int) {
+        val req = data[pos]
+        val context = h.itemView.context
 
-        // Title (prefer CustomName -> file name -> description -> category)
-        h.tvServiceTitle.text = when {
-            !item.customName.isNullOrBlank() -> item.customName
-            !item.originalFileName.isNullOrBlank() -> item.originalFileName
-            !item.description.isNullOrBlank() -> item.description
-            else -> item.serviceType.toPretty()
+        // ─── Service Info ───
+        h.tvServiceType.text = req.serviceType?.name?.replace('_', ' ') ?: "Other"
+        h.tvServiceTitle.text = req.customName ?: req.originalFileName ?: "Service Request"
+
+        // ─── Status ───
+        val statusLabel = req.status?.replace('_', ' ')?.lowercase()?.replaceFirstChar {
+            it.titlecase(Locale.getDefault())
+        } ?: "Pending"
+        h.tvStatus.text = statusLabel
+
+        // Change DOT color instead of text color
+        val dotColorRes = when (statusLabel.lowercase()) {
+            "assigned" -> R.color.blue_400        // Assigned → Blue
+            "completed", "done" -> R.color.green_500   // Completed/Done → Green
+            "pending", "submitted" -> R.color.priority_Medium // Pending/Submitted → Orange
+            else -> R.color.light_highlight              // Default fallback
         }
+        h.statusDot.background.setTint(ContextCompat.getColor(context, dotColorRes))
 
+        // ─── Priority ───
+        val priority = req.priority?.name ?: "MEDIUM"
+        val priorityColor = when (priority.uppercase()) {
+            "HIGH" -> R.color.priority_High
+            "MEDIUM" -> R.color.priority_Medium
+            else -> R.color.priority_Low
+        }
+        h.tvPriority.text = priority.replaceFirstChar { it.titlecase(Locale.getDefault()) }
+        h.tvPriority.setTextColor(ContextCompat.getColor(context, priorityColor))
 
-        // Status label
-        h.tvStatusLabel.text = item.status
-            ?.replace("_", " ")
-            ?.lowercase()
-            ?.replaceFirstChar { it.uppercase() }
-            ?: "Pending"
+        // ─── Dates ───
+        val createdMillis = req.createdAt?.epochMillis ?: 0L
+        h.tvCreated.text = "Created: ${formatDate(createdMillis)}"
 
-        // Submitted date (safe fallback)
-        h.tvSubmittedDate.text = "Submitted: ${item.createdAt?.toUiDate() ?: "—"}"
-
-        // Deadline (robust null/blank handling)
-        val deadlineUi = item.deadline?.toUiDate()?.takeIf { !it.isNullOrBlank() }
-        if (deadlineUi != null) {
+        val deadlineMillis = req.deadline?.epochMillis
+        if (deadlineMillis != null) {
             h.tvDeadline.visibility = View.VISIBLE
-            h.tvDeadline.text = "Deadline: $deadlineUi"
+            h.tvDeadline.text = "Deadline: ${formatDate(deadlineMillis)}"
         } else {
             h.tvDeadline.visibility = View.GONE
-
         }
 
-        // Priority text + tint
-        val priority = item.priority ?: ServicePriority.LOW
-        h.tvPriority.text = priority.name.lowercase().replaceFirstChar { it.uppercase() }
-        val colorRes = when (priority) {
-            ServicePriority.HIGH -> R.color.priority_High
-            ServicePriority.MEDIUM -> R.color.priority_Medium
-            ServicePriority.LOW -> R.color.priority_Low
-        }
-        h.tvPriority.setTextColor(ContextCompat.getColor(h.root.context, colorRes))
-
-        // Item interactions
-        h.root.setOnClickListener { onItemClick(item) }
-        h.ivChevron.setOnClickListener { onItemClick(item) }
+        // ─── Click ───
+        h.card.setOnClickListener { onClick(req) }
     }
 
-    override fun getItemCount(): Int = items.size
+    private fun formatDate(ms: Long?): String =
+        ms?.takeIf { it > 0 }?.let { dateFmt.format(Date(it)) } ?: "—"
+
+    fun reset(newItems: List<ServiceRequestDto>) {
+        data.clear()
+        data.addAll(newItems)
+        notifyDataSetChanged()
+    }
 }
-
-/* ---- Helpers ---- */
-
-private fun ServiceType?.toPretty(): String = when (this) {
-    ServiceType.PROOFREADING_EDITING -> "Proofreading & Editing"
-    ServiceType.FORMATTING_REFERENCING -> "Formatting & Referencing"
-    ServiceType.DATA_ANALYSIS_SUPPORT -> "Data Analysis Support"
-    ServiceType.RESEARCH_METHODOLOGY_COACHING -> "Research/Methodology Coaching"
-    ServiceType.TRANSLATION -> "Translation"
-    ServiceType.OTHER, null -> "Other"
-}
-

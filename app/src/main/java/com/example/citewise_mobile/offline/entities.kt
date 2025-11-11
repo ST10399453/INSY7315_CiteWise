@@ -41,7 +41,7 @@ data class ServiceRequestEntity(
     val filePath: String? = null,           // local staging path before upload
     val deadlineIso: String? = null,
     val feedback: String? = null,
-    val syncState: SyncState = SyncState.SYNCED,
+    val syncState: SyncState = SyncState.PENDING_UPLOAD,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )

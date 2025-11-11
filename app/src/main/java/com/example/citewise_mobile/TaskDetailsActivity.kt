@@ -30,9 +30,7 @@ import java.io.File
 import java.net.URLConnection
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
+import java.util.*
 
 class TaskDetailsActivity : AppCompatActivity() {
 
@@ -40,28 +38,9 @@ class TaskDetailsActivity : AppCompatActivity() {
         const val EXTRA_REQUEST = "extra_request"
     }
 
-    private val fileProviderAuthority: String by lazy {
+    private val fileProviderAuthority by lazy {
         "${applicationContext.packageName}.fileprovider"
     }
-
-    private lateinit var btnBack: ImageButton
-
-    private lateinit var chipPriority: TextView
-    private lateinit var tvProjectName: TextView
-    private lateinit var tvDeadline: TextView
-    private lateinit var tvStudentAndDeadline: TextView
-
-    private lateinit var tvServiceName: TextView
-    private lateinit var tvFilesCount: TextView
-    private lateinit var tvStudentFileName: TextView
-    private lateinit var tvFeedbackFileName: TextView
-    private lateinit var rowFeedbackFile: View
-    private lateinit var btnDownloadStudentFile: MaterialButton
-    private lateinit var btnDownloadFeedbackFile: MaterialButton
-    private lateinit var btnViewStudentFile: MaterialButton
-
-    private lateinit var tvDescription: TextView
-    private lateinit var progressStage: LinearProgressIndicator
 
     private val localRepos by lazy { LocalRepos(this) }
     private val docsRepo by lazy {
@@ -71,24 +50,39 @@ class TaskDetailsActivity : AppCompatActivity() {
         )
     }
 
+    // Views
+    private lateinit var btnBack: ImageButton
+    private lateinit var chipPriority: TextView
+    private lateinit var tvProjectName: TextView
+    private lateinit var tvDeadline: TextView
+    private lateinit var tvStudentAndDeadline: TextView
+    private lateinit var tvServiceName: TextView
+    private lateinit var tvFilesCount: TextView
+    private lateinit var tvStudentFileName: TextView
+    private lateinit var tvFeedbackFileName: TextView
+    private lateinit var rowFeedbackFile: View
+    private lateinit var btnDownloadStudentFile: MaterialButton
+    private lateinit var btnDownloadFeedbackFile: MaterialButton
+    private lateinit var btnViewStudentFile: MaterialButton
+    private lateinit var tvDescription: TextView
+    private lateinit var progressStage: LinearProgressIndicator
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_details)
+        initViews()
+        (intent.getSerializableExtra(EXTRA_REQUEST) as? ServiceRequestDto)?.let { bindRequest(it) }
+    }
 
-        // Back button
+    private fun initViews() {
         btnBack = findViewById(R.id.btnBack)
         btnBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        // Top strip
         chipPriority = findViewById(R.id.chipPriority)
         tvProjectName = findViewById(R.id.tvProjectName)
         tvDeadline = findViewById(R.id.tvDeadline)
         tvStudentAndDeadline = findViewById(R.id.tvStudentAndDeadline)
-
-        // Service section
         tvServiceName = findViewById(R.id.tvServiceName)
-
-        // Files section
         tvFilesCount = findViewById(R.id.tvFilesCount)
         tvStudentFileName = findViewById(R.id.tvStudentFileName)
         tvFeedbackFileName = findViewById(R.id.tvFeedbackFileName)
@@ -96,22 +90,15 @@ class TaskDetailsActivity : AppCompatActivity() {
         btnDownloadStudentFile = findViewById(R.id.btnDownloadStudentFile)
         btnDownloadFeedbackFile = findViewById(R.id.btnDownloadFeedbackFile)
         btnViewStudentFile = findViewById(R.id.btnViewStudentFile)
-
-        // Additional info
         tvDescription = findViewById(R.id.tvDescription)
-
-        // Progress
         progressStage = findViewById(R.id.progressStage)
-
-        // Get request from Intent
-        (intent.getSerializableExtra(EXTRA_REQUEST) as? ServiceRequestDto)?.let { bindRequest(it) }
     }
 
     private fun bindRequest(req: ServiceRequestDto) {
         // Priority chip
         chipPriority.text = req.priority?.toPretty() ?: "—"
 
-        // Title (prefer customName → description → serviceType)
+        // Project name (prefer customName → description → serviceType)
         tvProjectName.text = when {
             !req.customName.isNullOrBlank() -> req.customName
             !req.description.isNullOrBlank() -> req.description
@@ -119,47 +106,48 @@ class TaskDetailsActivity : AppCompatActivity() {
             else -> "Untitled Project"
         }
 
+        // Use FlexTime as-is for remote deadline
+        val deadlineFromRemote = req.deadline.toUiDate() // returns "—" when null
 
-        // Deadline (prefer remote, fallback to local Room)
-        val deadlineFromRemote = req.deadline?.toUiDate()
-        tvDeadline.text = deadlineFromRemote ?: "—"
-        tvStudentAndDeadline.text = "Student     ${deadlineFromRemote ?: "—"}"
+        tvDeadline.text = deadlineFromRemote
 
+        // Show filename and deadline together
+        val displayFileName = req.customName ?: req.originalFileName ?: "Student File"
+        tvStudentAndDeadline.text = "$displayFileName     $deadlineFromRemote"
+
+        // If remote is missing ("—"), try local ISO fallback
         lifecycleScope.launch(Dispatchers.IO) {
-            val finalDeadline =
-                deadlineFromRemote ?: isoToUiDate(tryFindLocalDeadlineIso(req)) ?: "—"
-            val firstName = tryFindFirstName(req)
+            val localIso = tryFindLocalDeadlineIso(req)
+            val localUi = isoToUiDate(localIso)
+            val finalDeadline = if (deadlineFromRemote != "—") deadlineFromRemote else (localUi ?: "—")
 
             withContext(Dispatchers.Main) {
                 tvDeadline.text = finalDeadline
-                tvStudentAndDeadline.text = "$firstName"
+                tvStudentAndDeadline.text = "$displayFileName     $finalDeadline"
             }
         }
 
-        // Service
+        // Service name
         tvServiceName.text = req.serviceType?.toPretty() ?: "Other"
 
-        // Files block
+        // Files section
         val hasFeedback = !req.feedbackFileUrl.isNullOrEmpty()
         tvFilesCount.text = if (hasFeedback) "2" else "1"
 
-        tvStudentFileName.text = req.originalFileName ?: "Student File"
+        tvStudentFileName.text = displayFileName
         tvFeedbackFileName.text = req.feedbackFileName ?: "Feedback/Annotated File"
         rowFeedbackFile.visibility = if (hasFeedback) View.VISIBLE else View.GONE
 
-        // Download (public Downloads via DownloadManager)
+        // Download student file
         btnDownloadStudentFile.setOnClickListener {
-            val docId =
-                req.documentId ?: return@setOnClickListener toast("Document not available yet.")
-            val fileName = req.originalFileName ?: "$docId"
+            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
+            val fileName = displayFileName
             lifecycleScope.launch(Dispatchers.IO) {
                 when (val s = docsRepo.getSignedUrl(docId)) {
                     is NetResult.Ok -> withContext(Dispatchers.Main) {
                         enqueueSystemDownload(s.data, fileName)
                     }
-
                     is NetResult.Err -> withContext(Dispatchers.Main) {
-                        // fallback: save privately if signed URL not available
                         when (val saved = docsRepo.downloadToDisk(docId, fileName)) {
                             is NetResult.Ok -> toast("Saved to ${saved.data.absolutePath}")
                             is NetResult.Err -> toast("Download failed: ${saved.message}")
@@ -169,21 +157,17 @@ class TaskDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // View (save to app Downloads then in-app viewer)
+        // View student file
         btnViewStudentFile.setOnClickListener {
-            val docId =
-                req.documentId ?: return@setOnClickListener toast("Document not available yet.")
-            val fileName = req.originalFileName ?: "$docId"
+            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
+            val fileName = displayFileName
             downloadAndOpenInApp(docId, fileName)
         }
 
-        // Download feedback (direct URL if provided)
+        // Download feedback
         btnDownloadFeedbackFile.setOnClickListener {
             val url = req.feedbackFileUrl
-            if (url.isNullOrBlank()) {
-                toast("No feedback file yet.")
-                return@setOnClickListener
-            }
+            if (url.isNullOrBlank()) return@setOnClickListener toast("No feedback file yet.")
             openUrl(url)
         }
 
@@ -191,22 +175,20 @@ class TaskDetailsActivity : AppCompatActivity() {
         tvDescription.text =
             req.description?.takeIf { it.isNotBlank() } ?: "No additional information provided."
 
-        // Progress
+        // Progress bar
         progressStage.setProgressCompat(statusToProgress(req.status.orEmpty()), true)
     }
 
-    /** Download privately then open in in-app viewer. */
+    /** Download privately then open in in-app viewer */
     private fun downloadAndOpenInApp(documentId: String, preferredName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             when (val result = docsRepo.downloadToDisk(documentId, preferredName)) {
                 is NetResult.Ok -> withContext(Dispatchers.Main) {
                     val file = result.data
-                    val intent =
-                        Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
-                            .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
+                    val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
+                        .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
                     startActivity(intent)
                 }
-
                 is NetResult.Err -> withContext(Dispatchers.Main) {
                     toast("Download failed: ${result.message}")
                 }
@@ -214,7 +196,7 @@ class TaskDetailsActivity : AppCompatActivity() {
         }
     }
 
-    /** System Downloads via DownloadManager (public, visible, notification). */
+    /** System Downloads via DownloadManager */
     private fun enqueueSystemDownload(url: String, fileName: String) {
         val req = DownloadManager.Request(Uri.parse(url))
             .setTitle(fileName)
@@ -229,26 +211,10 @@ class TaskDetailsActivity : AppCompatActivity() {
         toast("Downloading to system Downloads…")
     }
 
-    /** Look up first name from local DB → DTO fallback → "Student". */
-    private suspend fun tryFindFirstName(req: ServiceRequestDto): String =
-        withContext(Dispatchers.IO) {
-            val uid = req.userId
-            if (!uid.isNullOrBlank()) {
-                val user = runCatching {
-                    localRepos.users.getAll().firstOrNull { it.uid == uid }
-                }.getOrNull()
-                val fromDb = user?.firstName?.takeIf { it.isNotBlank() }
-                if (!fromDb.isNullOrBlank()) return@withContext fromDb
-            }
-            val fromDto = req.studentName?.substringBefore(' ')?.takeIf { it.isNotBlank() }
-            return@withContext fromDto ?: "Student"
-        }
-
-    /** Try Room.deadlineIso by remoteId, else by documentId. */
+    /** Find local deadline if missing remotely */
     private suspend fun tryFindLocalDeadlineIso(req: ServiceRequestDto): String? =
         withContext(Dispatchers.IO) {
-            val byRemote =
-                req.id?.let { runCatching { localRepos.requests.findByRemoteId(it) }.getOrNull() }
+            val byRemote = req.id?.let { runCatching { localRepos.requests.findByRemoteId(it) }.getOrNull() }
             byRemote?.deadlineIso ?: run {
                 val docId = req.documentId ?: return@run null
                 val all = runCatching { localRepos.requests.getAll() }.getOrNull().orEmpty()
@@ -256,7 +222,7 @@ class TaskDetailsActivity : AppCompatActivity() {
             }
         }
 
-    /** Convert ISO-8601 Z to yyyy-MM-dd for UI. */
+    /** Convert ISO-8601 string to yyyy-MM-dd (for Room fallback only) */
     private fun isoToUiDate(iso: String?): String? {
         if (iso.isNullOrBlank()) return null
         val src = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
@@ -264,19 +230,18 @@ class TaskDetailsActivity : AppCompatActivity() {
         }
         val dst = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return try {
-            val d: Date? = src.parse(iso)
+            val d = src.parse(iso)
             d?.let(dst::format)
         } catch (_: ParseException) {
             null
         }
     }
 
-    /** (Optional legacy) open with external app by MIME. */
+    /** Open file using system MIME type */
     private fun openFile(file: File) {
         try {
-            val uri: Uri = FileProvider.getUriForFile(this, fileProviderAuthority, file)
-            val mime =
-                URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
+            val uri = FileProvider.getUriForFile(this, fileProviderAuthority, file)
+            val mime = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, mime)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -297,7 +262,8 @@ class TaskDetailsActivity : AppCompatActivity() {
         }
     }
 
-    private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    private fun toast(msg: String) =
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
     private fun ServicePriority.toPretty(): String = when (this) {
         ServicePriority.LOW -> "Low"

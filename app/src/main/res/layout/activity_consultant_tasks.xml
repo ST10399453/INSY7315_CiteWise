@@ -2,20 +2,20 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ui_background"
     tools:context=".ConsultantTasksActivity">
 
-    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:paddingBottom="72dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -32,7 +32,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp">
 
-                <!-- Back Button -->
                 <ImageView
                     android:id="@+id/btnBack"
                     android:layout_width="48dp"
@@ -42,7 +41,6 @@
                     android:contentDescription="Back"
                     android:layout_centerVertical="true" />
 
-                <!-- Title -->
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="wrap_content"
@@ -55,51 +53,52 @@
                     android:textSize="28sp" />
             </RelativeLayout>
 
-
-            <!-- Urgency Filter Tabs -->
+            <!-- Urgency Filter (pill toggle like Manage Consultants) -->
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/urgencyFilterGroup"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:orientation="horizontal"
-                android:background="@drawable/rounded_card_background"
-                android:weightSum="4"
-                android:padding="2dp"
-                android:layout_marginBottom="16dp">
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/toggle_group_track"
+                android:clipToPadding="false"
+                app:singleSelection="true"
+                app:selectionRequired="true">
 
-                <!-- Use DashboardFilterButton styles for visual consistency -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/filterAll"
-                    style="@style/ProfileToggle.Selected"
+                    style="@style/Widget.CiteWise.ProfileToggle"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:checked="true"
-                    android:text="All" />
+                    android:text="All"
+                    android:checkable="true" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/filterUrgent"
-                    style="@style/ProfileToggle.Unselected"
+                    style="@style/Widget.CiteWise.ProfileToggle"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Urgent" />
+                    android:text="Urgent"
+                    android:checkable="true" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/filterMedium"
-                    style="@style/ProfileToggle.Unselected"
+                    style="@style/Widget.CiteWise.ProfileToggle"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Medium" />
+                    android:text="Medium"
+                    android:checkable="true" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/filterLow"
-                    style="@style/ProfileToggle.Unselected"
+                    style="@style/Widget.CiteWise.ProfileToggle"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="Low" />
+                    android:text="Low"
+                    android:checkable="true" />
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <!-- Task List -->
@@ -111,19 +110,6 @@
                 android:layout_marginTop="8dp"
                 tools:listitem="@layout/item_consultant_task_card"
                 tools:itemCount="5" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!-- Bottom Navigation Anchored -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNav"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/bottom_nav_menu"
-        android:background="@drawable/rounded_card_background" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
