@@ -2,7 +2,8 @@ import { Router } from "express" // (GeeksforGeeks, 2022a)
 import { body, param, query } from "express-validator" // (express-validator, 2019)
 import { checkAuth } from "../auth/checkAuth.js" // (Balaji, 2023)
 import { bailIfInvalid } from "../utils/expressHelpers.js" // (express-validator, 2019)
-import { sendChatMessage, getChatMessagesChrono, isParticipant } from "../utils/chats.js" // (Firebase, 2022)
+import { sendChatMessage, getChatMessagesChrono, isParticipant, chatIdFor, firestore } from "../utils/messages.js" // (Firebase, 2022)
+import { decryptBody } from "./encryption.js" // (Tony, 2023)
 
 const router = Router()
 
@@ -110,6 +111,139 @@ router.post(
   },
 )
 
+/**
+ * =======================================================
+ *  ROUTE: Get Messages with Specific Peer
+ *  -------------------------------------------------------
+ *  Endpoint: GET /with-peer/:peerUid
+ *  Purpose: Get all messages between authenticated user and peer
+ *
+ *  Used by: Mobile App
+ *  Access: Authenticated users only.
+ * =======================================================
+ */
+router.get(
+  "/with-peer/:peerUid",
+  checkAuth,
+  param("peerUid").isString().notEmpty(),
+  query("limit").optional().isInt({ min: 1, max: 500 }),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res)
+    if (v) return v
+
+    try {
+      const myUid = req.user.uid
+      const { peerUid } = req.params
+      const limit = req.query.limit ? Number(req.query.limit) : 100
+
+      const chatId = chatIdFor(myUid, peerUid)
+
+      const messagesRef = firestore().collection("Chats").doc(chatId).collection("Messages")
+      const snapshot = await messagesRef.orderBy("createdAt", "asc").limit(limit).get()
+
+      const messages = snapshot.docs.map((doc) => {
+        const m = doc.data()
+        const base = { id: doc.id, ...m }
+
+        // Decrypt if encrypted
+        if (base.bodyEnc && base.body == null) {
+          try {
+            base.body = decryptBody(base.bodyEnc)
+          } catch {
+            base.body = ""
+          }
+        }
+
+        // Ensure fromUid and toUid are always present
+        return {
+          id: base.id,
+          fromUid: base.fromUid,
+          toUid: base.toUid,
+          body: base.body || "",
+          createdAt: base.createdAt,
+          updatedAt: base.updatedAt,
+          status: base.status,
+        }
+      })
+
+      return res.json({ success: true, messages })
+    } catch (e) {
+      console.error("GET /messages/with-peer error:", e)
+      return res.status(500).json({ success: false, message: "Failed to fetch messages" })
+    }
+  },
+)
+
+/**
+ * =======================================================
+ *  ROUTE: Get Messages Since Timestamp
+ *  -------------------------------------------------------
+ *  Endpoint: GET /since/:timestamp
+ *  Purpose: Get all messages for the authenticated user since a timestamp
+ *
+ *  Used by: Mobile App for polling
+ *  Access: Authenticated users only.
+ * =======================================================
+ */
+router.get("/since/:timestamp", checkAuth, param("timestamp").isInt(), async (req, res) => {
+  const v = bailIfInvalid(req, res)
+  if (v) return v
+
+  try {
+    const myUid = req.user.uid
+    const timestamp = Number(req.params.timestamp)
+
+    const chatsSnapshot = await firestore().collection("Chats").where("participants", "array-contains", myUid).get()
+
+    const allMessages = []
+
+    for (const chatDoc of chatsSnapshot.docs) {
+      const chatId = chatDoc.id
+      const messagesSnapshot = await firestore()
+        .collection("Chats")
+        .doc(chatId)
+        .collection("Messages")
+        .where("createdAt", ">", timestamp)
+        .orderBy("createdAt", "asc")
+        .limit(100)
+        .get()
+
+      for (const msgDoc of messagesSnapshot.docs) {
+        const m = msgDoc.data()
+        const base = { id: msgDoc.id, ...m }
+
+        // Decrypt if encrypted
+        if (base.bodyEnc && base.body == null) {
+          try {
+            base.body = decryptBody(base.bodyEnc)
+          } catch {
+            base.body = ""
+          }
+        }
+
+        // Ensure fromUid and toUid are always present
+        allMessages.push({
+          id: base.id,
+          fromUid: base.fromUid,
+          toUid: base.toUid,
+          body: base.body || "",
+          createdAt: base.createdAt,
+          updatedAt: base.updatedAt,
+          status: base.status,
+        })
+      }
+    }
+
+    // Sort by timestamp
+    allMessages.sort((a, b) => a.createdAt - b.createdAt)
+
+    return res.json({ success: true, messages: allMessages })
+  } catch (e) {
+    console.error("GET /messages/since error:", e)
+    return res.status(500).json({ success: false, message: "Failed to fetch messages" })
+  }
+})
+
 export default router
 
 /*
@@ -124,4 +258,6 @@ Firebase. (2022). Cloud Firestore. Google. https://firebase.google.com/docs/fire
 GeeksforGeeks. (2022a). Express.js Router. https://www.geeksforgeeks.org/express-js-router/
 
 Manico, J., & Detlefsen, A. (2015). Iron-clad Java: Building secure web applications. Oracle Press.
+
+Tony, E. (2023). Practical cryptography for developers. Leanpub.
 */
