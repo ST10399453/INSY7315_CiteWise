@@ -208,6 +208,8 @@ router.get("/since/:timestamp", checkAuth, param("timestamp").isInt(), async (re
     const myUid = req.user.uid
     const timestamp = Number(req.params.timestamp)
 
+    console.log(`/since/${timestamp} called by user: ${myUid}`)
+
     const chatsSnapshot = await firestore().collection("Chats").where("participants", "array-contains", myUid).get()
 
     const allMessages = []
@@ -236,16 +238,21 @@ router.get("/since/:timestamp", checkAuth, param("timestamp").isInt(), async (re
           }
         }
 
-        // Ensure fromUid and toUid are always present
-        allMessages.push({
+        const message = {
           id: base.id,
-          fromUid: base.fromUid,
-          toUid: base.toUid,
+          fromUid: base.fromUid, // Do NOT modify - preserve original
+          toUid: base.toUid, // Do NOT modify - preserve original
           body: base.body || "",
           createdAt: base.createdAt,
           updatedAt: base.updatedAt,
           status: base.status,
-        })
+        }
+
+        console.log(
+          `Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
+        )
+
+        allMessages.push(message)
       }
     }
 
