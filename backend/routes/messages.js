@@ -106,18 +106,17 @@ router.post(
 
       const saved = await sendChatMessage({ fromUid, toUid, body: text })
 
+      console.log(`Message sent: id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
+
       return res.status(201).json({
-        success: true,
-        message: {
-          id: saved.id,
-          chatId: saved.chatId,
-          fromUid: saved.fromUid,
-          toUid: saved.toUid,
-          body: saved.body,
-          createdAt: saved.createdAt,
-          updatedAt: saved.updatedAt,
-          status: saved.status,
-        },
+        id: saved.id,
+        chatId: saved.chatId,
+        fromUid: saved.fromUid,
+        toUid: saved.toUid,
+        body: saved.body,
+        createdAt: saved.createdAt,
+        updatedAt: saved.updatedAt,
+        status: saved.status,
       })
     } catch (e) {
       console.error("POST /messages error:", e)
@@ -193,15 +192,15 @@ router.get(
  * =======================================================
  *  ROUTE: Get Messages with Query Params (Legacy Support)
  *  -------------------------------------------------------
- *  Endpoint: GET /messages?peerId=xxx
- *  Purpose: Legacy endpoint that redirects to /with-peer/:peerUid
+ *  Endpoint: GET /?peerId=xxx
+ *  Purpose: Legacy endpoint for mobile app compatibility
  *
  *  Used by: Mobile App (legacy)
  *  Access: Authenticated users only.
  * =======================================================
  */
 router.get(
-  "/messages",
+  "/",
   checkAuth,
   query("peerId").isString().notEmpty(),
   query("limit").optional().isInt({ min: 1, max: 500 }),
@@ -244,7 +243,7 @@ router.get(
         }
       })
 
-      return res.json({ success: true, messages })
+      return res.json(messages)
     } catch (e) {
       console.error("GET /messages error:", e)
       return res.status(500).json({ success: false, message: "Failed to fetch messages" })
@@ -256,14 +255,14 @@ router.get(
  * =======================================================
  *  ROUTE: Get Messages Since Timestamp
  *  -------------------------------------------------------
- *  Endpoint: GET /since/:timestamp
+ *  Endpoint: GET /since?since=xxx
  *  Purpose: Get all messages for the authenticated user since a timestamp
  *
  *  Used by: Mobile App for polling
  *  Access: Authenticated users only.
  * =======================================================
  */
-router.get("/since", checkAuth, query("since").isInt(), async (req, res) => {
+router.get("/since", checkAuth, query("since").isNumeric(), async (req, res) => {
   const v = bailIfInvalid(req, res)
   if (v) return v
 
@@ -271,7 +270,7 @@ router.get("/since", checkAuth, query("since").isInt(), async (req, res) => {
     const myUid = req.user.uid
     const timestamp = Number(req.query.since)
 
-    console.log(`[v0] /since?since=${timestamp} called by user: ${myUid}`)
+    console.log(`/since?since=${timestamp} called by user: ${myUid}`)
 
     const chatsSnapshot = await firestore().collection("Chats").where("participants", "array-contains", myUid).get()
 
@@ -312,7 +311,7 @@ router.get("/since", checkAuth, query("since").isInt(), async (req, res) => {
         }
 
         console.log(
-          `[v0] Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
+          ` Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
         )
 
         allMessages.push(message)
@@ -322,7 +321,7 @@ router.get("/since", checkAuth, query("since").isInt(), async (req, res) => {
     // Sort by timestamp
     allMessages.sort((a, b) => a.createdAt - b.createdAt)
 
-    return res.json({ success: true, messages: allMessages })
+    return res.json(allMessages)
   } catch (e) {
     console.error("GET /messages/since error:", e)
     return res.status(500).json({ success: false, message: "Failed to fetch messages" })
