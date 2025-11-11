@@ -191,6 +191,69 @@ router.get(
 
 /**
  * =======================================================
+ *  ROUTE: Get Messages with Query Params (Legacy Support)
+ *  -------------------------------------------------------
+ *  Endpoint: GET /messages?peerId=xxx
+ *  Purpose: Legacy endpoint that redirects to /with-peer/:peerUid
+ *
+ *  Used by: Mobile App (legacy)
+ *  Access: Authenticated users only.
+ * =======================================================
+ */
+router.get(
+  "/messages",
+  checkAuth,
+  query("peerId").isString().notEmpty(),
+  query("limit").optional().isInt({ min: 1, max: 500 }),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res)
+    if (v) return v
+
+    try {
+      const myUid = req.user.uid
+      const { peerId: peerUid } = req.query
+      const limit = req.query.limit ? Number(req.query.limit) : 100
+
+      const chatId = chatIdFor(myUid, peerUid)
+
+      const messagesRef = firestore().collection("Chats").doc(chatId).collection("Messages")
+      const snapshot = await messagesRef.orderBy("createdAt", "asc").limit(limit).get()
+
+      const messages = snapshot.docs.map((doc) => {
+        const m = doc.data()
+        const base = { id: doc.id, ...m }
+
+        // Decrypt if encrypted
+        if (base.bodyEnc && base.body == null) {
+          try {
+            base.body = decryptBody(base.bodyEnc)
+          } catch {
+            base.body = ""
+          }
+        }
+
+        // Ensure fromUid and toUid are always present
+        return {
+          id: base.id,
+          fromUid: base.fromUid,
+          toUid: base.toUid,
+          body: base.body || "",
+          createdAt: base.createdAt,
+          updatedAt: base.updatedAt,
+          status: base.status,
+        }
+      })
+
+      return res.json({ success: true, messages })
+    } catch (e) {
+      console.error("GET /messages error:", e)
+      return res.status(500).json({ success: false, message: "Failed to fetch messages" })
+    }
+  },
+)
+
+/**
+ * =======================================================
  *  ROUTE: Get Messages Since Timestamp
  *  -------------------------------------------------------
  *  Endpoint: GET /since/:timestamp
@@ -200,15 +263,15 @@ router.get(
  *  Access: Authenticated users only.
  * =======================================================
  */
-router.get("/since/:timestamp", checkAuth, param("timestamp").isInt(), async (req, res) => {
+router.get("/since", checkAuth, query("since").isInt(), async (req, res) => {
   const v = bailIfInvalid(req, res)
   if (v) return v
 
   try {
     const myUid = req.user.uid
-    const timestamp = Number(req.params.timestamp)
+    const timestamp = Number(req.query.since)
 
-    console.log(`/since/${timestamp} called by user: ${myUid}`)
+    console.log(`[v0] /since?since=${timestamp} called by user: ${myUid}`)
 
     const chatsSnapshot = await firestore().collection("Chats").where("participants", "array-contains", myUid).get()
 
@@ -249,7 +312,7 @@ router.get("/since/:timestamp", checkAuth, param("timestamp").isInt(), async (re
         }
 
         console.log(
-          `Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
+          `[v0] Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
         )
 
         allMessages.push(message)
