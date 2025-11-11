@@ -1,35 +1,27 @@
-import admin from "../db/firebaseAdmin.js"; // (Firebase, 2019a; 2019b; 2019c)
-
+import admin from "../db/firebaseAdmin.js" // (Firebase, 2019a; 2019b; 2019c)
 
 /** Small wrapper class around notification helpers (Firestore + FCM). */
 class NotifyService {
   constructor() {
-    this.fs = admin.firestore();   // Firestore (Firebase, 2019a)
-    this.auth = admin.auth();      // Auth for user lookups (Firebase, 2019b)
-    this.messaging = admin.messaging(); // FCM server SDK (Firebase, 2019c)
+    this.fs = admin.firestore() // Firestore (Firebase, 2019a)
+    this.auth = admin.auth() // Auth for user lookups (Firebase, 2019b)
+    this.messaging = admin.messaging() // FCM server SDK (Firebase, 2019c)
   }
 
   /** Firestore DB handle (convenience) */
   fsdb() {
-    return this.fs; // (Firebase, 2019a)
+    return this.fs // (Firebase, 2019a)
   }
 
   /**
    * Create Notifications/{userId}/items/{autoId}
    * NOTE: We only use this for message events.
    */
-  async createFirestoreNotification(
-    userId,
-    { type, fromUid, message, fromName, fromUsername, chatId }
-  ) {
-    const uid = String(userId || "").trim();
-    if (!uid) throw new Error("createFirestoreNotification: userId required"); // defensive check (Manico & Detlefsen, 2015)
+  async createFirestoreNotification(userId, { type, fromUid, message, fromName, fromUsername, chatId }) {
+    const uid = String(userId || "").trim()
+    if (!uid) throw new Error("createFirestoreNotification: userId required") // defensive check (Manico & Detlefsen, 2015)
 
-    const ref = this.fs
-      .collection("Notifications")
-      .doc(uid)
-      .collection("items")
-      .doc(); // auto-id (Firebase, 2019a)
+    const ref = this.fs.collection("Notifications").doc(uid).collection("items").doc() // auto-id (Firebase, 2019a)
 
     const payload = {
       type: String(type || "notification"), // e.g. "chat_message"
@@ -40,33 +32,36 @@ class NotifyService {
       ...(fromUsername ? { fromUsername: String(fromUsername) } : {}),
       createdAt: admin.firestore.FieldValue.serverTimestamp(), // server time (Firebase, 2019a)
       read: false,
-    };
+    }
 
-    await ref.set(payload); // write to subcollection (Firebase, 2019a)
-    return { id: ref.id, ...payload };
+    await ref.set(payload) // write to subcollection (Firebase, 2019a)
+    return { id: ref.id, ...payload }
   }
 
   /**
    * Get all FCM device tokens stored under users/{uid}/fcmTokens/{tokenId}
    */
   async getUserDeviceTokens(userId) {
-    const uid = String(userId || "").trim();
-    if (!uid) return [];
-    const col = this.fs.collection("users").doc(uid).collection("fcmTokens"); // token storage pattern (Firebase, 2019c)
-    const docs = await col.listDocuments();
-    return docs.map((d) => d.id);
+    const uid = String(userId || "").trim()
+    if (!uid) return []
+    const col = this.fs.collection("users").doc(uid).collection("fcmTokens") // token storage pattern (Firebase, 2019c)
+    const docs = await col.listDocuments()
+    return docs.map((d) => d.id)
   }
 
   /**
    * Send a push to all tokens; prunes invalid tokens automatically.
    */
   async sendPushToUser(userId, { title, body, data = {} }) {
-    const uid = String(userId || "").trim();
-    if (!uid) return { sent: 0, pruned: 0 };
+    const uid = String(userId || "").trim()
+    if (!uid) return { sent: 0, pruned: 0 }
 
-    const tokensCol = this.fs.collection("users").doc(uid).collection("fcmTokens"); // (Firebase, 2019c)
-    const tokens = await this.getUserDeviceTokens(uid);
-    if (!tokens.length) return { sent: 0, pruned: 0 };
+    const tokensCol = this.fs.collection("users").doc(uid).collection("fcmTokens") // (Firebase, 2019c)
+    const tokens = await this.getUserDeviceTokens(uid)
+
+    console.log(`[FCM] Sending to user ${uid}, tokens found: ${tokens.length}`)
+
+    if (!tokens.length) return { sent: 0, pruned: 0 }
 
     const message = {
       tokens,
@@ -79,28 +74,46 @@ class NotifyService {
           title: title ?? "Notification",
           body: body ?? "",
           ...data,
-        }).map(([k, v]) => [k, v == null ? "" : String(v)])
+        }).map(([k, v]) => [k, v == null ? "" : String(v)]),
       ), // data payload normalization (Firebase, 2019c)
       android: {
         priority: "high",
         ttl: 60 * 60 * 1000, // 1 hour (Firebase, 2019c)
         notification: {
           sound: "default",
-          channelId: "citewise-general", // must exist in the Android app (React Native, 2025)
+          channelId: "messages", // must match CHANNEL_MESSAGES in AppMessagingService
         },
       },
-    };
+    }
 
-    const res = await this.messaging.sendEachForMulticast(message); // multicast send (Firebase, 2019c)
+    console.log(`[FCM] Sending message:`, JSON.stringify({ title, body, tokenCount: tokens.length, data }))
+
+    const res = await this.messaging.sendEachForMulticast(message) // multicast send (Firebase, 2019c)
+
+    console.log(`[FCM] Send result: success=${res.successCount}, failures=${res.failureCount}`)
+    if (res.failureCount > 0) {
+      res.responses.forEach((r, i) => {
+        if (!r.success) {
+          console.error(`[FCM] Failed to send to token ${i}:`, r.error?.message)
+        }
+      })
+    }
 
     // prune invalid tokens
-    const toDelete = [];
+    const toDelete = []
     res.responses.forEach((r, i) => {
-      if (!r.success) toDelete.push(tokens[i]); // handle invalid/unregistered tokens (Firebase, 2019c)
-    });
-    await Promise.all(toDelete.map((t) => tokensCol.doc(t).delete().catch(() => {})));
+      if (!r.success) toDelete.push(tokens[i]) // handle invalid/unregistered tokens (Firebase, 2019c)
+    })
+    await Promise.all(
+      toDelete.map((t) =>
+        tokensCol
+          .doc(t)
+          .delete()
+          .catch(() => {}),
+      ),
+    )
 
-    return { sent: res.successCount, pruned: toDelete.length };
+    return { sent: res.successCount, pruned: toDelete.length }
   }
 
   /**
@@ -108,27 +121,24 @@ class NotifyService {
    */
   async getUserProfile(uid) {
     try {
-      const rec = await this.auth.getUser(String(uid)); // Admin SDK user fetch (Firebase, 2019b)
-      const displayName = rec.displayName || rec.customClaims?.displayName || "";
+      const rec = await this.auth.getUser(String(uid)) // Admin SDK user fetch (Firebase, 2019b)
+      const displayName = rec.displayName || rec.customClaims?.displayName || ""
       const username =
-        rec.customClaims?.username ||
-        (rec.email ? rec.email.split("@")[0] : "") ||
-        rec.phoneNumber ||
-        String(uid);
+        rec.customClaims?.username || (rec.email ? rec.email.split("@")[0] : "") || rec.phoneNumber || String(uid)
 
       return {
         displayName: displayName || username || String(uid),
         username: username || String(uid),
-      };
+      }
     } catch {
-      return { displayName: String(uid), username: String(uid) }; // safe fallback (Manico & Detlefsen, 2015)
+      return { displayName: String(uid), username: String(uid) } // safe fallback (Manico & Detlefsen, 2015)
     }
   }
 }
 
 // export a ready-to-use singleton and the class
-export const notify = new NotifyService();
-export default NotifyService;
+export const notify = new NotifyService()
+export default NotifyService
 
 /*
 REFERENCES
@@ -140,7 +150,7 @@ Anil Kr Mourya. 2024. “How to Convert Base64 String to Bitmap and Bitmap to Ba
 Medium. January 2024 <https://mrappbuilder.medium.com/how-to-convert-base64-string-to-bitmap-and-bitmap-to-base64-string-7a30947b0494> [accessed September 2025].
 
 Axios. 2023. “Getting Started | Axios Docs”.
-Axios-Http.com. 2023 <https://axios-http.com/docs/intro> [accessed September 2025].
+Axios-Http.com. 2023 <https://axios-http.com/docs/intro> [accessed October 2025].
 
 Balaji, Dev. 2023. “JWT Authentication in Node.js: A Practical Guide”.
 Medium. September 2023 <https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49> [accessed October 2025].
