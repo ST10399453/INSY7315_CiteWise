@@ -160,7 +160,8 @@ export async function sendChatMessage({ fromUid, toUid, body }) {
     chatId,
     fromUid: f,
     toUid: t,
-    bodyEnc,
+    body: text, // Store plaintext body for API consistency
+    bodyEnc, // Store encrypted body for security
     preview: text.length > 120 ? text.slice(0, 117) + "..." : text,
     createdAt: now,
     updatedAt: now,
@@ -211,7 +212,16 @@ export async function sendChatMessage({ fromUid, toUid, body }) {
     console.error("[sendChatMessage] notify failed:", e?.message || e)
   }
 
-  return { id: messageRef.id, ...msg, body: text }
+  return {
+    id: messageRef.id,
+    chatId,
+    fromUid: f,
+    toUid: t,
+    body: text,
+    createdAt: now,
+    updatedAt: now,
+    status: "sent",
+  }
 }
 
 /*
@@ -224,7 +234,7 @@ Anil Kr Mourya. 2024. "How to Convert Base64 String to Bitmap and Bitmap to Base
 Medium. January 2024 <https://mrappbuilder.medium.com/how-to-convert-base64-string-to-bitmap-and-bitmap-to-base64-string-7a30947b0494> [accessed September 2025].
 
 Axios. 2023. "Getting Started | Axios Docs".
-Axios-Http.com. 2023 <https://axios-http.com/docs/intro> [accessed September 2025].
+Axios-Http.com. 2023 <https://axios-http.com/docs/intro> [accessed October 2025].
 
 Balaji, Dev. 2023. "JWT Authentication in Node.js: A Practical Guide".
 Medium. September 2023 <https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49> [accessed October 2025].

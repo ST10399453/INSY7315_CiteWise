@@ -2,7 +2,14 @@ import { Router } from "express" // (GeeksforGeeks, 2022a)
 import { body, param, query } from "express-validator" // (express-validator, 2019)
 import { checkAuth } from "../auth/checkAuth.js" // (Balaji, 2023)
 import { bailIfInvalid } from "../utils/expressHelpers.js" // (express-validator, 2019)
-import { sendChatMessage, getChatMessagesChrono, isParticipant, chatIdFor, firestore, decryptBody } from "../utils/chats.js" // (Firebase, 2022)
+import {
+  sendChatMessage,
+  getChatMessagesChrono,
+  isParticipant,
+  chatIdFor,
+  firestore,
+  decryptBody,
+} from "../utils/chats.js" // (Firebase, 2022)
 
 const router = Router()
 
@@ -101,7 +108,16 @@ router.post(
 
       return res.status(201).json({
         success: true,
-        message: saved,
+        message: {
+          id: saved.id,
+          chatId: saved.chatId,
+          fromUid: saved.fromUid,
+          toUid: saved.toUid,
+          body: saved.body,
+          createdAt: saved.createdAt,
+          updatedAt: saved.updatedAt,
+          status: saved.status,
+        },
       })
     } catch (e) {
       console.error("POST /messages error:", e)
