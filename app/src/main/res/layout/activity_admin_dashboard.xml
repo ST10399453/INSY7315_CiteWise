@@ -120,7 +120,8 @@
                             android:textColor="@color/gradient_middle"
                             android:fontFamily="@font/poppins_medium"
                             android:background="@drawable/btn_login"
-                            android:textSize="12sp" />
+                            android:textSize="12sp"
+                            android:visibility="gone"/>
 
                         <TextView
                             android:id="@+id/chipActiveToday"
@@ -133,7 +134,8 @@
                             android:textColor="@color/gradient_middle"
                             android:fontFamily="@font/poppins_medium"
                             android:background="@drawable/btn_login"
-                            android:textSize="12sp" />
+                            android:textSize="12sp"
+                            android:visibility="invisible"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -197,15 +199,6 @@
                             android:fontFamily="@font/public_sans_bold"
                             android:layout_marginTop="6dp" />
 
-                        <TextView
-                            android:id="@+id/tvConsultantsDelta"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="+8 new this month"
-                            android:textColor="@color/gradient_end"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/poppins_medium"
-                            android:layout_marginTop="2dp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -260,15 +253,6 @@
                             android:fontFamily="@font/public_sans_bold"
                             android:layout_marginTop="6dp" />
 
-                        <TextView
-                            android:id="@+id/tvStudentsDelta"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="+15 new this month"
-                            android:textColor="@color/gradient_end"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/poppins_medium"
-                            android:layout_marginTop="2dp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -341,33 +325,28 @@
                         android:layout_marginTop="8dp">
 
                         <TextView
+                            android:id="@+id/tvLegendSubmitted"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Submitted"
+                            android:text="Submitted (0)"
                             android:textColor="@color/text_faded"
                             android:textSize="12sp"
                             android:fontFamily="@font/poppins" />
 
                         <TextView
+                            android:id="@+id/tvLegendAssigned"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="In Progress"
+                            android:text="Assigned (0)"
                             android:textColor="@color/text_faded"
                             android:textSize="12sp"
                             android:fontFamily="@font/poppins" />
 
                         <TextView
+                            android:id="@+id/tvLegendCompleted"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Awaiting Feedback"
-                            android:textColor="@color/text_faded"
-                            android:textSize="12sp"
-                            android:fontFamily="@font/poppins" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Completed"
+                            android:text="Completed (0)"
                             android:textColor="@color/text_faded"
                             android:textSize="12sp"
                             android:fontFamily="@font/poppins" />
@@ -421,6 +400,20 @@
                             android:contentDescription="@string/app_name" />
                     </RelativeLayout>
 
+                    <!-- Empty state for Top Consultants (hidden by default) -->
+                    <TextView
+                        android:id="@+id/emptyTopConsultants"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="No top consultants yet"
+                        android:textAlignment="center"
+                        android:textColor="@color/text_faded"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:visibility="invisible" />
+
+                    <!-- Dynamic list container -->
                     <LinearLayout
                         android:id="@+id/listTopConsultants"
                         android:layout_width="match_parent"

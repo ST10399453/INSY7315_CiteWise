@@ -4,21 +4,31 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.citewise_mobile.offline.OfflineReset
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -34,18 +44,33 @@ class AdminDashboardActivity : BaseActivity() {
     private lateinit var tvTotalStudents: TextView
     private lateinit var tvActiveTasksCount: TextView
 
-    // Charts
+    // Legend labels
+    private lateinit var tvLegendSubmitted: TextView
+    private lateinit var tvLegendAssigned: TextView
+    private lateinit var tvLegendCompleted: TextView
+
+    // Top consultants
+    private lateinit var listTopConsultants: LinearLayout
+    private lateinit var emptyTopConsultants: TextView
+
+    // Chart & progress
     private lateinit var pieActiveTasks: PieChart
+    private lateinit var progressRequests: CircularProgressIndicator
+
+    // Firestore listeners
+    private var reviewsListener: ListenerRegistration? = null
+    private var consultantsListener: ListenerRegistration? = null
+    private var pieJob: Job? = null
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Use shared base shell that contains the BottomNavigationView
+        // Base shell with bottom nav
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
-        // Inflate the admin dashboard into the shell container
+        // Inflate dashboard into shell
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
         val childRoot = layoutInflater.inflate(
             R.layout.activity_admin_dashboard,
@@ -53,7 +78,7 @@ class AdminDashboardActivity : BaseActivity() {
             true
         )
 
-        // ---- Bind views from admin layout ----
+        // Bind views
         tvGreeting          = childRoot.findViewById(R.id.tvGreeting)
         btnMenu             = childRoot.findViewById(R.id.btnMenu)
 
@@ -61,13 +86,21 @@ class AdminDashboardActivity : BaseActivity() {
         tvTotalStudents     = childRoot.findViewById(R.id.tvStudentsValue)
         tvActiveTasksCount  = childRoot.findViewById(R.id.tvActiveTasksCount)
 
-        pieActiveTasks      = childRoot.findViewById(R.id.pieActiveTasks)
+        tvLegendSubmitted   = childRoot.findViewById(R.id.tvLegendSubmitted)
+        tvLegendAssigned    = childRoot.findViewById(R.id.tvLegendAssigned)
+        tvLegendCompleted   = childRoot.findViewById(R.id.tvLegendCompleted)
 
-        // Bottom nav (role-aware)
+        listTopConsultants  = childRoot.findViewById(R.id.listTopConsultants)
+        emptyTopConsultants = childRoot.findViewById(R.id.emptyTopConsultants)
+
+        pieActiveTasks      = childRoot.findViewById(R.id.pieActiveTasks)
+        progressRequests    = childRoot.findViewById(R.id.progressRequests)
+
+        // Bottom nav
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         setupBottomNav(bottomNav, selectedItemId = R.id.nav_dashboard)
 
-        // ---- Greeting pulled from Realtime DB ----
+        // Greeting from RTDB
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             FirebaseDatabase.getInstance().reference
@@ -82,7 +115,7 @@ class AdminDashboardActivity : BaseActivity() {
             tvGreeting.text = "Hi"
         }
 
-        // ---- Overflow menu: Sign out + full local wipe ----
+        // Overflow menu (sign out + local wipe)
         btnMenu.setOnClickListener { anchor ->
             val popup = android.widget.PopupMenu(this, anchor)
             MenuInflater(this).inflate(R.menu.menu_dashboard_overflow, popup.menu)
@@ -120,23 +153,31 @@ class AdminDashboardActivity : BaseActivity() {
             popup.show()
         }
 
-        // Show placeholders while loading
+        // Placeholders
         tvTotalConsultants.text = "—"
         tvTotalStudents.text = "—"
 
-        // Pull actual counts
+        // Fetch KPI counts (RTDB)
         fetchUserCounts()
 
-        // ---- Active tasks pie chart ----
-        // Replace these with your repository values if you have a tasks data source.
-        val submitted = 18
-        val inProgress = 32
-        val awaiting = 12
-        val completed = 10
-        setupActiveTasksPie(submitted, inProgress, awaiting, completed)
+        // Setup chart
+        setupPieUi()
+
+        // Streams
+        startActiveTasksStream()
+        startTopConsultantsStream()
     }
 
-    /** Fetch real consultant & student counts from Realtime Database. */
+    override fun onStop() {
+        super.onStop()
+        reviewsListener?.remove()
+        consultantsListener?.remove()
+        reviewsListener = null
+        consultantsListener = null
+        pieJob?.cancel()
+    }
+
+    /** One-shot totals from Realtime Database (/users). */
     private fun fetchUserCounts() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -149,7 +190,7 @@ class AdminDashboardActivity : BaseActivity() {
                 for (child in snap.children) {
                     val role = child.child("role").getValue(String::class.java)?.trim()?.lowercase()
                     when (role) {
-                        "student" -> studentCount++
+                        "student"    -> studentCount++
                         "consultant" -> consultantCount++
                     }
                 }
@@ -158,7 +199,7 @@ class AdminDashboardActivity : BaseActivity() {
                     tvTotalStudents.text = studentCount.toString()
                     tvTotalConsultants.text = consultantCount.toString()
                 }
-            } catch (t: Throwable) {
+            } catch (_: Throwable) {
                 withContext(Dispatchers.Main) {
                     tvTotalStudents.text = "0"
                     tvTotalConsultants.text = "0"
@@ -167,49 +208,171 @@ class AdminDashboardActivity : BaseActivity() {
         }
     }
 
+    /** Static styling for the pie widget. */
+    private fun setupPieUi() = with(pieActiveTasks) {
+        description = Description().apply { text = "" }
+        legend.isEnabled = false
+        setUsePercentValues(false)
+        setDrawEntryLabels(false)
+        isDrawHoleEnabled = true
+        holeRadius = 55f
+        transparentCircleRadius = 60f
+        setNoDataText("No data")
+        setTouchEnabled(true)
+    }
 
-    /** Configure the Active Tasks donut (MPAndroidChart). */
-    private fun setupActiveTasksPie(
-        submitted: Int,
-        inProgress: Int,
-        awaitingFeedback: Int,
-        completed: Int
-    ) {
-        val total = submitted + inProgress + awaitingFeedback + completed
+    /** Live stream of ServiceReviews -> Submitted / Assigned / Completed (Firestore). */
+    private fun startActiveTasksStream() {
+        val db = FirebaseFirestore.getInstance()
+        val query = db.collection("ServiceReviews")
+
+        showLoading(true)
+
+        // lifecycle-aware
+        pieJob = lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                reviewsListener?.remove()
+                reviewsListener = query.addSnapshotListener { snap, err ->
+                    if (err != null) {
+                        renderPie(0, 0, 0)
+                        showLoading(false)
+                        return@addSnapshotListener
+                    }
+
+                    val docs = snap?.documents ?: emptyList()
+                    var submitted = 0
+                    var assigned = 0
+                    var completed = 0
+
+                    for (d in docs) {
+                        when ((d.getString("status") ?: "").trim()) {
+                            "Submitted" -> submitted++
+                            "Assigned"  -> assigned++
+                            "Completed" -> completed++
+                        }
+                    }
+                    renderPie(submitted, assigned, completed)
+                    showLoading(false)
+                }
+            }
+        }
+    }
+
+    /** Render donut + legend, with colors:
+     *  Submitted -> priority_Medium (orange)
+     *  Assigned  -> blue_400
+     *  Completed -> green_500
+     */
+    private fun renderPie(submitted: Int, assigned: Int, completed: Int) {
+        val total = submitted + assigned + completed
         tvActiveTasksCount.text = total.toString()
 
-        val entries = listOf(
-            PieEntry(submitted.toFloat(), "Submitted"),
-            PieEntry(inProgress.toFloat(), "In Progress"),
-            PieEntry(awaitingFeedback.toFloat(), "Awaiting"),
-            PieEntry(completed.toFloat(), "Completed")
-        )
+        // Update legend text + colors
+        val cSubmitted = color(R.color.priority_Medium)
+        val cAssigned  = color(R.color.blue_400)
+        val cCompleted = color(R.color.green_500)
 
-        val c1 = ContextCompat.getColor(this, R.color.blue_400)
-        val c2 = ContextCompat.getColor(this, R.color.indigo_500)
-        val c3 = ContextCompat.getColor(this, R.color.purple_400)
-        val c4 = ContextCompat.getColor(this, R.color.green_500)
+        tvLegendSubmitted.text = "Submitted ($submitted)"
+        tvLegendAssigned.text  = "Assigned ($assigned)"
+        tvLegendCompleted.text = "Completed ($completed)"
+
+        tvLegendSubmitted.setTextColor(cSubmitted)
+        tvLegendAssigned.setTextColor(cAssigned)
+        tvLegendCompleted.setTextColor(cCompleted)
+
+        // Build entries only for non-zero slices
+        val entries = mutableListOf<PieEntry>().apply {
+            if (submitted > 0) add(PieEntry(submitted.toFloat(), "Submitted"))
+            if (assigned  > 0) add(PieEntry(assigned.toFloat(),  "Assigned"))
+            if (completed > 0) add(PieEntry(completed.toFloat(), "Completed"))
+        }
+
+        if (entries.isEmpty()) {
+            pieActiveTasks.clear()
+            pieActiveTasks.invalidate()
+            return
+        }
+
+        val colors = entries.map { e ->
+            when (e.label) {
+                "Submitted" -> cSubmitted
+                "Assigned"  -> cAssigned
+                else        -> cCompleted
+            }
+        }
 
         val dataSet = PieDataSet(entries, "").apply {
-            colors = listOf(c1, c2, c3, c4)
+            this.colors = colors
             sliceSpace = 2f
-            valueTextSize = 10f
-            valueTextColor = ContextCompat.getColor(this@AdminDashboardActivity, R.color.text_dark)
+            setDrawValues(true)
+            valueTextColor = color(R.color.text_dark)
+            valueTextSize = 12f
         }
 
-        pieActiveTasks.apply {
-            data = PieData(dataSet)
-            isDrawHoleEnabled = true
-            holeRadius = 55f
-            transparentCircleRadius = 60f
-            setUsePercentValues(true)
-            legend.isEnabled = false
-            setDrawEntryLabels(false)
-            description = Description().apply { text = "" }
-            setNoDataText("")
-            setTouchEnabled(false)
-            animateY(700)
-            invalidate()
+        val data = PieData(dataSet).apply {
+            setValueFormatter(PercentFormatter(pieActiveTasks))
         }
+
+        pieActiveTasks.data = data
+        pieActiveTasks.highlightValues(null)
+        pieActiveTasks.animateY(700)
+        pieActiveTasks.invalidate()
+    }
+
+    /** Live TopConsultants stream with empty state handling. */
+    private fun startTopConsultantsStream() {
+        val db = FirebaseFirestore.getInstance()
+        val query = db.collection("TopConsultants")
+            .orderBy("rating", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(5)
+
+        consultantsListener?.remove()
+        consultantsListener = query.addSnapshotListener { snap, err ->
+            // Always reset the list container
+            listTopConsultants.removeAllViews()
+
+            if (err != null) {
+                // Show empty state (DON'T add the empty view to the list)
+                emptyTopConsultants.visibility = View.VISIBLE
+                listTopConsultants.visibility = View.GONE
+                return@addSnapshotListener
+            }
+
+            val docs = snap?.documents.orEmpty()
+            if (docs.isEmpty()) {
+                // Show empty state
+                emptyTopConsultants.visibility = View.VISIBLE
+                listTopConsultants.visibility = View.GONE
+                return@addSnapshotListener
+            }
+
+            // We have items: hide empty view, show list
+            emptyTopConsultants.visibility = View.GONE
+            listTopConsultants.visibility = View.VISIBLE
+
+            docs.forEach { doc ->
+                val name  = doc.getString("name") ?: "Unknown"
+                val score = doc.getDouble("rating") ?: 0.0
+
+                val item = TextView(this).apply {
+                    text = "$name — ⭐ ${String.format("%.1f", score)}"
+                    textSize = 14f
+                    setTextColor(ContextCompat.getColor(context, R.color.text_dark))
+                    typeface = resources.getFont(R.font.public_sans_medium)
+                    setPadding(12, 8, 12, 8)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                }
+                listTopConsultants.addView(item)
+            }
+        }
+    }
+
+    private fun color(resId: Int): Int = ContextCompat.getColor(this, resId)
+
+    private fun showLoading(loading: Boolean) {
+        progressRequests.visibility = if (loading) View.VISIBLE else View.GONE
     }
 }
