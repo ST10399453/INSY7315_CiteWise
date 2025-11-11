@@ -71,7 +71,6 @@ class AppMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
 
-        Log.d(TAG, "onMessageReceived: notification=${message.notification}, data=${message.data}")
 
         // Prefer FCM "notification" payload, then fall back to "data"
         val title = message.notification?.title ?: message.data["title"] ?: "Notification"
@@ -80,17 +79,17 @@ class AppMessagingService : FirebaseMessagingService() {
         // Optional deep link data from server (recommended for chat)
         val chatId    = message.data["chatId"]
         val chatTitle = message.data["chatTitle"] ?: title
-        val peerUid   = message.data["peerUid"]   // if your server sends it
+        val peerUid   = message.data["peerUid"]
+        val fromUid   = message.data["fromUid"]
 
-        Log.d(TAG, "Message data: title=$title, body=$body, chatId=$chatId, peerUid=$peerUid")
-
-        if (!chatId.isNullOrEmpty()) {
+        val effectivePeerUid = peerUid ?: fromUid
+        if (!effectivePeerUid.isNullOrEmpty()) {
             val broadcastIntent = Intent(ACTION_NEW_MESSAGE).apply {
                 putExtra(EXTRA_CHAT_ID, chatId)
-                putExtra(EXTRA_PEER_UID, peerUid)
+                putExtra(EXTRA_PEER_UID, effectivePeerUid)
             }
             LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
-            Log.d(TAG, "Broadcast sent to foreground activities")
+
         }
 
         // Only show if we have permission on API 33+
@@ -122,7 +121,7 @@ class AppMessagingService : FirebaseMessagingService() {
             val intent = Intent(this, Class.forName("com.example.citewise_mobile.ConversationActivity")).apply {
                 putExtra("chatId", chatId)
                 putExtra("chatTitle", chatTitle)
-                putExtra("peerUid", peerUid)
+                putExtra("peerUid", effectivePeerUid)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
             val pendingIntent = PendingIntent.getActivity(

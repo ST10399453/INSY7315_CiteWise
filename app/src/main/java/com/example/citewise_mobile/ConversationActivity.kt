@@ -2,7 +2,6 @@ package com.example.citewise_mobile
 
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
@@ -85,8 +84,6 @@ class ConversationActivity : AppCompatActivity() {
         // Load initial conversation
         loadInitial(peerUid)
 
-        setupMessageReceiver(peerUid)
-
         // Send
         findViewById<ImageButton>(R.id.btnSend).setOnClickListener {
             val et = findViewById<TextInputEditText>(R.id.etMessage)
@@ -100,14 +97,23 @@ class ConversationActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        Log.d(TAG, " onStart: registering broadcast receiver for peer=$currentPeerUid")
+        setupMessageReceiver(currentPeerUid ?: "")
         startPolling()
     }
 
     override fun onStop() {
+        Log.d(TAG, " onStop: stopping polling and unregistering receiver")
         pollJob?.cancel()
         messageReceiver?.let {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(it)
+            try {
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(it)
+                Log.d(TAG, " ✓ Broadcast receiver unregistered")
+            } catch (e: Exception) {
+                Log.e(TAG, " Error unregistering receiver", e)
+            }
         }
+        messageReceiver = null
         super.onStop()
     }
 
@@ -254,21 +260,34 @@ class ConversationActivity : AppCompatActivity() {
     }
 
     private fun setupMessageReceiver(peerUid: String) {
+        messageReceiver?.let {
+            try {
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(it)
+            } catch (e: Exception) {
+                // Ignore if not registered
+            }
+        }
+
         messageReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
+            override fun onReceive(context: Context?, intent: android.content.Intent?) {
                 val receivedPeerUid = intent?.getStringExtra(AppMessagingService.EXTRA_PEER_UID)
-                Log.d(TAG, " Broadcast received: peerUid=$receivedPeerUid, current=$peerUid")
+                Log.d(TAG, " ===== BROADCAST RECEIVED =====")
+                Log.d(TAG, " Received peerUid: $receivedPeerUid")
+                Log.d(TAG, " Current peerUid: $peerUid")
+                Log.d(TAG, " My UID: $myUid")
 
                 // Refresh if message is from current conversation peer
-                if (receivedPeerUid == peerUid || receivedPeerUid == myUid) {
-                    Log.d(TAG, " Message from current chat, refreshing immediately")
+                if (receivedPeerUid == peerUid) {
+                    Log.d(TAG, " ✓ Message from current chat peer, refreshing immediately")
                     loadInitial(peerUid)
+                } else {
+                    Log.d(TAG, " ✗ Message from different chat, ignoring")
                 }
             }
         }
 
         val filter = IntentFilter(AppMessagingService.ACTION_NEW_MESSAGE)
         LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver!!, filter)
-        Log.d(TAG, " Broadcast receiver registered")
+        Log.d(TAG, " ✓ Broadcast receiver registered for action: ${AppMessagingService.ACTION_NEW_MESSAGE}")
     }
 }
