@@ -73,7 +73,7 @@ router.get(
  * =======================================================
  *  ROUTE: Send Chat Message
  *  -------------------------------------------------------
- *  Endpoint: POST /
+ *  Endpoint: POST /send
  *  Purpose: Send a new message from the authenticated user
  *           to another user. Stores in Firestore Messages subcollection.
  *
@@ -82,14 +82,14 @@ router.get(
  * =======================================================
  */
 router.post(
-  "/",
+  "/send",
   checkAuth, // Require authentication (Balaji, 2023)
   body("toUid")
     .isString()
     .notEmpty(), // Validate recipient (express-validator, 2019)
-  body("body")
+  body("text")
     .isString()
-    .notEmpty(), // Validate message content (express-validator, 2019)
+    .notEmpty(), // Changed from "body" to "text" to match Android app request
   async (req, res) => {
     // Validate request body
     const v = bailIfInvalid(req, res) // (express-validator, 2019)
@@ -97,7 +97,7 @@ router.post(
 
     try {
       const fromUid = req.user.uid
-      const { toUid, body: text } = req.body
+      const { toUid, text } = req.body // Changed from body to text
 
       // Prevent users from messaging themselves (Manico & Detlefsen, 2015)
       if (String(toUid) === String(fromUid)) {
@@ -119,7 +119,7 @@ router.post(
         status: saved.status,
       })
     } catch (e) {
-      console.error("POST /messages error:", e)
+      console.error("POST /messages/send error:", e)
       return res.status(500).json({ success: false, message: "Failed to send message" })
     }
   },
@@ -262,13 +262,13 @@ router.get(
  *  Access: Authenticated users only.
  * =======================================================
  */
-router.get("/since", checkAuth, query("since").isNumeric(), async (req, res) => {
+router.get("/since", checkAuth, query("since").optional().isNumeric(), async (req, res) => {
   const v = bailIfInvalid(req, res)
   if (v) return v
 
   try {
     const myUid = req.user.uid
-    const timestamp = Number(req.query.since)
+    const timestamp = req.query.since ? Number(req.query.since) : 0 // Default to 0 if not provided
 
     console.log(`/since?since=${timestamp} called by user: ${myUid}`)
 
@@ -311,7 +311,7 @@ router.get("/since", checkAuth, query("since").isNumeric(), async (req, res) => 
         }
 
         console.log(
-          ` Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
+          `Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
         )
 
         allMessages.push(message)
