@@ -14,6 +14,15 @@ namespace CiteWise_Web.Controllers
         }
 
         // ----------------------
+        // GET Pending Approval
+        // ----------------------
+        [HttpGet]
+        public IActionResult PendingApproval()
+        {
+            return View();
+        }
+
+        // ----------------------
         // GET Role Select
         // ----------------------
         [HttpGet]
@@ -38,9 +47,9 @@ namespace CiteWise_Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            if (model.Role == "student")
+            if (model.role == "student")
                 return RedirectToAction("Student", new { uid = model.Uid, token = model.IdToken });
-            else if (model.Role == "consultant")
+            else if (model.role == "consultant")
                 return RedirectToAction("Consultant", new { uid = model.Uid, token = model.IdToken });
 
             // fallback
@@ -78,10 +87,10 @@ namespace CiteWise_Web.Controllers
 
             var updates = new Dictionary<string, object>
             {
-                { "Role", "student" },
+                { "role", "student" },
                 //{ "Language", model.Language },
-                { "Institution", model.Institution },
-                { "FieldOfStudy", model.FieldOfStudy }
+                { "institution", model.institution },
+                { "fieldOfStudy", model.fieldOfStudy }
             };
 
             await _firebaseService.UpdateUserProfileAsync(model.Uid, model.IdToken, updates);
@@ -89,8 +98,8 @@ namespace CiteWise_Web.Controllers
             var profile = await _firebaseService.GetUserProfileAsync(model.Uid, model.IdToken);
 
             // ✅ Set session so name appears in topbar
-            HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
-            HttpContext.Session.SetString("UserUid", profile?.Uid ?? model.Uid);
+            HttpContext.Session.SetString("UserName", profile?.firstName ?? "User");
+            HttpContext.Session.SetString("UserUid", profile?.uid ?? model.Uid);
             HttpContext.Session.SetString("UserRole", "student");
             HttpContext.Session.SetString("FirebaseToken", model.IdToken);
 
@@ -127,19 +136,25 @@ namespace CiteWise_Web.Controllers
 
             var updates = new Dictionary<string, object>
             {
-                { "Role", "consultant" },
+                { "role", "consultant" },
                 //{ "Language", model.Language },
-                { "Specialisation", model.Specialisation }
+                { "specialisation", model.specialisation },
+                { "isApproved", false }
             };
 
             await _firebaseService.UpdateUserProfileAsync(model.Uid, model.IdToken, updates);
 
             var profile = await _firebaseService.GetUserProfileAsync(model.Uid, model.IdToken);
 
-            HttpContext.Session.SetString("UserName", profile?.FirstName ?? "User");
-            HttpContext.Session.SetString("UserUid", profile?.Uid ?? model.Uid);
+            HttpContext.Session.SetString("UserName", profile?.firstName ?? "User");
+            HttpContext.Session.SetString("UserUid", profile?.uid ?? model.Uid);
             HttpContext.Session.SetString("UserRole", "consultant");
             HttpContext.Session.SetString("FirebaseToken", model.IdToken);
+
+            if (profile?.isApproved == false)
+            {
+                return RedirectToAction("PendingApproval", "Onboarding");
+            }
 
             return RedirectToAction("ConsultantDashboard", "Consultant");
 

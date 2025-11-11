@@ -10,11 +10,11 @@ namespace CiteWise_Web.Models.Account
 
         [Required]
         [Display(Name = "Institution")]
-        public string Institution { get; set; }
+        public string institution { get; set; }
 
         [Required]
         [Display(Name = "Field of Study")]
-        public string FieldOfStudy { get; set; }
+        public string fieldOfStudy { get; set; }
 
         // Hidden Firebase info
         public string Uid { get; set; }

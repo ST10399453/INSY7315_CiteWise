@@ -5,7 +5,7 @@ namespace CiteWise_Web.Models.Account
     public class RoleSelectionModel
     {
         [Required]
-        public string Role { get; set; } // Student or Consultant
+        public string role { get; set; } // Student or Consultant
 
         // Hidden Firebase info
         public string Uid { get; set; }

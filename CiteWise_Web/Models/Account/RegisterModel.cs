@@ -6,15 +6,16 @@ namespace CiteWise_Web.Models.Account
     {
         //[Required]
         [Display(Name = "First Name")]
-        public string FirstName { get; set; }
+        public string firstName { get; set; }
 
         [Required]
         [Display(Name = "Surname")]
-        public string Surname { get; set; }
+        public string surname { get; set; }
 
         [Required]
+        [Display(Name = "Email")]
         [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
-        public string Email { get; set; }
+        public string email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

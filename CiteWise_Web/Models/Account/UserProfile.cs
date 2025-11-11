@@ -4,27 +4,28 @@ namespace CiteWise_Web.Models.Account
 {
     public class UserProfile
     {
-        public string Uid { get; set; }
-        public string FirstName { get; set; }
-        public string Surname { get; set; }
-        public string Email { get; set; }
-        public string Role { get; set; } = "Pending"; // until onboarding
+        public string uid { get; set; }
+        public string firstName { get; set; }
+        public string surname { get; set; }
+        public string email { get; set; }
+        public string role { get; set; } = "Pending"; // until onboarding
                                                       //public long CreatedAt { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        public bool isApproved { get; set; }
 
         [JsonProperty("createdAt")]
         [JsonConverter(typeof(FlexibleDateTimeConverter))]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
         // Common Fields
-        public string Language { get; set; }
+        public string language { get; set; }
 
         // Student-specific fields
-        public string Institution { get; set; }
-        public string FieldOfStudy { get; set; }
+        public string institution { get; set; }
+        public string fieldOfStudy { get; set; }
 
 
         // Consultant-specific fields
-        public string Specialisation { get; set; }
+        public string specialisation { get; set; }
     }
 
     // Handles both ISO date strings and Unix timestamps

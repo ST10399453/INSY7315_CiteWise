@@ -10,7 +10,7 @@ namespace CiteWise_Web.Models.Account
 
         [Required]
         [Display(Name = "Specialisation")]
-        public string Specialisation { get; set; }
+        public string specialisation { get; set; }
 
         // Hidden Firebase info
         public string Uid { get; set; }

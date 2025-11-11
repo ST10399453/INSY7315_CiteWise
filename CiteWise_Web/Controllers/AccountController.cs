@@ -30,7 +30,7 @@ namespace CiteWise_Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var authResponse = await _firebaseService.RegisterUserAsync(model.Email, model.Password);
+            var authResponse = await _firebaseService.RegisterUserAsync(model.email, model.Password);
 
             if (authResponse == null || string.IsNullOrEmpty(authResponse.LocalId))
             {
@@ -40,17 +40,17 @@ namespace CiteWise_Web.Controllers
 
             var profile = new UserProfile
             {
-                Uid = authResponse.LocalId,
-                FirstName = model.FirstName,
-                Surname = model.Surname,
-                Email = model.Email,
-                Role = "Pending"
+                uid = authResponse.LocalId,
+                firstName = model.firstName,
+                surname = model.surname,
+                email = model.email,
+                role = "Pending"
             };
 
-            await _firebaseService.SaveUserProfileAsync(profile.Uid, authResponse.IdToken, profile);
+            await _firebaseService.SaveUserProfileAsync(profile.uid, authResponse.IdToken, profile);
 
-            HttpContext.Session.SetString("UserName", model.FirstName);
-            HttpContext.Session.SetString("UserSurname", model.Surname);
+            HttpContext.Session.SetString("UserName", model.firstName);
+            HttpContext.Session.SetString("UserSurname", model.surname);
             HttpContext.Session.SetString("UserUid", authResponse.LocalId);
             HttpContext.Session.SetString("UserRole", "Pending");
             HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
@@ -83,7 +83,7 @@ namespace CiteWise_Web.Controllers
                 return View(model);
             }
 
-            var authResponse = await _firebaseService.LoginUserAsync(model.Email, model.Password);
+            var authResponse = await _firebaseService.LoginUserAsync(model.email, model.Password);
 
             if (authResponse == null || string.IsNullOrEmpty(authResponse.LocalId))
             {
@@ -93,27 +93,27 @@ namespace CiteWise_Web.Controllers
 
             var profile = await _firebaseService.GetUserProfileAsync(authResponse.LocalId, authResponse.IdToken);
 
-            if (profile == null || string.IsNullOrEmpty(profile.Role) || profile.Role == "Pending")
+            if (profile == null || string.IsNullOrEmpty(profile.role) || profile.role == "Pending")
             {
                 return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
             }
 
-            HttpContext.Session.SetString("UserName", profile.FirstName);
-            HttpContext.Session.SetString("UserSurname", profile.Surname);
-            HttpContext.Session.SetString("UserUid", profile.Uid);
-            HttpContext.Session.SetString("UserRole", profile.Role);
+            HttpContext.Session.SetString("UserName", profile.firstName);
+            HttpContext.Session.SetString("UserSurname", profile.surname);
+            HttpContext.Session.SetString("UserUid", profile.uid);
+            HttpContext.Session.SetString("UserRole", profile.role);
 
             HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
 
-            if (profile.Role == "student")
+            if (profile.role == "student")
             {
                 return RedirectToAction("StudentDashboard", "Student");
             }
-            else if (profile.Role == "consultant")
+            else if (profile.role == "consultant")
             {
                 return RedirectToAction("ConsultantDashboard", "Consultant");
             }
-            else if (profile.Role == "admin")
+            else if (profile.role == "admin")
             {
                 return RedirectToAction("AdminDashboard", "Admin");
             }
@@ -136,11 +136,11 @@ namespace CiteWise_Web.Controllers
                 {
                     var newProfile = new UserProfile
                     {
-                        Uid = uid,
-                        FirstName = user.DisplayName?.Split(' ').FirstOrDefault() ?? "New",
-                        Surname = user.DisplayName?.Split(' ').Skip(1).FirstOrDefault() ?? "User",
-                        Email = user.Email ?? "",
-                        Role = "Pending" 
+                        uid = uid,
+                        firstName = user.DisplayName?.Split(' ').FirstOrDefault() ?? "New",
+                        surname = user.DisplayName?.Split(' ').Skip(1).FirstOrDefault() ?? "User",
+                        email = user.Email ?? "",
+                        role = "Pending" 
                    };
 
                     await _firebaseService.SaveUserProfileAsync(uid, req.Token, newProfile);
@@ -158,18 +158,18 @@ namespace CiteWise_Web.Controllers
 
                 HttpContext.Session.SetString("UserUid", uid);
                 HttpContext.Session.SetString("UserEmail", user.Email ?? "");
-                HttpContext.Session.SetString("UserName", profile.FirstName ?? user.DisplayName ?? "User");
-                HttpContext.Session.SetString("UserRole", profile.Role ?? "Pending");
+                HttpContext.Session.SetString("UserName", profile.firstName ?? user.DisplayName ?? "User");
+                HttpContext.Session.SetString("UserRole", profile.role ?? "Pending");
 
                 HttpContext.Session.SetString("FirebaseToken", req.Token);
 
 
-                string redirectUrl = profile.Role switch
+                string redirectUrl = profile.role switch
                 {
                     "consultant" => Url.Action("ConsultantDashboard", "Consultant")!,
                     "student" => Url.Action("StudentDashboard", "Student")!,
                     "admin" => Url.Action("AdminDashboard", "Admin")!,
-                    _ => Url.Action("SelectRole", "Onboarding", new { uid = profile.Uid, token = req.Token })!
+                    _ => Url.Action("SelectRole", "Onboarding", new { uid = profile.uid, token = req.Token })!
                 };
 
 
@@ -195,7 +195,7 @@ namespace CiteWise_Web.Controllers
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
         {
-            if (!ModelState.IsValid || string.IsNullOrEmpty(model.Email))
+            if (!ModelState.IsValid || string.IsNullOrEmpty(model.email))
             {
                 ModelState.AddModelError("Email", "Email is required.");
                 return View(model);
@@ -203,7 +203,7 @@ namespace CiteWise_Web.Controllers
 
             try
             {
-                await _firebaseService.SendPasswordResetEmailAsync(model.Email);
+                await _firebaseService.SendPasswordResetEmailAsync(model.email);
 
                 ViewBag.SuccessMessage = "Password reset link sent successfully!";
 

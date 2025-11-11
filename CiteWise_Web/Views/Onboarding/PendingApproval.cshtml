@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Registration Pending";
+}
+
+<style>
+    body {
+        background-color: #f8f9fc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .pending-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        text-align: center;
+        color: #333;
+        padding: 2rem;
+    }
+
+    .pending-box {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 3rem 4rem;
+        max-width: 600px;
+        width: 90%;
+    }
+
+        .pending-box h2 {
+            font-weight: 700;
+            color: #1e1e2d;
+            margin-bottom: 1rem;
+        }
+
+        .pending-box p {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #0044cc, #007bff);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #003bb5, #006ae0);
+            transform: translateY(-2px);
+        }
+
+    .status-icon {
+        font-size: 60px;
+        color: #ffc107;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="pending-container">
+    <div class="pending-box">
+        <div class="status-icon">⏳</div>
+        <h2>Your consultant registration is pending approval.</h2>
+        <p>Please wait for an administrator to review and approve your account.</p>
+        <a href="/Account/Login" class="btn btn-primary">Return to Login</a>
+    </div>
+</div>
