@@ -2,7 +2,7 @@ import { Router } from "express" // (GeeksforGeeks, 2022a)
 import { body, param, query } from "express-validator" // (express-validator, 2019)
 import { checkAuth } from "../auth/checkAuth.js" // (Balaji, 2023)
 import { bailIfInvalid } from "../utils/expressHelpers.js" // (express-validator, 2019)
-import { sendChatMessage, getChatMessagesChrono, isParticipant, chatIdFor, firestore } from "../utils/messages.js" // (Firebase, 2022)
+import { sendChatMessage, getChatMessagesChrono, isParticipant, chatIdFor, firestore } from "../utils/chats.js" // (Firebase, 2022)
 import { decryptBody } from "./encryption.js" // (Tony, 2023)
 
 const router = Router()
