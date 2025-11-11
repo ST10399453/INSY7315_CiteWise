@@ -106,7 +106,7 @@ router.post(
 
       const saved = await sendChatMessage({ fromUid, toUid, body: text })
 
-      console.log(`Message sent: id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
+      console.log(`[v0] Message sent: id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
 
       return res.status(201).json({
         id: saved.id,
@@ -262,15 +262,12 @@ router.get(
  *  Access: Authenticated users only.
  * =======================================================
  */
-router.get("/since", checkAuth, query("since").optional().isNumeric(), async (req, res) => {
-  const v = bailIfInvalid(req, res)
-  if (v) return v
-
+router.get("/since", checkAuth, query("since").isNumeric(), async (req, res) => {
   try {
     const myUid = req.user.uid
-    const timestamp = req.query.since ? Number(req.query.since) : 0 // Default to 0 if not provided
+    const timestamp = req.query.since ? Number(req.query.since) : 0
 
-    console.log(`/since?since=${timestamp} called by user: ${myUid}`)
+    console.log(`[v0] /since?since=${timestamp} called by user: ${myUid}`)
 
     const chatsSnapshot = await firestore().collection("Chats").where("participants", "array-contains", myUid).get()
 
@@ -311,7 +308,7 @@ router.get("/since", checkAuth, query("since").optional().isNumeric(), async (re
         }
 
         console.log(
-          `Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
+          `[v0] Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
         )
 
         allMessages.push(message)
@@ -327,6 +324,58 @@ router.get("/since", checkAuth, query("since").optional().isNumeric(), async (re
     return res.status(500).json({ success: false, message: "Failed to fetch messages" })
   }
 })
+
+/**
+ * =======================================================
+ *  ROUTE: Send Chat Message (Root POST - Legacy Support)
+ *  -------------------------------------------------------
+ *  Endpoint: POST /
+ *  Purpose: Legacy endpoint for mobile app - accepts "body" field
+ *
+ *  Used by: Mobile App (legacy)
+ *  Access: Authenticated users only.
+ * =======================================================
+ */
+router.post(
+  "/",
+  checkAuth,
+  body("toUid").isString().notEmpty(),
+  body("body")
+    .isString()
+    .notEmpty(), // Android sends "body" not "text"
+  async (req, res) => {
+    const v = bailIfInvalid(req, res)
+    if (v) return v
+
+    try {
+      const fromUid = req.user.uid
+      const { toUid, body: text } = req.body // Extract "body" field and rename to text
+
+      if (String(toUid) === String(fromUid)) {
+        return res.status(400).json({ success: false, message: "Cannot message yourself" })
+      }
+
+      const saved = await sendChatMessage({ fromUid, toUid, body: text })
+
+      console.log(`[v0] Message sent (root POST): id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
+
+      // Return message directly without wrapper for Android app
+      return res.status(201).json({
+        id: saved.id,
+        chatId: saved.chatId,
+        fromUid: saved.fromUid,
+        toUid: saved.toUid,
+        body: saved.body,
+        createdAt: saved.createdAt,
+        updatedAt: saved.updatedAt,
+        status: saved.status,
+      })
+    } catch (e) {
+      console.error("POST /messages error:", e)
+      return res.status(500).json({ success: false, message: "Failed to send message" })
+    }
+  },
+)
 
 export default router
 
