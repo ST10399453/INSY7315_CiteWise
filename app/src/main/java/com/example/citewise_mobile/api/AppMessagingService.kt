@@ -11,6 +11,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.citewise_mobile.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,6 +23,9 @@ class AppMessagingService : FirebaseMessagingService() {
     companion object {
         private const val TAG = "AppMessagingService"
         private const val CHANNEL_MESSAGES = "messages"
+        const val ACTION_NEW_MESSAGE = "com.example.citewise_mobile.NEW_MESSAGE"
+        const val EXTRA_CHAT_ID = "chatId"
+        const val EXTRA_PEER_UID = "peerUid"
     }
 
     override fun onNewToken(token: String) {
@@ -79,6 +83,15 @@ class AppMessagingService : FirebaseMessagingService() {
         val peerUid   = message.data["peerUid"]   // if your server sends it
 
         Log.d(TAG, "Message data: title=$title, body=$body, chatId=$chatId, peerUid=$peerUid")
+
+        if (!chatId.isNullOrEmpty()) {
+            val broadcastIntent = Intent(ACTION_NEW_MESSAGE).apply {
+                putExtra(EXTRA_CHAT_ID, chatId)
+                putExtra(EXTRA_PEER_UID, peerUid)
+            }
+            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+            Log.d(TAG, "Broadcast sent to foreground activities")
+        }
 
         // Only show if we have permission on API 33+
         val canPost = if (android.os.Build.VERSION.SDK_INT >= 33) {

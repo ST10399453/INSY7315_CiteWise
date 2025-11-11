@@ -1,16 +1,22 @@
 package com.example.citewise_mobile
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.adapters.ChatPreview
 import com.example.citewise_mobile.adapters.MessageItem
 import com.example.citewise_mobile.adapters.MessagesAdapter
+import com.example.citewise_mobile.api.AppMessagingService
 import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.data.MessagesRepository
 import com.example.citewise_mobile.data.NetResult
@@ -40,6 +46,8 @@ class ConversationActivity : AppCompatActivity() {
     private var lastSeen: Long = 0L
     private var myUid: String? = null
     private var fullChatList: List<ChatPreview> = emptyList()
+    private var messageReceiver: BroadcastReceiver? = null
+    private var currentPeerUid: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +63,9 @@ class ConversationActivity : AppCompatActivity() {
         val chatTitle = intent.getStringExtra(EXTRA_CHAT_TITLE) ?: "Chat"
         val chatId = intent.getStringExtra(EXTRA_CHAT_ID) ?: return
         val peerUid = intent.getStringExtra(EXTRA_PEER_UID) ?: return
+        currentPeerUid = peerUid
 
-        Log.d(TAG, "[v0] My UID: $myUid, Peer UID: $peerUid, Chat ID: $chatId")
+        Log.d(TAG, " My UID: $myUid, Peer UID: $peerUid, Chat ID: $chatId")
 
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.tvChatTitle).text = chatTitle
@@ -76,6 +85,8 @@ class ConversationActivity : AppCompatActivity() {
         // Load initial conversation
         loadInitial(peerUid)
 
+        setupMessageReceiver(peerUid)
+
         // Send
         findViewById<ImageButton>(R.id.btnSend).setOnClickListener {
             val et = findViewById<TextInputEditText>(R.id.etMessage)
@@ -94,6 +105,9 @@ class ConversationActivity : AppCompatActivity() {
 
     override fun onStop() {
         pollJob?.cancel()
+        messageReceiver?.let {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(it)
+        }
         super.onStop()
     }
 
@@ -108,7 +122,7 @@ class ConversationActivity : AppCompatActivity() {
                         .sortedBy { it.createdAt ?: 0L }
                         .map { d ->
                             val isMine = d.fromUid == uid
-                            Log.d(TAG, "[v0] Initial: id=${d.id}, fromUid=${d.fromUid}, toUid=${d.toUid}, myUid=$uid, isMine=$isMine")
+                            Log.d(TAG, " Initial: id=${d.id}, fromUid=${d.fromUid}, toUid=${d.toUid}, myUid=$uid, isMine=$isMine")
                             com.example.citewise_mobile.adapters.Message(
                                 id = d.id ?: "${d.fromUid}_${d.toUid}_${d.createdAt ?: 0}",
                                 text = d.body ?: "",
@@ -139,7 +153,7 @@ class ConversationActivity : AppCompatActivity() {
                 isMe = true,
                 timestamp = System.currentTimeMillis()
             )
-            Log.d(TAG, "[v0] Sending optimistic message: $tempId")
+            Log.d(TAG, " Sending optimistic message: $tempId")
 
             val currentMessages = adapter.currentList
                 .filterIsInstance<MessageItem.MessageData>()
@@ -156,7 +170,7 @@ class ConversationActivity : AppCompatActivity() {
                     val d = responseData
 
                     val isMine = (d.fromUid == uid)
-                    Log.d(TAG, "[v0] Sent confirmed: id=${d.id}, fromUid=${d.fromUid}, toUid=${d.toUid}, myUid=$uid, isMine=$isMine, body=${d.body}")
+                    Log.d(TAG, " Sent confirmed: id=${d.id}, fromUid=${d.fromUid}, toUid=${d.toUid}, myUid=$uid, isMine=$isMine, body=${d.body}")
 
                     val real = com.example.citewise_mobile.adapters.Message(
                         id = d.id ?: tempId,
@@ -199,7 +213,7 @@ class ConversationActivity : AppCompatActivity() {
                             .filter { (it.createdAt ?: 0L) > since }
                             .map { d ->
                                 val isMine = d.fromUid == uid
-                                Log.d(TAG, "[v0] Polled: id=${d.id}, fromUid=${d.fromUid}, toUid=${d.toUid}, myUid=$uid, isMine=$isMine")
+                                Log.d(TAG, " Polled: id=${d.id}, fromUid=${d.fromUid}, toUid=${d.toUid}, myUid=$uid, isMine=$isMine")
                                 com.example.citewise_mobile.adapters.Message(
                                     id = d.id ?: "${d.fromUid}_${d.toUid}_${d.createdAt ?: 0}",
                                     text = d.body ?: "",
@@ -237,5 +251,24 @@ class ConversationActivity : AppCompatActivity() {
                 recycler.smoothScrollToPosition(adapter.itemCount - 1)
             }
         }
+    }
+
+    private fun setupMessageReceiver(peerUid: String) {
+        messageReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val receivedPeerUid = intent?.getStringExtra(AppMessagingService.EXTRA_PEER_UID)
+                Log.d(TAG, " Broadcast received: peerUid=$receivedPeerUid, current=$peerUid")
+
+                // Refresh if message is from current conversation peer
+                if (receivedPeerUid == peerUid || receivedPeerUid == myUid) {
+                    Log.d(TAG, " Message from current chat, refreshing immediately")
+                    loadInitial(peerUid)
+                }
+            }
+        }
+
+        val filter = IntentFilter(AppMessagingService.ACTION_NEW_MESSAGE)
+        LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver!!, filter)
+        Log.d(TAG, " Broadcast receiver registered")
     }
 }
