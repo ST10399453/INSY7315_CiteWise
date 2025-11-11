@@ -5,77 +5,80 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ui_background"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:padding="16dp">
 
-        <LinearLayout
-            android:id="@+id/cardContainer"
-            android:layout_width="0dp"
-            android:layout_height="600dp"
-            android:layout_margin="32dp"
-            android:background="@drawable/rounded_card_background"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            app:cardCornerRadius="32dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/logo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"/>
 
-            <ImageView
-                android:id="@+id/logo"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
-                android:src="@drawable/logo"/>
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/poppins_bold"
+        android:gravity="center_horizontal"
+        android:text="Welcome to CiteWise"
+        android:textColor="@color/gradient_end"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logo" />
 
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Welcome to CiteWise"
-                android:textColor="@color/gradient_end"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:fontFamily="@font/poppins_regular"
+        android:text="CiteWise services include data analysis (quantitative and qualitative), academic proofreading, structured writing guidance, and research coaching."
+        android:textColor="@color/text_faded"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"/>
 
-            <TextView
-                android:id="@+id/tvDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
-                android:gravity="center_horizontal"
-                android:fontFamily="@font/poppins_regular"
-                android:text="CiteWise services include data analysis (quantitative and qualitative), academic proofreading, structured writing guidance, and research coaching."
-                android:textColor="@color/text_faded"
-                android:textSize="14sp" />
-
-            <!--Register Button -->
-            <Button
-                android:id="@+id/btnRegister"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
-                android:layout_margin="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/btn_register"
-                android:fontFamily="@font/poppins_bold"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:text="REGISTER NOW"
-                android:textAllCaps="true"
-                android:textColor="@color/text_light"
-                android:textSize="16sp"
-                app:backgroundTint="@null"/>
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="96dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/btn_register"
+        android:fontFamily="@font/poppins_bold"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:text="REGISTER NOW"
+        android:textAllCaps="true"
+        android:textColor="@color/text_light"
+        android:textSize="16sp"
+        app:backgroundTint="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
             <Button
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="12dp"
-                android:layout_margin="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/btn_login"
                 android:fontFamily="@font/poppins_bold"
                 android:paddingTop="10dp"
@@ -84,6 +87,9 @@
                 android:textAllCaps="true"
                 android:textColor="@color/text_dark"
                 android:textSize="16sp"
-                app:backgroundTint="@null"/>
-        </LinearLayout>
+                app:backgroundTint="@null"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnRegister"/>
+<!--        </LinearLayout>-->
 </androidx.constraintlayout.widget.ConstraintLayout>
