@@ -104,19 +104,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
             <!-- Assigned to me -->
             <TextView
                 android:layout_width="wrap_content"
@@ -124,83 +111,103 @@
                 android:text="Assigned to me"
                 android:textColor="@color/gradient_end"
                 android:textSize="24sp"
+                android:layout_marginStart="8dp"
                 android:fontFamily="@font/poppins_bold"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginTop="8dp"/>
 
-            <LinearLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/serviceCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:cardCornerRadius="20dp"
+            app:cardUseCompatPadding="true"
+            app:strokeColor="@android:color/transparent"
+            app:cardBackgroundColor="@android:color/transparent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_card_background">
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/urgencyFilterGroup"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginHorizontal="0dp"
+                android:layout_marginBottom="16dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/filterAll"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="All"
+                    android:checkable="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/filterUrgent"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Urgent"
+                    android:checkable="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/filterMedium"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Medium"
+                    android:checkable="true" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/filterLow"
+                    style="@style/Widget.CiteWise.ProfileToggle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Low"
+                    android:checkable="true" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tasksRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_card_background"
-                android:padding="16dp">
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                tools:listitem="@layout/item_service_review"
+                tools:itemCount="3" />
+            </FrameLayout>
 
-                <!-- FIXED: full-width, equal-weight pills, 48dp track -->
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/urgencyFilterGroup"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:layout_marginHorizontal="0dp"
-                    android:layout_marginBottom="16dp"
-                    app:singleSelection="true"
-                    app:selectionRequired="true">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/filterAll"
-                        style="@style/Widget.CiteWise.ProfileToggle"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:text="All"
-                        android:checkable="true" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/filterUrgent"
-                        style="@style/Widget.CiteWise.ProfileToggle"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:text="Urgent"
-                        android:checkable="true" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/filterMedium"
-                        style="@style/Widget.CiteWise.ProfileToggle"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:text="Medium"
-                        android:checkable="true" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/filterLow"
-                        style="@style/Widget.CiteWise.ProfileToggle"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:text="Low"
-                        android:checkable="true" />
-                </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/tasksRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    tools:listitem="@layout/item_service_review"
-                    tools:itemCount="3" />
-
-                <TextView
-                    android:id="@+id/tvViewAllTasks"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View all active tasks >"
-                    android:textColor="@color/gradient_end"
-                    android:fontFamily="@font/poppins_sembold"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="12dp"/>
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tvViewAllTasks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View all active tasks >"
+                android:textColor="@color/gradient_end"
+                android:fontFamily="@font/poppins_sembold"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"/>
+        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
             <!-- Schedule -->
             <TextView
@@ -209,16 +216,19 @@
                 android:text="Schedule"
                 android:textColor="@color/gradient_end"
                 android:textSize="24sp"
+                android:layout_marginStart="8dp"
                 android:fontFamily="@font/poppins_bold"
                 android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/rounded_card_background"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -260,18 +270,143 @@
                 android:textSize="24sp"
                 android:fontFamily="@font/poppins_bold"
                 android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginStart="8dp" />
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/notifications"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_card_background"
-                android:padding="16dp">
+                android:layout_marginTop="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardUseCompatPadding="true"
+                app:strokeColor="@android:color/transparent"
+                app:cardBackgroundColor="@android:color/transparent">
 
-                <include layout="@layout/include_consultant_notifications" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_card_background"
+                    android:padding="16dp">
 
-            </LinearLayout>
+                    <!-- Notification Items -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="12dp">
+
+                        <!-- Missing-->
+                        <LinearLayout
+                            android:id="@+id/btnMissingDocuments"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="12dp"
+                            android:layout_marginBottom="8dp">
+
+                            <ImageView
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:src="@drawable/ic_missing_doc"
+                                android:contentDescription="@string/app_name" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/public_sans_medium"
+                                android:text="overdue tasks"
+                                android:textColor="@color/gradient_end"
+                                android:textSize="16sp" />
+
+                            <ImageView
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:contentDescription="@string/open_notification"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="@color/gradient_end" />
+                        </LinearLayout>
+
+                        <!-- Feedback -->
+                        <LinearLayout
+                            android:id="@+id/btnFeedback"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="12dp"
+                            android:layout_marginBottom="8dp">
+
+                            <ImageView
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:src="@drawable/ic_feedback"
+                                android:contentDescription="@string/app_name" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/public_sans_medium"
+                                android:text="Feedback"
+                                android:textColor="@color/gradient_end"
+                                android:textSize="16sp" />
+
+                            <ImageView
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:src="@drawable/ic_chevron_right"
+                                android:contentDescription="@string/open_notification"
+                                app:tint="@color/gradient_end" />
+                        </LinearLayout>
+
+                        <!-- Msg -->
+                        <LinearLayout
+                            android:id="@+id/btnNewMessages"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="12dp"
+                            android:layout_marginBottom="8dp">
+
+                            <ImageView
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:src="@drawable/ic_new_messages"
+                                android:contentDescription="@string/app_name" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/public_sans_medium"
+                                android:text="@string/_1_new_message"
+                                android:textColor="@color/gradient_end"
+                                android:textSize="16sp" />
+
+                            <ImageView
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:src="@drawable/ic_chevron_right"
+                                android:contentDescription="@string/open_notification"
+                                app:tint="@color/gradient_end" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="vertical"-->
+<!--                android:background="@drawable/rounded_card_background"-->
+<!--                android:padding="16dp">-->
+
+<!--                <include layout="@layout/include_consultant_notifications" />-->
+<!--            </LinearLayout>-->
 
             <!-- Quote requests -->
             <TextView
@@ -282,7 +417,8 @@
                 android:textSize="24sp"
                 android:fontFamily="@font/poppins_bold"
                 android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/quoteRequestsRecyclerView"
@@ -290,7 +426,8 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
                 android:background="@drawable/rounded_card_background"
-                tools:itemCount="3" />
+                tools:itemCount="3"
+                android:visibility="gone"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -8,7 +8,8 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.citewise_mobile.adapters.TaskAdapter
+import com.example.citewise_mobile.adapters.ServiceReviewAdapter
+//import com.example.citewise_mobile.adapters.TaskAdapter
 import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.api.ServicePriority
 import com.example.citewise_mobile.api.ServiceRequestDto
@@ -26,7 +27,9 @@ class ConsultantTasksActivity : BaseActivity() {
 
     private var fullTaskList: List<ServiceRequestDto> = emptyList()
 
-    private lateinit var taskAdapter: TaskAdapter
+//    private lateinit var taskAdapter: TaskAdapter
+
+    private lateinit var serviceReviewAdapter: ServiceReviewAdapter
     private lateinit var tasksRecyclerView: RecyclerView
     private lateinit var urgencyFilterGroup: MaterialButtonToggleGroup
 
@@ -87,15 +90,27 @@ class ConsultantTasksActivity : BaseActivity() {
         }
     }
 
+//    private fun setupTaskListAdapter() {
+//        val click: (ServiceRequestDto) -> Unit = { req ->
+//            val intent = Intent(this, TaskDetailsActivity::class.java)
+//                .putExtra(TaskDetailsActivity.EXTRA_REQUEST, req)
+//            startActivity(intent)
+//        }
+//        tasksRecyclerView.layoutManager = LinearLayoutManager(this)
+//        taskAdapter = TaskAdapter(emptyList(), click)
+//        tasksRecyclerView.adapter = taskAdapter
+//    }
+
     private fun setupTaskListAdapter() {
-        val click: (ServiceRequestDto) -> Unit = { req ->
+        val onTaskClick: (ServiceRequestDto) -> Unit = { req ->
             val intent = Intent(this, TaskDetailsActivity::class.java)
                 .putExtra(TaskDetailsActivity.EXTRA_REQUEST, req)
             startActivity(intent)
         }
+
         tasksRecyclerView.layoutManager = LinearLayoutManager(this)
-        taskAdapter = TaskAdapter(emptyList(), click)
-        tasksRecyclerView.adapter = taskAdapter
+        serviceReviewAdapter = ServiceReviewAdapter(mutableListOf(), onTaskClick)
+        tasksRecyclerView.adapter = serviceReviewAdapter
     }
 
     private fun setupUrgencyFilter() {
@@ -118,6 +133,7 @@ class ConsultantTasksActivity : BaseActivity() {
             Urgency.MEDIUM -> fullTaskList.filter { it.priority == ServicePriority.MEDIUM }
             Urgency.LOW    -> fullTaskList.filter { it.priority == ServicePriority.LOW }
         }
-        taskAdapter.updateList(filtered)
+//        taskAdapter.updateList(filtered)
+        serviceReviewAdapter.reset(filtered)
     }
 }

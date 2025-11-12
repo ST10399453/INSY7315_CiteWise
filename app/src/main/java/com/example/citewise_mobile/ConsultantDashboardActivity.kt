@@ -276,7 +276,7 @@ class ConsultantDashboardActivity : BaseActivity() {
 
         // active tasks need to change
         tvViewAllTasks.setOnClickListener {
-            val intent = Intent(this, ConsultantTaskDetailsActivity::class.java)
+            val intent = Intent(this, ConsultantTasksActivity::class.java)
             startActivity(intent)
         }
 
