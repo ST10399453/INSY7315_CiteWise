@@ -31,11 +31,11 @@ router.post(
   upload.single("file"), // Expect a single file under field name "file"
   body("documentName").isString().notEmpty(), // (express-validator, 2019)
   body("serviceType").isString().isIn([
-    "PROOFREADING_EDITING","FORMATTING_REFERENCING","DATA_ANALYSIS_SUPPORT",
-    "RESEARCH_METHODOLOGY_COACHING","TRANSLATION","OTHER",
+    "PROOFREADING_EDITING", "FORMATTING_REFERENCING", "DATA_ANALYSIS_SUPPORT",
+    "RESEARCH_METHODOLOGY_COACHING", "TRANSLATION", "OTHER",
   ]), // (express-validator, 2019)
   body("description").isString().notEmpty(), // (express-validator, 2019)
-  body("priority").isString().isIn(["LOW","MEDIUM","HIGH"]), // (express-validator, 2019)
+  body("priority").isString().isIn(["LOW", "MEDIUM", "HIGH"]), // (express-validator, 2019)
   body("deadline").optional().isString(), // ISO string recommended
   async (req, res) => {
     // Validate inputs; bail early if invalid
@@ -63,7 +63,7 @@ router.post(
       // Assemble DB payload (Firestore document shape) (Firebase, 2019a)
       const payload = {
         userId: req.user.uid,           // Student submitting the request
-        consultantId: null,  
+        consultantId: null,
         quotationId: null,           // Not assigned yet
         serviceType,
         description,
@@ -96,25 +96,25 @@ router.post(
  * Role-based visibility to be enforced (Manico & Detlefsen, 2015)
  * ============================================================
  */
-router.get("/", 
- checkAuth,  // (Balaji, 2023)
+router.get("/",
+  checkAuth,  // (Balaji, 2023)
   async (req, res) => {
-  try {
-    // Default behavior: students see their own requests; admins/consultants can override with query
-    const status = req.query.status ?? null;
-    const userId = (req.query.userId ?? req.user?.uid) || null;
-    const consultantId = req.query.consultantId ?? null;
-    const sort = req.query.sort ?? undefined;
-    const dir = req.query.dir ?? undefined;
+    try {
+      // Default behavior: students see their own requests; admins/consultants can override with query
+      const status = req.query.status ?? null;
+      const userId = (req.query.userId ?? req.user?.uid) || null;
+      const consultantId = req.query.consultantId ?? null;
+      const sort = req.query.sort ?? undefined;
+      const dir = req.query.dir ?? undefined;
 
-    // NOTE: Ensure getRequests enforces role-based filtering using req.user (Manico & Detlefsen, 2015)
-    const out = await getRequests({ status, userId, consultantId, sort, dir }); // (Firebase, 2019a)
-    res.json(out);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-});
+      // NOTE: Ensure getRequests enforces role-based filtering using req.user (Manico & Detlefsen, 2015)
+      const out = await getRequests({ status, userId, consultantId, sort, dir }); // (Firebase, 2019a)
+      res.json(out);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    }
+  });
 
 /**
  * ============================================================
@@ -123,18 +123,18 @@ router.get("/",
  * Single-document fetch; downstream should verify visibility (Firebase, 2019a)
  * ============================================================
  */
-router.get("/:id", 
+router.get("/:id",
   checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
-  const v = bailIfInvalid(req, res); if (v) return v; // (express-validator, 2019)
-  try {
-    // Fetch a single request by ID; authorization should be verified downstream
-    res.json(await getRequestById(req.params.id)); // (Firebase, 2019a)
-  } catch (err) {
-    console.error(err);
-    res.status(404).json({ message: err.message });
-  }
-});
+    const v = bailIfInvalid(req, res); if (v) return v; // (express-validator, 2019)
+    try {
+      // Fetch a single request by ID; authorization should be verified downstream
+      res.json(await getRequestById(req.params.id)); // (Firebase, 2019a)
+    } catch (err) {
+      console.error(err);
+      res.status(404).json({ message: err.message });
+    }
+  });
 
 /**
  * ============================================================
@@ -203,17 +203,17 @@ router.put("/:id/assign",
  * Only assigned consultant/admin may start (RBAC) (Manico & Detlefsen, 2015)
  * ============================================================
  */
-router.post("/:id/start-review", 
+router.post("/:id/start-review",
   checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
-  const v = bailIfInvalid(req, res); if (v) return v;
-  try {
-    res.json(await transitionStartReview({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: err.message });
-  }
-});
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      res.json(await transitionStartReview({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  });
 
 /**
  * ============================================================
@@ -225,7 +225,7 @@ router.post("/:id/start-review",
 router.post("/:id/review",
   checkAuth, // (Balaji, 2023)
   param("id").isString(),
-  body("outcome").isIn(["approve","reject","fail"]), // (express-validator, 2019)
+  body("outcome").isIn(["approve", "reject", "fail"]), // (express-validator, 2019)
   body("feedback").optional().isString(),
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
@@ -251,17 +251,17 @@ router.post("/:id/review",
  * Ownership checks apply (Manico & Detlefsen, 2015); transactional update (Firebase, 2019a)
  * ============================================================
  */
-router.post("/:id/resubmit", 
+router.post("/:id/resubmit",
   checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
-  const v = bailIfInvalid(req, res); if (v) return v;
-  try {
-    res.json(await transitionResubmit({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: err.message });
-  }
-});
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      res.json(await transitionResubmit({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  });
 
 /**
  * ============================================================
@@ -270,17 +270,17 @@ router.post("/:id/resubmit",
  * Admin/owner/assigned consultant only (RBAC) (Manico & Detlefsen, 2015)
  * ============================================================
  */
-router.post("/:id/cancel", 
+router.post("/:id/cancel",
   checkAuth, // (Balaji, 2023)
   param("id").isString(), async (req, res) => {
-  const v = bailIfInvalid(req, res); if (v) return v;
-  try {
-    res.json(await transitionCancel({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
-  } catch (err) {
-    console.error(err);
-    res.status(400).json({ message: err.message });
-  }
-});
+    const v = bailIfInvalid(req, res); if (v) return v;
+    try {
+      res.json(await transitionCancel({ id: req.params.id, actor: req.user })); // (Firebase, 2019a)
+    } catch (err) {
+      console.error(err);
+      res.status(400).json({ message: err.message });
+    }
+  });
 
 /**
  * ============================================================
@@ -469,7 +469,12 @@ router.post(
       // 4) Compute quote
       const serviceType = String(requestDoc.serviceType || "OTHER")
       const priority = String(requestDoc.priority || "LOW")
-      const currency = process.env.QUOTE_CURRENCY || "USD"
+      const currency = process.env.QUOTE_CURRENCY || "R"
+
+      console.log("[quote] serviceType=", serviceType);
+      console.log("[quote] priority=", priority);
+      console.log("[quote] words=", words);
+
 
       const { ratePerWord, urgencyMultiplier, amount } = computeQuote({
         serviceType,
@@ -477,6 +482,11 @@ router.post(
         words,
         currency,
       })
+
+      console.log("[quote] ratePerWord=", ratePerWord);
+      console.log("[quote] urgencyMultiplier=", urgencyMultiplier);
+      console.log("[quote] amount=", amount);
+
 
       // 5) Write Quotation
       const quotePayload = {
