@@ -134,9 +134,7 @@
                                 android:layout_height="wrap_content"
                                 android:nestedScrollingEnabled="false"
                                 android:paddingStart="12dp"
-                                android:paddingEnd="12dp"
-                                tools:listitem="@layout/item_service_review"
-                                tools:itemCount="3"  />
+                                android:paddingEnd="12dp" />
                         </FrameLayout>
 
                     <TextView

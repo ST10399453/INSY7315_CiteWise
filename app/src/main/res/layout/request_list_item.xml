@@ -5,87 +5,88 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginTop="16dp"
-    android:background="@drawable/card_neumorphic_background">
+    android:background="@drawable/card_neumorphic_background"
+    android:visibility="gone">
 
     <!-- Request details -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical"-->
+<!--        android:padding="16dp">-->
 
-        <TextView
-            android:id="@+id/tvServiceName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_medium"
-            android:text="Service Name"
-            android:textColor="@color/text_dark"
-            android:textSize="16sp"/>
+<!--        <TextView-->
+<!--            android:id="@+id/tvServiceName"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:fontFamily="@font/poppins_medium"-->
+<!--            android:text="Service Name"-->
+<!--            android:textColor="@color/text_dark"-->
+<!--            android:textSize="16sp"/>-->
 
-        <TextView
-            android:id="@+id/tvRequestTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:fontFamily="@font/poppins_sembold"
-            android:text="Request title"
-            android:textColor="@color/gradient_end"
-            android:textSize="24sp"/>
+<!--        <TextView-->
+<!--            android:id="@+id/tvRequestTitle"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginBottom="8dp"-->
+<!--            android:fontFamily="@font/poppins_sembold"-->
+<!--            android:text="Request title"-->
+<!--            android:textColor="@color/gradient_end"-->
+<!--            android:textSize="24sp"/>-->
 
-        <TextView
-            android:id="@+id/tvDateStamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins"
-            android:text="date"
-            android:textColor="@color/text_faded"
-            android:textSize="12sp"/>
-    </LinearLayout>
+<!--        <TextView-->
+<!--            android:id="@+id/tvDateStamp"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:fontFamily="@font/poppins"-->
+<!--            android:text="date"-->
+<!--            android:textColor="@color/text_faded"-->
+<!--            android:textSize="12sp"/>-->
+<!--    </LinearLayout>-->
 
-    <!-- Progress -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="16dp"
-        android:gravity="center_vertical">
+<!--    &lt;!&ndash; Progress &ndash;&gt;-->
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical"-->
+<!--        android:paddingHorizontal="16dp"-->
+<!--        android:paddingBottom="16dp"-->
+<!--        android:gravity="center_vertical">-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:gravity="center_vertical"-->
+<!--            android:layout_marginBottom="8dp">-->
 
-            <ProgressBar
-                android:id="@+id/requestProgressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="0dp"
-                android:layout_height="12dp"
-                android:layout_weight="1"
-                android:max="100"
-                android:progress="0"
-                android:progressDrawable="@drawable/custom_progress_bar"/>
+<!--            <ProgressBar-->
+<!--                android:id="@+id/requestProgressBar"-->
+<!--                style="?android:attr/progressBarStyleHorizontal"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="12dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:max="100"-->
+<!--                android:progress="0"-->
+<!--                android:progressDrawable="@drawable/custom_progress_bar"/>-->
 
-            <!-- Shown when progress is 100 -->
-            <ImageView
-                android:id="@+id/ivCompletedTick"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/circle_request_success"
-                android:visibility="gone"/>
-        </LinearLayout>
+<!--            &lt;!&ndash; Shown when progress is 100 &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:id="@+id/ivCompletedTick"-->
+<!--                android:layout_width="24dp"-->
+<!--                android:layout_height="24dp"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:src="@drawable/circle_request_success"-->
+<!--                android:visibility="gone"/>-->
+<!--        </LinearLayout>-->
 
-        <!-- Status text -->
-        <TextView
-            android:id="@+id/tvProgressStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_sembold"
-            android:text="Status Loading..."
-            android:textSize="14sp"/>
-    </LinearLayout>
+<!--        &lt;!&ndash; Status text &ndash;&gt;-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvProgressStatus"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:fontFamily="@font/poppins_sembold"-->
+<!--            android:text="Status Loading..."-->
+<!--            android:textSize="14sp"/>-->
+<!--    </LinearLayout>-->
 </LinearLayout>

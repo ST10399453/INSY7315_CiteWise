@@ -1,4 +1,4 @@
-//// app/src/main/java/com/example/citewise_mobile/reviews/ServiceReviewsActivity.kt
+////app/src/main/java/com/example/citewise_mobile/reviews/ServiceReviewsActivity.kt
 //package com.example.citewise_mobile
 //
 //import android.content.Intent
@@ -141,6 +141,7 @@ import com.example.citewise_mobile.offline.RequestsPullWorker
 import com.example.citewise_mobile.offline.ServiceRequestEntity
 import com.example.citewise_mobile.offline.toServiceRequestDto
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -212,22 +213,30 @@ class ServiceReviewsActivity : AppCompatActivity() {
     private fun startCollectingRoom() {
         val mode = intent.getStringExtra(EXTRA_MODE) ?: MODE_ALL
         val local = LocalRepos(this)
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
 
         roomCollectJob?.cancel()
         roomCollectJob = lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 local.requests.observeAll().collectLatest { entities ->
+                    // ✅ Filter by userId before mapping
+                    val filtered = if (uid != null)
+                        entities.filter { it.userId == uid }
+                    else
+                        emptyList()
+
                     fullList = when (mode) {
-                        MODE_RECENT -> mapRecent(entities)
-                        else -> mapAll(entities)
+                        MODE_RECENT -> mapRecent(filtered)
+                        else -> mapAll(filtered)
                     }
 
-                    // Initially show all
+                    // Update UI
                     filterTasks(Urgency.ALL)
                 }
             }
         }
     }
+
 
     private fun setupUrgencyFilter() {
         urgencyFilterGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
