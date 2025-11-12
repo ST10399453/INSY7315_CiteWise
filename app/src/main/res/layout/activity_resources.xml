@@ -87,6 +87,7 @@
                         android:imeOptions="actionSearch"
                         android:singleLine="true"
                         android:textColor="@color/text_dark"
+                        android:background="@drawable/outline_edittext"
                         android:textColorHint="@color/text_faded"
                         android:fontFamily="@font/poppins"
                         android:textSize="14sp"
@@ -181,7 +182,8 @@
                         android:textSize="12sp"
                         android:fontFamily="@font/poppins_medium"
                         android:layout_marginTop="12dp"
-                        android:layout_marginBottom="6dp"/>
+                        android:layout_marginBottom="6dp"
+                        android:visibility="gone"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilSort"
@@ -191,7 +193,8 @@
                         app:hintEnabled="false"
                         app:endIconMode="dropdown_menu"
                         app:endIconDrawable="@drawable/ic_down_arrow"
-                        app:endIconTint="@null">
+                        app:endIconTint="@null"
+                        android:visibility="gone">
 
                         <AutoCompleteTextView
                             android:id="@+id/actSort"
