@@ -14,7 +14,6 @@
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
         android:gravity="center_vertical"
-
         android:orientation="horizontal"
         android:background="@android:color/white">
 

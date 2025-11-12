@@ -217,10 +217,13 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewStudentFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="40dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="36dp"
+                        android:minWidth="48dp"
+                        android:paddingHorizontal="10dp"
                         android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
+                        app:strokeWidth="1dp"
                         app:icon="@drawable/ic_eye"
                         app:iconTint="@color/text_dark"
                         app:iconSize="18dp"
@@ -229,18 +232,21 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadStudentFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="40dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="36dp"
+                        android:minWidth="48dp"
+                        android:paddingHorizontal="10dp"
                         android:layout_marginStart="8dp"
                         android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
+                        app:strokeWidth="1dp"
                         app:icon="@drawable/ic_download"
                         app:iconTint="@color/text_dark"
                         app:iconSize="18dp"
                         android:contentDescription="Download" />
                 </LinearLayout>
 
-                <!-- Feedback/annotated file line (optional, shown to students if present) -->
+                <!-- Feedback/annotated file line (optional) -->
                 <LinearLayout
                     android:id="@+id/rowFeedbackFile"
                     android:layout_width="match_parent"
@@ -264,10 +270,13 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewFeedbackFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="40dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="36dp"
+                        android:minWidth="48dp"
+                        android:paddingHorizontal="10dp"
                         android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
+                        app:strokeWidth="1dp"
                         app:icon="@drawable/ic_eye"
                         app:iconTint="@color/text_dark"
                         app:iconSize="18dp"
@@ -276,11 +285,14 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadFeedbackFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="40dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="36dp"
+                        android:minWidth="48dp"
+                        android:paddingHorizontal="10dp"
                         android:layout_marginStart="8dp"
                         android:backgroundTint="@android:color/transparent"
                         app:strokeColor="@color/gradient_middle"
+                        app:strokeWidth="1dp"
                         app:icon="@drawable/ic_download"
                         app:iconTint="@color/text_dark"
                         app:iconSize="18dp"
@@ -290,7 +302,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== Consultant-only: file row + upload feedback ===== -->
+        <!-- ===== Consultant-only: file row + preview/download ===== -->
         <LinearLayout
             android:id="@+id/cardQualitativeStudy"
             android:layout_width="match_parent"
@@ -311,13 +323,39 @@
                 android:textSize="16sp"
                 android:textColor="@color/text_dark" />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_doc_preview_placeholder"
-                android:contentDescription="Document" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnConsultantPreview"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="48dp"
+                android:paddingHorizontal="10dp"
+                android:backgroundTint="@android:color/transparent"
+                app:strokeColor="@color/gradient_middle"
+                app:strokeWidth="1dp"
+                app:icon="@drawable/ic_eye"
+                app:iconTint="@color/text_dark"
+                app:iconSize="18dp"
+                android:contentDescription="Preview" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnConsultantDownload"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="48dp"
+                android:paddingHorizontal="10dp"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="@android:color/transparent"
+                app:strokeColor="@color/gradient_middle"
+                app:strokeWidth="1dp"
+                app:icon="@drawable/ic_download"
+                app:iconTint="@color/text_dark"
+                app:iconSize="18dp"
+                android:contentDescription="Download" />
         </LinearLayout>
 
+        <!-- ===== Upload feedback (opens bottom sheet) ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -409,127 +447,6 @@
                     android:textColor="@color/text_faded"
                     android:fontFamily="@font/poppins_medium" />
 
-                <!-- Metrics row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_soft"
-                        android:padding="10dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Word count"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_faded" />
-
-                        <TextView
-                            android:id="@+id/tvWordCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="14sp"
-                            android:textColor="@color/text_dark"
-                            android:fontFamily="@font/poppins_medium" />
-                    </LinearLayout>
-
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_soft"
-                        android:padding="10dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Cost per word"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_faded" />
-
-                        <TextView
-                            android:id="@+id/tvCostPerWord"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="14sp"
-                            android:textColor="@color/text_dark"
-                            android:fontFamily="@font/poppins_medium" />
-                    </LinearLayout>
-
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_soft"
-                        android:padding="10dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Urgency increase"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_faded" />
-
-                        <TextView
-                            android:id="@+id/tvUrgencyIncrease"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="14sp"
-                            android:textColor="@color/text_dark"
-                            android:fontFamily="@font/poppins_medium" />
-                    </LinearLayout>
-
-                    <Space
-                        android:layout_width="8dp"
-                        android:layout_height="1dp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_soft"
-                        android:padding="10dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Total"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_faded" />
-
-                        <TextView
-                            android:id="@+id/tvTotal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="—"
-                            android:textSize="14sp"
-                            android:textColor="@color/text_dark"
-                            android:fontFamily="@font/poppins_bold" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Student action buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -563,6 +480,7 @@
                         android:textAllCaps="false"
                         android:textColor="@color/gradient_middle"
                         app:strokeColor="@color/gradient_middle"
+                        app:strokeWidth="1dp"
                         app:icon="@drawable/ic_close"
                         app:iconTint="@color/gradient_middle"
                         app:iconGravity="textStart"
@@ -579,6 +497,7 @@
                         android:textAllCaps="false"
                         android:textColor="@color/gradient_middle"
                         app:strokeColor="@color/gradient_middle"
+                        app:strokeWidth="1dp"
                         app:icon="@drawable/ic_edit"
                         app:iconTint="@color/gradient_middle"
                         app:iconGravity="textStart"
@@ -587,7 +506,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== Progress (shared) ===== -->
+        <!-- ===== Progress ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -623,49 +542,6 @@
                     app:indicatorColor="@color/gradient_middle"
                     app:trackColor="@color/progress_background"
                     app:trackThickness="10dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginTop="6dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Request Submitted"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_faded" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="Work in Progress"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_faded" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="Feedback Ready"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_faded" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:text="Completed"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_faded" />
-                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -698,17 +574,12 @@
                 android:visibility="gone"
                 android:paddingTop="8dp">
 
-                <!-- Use your styles if available -->
                 <TextView
                     style="@style/VersionHistoryItem"
                     android:text="Original version" />
                 <TextView
                     style="@style/VersionHistoryItem"
                     android:text="Annotated version 1" />
-                <TextView
-                    style="@style/VersionHistoryItem"
-                    android:text="Annotated version 2"
-                    android:drawableEnd="@drawable/ic_circle_check" />
             </LinearLayout>
         </LinearLayout>
 
@@ -763,8 +634,7 @@
                 <TextView
                     style="@style/ProgressStatusItem"
                     android:text="Awaiting Feedback"
-                    android:drawableStart="@drawable/ic_dot_purple"
-                    android:drawableEnd="@drawable/ic_circle_check" />
+                    android:drawableStart="@drawable/ic_dot_purple" />
                 <TextView
                     style="@style/ProgressStatusItem"
                     android:text="Completed"

@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/api/ServiceReviewsApi.kt
 package com.example.citewise_mobile.api
 
 import okhttp3.MultipartBody
@@ -8,11 +7,10 @@ import retrofit2.http.*
 
 interface ServiceReviewsApi {
 
-    // Health (plain text)
     @GET("/")
     suspend fun health(): Response<String>
 
-    // 1) Create — POST /requests (multipart: file + all fields)
+    // 1) Create — POST /requests (multipart)
     @Multipart
     @POST("/requests")
     suspend fun createRequestMultipart(
@@ -22,10 +20,10 @@ interface ServiceReviewsApi {
         @Part("serviceType") serviceType: RequestBody,
         @Part("description") description: RequestBody,
         @Part("priority") priority: RequestBody,
-        @Part("deadline") deadline: RequestBody? // nullable ISO string
+        @Part("deadline") deadline: RequestBody?
     ): Response<ServiceRequestDto>
 
-    // 2) List — GET /requests?status=&userId=&consultantId=
+    // 2) List
     @GET("/requests")
     suspend fun listRequests(
         @Query("status") status: String? = null,
@@ -33,57 +31,51 @@ interface ServiceReviewsApi {
         @Query("consultantId") consultantId: String? = null
     ): Response<List<ServiceRequestDto>>
 
-    // 3) Details — GET /requests/{id}
+    // 3) Details
     @GET("/requests/{id}")
-    suspend fun getRequest(
-        @Path("id") id: String
-    ): Response<ServiceRequestDto>
+    suspend fun getRequest(@Path("id") id: String): Response<ServiceRequestDto>
 
-    // Convenience: list by consultant
-    @GET("/requests")
-    suspend fun listAssignedRequests(
-        @Query("consultantId") consultantId: String
-    ): Response<List<ServiceRequestDto>>
-
-    // 4) Assign — POST /requests/{id}/assign
+    // 4) Assign
     @POST("/requests/{id}/assign")
     suspend fun assignRequest(
         @Path("id") id: String,
         @Body body: AssignRequestPayload
     ): Response<ServiceRequestDto>
 
-    // 5) Update assignment — PUT /requests/{id}/assign
+    // 5) Update assignment
     @PUT("/requests/{id}/assign")
     suspend fun updateAssignment(
         @Path("id") id: String,
         @Body body: UpdateAssignmentPayload
     ): Response<ServiceRequestDto>
 
-    // 6) Start review — POST /requests/{id}/start-review
+    // 6) Start review
     @POST("/requests/{id}/start-review")
     suspend fun startReview(@Path("id") id: String): Response<ServiceRequestDto>
 
-    // 7) Submit review outcome — POST /requests/{id}/review
+    // 7) Submit review outcome
     @POST("/requests/{id}/review")
     suspend fun submitReview(
         @Path("id") id: String,
         @Body body: SubmitReviewPayload
     ): Response<ServiceRequestDto>
 
-    // 8) Resubmit — POST /requests/{id}/resubmit
+    // 8) Resubmit
     @POST("/requests/{id}/resubmit")
     suspend fun resubmit(@Path("id") id: String): Response<ServiceRequestDto>
 
-    // 9) Cancel — POST /requests/{id}/cancel
+    // 9) Cancel
     @POST("/requests/{id}/cancel")
     suspend fun cancel(@Path("id") id: String): Response<ServiceRequestDto>
 
+    // Utility
     @GET("/requests/pending-assignments")
     suspend fun listPendingAssignments(): Response<List<ServiceRequestDto>>
 
     @GET("/consultants/unassigned")
     suspend fun listUnassignedConsultants(): Response<UnassignedConsultantsResponse>
 
+    // Annotated upload (feedback)
     @Multipart
     @POST("/requests/{id}/annotated")
     suspend fun uploadAnnotated(
@@ -93,7 +85,7 @@ interface ServiceReviewsApi {
     ): Response<ServiceRequestDto>
 }
 
-/* ---------- NEW DTOs ---------- */
+/* ---------- Supporting DTOs (add if not present) ---------- */
 
 data class ConsultantDto(
     val uid: String,
