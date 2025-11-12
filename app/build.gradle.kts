@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidbrowserhelper)
     implementation(libs.androidx.material3)
     implementation(libs.firebase.database)
+    implementation(libs.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

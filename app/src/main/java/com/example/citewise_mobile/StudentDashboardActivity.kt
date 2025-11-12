@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -21,6 +22,7 @@ import com.example.citewise_mobile.offline.OfflineReset
 import com.example.citewise_mobile.offline.RequestsPullWorker
 import com.example.citewise_mobile.offline.ServiceRequestEntity
 import com.example.citewise_mobile.offline.toServiceRequestDto
+import com.example.citewise_mobile.reviews.RateConsultantListActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -85,6 +87,11 @@ class StudentDashboardActivity : BaseActivity() {
         btnRequestService.setOnClickListener {
             startActivity(Intent(this, RequestServiceStepsActivity::class.java))
         }
+        findViewById<LinearLayout>(R.id.btnRateConsultant).setOnClickListener {
+            startActivity(Intent(this, RateConsultantListActivity::class.java))
+        }
+
+
 
         // ---------- GREETING ----------
         val uid = FirebaseAuth.getInstance().currentUser?.uid

@@ -29,6 +29,7 @@ data class ServiceRequestDto(
     val updatedAt: FlexTime? = null,
     val feedback: String? = null,
     val studentName: String? = null,
+    var studentRating: Float? = null,
     val originalFileName: String? = null,
     val customName: String? = null,
     val originalFileUrl: String? = null,
