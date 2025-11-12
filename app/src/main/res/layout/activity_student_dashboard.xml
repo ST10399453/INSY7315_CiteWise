@@ -238,37 +238,37 @@
                     android:layout_marginTop="24dp">
 
                     <!-- Missing-->
-                    <LinearLayout
-                        android:id="@+id/btnMissingDocuments"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:paddingVertical="12dp"
-                        android:layout_marginBottom="8dp">
+<!--                    <LinearLayout-->
+<!--                        android:id="@+id/btnMissingDocuments"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center_vertical"-->
+<!--                        android:paddingVertical="12dp"-->
+<!--                        android:layout_marginBottom="8dp">-->
 
-                        <ImageView
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:src="@drawable/ic_missing_doc"
-                            android:contentDescription="@string/app_name" />
+<!--                        <ImageView-->
+<!--                            android:layout_width="26dp"-->
+<!--                            android:layout_height="26dp"-->
+<!--                            android:src="@drawable/ic_missing_doc"-->
+<!--                            android:contentDescription="@string/app_name" />-->
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/public_sans_medium"
-                            android:text="@string/missing_documents"
-                            android:textColor="@color/gradient_end"
-                            android:textSize="16sp" />
+<!--                        <TextView-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_marginStart="12dp"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:fontFamily="@font/public_sans_medium"-->
+<!--                            android:text="@string/missing_documents"-->
+<!--                            android:textColor="@color/gradient_end"-->
+<!--                            android:textSize="16sp" />-->
 
-                        <ImageView
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:contentDescription="@string/open_notification"
-                            android:src="@drawable/ic_chevron_right"
-                            app:tint="@color/gradient_end" />
-                    </LinearLayout>
+<!--                        <ImageView-->
+<!--                            android:layout_width="25dp"-->
+<!--                            android:layout_height="25dp"-->
+<!--                            android:contentDescription="@string/open_notification"-->
+<!--                            android:src="@drawable/ic_chevron_right"-->
+<!--                            app:tint="@color/gradient_end" />-->
+<!--                    </LinearLayout>-->
 
                     <!-- Feedback -->
                     <LinearLayout
@@ -370,37 +370,37 @@
                     </LinearLayout>
 
                     <!--Sy=ttus-->
-                    <LinearLayout
-                        android:id="@+id/btnStatusUpdate"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:paddingVertical="12dp"
-                        android:layout_marginBottom="8dp">
+<!--                    <LinearLayout-->
+<!--                        android:id="@+id/btnStatusUpdate"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center_vertical"-->
+<!--                        android:paddingVertical="12dp"-->
+<!--                        android:layout_marginBottom="8dp">-->
 
-                        <ImageView
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:src="@drawable/ic_status_update"
-                            android:contentDescription="@string/app_name" />
+<!--                        <ImageView-->
+<!--                            android:layout_width="26dp"-->
+<!--                            android:layout_height="26dp"-->
+<!--                            android:src="@drawable/ic_status_update"-->
+<!--                            android:contentDescription="@string/app_name" />-->
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/public_sans_medium"
-                            android:text="@string/status_update"
-                            android:textColor="@color/gradient_end"
-                            android:textSize="16sp" />
+<!--                        <TextView-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_marginStart="12dp"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:fontFamily="@font/public_sans_medium"-->
+<!--                            android:text="@string/status_update"-->
+<!--                            android:textColor="@color/gradient_end"-->
+<!--                            android:textSize="16sp" />-->
 
-                        <ImageView
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:src="@drawable/ic_chevron_right"
-                            android:contentDescription="@string/open_notification"
-                            app:tint="@color/gradient_end" />
-                    </LinearLayout>
+<!--                        <ImageView-->
+<!--                            android:layout_width="25dp"-->
+<!--                            android:layout_height="25dp"-->
+<!--                            android:src="@drawable/ic_chevron_right"-->
+<!--                            android:contentDescription="@string/open_notification"-->
+<!--                            app:tint="@color/gradient_end" />-->
+<!--                    </LinearLayout>-->
                 </LinearLayout>
             </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
