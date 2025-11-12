@@ -317,7 +317,7 @@ router.post("/:id/self-assign",
 
 // GET /consultants/unassigned
 router.get(
-  "/consultants/unassigned",
+  "/requests/consultants/unassigned",
   checkAuth,
   async (req, res) => {
     try {
@@ -387,7 +387,7 @@ router.get(
 
 // POST /requests/:id/annotated  (unchanged except for keeping as-is)
 router.post(
-  "/requests/:id/annotated",
+  "/:id/annotated",
   checkAuth,
   upload.single("file"),
   param("id").isString(),
@@ -458,7 +458,7 @@ router.post(
 
 // GET /requests/pending-assignments  (treat null OR "")
 router.get(
-  "/requests/pending-assignments",
+  "/pending-assignments",
   checkAuth,
   async (req, res) => {
     try {
