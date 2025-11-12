@@ -105,6 +105,19 @@ const RATE_TABLE = {
 const URGENCY = { LOW: 1.0, MEDIUM: 1.15, HIGH: 1.3 };
 
 /**
+ * Flat fallback amounts in Rands if the per-word outcome is 0.
+ * Tweak these to your actual minimums.
+ */
+const FLAT_RATE_TABLE = {
+  PROOFREADING_EDITING: 150,              // R 150 minimum
+  FORMATTING_REFERENCING: 120,
+  DATA_ANALYSIS_SUPPORT: 300,
+  RESEARCH_METHODOLOGY_COACHING: 250,
+  TRANSLATION: 350,
+  OTHER: 150,
+};
+
+/**
  * Compute quote in Rands by default.
  * - serviceType: one of the ServiceType enums
  * - priority: LOW | MEDIUM | HIGH
@@ -120,10 +133,21 @@ export function computeQuote({
   const base = RATE_TABLE[serviceType] ?? RATE_TABLE.OTHER;
   const mult = URGENCY[priority] ?? 1.0;
 
-  // amount in currency (R)
-  const amount = Math.round(words * base * mult * 100) / 100;
+  // Normal per-word calculation
+  let amount = Math.round(words * base * mult * 100) / 100;
 
-  return { currency, ratePerWord: base, urgencyMultiplier: mult, amount };
+  // If outcome is zero (no text / OCR failed / truly empty), fall back to flat rate
+  if (!isFinite(amount) || amount <= 0) {
+    const flat = FLAT_RATE_TABLE[serviceType] ?? FLAT_RATE_TABLE.OTHER;
+    amount = flat;
+  }
+
+  return {
+    currency,
+    ratePerWord: base,
+    urgencyMultiplier: mult,
+    amount,
+  };
 }
 
 /** If your R2 adapter returns publicUrl, pass it through. Otherwise return null. */
