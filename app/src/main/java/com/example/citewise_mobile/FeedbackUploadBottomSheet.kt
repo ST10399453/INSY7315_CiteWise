@@ -19,7 +19,6 @@ import com.example.citewise_mobile.api.ServiceRequestDto
 import com.example.citewise_mobile.data.NetResult
 import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -82,8 +81,6 @@ class FeedbackUploadBottomSheet : BottomSheetDialogFragment() {
         isCancelable = true
     }
 
-    //override fun getTheme(): Int = R.style.ThemeOverlay_Material3_BottomSheetDialog
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =
         inflater.inflate(R.layout.bottom_sheet_feedback_list, container, false)
 
@@ -93,21 +90,6 @@ class FeedbackUploadBottomSheet : BottomSheetDialogFragment() {
         val etFileName = view.findViewById<TextInputEditText>(R.id.etFileName)
         val btnUpload = view.findViewById<MaterialButton>(R.id.btnUpload)
         val progress = view.findViewById<ProgressBar>(R.id.progress)
-
-        // --- CLICK-THROUGH GUARD: disable actionable views for the first frame ---
-        fun guardFirstTap() {
-            cardPicker.isEnabled = false
-            btnUpload.isEnabled = false
-            // enable after layout settles (next loop) + a tiny delay
-            view.post {
-                view.postDelayed({
-                    cardPicker.isEnabled = true
-                    btnUpload.isEnabled = true
-                }, 220L)
-            }
-        }
-        guardFirstTap()
-        // ------------------------------------------------------------------------
 
         cardPicker.setOnClickListener { picker.launch("*/*") }
 
@@ -162,10 +144,16 @@ class FeedbackUploadBottomSheet : BottomSheetDialogFragment() {
 
     override fun onStart() {
         super.onStart()
-        (dialog as? BottomSheetDialog)?.behavior?.let { b ->
-            b.skipCollapsed = true
-            b.state = BottomSheetBehavior.STATE_EXPANDED
-            if (b.peekHeight <= 0) b.peekHeight = (resources.displayMetrics.heightPixels * 0.6f).toInt()
+        dialog?.let { d ->
+            val bottomSheet = d.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.let { sheet ->
+                val behavior = BottomSheetBehavior.from(sheet)
+                behavior.skipCollapsed = true
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                // Set generous peek height for consistent display
+                behavior.peekHeight = (resources.displayMetrics.heightPixels * 0.9f).toInt()
+                behavior.isDraggable = true
+            }
         }
     }
 

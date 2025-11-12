@@ -14,7 +14,7 @@ import androidx.room.RoomDatabase
         DocumentEntity::class,
         ResourceEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true
 )
 abstract class OfflineDb : RoomDatabase() {

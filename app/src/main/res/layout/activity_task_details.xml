@@ -333,7 +333,7 @@
                 android:backgroundTint="@android:color/transparent"
                 app:strokeColor="@color/gradient_middle"
                 app:strokeWidth="1dp"
-                app:icon="@drawable/ic_eye"
+                app:icon="@drawable/ic_feedback_consultant"
                 app:iconTint="@color/text_dark"
                 app:iconSize="18dp"
                 android:contentDescription="Preview" />
@@ -364,7 +364,8 @@
             android:elevation="2dp"
             android:padding="16dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="0dp"
@@ -447,6 +448,19 @@
                     android:textColor="@color/text_faded"
                     android:fontFamily="@font/poppins_medium" />
 
+                <!-- NEW: quote amount + words shown here -->
+                <TextView
+                    android:id="@+id/tvQuoteSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_dark"
+                    android:fontFamily="@font/poppins_medium"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -506,7 +520,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== Progress ===== -->
+        <!-- ===== Progress (unused/hidden) ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -546,7 +560,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== Consultant-only: Version history ===== -->
+        <!-- ===== Consultant-only: Version history (hidden) ===== -->
         <LinearLayout
             android:id="@+id/versionHistoryPanel"
             android:layout_width="match_parent"
@@ -585,7 +599,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===== Consultant-only: Progress status panel ===== -->
+        <!-- ===== Consultant-only: Progress status (hidden) ===== -->
         <LinearLayout
             android:id="@+id/progressStatusPanel"
             android:layout_width="match_parent"

@@ -20,8 +20,14 @@ data class ServiceRequestDto(
     val userId: String? = null,
     val consultantId: String? = null,
     val serviceType: ServiceType? = null,
-    //val title: String? = null,
+
+    // quotation link
     val quotationId: String? = null,
+
+    val quotationWords: Int? = null,
+    val quotationAmount: Double? = null,
+    val quotationCurrency: String? = null,
+
     val description: String? = null,
     val priority: ServicePriority? = null,
     val deadline: FlexTime? = null,
@@ -31,6 +37,8 @@ data class ServiceRequestDto(
     val studentName: String? = null,
     val originalFileName: String? = null,
     val customName: String? = null,
+
+    // files
     val originalFileUrl: String? = null,
     val feedbackFileName: String? = null,
     val feedbackFileUrl: String? = null

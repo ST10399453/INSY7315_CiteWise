@@ -95,19 +95,31 @@ interface ServiceRequestDao {
                     consultantId = entity.consultantId ?: existing.consultantId,
                     status       = entity.status       ?: existing.status,
                     serviceType  = entity.serviceType,
-                    quotationId  = entity.quotationId  ?: existing.quotationId,
+
+                    quotationId        = entity.quotationId      ?: existing.quotationId,
+                    quotationWords     = entity.quotationWords    ?: existing.quotationWords,
+                    quotationAmount    = entity.quotationAmount   ?: existing.quotationAmount,
+                    quotationCurrency  = entity.quotationCurrency ?: existing.quotationCurrency,
+
                     description  = entity.description  ?: existing.description,
                     priority     = entity.priority     ?: existing.priority,
                     deadlineIso  = entity.deadlineIso  ?: existing.deadlineIso,
                     documentId   = entity.documentId   ?: existing.documentId,
-                    filePath     = existing.filePath   ?: entity.filePath,
                     documentName = if (entity.documentName.isNotBlank()) entity.documentName else existing.documentName,
+                    customName   = if (entity.customName.isNotBlank()) entity.customName else existing.customName,
+
+                    feedback          = entity.feedback ?: existing.feedback,
+                    feedbackFileName  = entity.feedbackFileName ?: existing.feedbackFileName,
+                    feedbackFileUrl   = entity.feedbackFileUrl  ?: existing.feedbackFileUrl,
+
+                    filePath     = existing.filePath   ?: entity.filePath,
                     syncState    = SyncState.SYNCED,
                     updatedAt    = System.currentTimeMillis()
                 )
             )
         }
     }
+
 
     // ============================================================
     // Role-aware, distinct lookups for chat contacts

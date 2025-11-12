@@ -5,10 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/ui_background"
     android:fillViewport="true"
     android:padding="8dp"
-    android:background="@color/ui_background"
-    tools:context=".ConsultantProfileSettingsActivity">
+    android:paddingBottom="88dp"
+    tools:context=".AdminProfileSettingsActivity">
 
     <LinearLayout
         android:id="@+id/rootColumn"
@@ -30,15 +31,17 @@
             android:fontFamily="@font/poppins_extra_bold"
             android:textStyle="bold" />
 
-        <!-- Pill Toggle (same pattern as Manage Consultants) -->
+        <!-- Toggle -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/toggleSettings"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_gravity="center"
             android:background="@drawable/toggle_group_track"
             android:clipToPadding="false"
+            android:padding="0dp"
             app:singleSelection="true"
             app:selectionRequired="true">
 
@@ -65,12 +68,11 @@
         <LinearLayout
             android:id="@+id/sectionOverview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            tools:visibility="visible"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="12dp"
+            android:visibility="visible">
 
-            <!-- Card -->
             <LinearLayout
                 android:id="@+id/overviewCard"
                 android:layout_width="match_parent"
@@ -81,7 +83,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Header row -->
+                <!-- Avatar + name + email -->
                 <LinearLayout
                     android:id="@+id/rowHeader"
                     android:layout_width="match_parent"
@@ -102,14 +104,14 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
 
                         <TextView
                             android:id="@+id/tvOverviewName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/loading_name_placeholder"
+                            android:text="Your Name"
                             android:textColor="@color/text_dark"
                             android:textSize="18sp"
                             android:fontFamily="@font/poppins_sembold" />
@@ -118,24 +120,14 @@
                             android:id="@+id/tvOverviewEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/loading_email_placeholder"
+                            android:text="you@example.com"
                             android:textColor="@color/text_faded"
                             android:textSize="14sp"
                             android:fontFamily="@font/poppins" />
-
-                        <TextView
-                            android:id="@+id/tvExpertise"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="—"
-                            android:textColor="@color/text_faded"
-                            android:textSize="14sp"
-                            android:fontFamily="@font/poppins_medium" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Stats -->
+                <!-- Stats row -->
                 <LinearLayout
                     android:id="@+id/rowStats"
                     android:layout_width="match_parent"
@@ -144,103 +136,149 @@
                     android:orientation="horizontal"
                     android:weightSum="4">
 
-                    <LinearLayout style="@style/StatColumn">
-                        <TextView android:id="@+id/tvStatRequests" style="@style/StatValue" android:text="0" />
-                        <TextView style="@style/StatLabel" android:text="Requests" />
+                    <!-- Requests -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatRequests"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Requests"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
                     </LinearLayout>
 
-                    <LinearLayout style="@style/StatColumn">
-                        <TextView android:id="@+id/tvStatCompleted" style="@style/StatValue" android:text="0" />
-                        <TextView style="@style/StatLabel" android:text="Completed" />
+                    <!-- Completed -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatCompleted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Completed"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
                     </LinearLayout>
 
-                    <LinearLayout style="@style/StatColumn">
-                        <TextView android:id="@+id/tvStatTurnaround" style="@style/StatValue" android:text="0" />
-                        <TextView style="@style/StatLabel" android:text="Avg Days" />
+                    <!-- In progress -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatInProgress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="In progress"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
                     </LinearLayout>
 
-                    <LinearLayout style="@style/StatColumn">
-                        <TextView android:id="@+id/tvStatRating" style="@style/StatValue" android:text="0" />
-                        <TextView style="@style/StatLabel" android:text="Rating" />
+                    <!-- Pending -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="8dp">
+
+                        <TextView
+                            android:id="@+id/tvStatPending"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/gradient_end"
+                            android:fontFamily="@font/poppins_bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pending"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_faded"
+                            android:fontFamily="@font/poppins"/>
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
                     android:background="@color/dark_shadow" />
 
-                <!-- Overview rows -->
+                <!-- Overview value rows (must contain tvLabel & tvValue) -->
                 <include
                     android:id="@+id/rowOverviewAcademic"
-                    layout="@layout/item_row_value" />
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <include
                     android:id="@+id/rowOverviewInstitution"
-                    layout="@layout/item_row_value" />
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <include
                     android:id="@+id/rowOverviewRole"
-                    layout="@layout/item_row_value" />
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
 
                 <include
                     android:id="@+id/rowOverviewLanguage"
-                    layout="@layout/item_row_value" />
+                    layout="@layout/item_row_value"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
             </LinearLayout>
-
-            <!-- History -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Service Request History"
-                android:textColor="@color/text_dark"
-                android:textSize="20sp"
-                android:fontFamily="@font/poppins_sembold"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvServiceHistory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_consultant_history" />
-
-            <!-- Turnaround chart -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Turnaround Time"
-                style="@style/SettingsSectionHeader" />
-
-            <WebView
-                android:id="@+id/turnaroundTimeChartWebView"
-                android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:background="@drawable/rounded_card_background" />
-
-            <!-- Rating -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Average Student Rating"
-                style="@style/SettingsSectionHeader" />
-
-            <TextView
-                android:id="@+id/tvRatingStars"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginBottom="6dp"
-                android:text="★★★★★"
-                android:textColor="@color/gradient_end"
-                android:textSize="18sp"
-                android:fontFamily="@font/poppins_sembold" />
-
-            <include layout="@layout/include_rating_display" />
         </LinearLayout>
 
         <!-- ===================== SETTINGS ===================== -->
@@ -249,57 +287,77 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_bold"
                 android:text="Account"
-                style="@style/SettingsSectionHeader"
-                android:layout_marginStart="19dp" />
+                android:textColor="@color/gradient_end"
+                android:textSize="18sp" />
 
             <include
                 android:id="@+id/rowEditProfile"
-                layout="@layout/item_row_nav" />
+                layout="@layout/item_row_nav"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <include
                 android:id="@+id/rowChangePassword"
-                layout="@layout/item_row_nav" />
-
-            <include
-                android:id="@+id/rowUploadCV"
-                layout="@layout/item_row_nav" />
+                layout="@layout/item_row_nav"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_bold"
                 android:text="Notifications"
-                style="@style/SettingsSectionHeader"
-                android:layout_marginStart="19dp" />
+                android:textColor="@color/gradient_end"
+                android:textSize="18sp" />
 
             <include
                 android:id="@+id/rowPushNotifications"
-                layout="@layout/item_row_switch" />
+                layout="@layout/item_row_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <include
                 android:id="@+id/rowAppNotifications"
-                layout="@layout/item_row_switch" />
+                layout="@layout/item_row_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <include
                 android:id="@+id/rowEmailNotifications"
-                layout="@layout/item_row_switch" />
+                layout="@layout/item_row_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="19dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/poppins_bold"
                 android:text="Language"
-                style="@style/SettingsSectionHeader"
-                android:layout_marginStart="19dp" />
+                android:textColor="@color/gradient_end"
+                android:textSize="18sp" />
 
             <include
                 android:id="@+id/rowLanguage"
-                layout="@layout/item_row_value" />
+                layout="@layout/item_row_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/btnLogout"

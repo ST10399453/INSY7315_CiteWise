@@ -33,11 +33,17 @@ fun ServiceRequestDto.toEntityPreservingLocalFallback(localFallback: ServiceRequ
         documentName = docName,
         serviceType  = svcType,
         quotationId  = quotationId,
+        quotationWords   = this.quotationWords ?: localFallback?.quotationWords,
+        quotationAmount  = this.quotationAmount ?: localFallback?.quotationAmount,
+        quotationCurrency= this.quotationCurrency ?: localFallback?.quotationCurrency,
         description  = desc,
         priority     = prio,
         deadlineIso  = deadlineIso,
         filePath     = localFallback?.filePath,
         status       = status ?: "submitted",
+        feedback     = feedback ?: localFallback?.feedback,
+        feedbackFileName = feedbackFileName ?: localFallback?.feedbackFileName,
+        feedbackFileUrl  = feedbackFileUrl  ?: localFallback?.feedbackFileUrl,
         syncState    = SyncState.SYNCED
     )).copy(
         remoteId     = id,
@@ -47,10 +53,16 @@ fun ServiceRequestDto.toEntityPreservingLocalFallback(localFallback: ServiceRequ
         status       = status ?: localFallback?.status ?: "submitted",
         serviceType  = svcType,
         quotationId  = quotationId,
+        quotationWords   = this.quotationWords ?: localFallback?.quotationWords,
+        quotationAmount  = this.quotationAmount ?: localFallback?.quotationAmount,
+        quotationCurrency= this.quotationCurrency ?: localFallback?.quotationCurrency,
         description  = desc,
         priority     = prio,
         deadlineIso  = deadlineIso,
         customName   = custom,
+        feedback     = feedback ?: localFallback?.feedback,
+        feedbackFileName = feedbackFileName ?: localFallback?.feedbackFileName,
+        feedbackFileUrl  = feedbackFileUrl  ?: localFallback?.feedbackFileUrl,
         updatedAt    = System.currentTimeMillis()
     )
 }
@@ -65,6 +77,11 @@ fun ServiceRequestEntity.toServiceRequestDto(): ServiceRequestDto =
         consultantId = consultantId,
         serviceType = runCatching { ServiceType.valueOf(serviceType) }.getOrNull(),
         quotationId = quotationId,
+
+        quotationWords   = quotationWords,
+        quotationAmount  = quotationAmount,
+        quotationCurrency= quotationCurrency,
+
         description = description,
         priority = runCatching { ServicePriority.valueOf(priority ?: "LOW") }.getOrNull(),
         deadline = null,
@@ -75,6 +92,6 @@ fun ServiceRequestEntity.toServiceRequestDto(): ServiceRequestDto =
         originalFileName = documentName.takeIf { it.isNotEmpty() },
         customName = customName.takeIf { it.isNotEmpty() },
         originalFileUrl = null,
-        feedbackFileName = null,
-        feedbackFileUrl = null
+        feedbackFileName = feedbackFileName,
+        feedbackFileUrl = feedbackFileUrl
     )

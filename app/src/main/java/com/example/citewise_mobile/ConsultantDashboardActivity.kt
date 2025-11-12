@@ -198,8 +198,8 @@ class ConsultantDashboardActivity : BaseActivity() {
     // ---- Navigation ----
     private fun openTaskDetails(requestDto: ServiceRequestDto) {
         startActivity(
-            Intent(this, ConsultantTaskDetailsActivity::class.java)
-                .putExtra(ConsultantTaskDetailsActivity.EXTRA_REQUEST, requestDto)
+            Intent(this, TaskDetailsActivity::class.java)
+                .putExtra(TaskDetailsActivity.EXTRA_REQUEST, requestDto)
         )
     }
 }

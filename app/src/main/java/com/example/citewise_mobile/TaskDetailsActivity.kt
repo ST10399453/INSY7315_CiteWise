@@ -24,8 +24,6 @@ import com.example.citewise_mobile.data.NetResult
 import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.example.citewise_mobile.offline.LocalRepos
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.progressindicator.LinearProgressIndicator
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -42,6 +40,9 @@ import java.util.TimeZone
 
 /**
  * Unified Task Details screen with student/consultant modes.
+ * - Shows quote summary (amount + word count) when available.
+ * - Student can view/download annotated file once uploaded.
+ * - Bottom sheet opens expanded reliably. Chat wired to ConversationActivity.
  */
 class TaskDetailsActivity :
     BaseActivity(),
@@ -50,6 +51,7 @@ class TaskDetailsActivity :
     companion object {
         const val EXTRA_REQUEST = "extra_request"
         private const val TAG = "TaskDetailsActivity"
+        private const val SHEET_TAG = "feedback_upload"
     }
 
     // ---- Lazy deps ----
@@ -75,9 +77,9 @@ class TaskDetailsActivity :
     private lateinit var btnViewStudentFile: MaterialButton
     private lateinit var btnViewFeedbackFile: MaterialButton
     private lateinit var tvDescription: TextView
-    private lateinit var progressStage: LinearProgressIndicator
 
-    // ---- Student: quote actions ----
+    // ---- Quote UI ----
+    private lateinit var tvQuoteSummary: TextView
     private lateinit var btnAcceptQuote: MaterialButton
     private lateinit var btnDeclineQuote: MaterialButton
     private lateinit var btnRequestReview: MaterialButton
@@ -93,10 +95,6 @@ class TaskDetailsActivity :
     private lateinit var cardQualitativeStudy: View
     private lateinit var tvDocName: TextView
     private lateinit var btnUploadFeedback: View
-    private lateinit var versionHistoryPanel: View
-    private lateinit var versionHistoryContent: View
-    private lateinit var progressStatusPanel: View
-    private lateinit var progressHistoryContent: View
     private lateinit var btnRevise: Button
     private lateinit var btnSendToStudent: Button
     private lateinit var btnDownloadPdf: Button
@@ -104,6 +102,10 @@ class TaskDetailsActivity :
     private lateinit var btnConsultantDownload: MaterialButton
 
     private var currentReq: ServiceRequestDto? = null
+
+    // ---- Chat peer cache (for ConversationActivity) ----
+    private var consultantUid: String? = null
+    private var consultantDisplayName: String = "Consultant"
 
     // ---------------- Lifecycle ----------------
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,9 +152,9 @@ class TaskDetailsActivity :
         btnViewStudentFile = findViewById(R.id.btnViewStudentFile)
         btnViewFeedbackFile = findViewById(R.id.btnViewFeedbackFile)
         tvDescription = findViewById(R.id.tvDescription)
-        progressStage = findViewById(R.id.progressStage)
 
-        // Student quote actions
+        // Quote widgets
+        tvQuoteSummary = findViewById(R.id.tvQuoteSummary)
         btnAcceptQuote = findViewById(R.id.btnAcceptQuote)
         btnDeclineQuote = findViewById(R.id.btnDeclineQuote)
         btnRequestReview = findViewById(R.id.btnRequestReview)
@@ -168,25 +170,11 @@ class TaskDetailsActivity :
         cardQualitativeStudy = findViewById(R.id.cardQualitativeStudy)
         tvDocName = findViewById(R.id.tvDocName)
         btnUploadFeedback = findViewById(R.id.btnUploadFeedback)
-        versionHistoryPanel = findViewById(R.id.versionHistoryPanel)
-        versionHistoryContent = findViewById(R.id.versionHistoryContent)
-        progressStatusPanel = findViewById(R.id.progressStatusPanel)
-        progressHistoryContent = findViewById(R.id.progressHistoryContent)
         btnRevise = findViewById(R.id.btnRevise)
         btnSendToStudent = findViewById(R.id.btnSendToStudent)
         btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
         btnConsultantPreview = findViewById(R.id.btnConsultantPreview)
         btnConsultantDownload = findViewById(R.id.btnConsultantDownload)
-
-        // Expand/collapse panels
-        versionHistoryPanel.findViewById<View>(R.id.tvVersionHistoryHeader)?.setOnClickListener {
-            versionHistoryContent.visibility =
-                if (versionHistoryContent.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-        }
-        progressStatusPanel.findViewById<View>(R.id.tvProgressStatusHeader)?.setOnClickListener {
-            progressHistoryContent.visibility =
-                if (progressHistoryContent.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-        }
 
         // Consultant: preview/download original + open bottom sheet
         cardQualitativeStudy.setOnClickListener { handleOpenFile() }
@@ -218,6 +206,7 @@ class TaskDetailsActivity :
         btnUploadFeedback.setOnClickListener {
             val req = currentReq ?: return@setOnClickListener toast("Task missing.")
             val id = req.id ?: return@setOnClickListener toast("Request ID missing.")
+            // Server will do: count words, compute quote, set status to Completed, push to student.
             openFeedbackBottomSheet(id, nextStatus = "review_submitted")
         }
 
@@ -248,17 +237,31 @@ class TaskDetailsActivity :
                 }
             }
         }
-        btnDownloadFeedbackFile.setOnClickListener {
-            val url = currentReq?.feedbackFileUrl ?: return@setOnClickListener toast("No feedback file yet.")
-            openUrl(url)
-        }
+
+        // Feedback file actions (student)
         btnViewFeedbackFile.setOnClickListener {
-            val url = currentReq?.feedbackFileUrl ?: return@setOnClickListener toast("No feedback file yet.")
-            openUrl(url)
+            val url = currentReq?.feedbackFileUrl
+            if (url.isNullOrBlank()) toast("No feedback file yet.") else openUrl(url)
+        }
+        btnDownloadFeedbackFile.setOnClickListener {
+            val url = currentReq?.feedbackFileUrl
+            val name = currentReq?.feedbackFileName ?: "Feedback"
+            if (url.isNullOrBlank()) toast("No feedback file yet.") else enqueueSystemDownload(url, name)
+        }
+
+        // Quote actions (student) — endpoints TBD server-side
+        btnAcceptQuote.setOnClickListener {
+            toast("Accept tapped. (Hook to /quotes/{id}/accept when available.)")
+        }
+        btnDeclineQuote.setOnClickListener {
+            toast("Decline tapped. (Hook to /quotes/{id}/decline when available.)")
+        }
+        btnRequestReview.setOnClickListener {
+            toast("Query tapped. (Open chat or feedback dialog.)")
         }
 
         // Chat
-        btnChatConsultant.setOnClickListener { toast("Opening chat with consultant…") }
+        btnChatConsultant.setOnClickListener { startChatWithConsultant() }
     }
 
     private fun bindRequest(req: ServiceRequestDto) {
@@ -288,32 +291,55 @@ class TaskDetailsActivity :
 
         tvServiceName.text = req.serviceType?.toPretty() ?: "Other"
 
+        // Annotated/feedback file visibility
         val hasFeedback = !req.feedbackFileUrl.isNullOrEmpty()
         tvFilesCount.text = if (hasFeedback) "2" else "1"
         tvStudentFileName.text = displayFileName
         tvFeedbackFileName.text = req.feedbackFileName ?: "Feedback/Annotated File"
         rowFeedbackFile.visibility = if (hasFeedback) View.VISIBLE else View.GONE
 
+        // Quote summary (only if server provided a quote)
+        val amount = req.quotationAmount
+        val words = req.quotationWords
+        val currency = (req.quotationCurrency ?: "").ifBlank { "USD" }
+        val hasQuote = req.quotationId != null && amount != null && words != null
+
+        if (hasQuote) {
+            tvQuoteSummary.visibility = View.VISIBLE
+            tvQuoteSummary.text = buildString {
+                append(currency)
+                append(" ")
+                append(String.format(Locale.US, "%.2f", amount))
+                append(" • ")
+                append(words)
+                append(" words")
+            }
+        } else {
+            tvQuoteSummary.visibility = View.GONE
+        }
+
         tvDocName.text = req.originalFileName ?: displayFileName
 
-        progressStage.setProgressCompat(statusToProgress(req.status.orEmpty()), true)
+        // Update button visibilities that depend on student/consultant and quote presence
+        applyRoleVisibility(getCurrentUserRole(), hasQuote)
     }
 
     // ---------------- Role-driven visibility ----------------
-    private fun applyRoleVisibility(role: UserRole) {
+    private fun applyRoleVisibility(role: UserRole, hasQuote: Boolean? = null) {
         val isStudent = role == UserRole.STUDENT
         val isConsultant = role == UserRole.CONSULTANT
 
-        setVisible(btnAcceptQuote, isStudent)
-        setVisible(btnDeclineQuote, isStudent)
-        setVisible(btnRequestReview, isStudent)
+        // If hasQuote is provided, only show the quote actions when a quote exists
+        val showQuoteActions = hasQuote ?: true
+        setVisible(btnAcceptQuote, isStudent && showQuoteActions)
+        setVisible(btnDeclineQuote, isStudent && showQuoteActions)
+        setVisible(btnRequestReview, isStudent && showQuoteActions)
 
         setVisible(consultantCard, isStudent)
 
         setVisible(cardQualitativeStudy, isConsultant)
         setVisible(btnUploadFeedback, isConsultant)
-        setVisible(versionHistoryPanel, isConsultant)
-        setVisible(progressStatusPanel, isConsultant)
+
         setVisible(btnRevise, isConsultant)
         setVisible(btnSendToStudent, isConsultant)
         setVisible(btnDownloadPdf, isConsultant)
@@ -330,20 +356,11 @@ class TaskDetailsActivity :
         v.visibility = if (show) View.VISIBLE else View.GONE
     }
 
-    /** Safely opens the bottom sheet, replacing any existing instance and forcing expansion. */
+    /** Opens the feedback bottom sheet reliably with proper expansion. */
     private fun openFeedbackBottomSheet(requestId: String, nextStatus: String? = "review_submitted") {
-        val tag = "feedback_upload"
-
-        supportFragmentManager.findFragmentByTag(tag)?.let { old ->
-            (old as? BottomSheetDialogFragment)?.dismissAllowingStateLoss()
-            supportFragmentManager.beginTransaction()
-                .remove(old)
-                .commitNowAllowingStateLoss()
-        }
-
         FeedbackUploadBottomSheet
             .newInstance(requestId = requestId, newStatus = nextStatus)
-            .show(supportFragmentManager, tag)
+            .show(supportFragmentManager, SHEET_TAG)
     }
 
     // Bottom sheet callback
@@ -357,19 +374,25 @@ class TaskDetailsActivity :
     private suspend fun populateConsultantForStudent(req: ServiceRequestDto) {
         val uid = resolveConsultantUid(req)
         if (uid.isNullOrBlank()) {
+            consultantUid = null
+            consultantDisplayName = "Unassigned"
             withContext(Dispatchers.Main) {
                 tvConsultantName.text = "Unassigned"
                 tvConsultantAvailability.text = ""
             }
             return
         }
+        consultantUid = uid
         val profile = fetchConsultantFromRtdb(uid)
         withContext(Dispatchers.Main) {
             if (profile == null) {
+                consultantDisplayName = "Consultant"
                 tvConsultantName.text = "Consultant"
                 tvConsultantAvailability.text = ""
             } else {
-                tvConsultantName.text = profile.name.ifBlank { "Consultant" }
+                val nameFinal = profile.name.ifBlank { "Consultant" }
+                consultantDisplayName = nameFinal
+                tvConsultantName.text = nameFinal
                 val availability = buildString {
                     if (profile.isOnline) append("Online") else if (profile.lastSeen > 0L) {
                         append("Last seen ${timeAgoShort(profile.lastSeen)}")
@@ -449,6 +472,45 @@ class TaskDetailsActivity :
         }
     }
 
+    // ---------------- Chat wiring ----------------
+    private fun startChatWithConsultant() {
+        val role = getCurrentUserRole()
+        if (role == UserRole.STUDENT) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                var peerUid = consultantUid
+                if (peerUid.isNullOrBlank()) {
+                    currentReq?.let { peerUid = resolveConsultantUid(it) }
+                }
+                val name = consultantDisplayName.ifBlank { "Consultant" }
+                withContext(Dispatchers.Main) {
+                    if (peerUid.isNullOrBlank()) {
+                        toast("No consultant assigned yet.")
+                    } else {
+                        openConversation(peerUid!!, name)
+                    }
+                }
+            }
+        } else {
+            toast("Chat is available from the student view for the assigned consultant.")
+        }
+    }
+
+    private fun openConversation(peerUid: String, displayName: String) {
+        val myUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: run {
+            toast("You must be signed in to chat.")
+            return
+        }
+        val chatId = buildChatId(myUid, peerUid)
+        val intent = Intent(this@TaskDetailsActivity, ConversationActivity::class.java).apply {
+            putExtra(ConversationActivity.EXTRA_CHAT_ID, chatId)
+            putExtra(ConversationActivity.EXTRA_CHAT_TITLE, displayName)
+            putExtra(ConversationActivity.EXTRA_PEER_UID, peerUid)
+        }
+        startActivity(intent)
+    }
+
+    private fun buildChatId(a: String, b: String) = if (a <= b) "${a}_$b" else "${b}_$a"
+
     // ---------------- Helpers ----------------
     private suspend fun tryFindLocalDeadlineIso(req: ServiceRequestDto): String? =
         withContext(Dispatchers.IO) {
@@ -492,6 +554,8 @@ class TaskDetailsActivity :
                     val file = result.data
                     val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
                         .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
+                        .putExtra(DocumentViewerActivity.EXTRA_REQUEST_ID, currentReq?.id)
+                        .putExtra(DocumentViewerActivity.EXTRA_DISPLAY_NAME, preferredName)
                     startActivity(intent)
                 }
                 is NetResult.Err -> withContext(Dispatchers.Main) {
@@ -534,15 +598,6 @@ class TaskDetailsActivity :
         ServiceType.TRANSLATION -> "Translation"
         ServiceType.OTHER -> "Other"
     }
-
-    private fun statusToProgress(status: String): Int =
-        when (status.trim().lowercase(Locale.ROOT)) {
-            "submitted", "pending" -> 25
-            "assigned", "in_progress", "in progress" -> 50
-            "feedback", "awaiting_feedback", "feedback ready", "review_submitted" -> 75
-            "complete", "completed", "done" -> 100
-            else -> 25
-        }
 
     private fun handleOpenFile() {
         val req = currentReq ?: return

@@ -22,30 +22,43 @@ enum class SyncState {
     indices = [
         Index("updatedAt"),
         Index("syncState"),
-        Index("remoteId") // for fast lookup when merging pull results
+        Index("remoteId")
     ]
 )
 data class ServiceRequestEntity(
     @PrimaryKey(autoGenerate = true) val localId: Long = 0,
-    val remoteId: String? = null,           // server id
-    val userId: String? = null,             // student uid
-    val consultantId: String? = null,       // consultant uid
-    val serviceType: String,                // required
+    val remoteId: String? = null,
+    val userId: String? = null,
+    val consultantId: String? = null,
+
+    val serviceType: String,
+
+    // quotation linkage + NEW details
     val quotationId: String? = null,
+    val quotationWords: Int? = null,
+    val quotationAmount: Double? = null,
+    val quotationCurrency: String? = null,
+
     val description: String? = null,
     val priority: String? = null,
     val status: String? = null,
+
     val documentId: String? = null,
     val documentName: String = "",
     val customName: String = "",
-    val filePath: String? = null,           // local staging path before upload
+    val filePath: String? = null,
     val deadlineIso: String? = null,
+
     val feedback: String? = null,
+
+    // also store feedback file meta for quick UI binding
+    val feedbackFileName: String? = null,
+    val feedbackFileUrl: String? = null,
+
     val syncState: SyncState = SyncState.PENDING_UPLOAD,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
-
 // ============================================================
 // Users (All Roles)
 // ============================================================

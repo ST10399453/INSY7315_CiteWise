@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Top bar with extra top margin -->
+    <!-- Top bar -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
@@ -36,32 +37,165 @@
             android:textStyle="bold"
             android:paddingStart="8dp"
             android:textColor="@android:color/black"/>
+
     </LinearLayout>
 
-    <!-- Content area -->
+    <!-- Content -->
     <FrameLayout
+        android:id="@+id/contentRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="72dp"
-        android:background="@android:color/white">
+        android:layout_marginTop="72dp">
 
-        <!-- Swipeable PDF pages -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/pager"
+        <!-- Zoom scales BOTH pager and overlay together -->
+        <com.example.citewise_mobile.annotation.ZoomFrameLayout
+            android:id="@+id/zoomContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            android:background="@android:color/white" />
+            android:layout_height="match_parent">
 
-        <!-- Single image preview -->
-        <ImageView
-            android:id="@+id/imageSingle"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/imageSingle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:contentDescription="image_preview"
+                android:visibility="gone" />
+
+            <com.example.citewise_mobile.annotation.PenOverlayView
+                android:id="@+id/overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true" />
+        </com.example.citewise_mobile.annotation.ZoomFrameLayout>
+
+        <!-- Top overlay row: tools bar + mode pill inline -->
+        <LinearLayout
+            android:id="@+id/topToolsRow"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:contentDescription="image_preview"
-            android:visibility="gone"
-            android:background="@android:color/white" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <!-- Tools (moved from bottom, now at top) -->
+            <LinearLayout
+                android:id="@+id/toolsBar"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:background="@android:color/white"
+                android:elevation="8dp"
+                android:padding="8dp"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/colorSwatch"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/btnColor"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="Color"
+                    android:src="@drawable/ic_pallete"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                <ImageButton
+                    android:id="@+id/btnStroke"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="Stroke"
+                    android:src="@drawable/ic_brush"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                <ImageButton
+                    android:id="@+id/btnUndo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="Undo"
+                    android:src="@drawable/ic_undo"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                <ImageButton
+                    android:id="@+id/btnRedo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="Redo"
+                    android:src="@drawable/ic_redo"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                <ImageButton
+                    android:id="@+id/btnSave"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:contentDescription="Save"
+                    android:src="@drawable/ic_save"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+            </LinearLayout>
+
+            <!-- Spacer to push mode pill to the end -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Mode pill (top-right, inline with tools) -->
+            <TextView
+                android:id="@+id/modePill"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center_vertical"
+                android:text="NAVIGATE"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_pill_gray"
+                android:elevation="6dp"/>
+        </LinearLayout>
+
+        <!-- Zoom % HUD (bottom-left) -->
+        <TextView
+            android:id="@+id/zoomHud"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="12dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:gravity="center_vertical"
+            android:text="100%"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:background="@drawable/bg_pill_dark"
+            android:elevation="6dp"/>
+
+        <!-- Floating Edit/Draw toggle button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnToggleDraw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="50dp"
+            android:contentDescription="Toggle drawing mode"
+            android:tooltipText="Toggle Draw / Navigate"
+            android:src="@drawable/ic_edit"
+            app:backgroundTint="@color/gradient_middle"
+            app:tint="@android:color/white"
+            android:layout_marginLeft="100dp"
+            app:elevation="8dp"
+            app:borderWidth="0dp"/>
     </FrameLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

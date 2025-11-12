@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ===== One-color MaterialSwitch (brand color everywhere) ===== -->
+    <style name="CiteWise.Switch.OneColor" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="useMaterialThemeColors">false</item>
+
+        <!-- Use the selectors for contrast -->
+        <item name="thumbTint">@color/switch_thumb_tint</item>
+        <item name="trackTint">@color/switch_track_tint</item>
+
+        <item name="android:minWidth">64dp</item>
+        <item name="android:minHeight">36dp</item>
+        <item name="showText">false</item>
+    </style>
+
 
     <!-- Bottom sheet -->
     <style name="AppBottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog" />
@@ -207,26 +221,17 @@
 
     <!-- Reusable Material toggle button (blue selected / white unselected) -->
     <style name="Widget.CiteWise.ProfileToggle" parent="Widget.Material3.Button.OutlinedButton">
-        <!-- Typography -->
         <item name="android:fontFamily">@font/poppins_medium</item>
         <item name="android:textSize">14sp</item>
-
-        <!-- Shape -->
         <item name="cornerRadius">16dp</item>
         <item name="strokeWidth">2dp</item>
-
-        <!-- Color state lists (you’ve defined these in /res/color) -->
         <item name="backgroundTint">@color/toggle_bg_tint</item>
         <item name="strokeColor">@color/toggle_stroke_color</item>
         <item name="android:textColor">@color/toggle_text_color</item>
-
-        <!-- Spacing (avoid non-public inset attrs) -->
         <item name="android:paddingHorizontal">0dp</item>
         <item name="android:paddingVertical">0dp</item>
         <item name="android:minHeight">0dp</item>
         <item name="android:minWidth">0dp</item>
-
-        <!-- No extra icon padding when there is no icon -->
         <item name="iconPadding">0dp</item>
     </style>
 
@@ -238,6 +243,16 @@
         <item name="android:fontFamily">@font/poppins_sembold</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/text_faded</item>
+    </style>
+
+    <!-- Empty state text (centered, brand color) -->
+    <style name="EmptyStateText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textColor">@color/gradient_end</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 

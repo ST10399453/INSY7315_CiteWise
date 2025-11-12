@@ -49,9 +49,6 @@
             android:name=".ConsultantProfileSettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".ConsultantTaskDetailsActivity"
-            android:exported="false" />
-        <activity
             android:name=".ConsultantTasksActivity"
             android:exported="false" />
         <activity
@@ -77,9 +74,6 @@
             android:exported="false" />
         <activity
             android:name=".RequestDetailsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".RequestsActivity"
             android:exported="false" />
         <activity
             android:name=".ServiceRequestActivity"
