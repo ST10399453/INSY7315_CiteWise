@@ -94,6 +94,16 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <TextView
+                android:id="@+id/tvMyRequests"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/my_requests"
+                android:textColor="@color/gradient_end"
+                android:textSize="24sp"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/poppins_bold"
+                android:layout_marginTop="8dp"/>
 
             <!-- Service Request Card-->
             <com.google.android.material.card.MaterialCardView
@@ -113,44 +123,6 @@
                     android:background="@drawable/rounded_card_background">
 
                     <!-- Inner container adds inner spacing, not the card itself -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <!-- Header: Text + Icon -->
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            tools:ignore="UselessParent">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:id="@+id/tvMyRequests"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="@string/my_requests"
-                                android:paddingStart="12dp"
-                                android:paddingTop="8dp"
-                                android:textColor="#000"
-                                android:textSize="22sp"
-                                android:fontFamily="@font/public_sans_medium"
-                                android:layout_toStartOf="@id/icPending"
-                                tools:ignore="RtlSymmetry" />
-
-                            <ImageView
-                                android:id="@+id/icPending"
-                                android:layout_width="26dp"
-                                android:layout_height="26dp"
-                                android:layout_alignTop="@id/tvMyRequests"
-                                android:layout_alignParentEnd="true"
-                                android:layout_marginTop="8dp"
-                                android:layout_marginEnd="8dp"
-                                android:contentDescription="@string/app_name"
-                                android:src="@drawable/ic_pending" />
-                        </RelativeLayout>
-                    </LinearLayout>
-
                         <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
@@ -160,12 +132,23 @@
                                 android:id="@+id/rvRequests"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:clipToPadding="false"
-                                android:layout_marginStart="8dp"
-                                android:layout_marginBottom="12dp"
                                 android:nestedScrollingEnabled="false"
-                                android:visibility="visible" />
+                                android:paddingStart="12dp"
+                                android:paddingEnd="12dp"
+                                tools:listitem="@layout/item_service_review"
+                                tools:itemCount="3"  />
                         </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvViewAllTasks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="View all active tasks >"
+                        android:textColor="@color/gradient_end"
+                        android:fontFamily="@font/poppins_sembold"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"/>
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
@@ -412,82 +395,6 @@
             </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!--            AI-->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/ai"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="20dp"
-            app:cardUseCompatPadding="true"
-            app:strokeColor="@android:color/transparent"
-            app:cardBackgroundColor="@android:color/transparent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/rounded_card_background"
-            android:padding="16dp">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                tools:ignore="UselessParent">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tvai"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="AI Assistant"
-                    android:paddingStart="12dp"
-                    android:paddingTop="8dp"
-                    android:textColor="#000"
-                    android:textSize="22sp"
-                    android:fontFamily="@font/public_sans_medium"
-                    android:layout_toStartOf="@id/icai"
-                    tools:ignore="RtlSymmetry" />
-
-                <ImageView
-                    android:id="@+id/icai"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:layout_alignTop="@id/tvai"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:contentDescription="@string/app_name" />
-<!--                android:src="@drawable/ic_notification"-->
-            </RelativeLayout>
-        </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
             <!-- Screen-level loading spinner (hidden by default) -->
@@ -515,40 +422,39 @@
                 android:textColor="@color/text_faded"
                 android:fontFamily="@font/poppins_medium"
                 android:visibility="gone" />
+<!--            &lt;!&ndash; AI Assistant &ndash;&gt;-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="AI Assistant"-->
+<!--                android:textColor="@color/gradient_end"-->
+<!--                android:textSize="24sp"-->
+<!--                android:visibility="gone"-->
+<!--                android:fontFamily="@font/poppins_bold"-->
+<!--                android:layout_gravity="center_horizontal"-->
+<!--                android:layout_marginBottom="12dp" />-->
 
+<!--            <LinearLayout-->
+<!--                android:layout_width="156dp"-->
+<!--                android:layout_height="156dp"-->
+<!--                android:padding="16dp"-->
+<!--                android:visibility="gone"-->
+<!--                android:layout_gravity="center_horizontal"-->
+<!--                android:background="@drawable/rounded_card_background"-->
+<!--                android:orientation="vertical">-->
 
-
-            <!-- AI Assistant -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AI Assistant"
-                android:textColor="@color/gradient_end"
-                android:textSize="24sp"
-                android:fontFamily="@font/poppins_bold"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="12dp" />
-
-            <LinearLayout
-                android:layout_width="156dp"
-                android:layout_height="156dp"
-                android:padding="16dp"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/rounded_card_background"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/ivAssistant"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:background="@color/elements_background"
-                    app:srcCompat="@drawable/ai_logo"
-                    android:scaleType="centerInside"
-                    android:adjustViewBounds="true"
-                    app:tint="@null"
-                    android:contentDescription="AI Assistant" />
-            </LinearLayout>
+<!--                <androidx.appcompat.widget.AppCompatImageButton-->
+<!--                    android:id="@+id/ivAssistant"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_horizontal"-->
+<!--                    android:background="@color/elements_background"-->
+<!--                    app:srcCompat="@drawable/ai_logo"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:adjustViewBounds="true"-->
+<!--                    app:tint="@null"-->
+<!--                    android:contentDescription="AI Assistant" />-->
+<!--            </LinearLayout>-->
 
             <!-- Service Quote -->
             <com.google.android.material.card.MaterialCardView

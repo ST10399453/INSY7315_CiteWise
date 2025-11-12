@@ -150,27 +150,60 @@ class StudentDashboardActivity : BaseActivity() {
         }
         // -------------------------------------------------------
 
-        rvRequests.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
-        PagerSnapHelper().attachToRecyclerView(rvRequests)
-        rvRequests.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+//        rvRequests.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+//        PagerSnapHelper().attachToRecyclerView(rvRequests)
+//        rvRequests.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+//
+//
+//        rvRequests.setPadding(0, 0, 0, 0)
+//        rvRequests.clipToPadding = true
+//
+//
+//        val spacePx = (12f * resources.displayMetrics.density).toInt()
+//        rvRequests.setPadding(spacePx, 0, spacePx, 0)
+//        rvRequests.addItemDecoration(object : RecyclerView.ItemDecoration() {
+//            override fun getItemOffsets(
+//                outRect: Rect,
+//                view: View,
+//                parent: RecyclerView,
+//                state: RecyclerView.State
+//            ) {
+////                val pos = parent.getChildAdapterPosition(view)
+//                outRect.right = spacePx
+////                if (pos == 0) outRect.left = spacePx
+//            }
+//        })
+//
+//        adapter = ServiceReviewAdapter(items) { clicked ->
+//            startActivity(
+//                Intent(this, TaskDetailsActivity::class.java)
+//                    .putExtra(TaskDetailsActivity.EXTRA_REQUEST, clicked)
+//            )
+//        }
+//        rvRequests.adapter = adapter
+//
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+//                showLoading()
+//                local.requests.observeAll().collectLatest { entities ->
+//                    val list = mapRecent(entities)
+//                    items.clear()
+//                    items.addAll(list)
+//                    adapter.notifyDataSetChanged()
+//                    if (items.isEmpty()) showEmpty() else showHasRequests(items.size)
+//                }
+//            }
+//        }
+//    }
 
-
-        rvRequests.setPadding(0, 0, 0, 0)
-        rvRequests.clipToPadding = true
-
+        rvRequests.layoutManager = LinearLayoutManager(this)
+        rvRequests.overScrollMode = RecyclerView.OVER_SCROLL_IF_CONTENT_SCROLLS
+        rvRequests.clipToPadding = false
 
         val spacePx = (12f * resources.displayMetrics.density).toInt()
-        rvRequests.setPadding(spacePx, 0, spacePx, 0)
         rvRequests.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(
-                outRect: Rect,
-                view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State
-            ) {
-//                val pos = parent.getChildAdapterPosition(view)
-                outRect.right = spacePx
-//                if (pos == 0) outRect.left = spacePx
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                outRect.bottom = spacePx
             }
         })
 
