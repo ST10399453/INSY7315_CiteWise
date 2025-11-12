@@ -103,6 +103,7 @@
             app:boxCornerRadiusTopEnd="24dp"
             app:boxCornerRadiusBottomStart="24dp"
             app:boxCornerRadiusBottomEnd="24dp"
+            android:background="@drawable/outline_edittext"
             app:boxStrokeWidth="1dp"
             app:hintEnabled="false">
 
