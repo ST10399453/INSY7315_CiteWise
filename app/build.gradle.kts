@@ -96,5 +96,9 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation(libs.androidx.localbroadcastmanager)
 
+    implementation(libs.glide)
+    kapt(libs.compiler)
+
+
 
 }

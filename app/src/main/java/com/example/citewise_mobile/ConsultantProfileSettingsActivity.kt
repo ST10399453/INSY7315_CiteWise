@@ -1,6 +1,13 @@
 package com.example.citewise_mobile
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -8,6 +15,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+import com.bumptech.glide.Glide
 
 class ConsultantProfileSettingsActivity : BaseActivity() {
 
@@ -154,6 +163,9 @@ class ConsultantProfileSettingsActivity : BaseActivity() {
             val expertise = snap.child("specialisation").getValue(String::class.java)
             val email = auth.currentUser?.email.orEmpty()
 
+            // ✅ Fetch Google photo if stored in DB
+            val photoUrl = snap.child("photoUrl").getValue(String::class.java)
+
             val res = repo.listGeneralRequests(consultantId = uid, status = "completed")
             val tasks = if (res is NetResult.Ok) res.data.orEmpty() else emptyList()
             val stats = computeStats(tasks)
@@ -163,18 +175,31 @@ class ConsultantProfileSettingsActivity : BaseActivity() {
                 tvEmail.text = email.ifBlank { "N/A" }
                 tvExpertise.text = expertise ?: "Not Specified"
 
-                historyAdapter.updateList(tasks)
+                // ✅ Load photo into ivAvatar
+                val ivAvatar = findViewById<ImageView>(R.id.ivAvatar)
+                if (!photoUrl.isNullOrEmpty()) {
+                    Glide.with(this@ConsultantProfileSettingsActivity)
+                        .load(photoUrl)
+                        .placeholder(R.drawable.ic_user_avatar)
+                        .circleCrop()
+                        .into(ivAvatar)
+                } else {
+                    // Create initials drawable
+                    ivAvatar.setImageDrawable(createInitialsDrawable(first, last))
+                }
 
+                // Update stats and chart
+                historyAdapter.updateList(tasks)
                 tvStatRequests.text = tasks.size.toString()
                 tvStatCompleted.text = tasks.count { it.status.equals("completed", true) }.toString()
                 tvStatTurnaround.text = String.format("%.1f", stats.averageTurnaroundDays)
                 tvStatRating.text = String.format("%.1f", stats.averageRating)
                 tvRatingStars.text = stars(stats.averageRating)
-
                 renderChart(stats.monthlyTurnaroundTimes)
             }
         }
     }
+
 
     private fun computeStats(tasks: List<ServiceRequestDto>): ConsultantStats {
         if (tasks.isEmpty()) return ConsultantStats(averageRating = 5.0)
@@ -228,5 +253,34 @@ class ConsultantProfileSettingsActivity : BaseActivity() {
     private fun stars(rating: Double): String {
         val filled = rating.roundToInt().coerceIn(0, 5)
         return "★".repeat(filled) + "☆".repeat(5 - filled)
+    }
+
+    private fun createInitialsDrawable(first: String, last: String, sizeDp: Int = 64): Drawable {
+        val initials = listOf(first, last)
+            .filter { it.isNotBlank() }
+            .map { it.first().uppercaseChar() }
+            .joinToString("")
+
+        val sizePx = (sizeDp * resources.displayMetrics.density).toInt()
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val paint = Paint().apply {
+            color = Color.parseColor("#0027B2")
+            isAntiAlias = true
+        }
+        canvas.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f, paint)
+
+        val textPaint = Paint().apply {
+            color = Color.WHITE
+            textSize = sizePx / 2f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+        }
+        val yPos = (canvas.height / 2 - (textPaint.descent() + textPaint.ascent()) / 2)
+        canvas.drawText(initials, sizePx / 2f, yPos, textPaint)
+
+        return BitmapDrawable(resources, bitmap)
     }
 }

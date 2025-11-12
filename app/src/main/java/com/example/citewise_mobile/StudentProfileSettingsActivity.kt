@@ -1,6 +1,13 @@
 package com.example.citewise_mobile
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +16,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -144,6 +152,8 @@ class StudentProfileSettingsActivity : BaseActivity() {
                         ?.trim()
                         .orEmpty()
 
+                    val photoUrl = snap.child("photoUrl").getValue(String::class.java)
+
                     val name = listOf(firstName, surname)
                         .filter { it.isNotBlank() }
                         .joinToString(" ")
@@ -160,6 +170,17 @@ class StudentProfileSettingsActivity : BaseActivity() {
                             role.replaceFirstChar {
                                 if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString()
                             }.ifBlank { "Student" }
+
+                        if (!photoUrl.isNullOrEmpty()) {
+                            Glide.with(this@StudentProfileSettingsActivity)
+                                .load(photoUrl)
+                                .placeholder(R.drawable.ic_user_avatar)
+                                .circleCrop()
+                                .into(ivAvatar)
+                        } else {
+                            ivAvatar.setImageDrawable(createInitialsDrawable(name))
+                        }
+
                     }
                 }
         }
@@ -269,6 +290,39 @@ class StudentProfileSettingsActivity : BaseActivity() {
             }
         }
     }
+
+    private fun createInitialsDrawable(name: String, sizeDp: Int = 64): Drawable {
+        val initials = name.split(" ")
+            .filter { it.isNotBlank() }
+            .map { it.firstOrNull()?.uppercaseChar() ?: "" }
+            .take(2)
+            .joinToString("")
+
+        val sizePx = (sizeDp * resources.displayMetrics.density).toInt()
+        val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        // Draw background circle
+        val paint = Paint().apply {
+            color = Color.parseColor("#0027B2")
+            isAntiAlias = true
+        }
+        canvas.drawCircle(sizePx / 2f, sizePx / 2f, sizePx / 2f, paint)
+
+        // Draw initials
+        val textPaint = Paint().apply {
+            color = Color.WHITE
+            textSize = sizePx / 2f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+        }
+        val yPos = (canvas.height / 2 - (textPaint.descent() + textPaint.ascent()) / 2)
+        canvas.drawText(initials, sizePx / 2f, yPos, textPaint)
+
+        return BitmapDrawable(resources, bitmap)
+    }
+
 }
 
 /** Case-insensitive equals helper for nullable strings */

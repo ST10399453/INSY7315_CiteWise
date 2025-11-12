@@ -172,12 +172,43 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+//    private fun handleGoogleCredential(credential: Credential) {
+//        if (credential is CustomCredential &&
+//            credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+//        ) {
+//            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+//            val idToken = googleIdTokenCredential.idToken
+//            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+//            auth.signInWithCredential(firebaseCredential)
+//                .addOnCompleteListener(this) { task ->
+//                    if (!task.isSuccessful) {
+//                        etPassword.error = task.exception?.localizedMessage ?: "Google sign-in failed"
+//                        return@addOnCompleteListener
+//                    }
+//                    requestFcmToken()
+//                    handleFirstTimeGoogleUserOrRoute()
+//                }
+//        } else {
+//            etPassword.error = "Selected credential is not a Google account"
+//        }
+//    }
+
     private fun handleGoogleCredential(credential: Credential) {
         if (credential is CustomCredential &&
             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
         ) {
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+            // ✅ Extract profile info directly from Google
             val idToken = googleIdTokenCredential.idToken
+            val displayName = googleIdTokenCredential.displayName
+            val email = googleIdTokenCredential.id
+            val profilePicUri = googleIdTokenCredential.profilePictureUri
+
+            // Optional: log or preview
+            android.util.Log.d("LoginActivity", "Google user = $displayName ($email)")
+            android.util.Log.d("LoginActivity", "Photo = $profilePicUri")
+
             val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
             auth.signInWithCredential(firebaseCredential)
                 .addOnCompleteListener(this) { task ->
@@ -185,6 +216,14 @@ class LoginActivity : AppCompatActivity() {
                         etPassword.error = task.exception?.localizedMessage ?: "Google sign-in failed"
                         return@addOnCompleteListener
                     }
+
+                    val user = auth.currentUser
+                    if (user != null && profilePicUri != null) {
+                        // ✅ Optionally store photo URL in Realtime Database
+                        val ref = FirebaseDatabase.getInstance().getReference("users").child(user.uid)
+                        ref.child("photoUrl").setValue(profilePicUri.toString())
+                    }
+
                     requestFcmToken()
                     handleFirstTimeGoogleUserOrRoute()
                 }
@@ -192,6 +231,7 @@ class LoginActivity : AppCompatActivity() {
             etPassword.error = "Selected credential is not a Google account"
         }
     }
+
 
     private fun handleFirstTimeGoogleUserOrRoute() {
         val uid = auth.currentUser?.uid ?: return
