@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/citewise_mobile/data/ServiceReviewsRepository.kt
 package com.example.citewise_mobile.data
 
 import com.example.citewise_mobile.api.*
@@ -47,51 +46,33 @@ class ServiceReviewsRepository(
         )
     }
 
-    /** List requests for the current user id. */
     suspend fun listMyRequests(
         status: String? = null,
         userId: String?
     ): NetResult<List<ServiceRequestDto>> = safe {
         if (userId.isNullOrBlank()) return@safe Response.success(emptyList())
-        api.listRequests(
-            status = status,
-            userId = userId,
-            consultantId = null
-        )
+        api.listRequests(status = status, userId = userId, consultantId = null)
     }
 
-    /**
-     * Fetches service requests by filter (consultant, status, user).
-     */
     suspend fun listGeneralRequests(
         consultantId: String? = null,
         status: String? = null,
         userId: String? = null
     ): NetResult<List<ServiceRequestDto>> = safe {
-        api.listRequests(
-            consultantId = consultantId,
-            status = status,
-            userId = userId
-        )
+        api.listRequests(consultantId = consultantId, status = status, userId = userId)
     }
 
-
-    /** Unassigned ServiceReviews (pending assignments). */
     suspend fun listPendingAssignments(): NetResult<List<ServiceRequestDto>> = safe {
         api.listPendingAssignments()
     }
 
-    /** Consultants who currently have no assignments. */
     suspend fun listUnassignedConsultants(): NetResult<List<ConsultantDto>> =
         when (val resp = safe { api.listUnassignedConsultants() }) {
             is NetResult.Ok -> NetResult.Ok(resp.data.items)
             is NetResult.Err -> resp
         }
 
-    /**
-     * Upload annotated file for a request (consultant/admin).
-     * Optionally pass a new status, e.g. "review_submitted".
-     */
+    /** Upload annotated file (feedback). Optionally bump status (e.g. "review_submitted"). */
     suspend fun uploadAnnotatedFile(
         requestId: String,
         file: File,
@@ -121,16 +102,13 @@ class ServiceReviewsRepository(
                 val resp = block()
                 if (resp.isSuccessful) {
                     val body = resp.body()
-                    android.util.Log.d("API", "success code=${resp.code()} body=$body")
                     if (body != null) NetResult.Ok(body)
                     else NetResult.Err("Empty response body", resp.code())
                 } else {
                     val err = resp.errorBody()?.string()?.takeIf { it.isNotBlank() }
-                    android.util.Log.w("API", "error code=${resp.code()} err=$err")
                     NetResult.Err(err ?: "HTTP ${resp.code()}", resp.code())
                 }
             } catch (e: Exception) {
-                android.util.Log.e("API", "exception=${e.message}", e)
                 NetResult.Err(e.message ?: "Network error")
             }
         }

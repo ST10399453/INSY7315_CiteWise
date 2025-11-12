@@ -1,5 +1,6 @@
 package com.example.citewise_mobile
 
+import com.example.citewise_mobile.R
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
