@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +13,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header -->
+        <!-- ===== Header ===== -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,7 +42,7 @@
                 android:layout_centerInParent="true" />
         </RelativeLayout>
 
-        <!-- Status + Project name strip -->
+        <!-- ===== Status + Project name strip ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -110,7 +111,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Service -->
+        <!-- ===== Service ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -133,7 +134,7 @@
                     android:text="Service"
                     android:textSize="16sp"
                     android:textColor="@color/text_faded"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/poppins_medium" />
 
                 <TextView
                     android:id="@+id/tvServiceName"
@@ -149,7 +150,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Files -->
+        <!-- ===== Files (Student default) ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -239,7 +240,7 @@
                         android:contentDescription="Download" />
                 </LinearLayout>
 
-                <!-- Feedback/annotated file line (optional) -->
+                <!-- Feedback/annotated file line (optional, shown to students if present) -->
                 <LinearLayout
                     android:id="@+id/rowFeedbackFile"
                     android:layout_width="match_parent"
@@ -289,7 +290,64 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Additional Information -->
+        <!-- ===== Consultant-only: file row + upload feedback ===== -->
+        <LinearLayout
+            android:id="@+id/cardQualitativeStudy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="@drawable/rounded_card_background"
+            android:elevation="2dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvDocName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Student Document"
+                android:textSize="16sp"
+                android:textColor="@color/text_dark" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_doc_preview_placeholder"
+                android:contentDescription="Document" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Upload feedback"
+                android:textSize="16sp"
+                android:textColor="@color/text_dark"/>
+
+            <Button
+                android:id="@+id/btnUploadFeedback"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload"
+                android:textColor="@color/text_light"
+                android:backgroundTint="@color/gradient_end"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
+
+        <!-- ===== Additional Information ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -326,7 +384,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Quote -->
+        <!-- ===== Quote (Student-side) ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -471,7 +529,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Action buttons WITH text -->
+                <!-- Student action buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -529,7 +587,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Progress -->
+        <!-- ===== Progress (shared) ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -611,8 +669,155 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Consultant -->
+        <!-- ===== Consultant-only: Version history ===== -->
+        <LinearLayout
+            android:id="@+id/versionHistoryPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvVersionHistoryHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Version history"
+                android:textSize="16sp"
+                android:textColor="@color/text_dark"
+                android:drawableEnd="@drawable/sharp_arrow_drop_down_24"
+                android:paddingEnd="4dp" />
+
+            <LinearLayout
+                android:id="@+id/versionHistoryContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingTop="8dp">
+
+                <!-- Use your styles if available -->
+                <TextView
+                    style="@style/VersionHistoryItem"
+                    android:text="Original version" />
+                <TextView
+                    style="@style/VersionHistoryItem"
+                    android:text="Annotated version 1" />
+                <TextView
+                    style="@style/VersionHistoryItem"
+                    android:text="Annotated version 2"
+                    android:drawableEnd="@drawable/ic_circle_check" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== Consultant-only: Progress status panel ===== -->
+        <LinearLayout
+            android:id="@+id/progressStatusPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_card_background"
+            android:elevation="2dp"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvProgressStatusHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update progress status"
+                android:textSize="16sp"
+                android:textColor="@color/text_dark"
+                android:drawableEnd="@drawable/sharp_arrow_drop_down_24"
+                android:paddingEnd="4dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="Progress status"
+                android:textColor="@color/text_faded"
+                android:background="@drawable/bg_spinner_popup_white"
+                android:drawableEnd="@drawable/sharp_arrow_drop_down_24" />
+
+            <LinearLayout
+                android:id="@+id/progressHistoryContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:paddingTop="8dp">
+
+                <TextView
+                    style="@style/ProgressStatusItem"
+                    android:text="Submitted"
+                    android:drawableStart="@drawable/ic_dot_green" />
+                <TextView
+                    style="@style/ProgressStatusItem"
+                    android:text="In Progress"
+                    android:drawableStart="@drawable/ic_dot_yellow" />
+                <TextView
+                    style="@style/ProgressStatusItem"
+                    android:text="Awaiting Feedback"
+                    android:drawableStart="@drawable/ic_dot_purple"
+                    android:drawableEnd="@drawable/ic_circle_check" />
+                <TextView
+                    style="@style/ProgressStatusItem"
+                    android:text="Completed"
+                    android:drawableStart="@drawable/ic_dot_blue" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== Consultant-only: Footer actions ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp">
+
+            <Button
+                android:id="@+id/btnRevise"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Revise"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:textColor="@color/gradient_end"
+                android:textAllCaps="true"
+                app:strokeColor="@color/gradient_end"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnSendToStudent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Send to student"
+                android:textColor="@color/text_light"
+                android:textAllCaps="true"
+                android:backgroundTint="@color/gradient_end"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnDownloadPdf"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Download Pdf"
+                android:textColor="@color/text_light"
+                android:textAllCaps="true"
+                android:backgroundTint="@color/gradient_end" />
+        </LinearLayout>
+
+        <!-- ===== Consultant (student-facing info card) ===== -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/consultantCardRoot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="18dp"

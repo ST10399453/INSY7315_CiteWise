@@ -89,8 +89,8 @@ class ConsultantTasksActivity : BaseActivity() {
 
     private fun setupTaskListAdapter() {
         val click: (ServiceRequestDto) -> Unit = { req ->
-            val intent = Intent(this, ConsultantTaskDetailsActivity::class.java)
-                .putExtra(ConsultantTaskDetailsActivity.EXTRA_REQUEST, req)
+            val intent = Intent(this, TaskDetailsActivity::class.java)
+                .putExtra(TaskDetailsActivity.EXTRA_REQUEST, req)
             startActivity(intent)
         }
         tasksRecyclerView.layoutManager = LinearLayoutManager(this)
