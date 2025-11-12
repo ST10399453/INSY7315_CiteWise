@@ -317,7 +317,7 @@ router.post("/:id/self-assign",
 
 // GET /consultants/unassigned
 router.get(
-  "/requests/consultants/unassigned",
+  "/consultants/unassigned",
   checkAuth,
   async (req, res) => {
     try {
