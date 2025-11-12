@@ -15,6 +15,92 @@ const router = Router()
 
 /**
  * =======================================================
+ *  ROUTE: Get Messages Since Timestamp
+ *  -------------------------------------------------------
+ *  Endpoint: GET /since?since=xxx
+ *  Purpose: Get all messages for the authenticated user since a timestamp
+ *
+ *  Used by: Mobile App for polling
+ *  Access: Authenticated users only.
+ *  NOTE: Placed before "/:chatId" so it isn't captured as chatId="since".
+ * =======================================================
+ */
+router.get(
+  "/since",
+  checkAuth,
+  query("since").isNumeric(),
+  async (req, res) => {
+    const v = bailIfInvalid(req, res)
+    if (v) return v
+
+    try {
+      const myUid = req.user.uid
+      const timestamp = req.query.since ? Number(req.query.since) : 0
+
+      console.log(`/messages/since?since=${timestamp} called by user: ${myUid}`)
+
+      const chatsSnapshot = await firestore()
+        .collection("Chats")
+        .where("participants", "array-contains", myUid)
+        .get()
+
+      const allMessages = []
+
+      for (const chatDoc of chatsSnapshot.docs) {
+        const chatId = chatDoc.id
+        const messagesSnapshot = await firestore()
+          .collection("Chats")
+          .doc(chatId)
+          .collection("Messages")
+          .where("createdAt", ">", timestamp)
+          .orderBy("createdAt", "asc")
+          .limit(100)
+          .get()
+
+        for (const msgDoc of messagesSnapshot.docs) {
+          const m = msgDoc.data()
+          const base = { id: msgDoc.id, ...m }
+
+          // Decrypt if encrypted
+          if (base.bodyEnc && base.body == null) {
+            try {
+              base.body = decryptBody(base.bodyEnc)
+            } catch {
+              base.body = ""
+            }
+          }
+
+          const message = {
+            id: base.id,
+            fromUid: base.fromUid,
+            toUid: base.toUid,
+            body: base.body || "",
+            createdAt: base.createdAt,
+            updatedAt: base.updatedAt,
+            status: base.status,
+          }
+
+          console.log(
+            `Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
+          )
+
+          allMessages.push(message)
+        }
+      }
+
+      // Sort by timestamp
+      allMessages.sort((a, b) => a.createdAt - b.createdAt)
+
+      return res.json(allMessages)
+    } catch (e) {
+      console.error("GET /messages/since error:", e)
+      return res.status(500).json({ success: false, message: "Failed to fetch messages" })
+    }
+  },
+)
+
+/**
+ * =======================================================
  *  ROUTE: Get Chat Messages (Chronological Order)
  *  -------------------------------------------------------
  *  Endpoint: GET /:chatId
@@ -27,39 +113,29 @@ const router = Router()
  */
 router.get(
   "/:chatId",
-  checkAuth, // Require authentication (Balaji, 2023)
-  param("chatId")
-    .isString()
-    .notEmpty(), // Validate chatId parameter (express-validator, 2019)
-  query("limit")
-    .optional()
-    .isInt({ min: 1, max: 500 }), // Optional: number of messages to fetch (express-validator, 2019)
-  query("after")
-    .optional()
-    .isInt(), // Optional: pagination cursor (express-validator, 2019)
+  checkAuth,
+  param("chatId").isString().notEmpty(),
+  query("limit").optional().isInt({ min: 1, max: 500 }),
+  query("after").optional().isInt(),
   async (req, res) => {
-    // Validate request params/query
-    const v = bailIfInvalid(req, res) // Short-circuits with 400 on validation errors (express-validator, 2019)
+    const v = bailIfInvalid(req, res)
     if (v) return v
 
     try {
-      // Extract and normalize query parameters
       const { chatId } = req.params
       const limit = req.query.limit ? Number(req.query.limit) : 100
       const after = req.query.after != null ? Number(req.query.after) : undefined
 
-      // Check if the user is allowed to access this chat (Manico & Detlefsen, 2015)
       const allowed = await isParticipant(chatId, req.user.uid)
       if (!allowed) return res.status(403).json({ success: false, message: "Forbidden" })
 
       const { messages, nextAfter } = await getChatMessagesChrono(chatId, { limit, after })
 
-      // Respond with messages and pagination info
       return res.json({
         success: true,
         chatId,
         messages,
-        nextAfter, // Cursor for next page (Firebase, 2022)
+        nextAfter,
         meta: { order: "asc", limit },
       })
     } catch (e) {
@@ -83,21 +159,16 @@ router.get(
  */
 router.post(
   "/send",
-  checkAuth, // Require authentication (Balaji, 2023)
-  body("toUid")
-    .isString()
-    .notEmpty(), // Validate recipient (express-validator, 2019)
-  body("text")
-    .isString()
-    .notEmpty(), // Changed from "body" to "text" to match Android app request
+  checkAuth,
+  body("toUid").isString().notEmpty(),
+  body("text").isString().notEmpty(), // Android/web send "text" for this endpoint
   async (req, res) => {
-    // Validate request body
-    const v = bailIfInvalid(req, res) // (express-validator, 2019)
+    const v = bailIfInvalid(req, res)
     if (v) return v
 
     try {
       const fromUid = req.user.uid
-      const { toUid, text } = req.body // Changed from body to text
+      const { toUid, text } = req.body
 
       // Prevent users from messaging themselves (Manico & Detlefsen, 2015)
       if (String(toUid) === String(fromUid)) {
@@ -106,7 +177,7 @@ router.post(
 
       const saved = await sendChatMessage({ fromUid, toUid, body: text })
 
-      console.log(`[v0] Message sent: id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
+      console.log(`Message sent: id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
 
       return res.status(201).json({
         id: saved.id,
@@ -151,7 +222,6 @@ router.get(
       const limit = req.query.limit ? Number(req.query.limit) : 100
 
       const chatId = chatIdFor(myUid, peerUid)
-
       const messagesRef = firestore().collection("Chats").doc(chatId).collection("Messages")
       const snapshot = await messagesRef.orderBy("createdAt", "asc").limit(limit).get()
 
@@ -168,7 +238,6 @@ router.get(
           }
         }
 
-        // Ensure fromUid and toUid are always present
         return {
           id: base.id,
           fromUid: base.fromUid,
@@ -214,7 +283,6 @@ router.get(
       const limit = req.query.limit ? Number(req.query.limit) : 100
 
       const chatId = chatIdFor(myUid, peerUid)
-
       const messagesRef = firestore().collection("Chats").doc(chatId).collection("Messages")
       const snapshot = await messagesRef.orderBy("createdAt", "asc").limit(limit).get()
 
@@ -231,7 +299,6 @@ router.get(
           }
         }
 
-        // Ensure fromUid and toUid are always present
         return {
           id: base.id,
           fromUid: base.fromUid,
@@ -253,80 +320,6 @@ router.get(
 
 /**
  * =======================================================
- *  ROUTE: Get Messages Since Timestamp
- *  -------------------------------------------------------
- *  Endpoint: GET /since?since=xxx
- *  Purpose: Get all messages for the authenticated user since a timestamp
- *
- *  Used by: Mobile App for polling
- *  Access: Authenticated users only.
- * =======================================================
- */
-router.get("/since", checkAuth, query("since").isNumeric(), async (req, res) => {
-  try {
-    const myUid = req.user.uid
-    const timestamp = req.query.since ? Number(req.query.since) : 0
-
-    console.log(`[v0] /since?since=${timestamp} called by user: ${myUid}`)
-
-    const chatsSnapshot = await firestore().collection("Chats").where("participants", "array-contains", myUid).get()
-
-    const allMessages = []
-
-    for (const chatDoc of chatsSnapshot.docs) {
-      const chatId = chatDoc.id
-      const messagesSnapshot = await firestore()
-        .collection("Chats")
-        .doc(chatId)
-        .collection("Messages")
-        .where("createdAt", ">", timestamp)
-        .orderBy("createdAt", "asc")
-        .limit(100)
-        .get()
-
-      for (const msgDoc of messagesSnapshot.docs) {
-        const m = msgDoc.data()
-        const base = { id: msgDoc.id, ...m }
-
-        // Decrypt if encrypted
-        if (base.bodyEnc && base.body == null) {
-          try {
-            base.body = decryptBody(base.bodyEnc)
-          } catch {
-            base.body = ""
-          }
-        }
-
-        const message = {
-          id: base.id,
-          fromUid: base.fromUid, // Do NOT modify - preserve original
-          toUid: base.toUid, // Do NOT modify - preserve original
-          body: base.body || "",
-          createdAt: base.createdAt,
-          updatedAt: base.updatedAt,
-          status: base.status,
-        }
-
-        console.log(
-          `[v0] Message ${message.id}: fromUid=${message.fromUid}, toUid=${message.toUid}, requesting user=${myUid}`,
-        )
-
-        allMessages.push(message)
-      }
-    }
-
-    // Sort by timestamp
-    allMessages.sort((a, b) => a.createdAt - b.createdAt)
-
-    return res.json(allMessages)
-  } catch (e) {
-    console.error("GET /messages/since error:", e)
-    return res.status(500).json({ success: false, message: "Failed to fetch messages" })
-  }
-})
-
-/**
- * =======================================================
  *  ROUTE: Send Chat Message (Root POST - Legacy Support)
  *  -------------------------------------------------------
  *  Endpoint: POST /
@@ -340,16 +333,14 @@ router.post(
   "/",
   checkAuth,
   body("toUid").isString().notEmpty(),
-  body("body")
-    .isString()
-    .notEmpty(), // Android sends "body" not "text"
+  body("body").isString().notEmpty(), // Android legacy sends "body"
   async (req, res) => {
     const v = bailIfInvalid(req, res)
     if (v) return v
 
     try {
       const fromUid = req.user.uid
-      const { toUid, body: text } = req.body // Extract "body" field and rename to text
+      const { toUid, body: text } = req.body
 
       if (String(toUid) === String(fromUid)) {
         return res.status(400).json({ success: false, message: "Cannot message yourself" })
@@ -357,7 +348,7 @@ router.post(
 
       const saved = await sendChatMessage({ fromUid, toUid, body: text })
 
-      console.log(`[v0] Message sent (root POST): id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
+      console.log(`Message sent (root POST): id=${saved.id}, fromUid=${saved.fromUid}, toUid=${saved.toUid}`)
 
       // Return message directly without wrapper for Android app
       return res.status(201).json({
