@@ -397,98 +397,131 @@ router.post(
   param("id").isString(),
   body("status").optional().isIn(["review_submitted", "completed"]), // kept for compatibility
   async (req, res) => {
-    const v = bailIfInvalid(req, res); if (v) return v;
+    const v = bailIfInvalid(req, res)
+    if (v) return v
 
     try {
-      if (!req.file) return res.status(400).json({ message: "file is required" });
+      if (!req.file) return res.status(400).json({ message: "file is required" })
 
-      const reqId = req.params.id;
-      const actor = req.user;
+      const reqId = req.params.id
+      const actor = req.user
 
-      // fetch request
-      const reqRef = db.collection("ServiceReviews").doc(reqId);
-      const reqSnap = await reqRef.get();
-      if (!reqSnap.exists) return res.status(404).json({ message: "Request not found" });
-      const requestDoc = reqSnap.data() || {};
+      // 0) Fetch request
+      const reqRef = db.collection("ServiceReviews").doc(reqId)
+      const reqSnap = await reqRef.get()
+      if (!reqSnap.exists) {
+        return res.status(404).json({ message: "Request not found" })
+      }
+      const requestDoc = reqSnap.data() || {}
 
-      // role check: admin or assigned consultant
-      const role = String(actor?.role || actor?.claims?.role || "").toLowerCase();
-      const isConsultant = role === "consultant";
-      const allowed =
-        isAdmin(actor) || (isConsultant && requestDoc?.consultantId && requestDoc.consultantId === actor.uid);
-      if (!allowed) return res.status(403).json({ message: "Forbidden" });
+      // 1) Role check: admin OR assigned consultant
+      const actorId = actor && actor.uid
+      const assignedConsultantId = requestDoc && requestDoc.consultantId
 
-      // 1) Upload annotated file to R2
-      const original = req.file.originalname || "annotated.pdf";
-      const safe = safeName(original);
-      const mime = req.file.mimetype || "application/pdf";
-      const size = req.file.size || req.file.buffer?.length || 0;
+      const isAssignedConsultant =
+        assignedConsultantId &&
+        actorId &&
+        String(assignedConsultantId) === String(actorId)
 
-      const key = `annotations/${reqId}/${safe}`;
-      const r2Meta = await uploadToR2({ key, body: req.file.buffer, contentType: mime });
-      const publicUrl = await publicUrlFromR2Meta(r2Meta);
+      const allowed = isAdmin(actor) || isAssignedConsultant
+
+      if (!allowed) {
+        console.warn(
+          "[annotated] Forbidden: actor=%s consultantId=%s role=%s",
+          actorId,
+          assignedConsultantId,
+          String(actor?.role || actor?.claims?.role || "")
+        )
+        return res.status(403).json({ message: "Forbidden" })
+      }
+
+      // 2) Upload annotated file to R2
+      const original = req.file.originalname || "annotated.pdf"
+      const safe = safeName(original)
+      const mime = req.file.mimetype || "application/pdf"
+      const size = req.file.size || req.file.buffer?.length || 0
+
+      const key = `annotations/${reqId}/${safe}`
+      const r2Meta = await uploadToR2({
+        key,
+        body: req.file.buffer,
+        contentType: mime,
+      })
+      const publicUrl = await publicUrlFromR2Meta(r2Meta)
 
       const annotatedFile = {
         fileName: safe,
         mimeType: mime,
         size,
         uploadedAt: Date.now(),
-        uploadedBy: actor.uid,
+        uploadedBy: actorId,
         storage: { cloudflare: r2Meta },
         ...(publicUrl ? { publicUrl } : {}),
-      };
+      }
 
-      // 2) Count words (from annotated)
+      // 3) Count words
       const words = await wordCountFromBuffer({
         buffer: req.file.buffer,
         mime,
         originalName: original,
-      });
+      })
 
-      // 3) Compute quote
-      const serviceType = String(requestDoc?.serviceType || "OTHER");
-      const priority = String(requestDoc?.priority || "LOW");
-      const currency = process.env.QUOTE_CURRENCY || "USD";
+      // 4) Compute quote
+      const serviceType = String(requestDoc.serviceType || "OTHER")
+      const priority = String(requestDoc.priority || "LOW")
+      const currency = process.env.QUOTE_CURRENCY || "USD"
+
       const { ratePerWord, urgencyMultiplier, amount } = computeQuote({
-        serviceType, priority, words, currency,
-      });
-
-      // 4) Write Quotation
-      const quotePayload = {
-        requestId: reqId,
-        studentUid: requestDoc?.userId || null,
-        consultantUid: actor.uid,
         serviceType,
         priority,
-        words,                 // <— store word count here
+        words,
+        currency,
+      })
+
+      // 5) Write Quotation
+      const quotePayload = {
+        requestId: reqId,
+        studentUid: requestDoc.userId || null,
+        consultantUid: actorId,
+        serviceType,
+        priority,
+        words,
         ratePerWord,
         urgencyMultiplier,
         amount,
         currency,
-        annotated: { key, fileName: safe, mimeType: mime, size, ...(publicUrl ? { publicUrl } : {}) },
+        annotated: {
+          key,
+          fileName: safe,
+          mimeType: mime,
+          size,
+          ...(publicUrl ? { publicUrl } : {}),
+        },
         status: "proposed",
         createdAt: Date.now(),
-      };
-      const quoteRef = await db.collection("Quotations").add(quotePayload);
-      const quotationId = quoteRef.id;
+      }
 
-      // 5) Update request: attach annotated, link quote, force Completed
-      const nextStatus = "Completed";
+      const quoteRef = await db.collection("Quotations").add(quotePayload)
+      const quotationId = quoteRef.id
+
+      // 6) Update request
+      const nextStatus = "Completed"
       const updatePayload = {
         annotatedFile,
         quotationId,
         quotationWords: words,
         quotationAmount: amount,
         quotationCurrency: currency,
-        feedbackFileUrl: publicUrl || null,     // Android can View/Download immediately
+        feedbackFileUrl: publicUrl || null,
         feedbackFileName: safe,
         status: nextStatus,
         updatedAt: Date.now(),
-      };
-      await reqRef.set(updatePayload, { merge: true });
+      }
 
-      // 6) Push notify student
-      const studentUid = requestDoc?.userId;
+      await reqRef.set(updatePayload, { merge: true })
+
+      // 7) Notify student
+      const studentUid = requestDoc.userId
       if (studentUid) {
         await notify.sendPushToUser(studentUid, {
           title: "Your quotation is ready",
@@ -500,15 +533,16 @@ router.post(
             amount: String(amount),
             currency,
           },
-        });
+        })
+
         await notify.createFirestoreNotification(studentUid, {
           type: "quote_ready",
-          fromUid: actor.uid,
+          fromUid: actorId,
           message: `Quote available: ${currency} ${amount.toFixed(2)} (${words} words)`,
-        });
+        })
       }
 
-      // 7) Respond
+      // 8) Respond
       return res.status(201).json({
         id: reqId,
         status: nextStatus,
@@ -517,13 +551,13 @@ router.post(
         quote: { words, ratePerWord, urgencyMultiplier, amount, currency },
         feedbackFileUrl: publicUrl || null,
         feedbackFileName: safe,
-      });
+      })
     } catch (err) {
-      console.error("annotated upload failed:", err);
-      return res.status(500).json({ message: err.message });
+      console.error("annotated upload failed:", err)
+      return res.status(500).json({ message: err.message })
     }
-  }
-);
+  },
+)
 
 // GET /requests/pending-assignments  (treat null OR "")
 router.get(
