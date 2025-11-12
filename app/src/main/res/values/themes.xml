@@ -42,7 +42,16 @@
             <item name="android:textColor">@color/toggle_button_text</item>
         </style>
 
-        <!-- Driven entirely by state lists -->
+    <style name="EmptyStateText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textColor">@color/gradient_end</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <!-- Driven entirely by state lists -->
 <!--        <item name="backgroundTint">@color/toggle_bg_selector</item>-->
 <!--        <item name="android:textColor">@color/toggle_text_color</item>-->
 <!--        <item name="strokeColor">@color/toggle_stroke_color</item>-->

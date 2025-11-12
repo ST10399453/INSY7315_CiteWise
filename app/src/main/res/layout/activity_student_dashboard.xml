@@ -138,6 +138,18 @@
                         </FrameLayout>
 
                     <TextView
+                        android:id="@+id/tvEmptyRequests"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No service requests"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone"/>
+
+                    <TextView
                         android:id="@+id/tvViewAllTasks"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

@@ -12,103 +12,103 @@
     app:cardElevation="2dp"
     android:foreground="?attr/selectableItemBackground">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="@color/ui_background">
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:padding="16dp"-->
+<!--        android:background="@color/ui_background">-->
 
-        <TextView
-            android:id="@+id/taskUrgencyTag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
-            android:textColor="@color/text_light"
-            android:textSize="12sp"
-            android:fontFamily="@font/poppins_sembold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="Low"
-            tools:background="@drawable/priority_tag_background" />
+<!--        <TextView-->
+<!--            android:id="@+id/taskUrgencyTag"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:paddingStart="8dp"-->
+<!--            android:paddingEnd="8dp"-->
+<!--            android:paddingTop="2dp"-->
+<!--            android:paddingBottom="2dp"-->
+<!--            android:textColor="@color/text_light"-->
+<!--            android:textSize="12sp"-->
+<!--            android:fontFamily="@font/poppins_sembold"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            tools:text="Low"-->
+<!--            tools:background="@drawable/priority_tag_background" />-->
 
-        <TextView
-            android:id="@+id/taskServiceType"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_dark"
-            android:textSize="16sp"
-            android:fontFamily="@font/poppins_bold"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/taskUrgencyTag"
-            android:layout_marginEnd="8dp"
-            tools:text="Proofreading &amp; Editing" />
+<!--        <TextView-->
+<!--            android:id="@+id/taskServiceType"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/text_dark"-->
+<!--            android:textSize="16sp"-->
+<!--            android:fontFamily="@font/poppins_bold"-->
+<!--            android:maxLines="1"-->
+<!--            android:ellipsize="end"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@id/taskUrgencyTag"-->
+<!--            android:layout_marginEnd="8dp"-->
+<!--            tools:text="Proofreading &amp; Editing" />-->
 
-        <TextView
-            android:id="@+id/taskDocumentName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_faded"
-            android:textSize="14sp"
-            android:fontFamily="@font/poppins_medium"
-            android:layout_marginTop="2dp"
-            app:layout_constraintTop_toBottomOf="@id/taskServiceType"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="Business Report" />
+<!--        <TextView-->
+<!--            android:id="@+id/taskDocumentName"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/text_faded"-->
+<!--            android:textSize="14sp"-->
+<!--            android:fontFamily="@font/poppins_medium"-->
+<!--            android:layout_marginTop="2dp"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/taskServiceType"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            tools:text="Business Report" />-->
 
-        <ProgressBar
-            android:id="@+id/taskProgressBar"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="0dp"
-            android:layout_height="16dp"
-            android:progressDrawable="@drawable/custom_progress_bar"
-            android:layout_marginTop="12dp"
-            android:max="100"
-            app:layout_constraintTop_toBottomOf="@id/taskDocumentName"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:progress="50" />
+<!--        <ProgressBar-->
+<!--            android:id="@+id/taskProgressBar"-->
+<!--            style="@style/Widget.AppCompat.ProgressBar.Horizontal"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="16dp"-->
+<!--            android:progressDrawable="@drawable/custom_progress_bar"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            android:max="100"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/taskDocumentName"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            tools:progress="50" />-->
 
-        <TextView
-            android:id="@+id/taskStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/gradient_end"
-            android:textSize="12sp"
-            android:fontFamily="@font/poppins_medium"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/taskProgressBar"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="In Progress" />
+<!--        <TextView-->
+<!--            android:id="@+id/taskStatus"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/gradient_end"-->
+<!--            android:textSize="12sp"-->
+<!--            android:fontFamily="@font/poppins_medium"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/taskProgressBar"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            tools:text="In Progress" />-->
 
-        <TextView
-            android:id="@+id/taskProgressPercent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/gradient_end"
-            android:textSize="12sp"
-            android:fontFamily="@font/poppins_medium"
-            app:layout_constraintTop_toTopOf="@id/taskStatus"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="50%" />
+<!--        <TextView-->
+<!--            android:id="@+id/taskProgressPercent"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/gradient_end"-->
+<!--            android:textSize="12sp"-->
+<!--            android:fontFamily="@font/poppins_medium"-->
+<!--            app:layout_constraintTop_toTopOf="@id/taskStatus"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            tools:text="50%" />-->
 
-        <TextView
-            android:id="@+id/taskDeadline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_faded"
-            android:textSize="12sp"
-            android:fontFamily="@font/poppins_medium"
-            android:layout_marginTop="4dp"
-            app:layout_constraintTop_toBottomOf="@id/taskStatus"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="Deadline: 28/11/2025" />
+<!--        <TextView-->
+<!--            android:id="@+id/taskDeadline"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/text_faded"-->
+<!--            android:textSize="12sp"-->
+<!--            android:fontFamily="@font/poppins_medium"-->
+<!--            android:layout_marginTop="4dp"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/taskStatus"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            tools:text="Deadline: 28/11/2025" />-->
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 </androidx.cardview.widget.CardView>

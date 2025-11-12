@@ -104,45 +104,87 @@
             app:strokeColor="@android:color/transparent"
             app:cardBackgroundColor="@android:color/transparent">
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:background="@drawable/rounded_card_background">
 
-                <!-- ✅ Only this scrolls -->
-                <androidx.core.widget.NestedScrollView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerReviews"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:fillViewport="true">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recyclerReviews"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:layout_marginTop="8dp"
-                        tools:listitem="@layout/item_service_review"
-                        tools:itemCount="1" />
-                </androidx.core.widget.NestedScrollView>
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginTop="8dp"
+                    tools:listitem="@layout/item_service_review"
+                    tools:itemCount="1" />
 
                 <TextView
-                    android:id="@+id/emptyState"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:gravity="center"
+                    android:id="@+id/emptyAll"
+                    style="@style/EmptyStateText"
                     android:text="No requests yet"
-                    android:textColor="@color/gradient_end"
-                    android:textSize="16sp"
                     android:visibility="gone"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </LinearLayout>
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/emptyUrgent"
+                    style="@style/EmptyStateText"
+                    android:text="No urgent requests"
+                    android:visibility="gone"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/emptyMedium"
+                    style="@style/EmptyStateText"
+                    android:text="No medium priority requests"
+                    android:visibility="gone"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/emptyLow"
+                    style="@style/EmptyStateText"
+                    android:text="No low priority requests"
+                    android:visibility="gone"
+                    android:layout_gravity="center"/>
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!--        <com.google.android.material.card.MaterialCardView-->
+<!--            android:id="@+id/serviceCard"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            app:cardCornerRadius="20dp"-->
+<!--            app:cardUseCompatPadding="true"-->
+<!--            app:strokeColor="@android:color/transparent"-->
+<!--            app:cardBackgroundColor="@android:color/transparent">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:orientation="vertical"-->
+<!--                android:background="@drawable/rounded_card_background">-->
+
+<!--                &lt;!&ndash; ✅ Only this scrolls &ndash;&gt;-->
+<!--                <androidx.core.widget.NestedScrollView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:fillViewport="true">-->
+
+<!--                    <androidx.recyclerview.widget.RecyclerView-->
+<!--                        android:id="@+id/recyclerReviews"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:paddingStart="12dp"-->
+<!--                        android:paddingEnd="12dp"-->
+<!--                        android:layout_marginTop="8dp"-->
+<!--                        tools:listitem="@layout/item_service_review"-->
+<!--                        tools:itemCount="1" />-->
+
+
+
+<!--                </androidx.core.widget.NestedScrollView>-->
+<!--            </LinearLayout>-->
+<!--        </com.google.android.material.card.MaterialCardView>-->
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

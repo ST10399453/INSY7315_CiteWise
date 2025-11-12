@@ -2,6 +2,7 @@ package com.example.citewise_mobile
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
@@ -43,6 +44,8 @@ class ConsultantDashboardActivity : BaseActivity() {
     private lateinit var urgencyFilterGroup: MaterialButtonToggleGroup
     private lateinit var tvGreeting: TextView
 
+    private lateinit var tvEmptyRequests: TextView
+
     // Data
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val repo by lazy { ServiceReviewsRepository(RetrofitInstance.api) }
@@ -70,6 +73,7 @@ class ConsultantDashboardActivity : BaseActivity() {
         scheduleRecyclerView = content.findViewById(R.id.scheduleRecyclerView)
         quoteRequestsRecyclerView = content.findViewById(R.id.quoteRequestsRecyclerView)
         urgencyFilterGroup = content.findViewById(R.id.urgencyFilterGroup)
+        tvEmptyRequests = content.findViewById(R.id.tvEmptyRequests)
 
 
         // active tasks need to change
@@ -176,6 +180,8 @@ class ConsultantDashboardActivity : BaseActivity() {
             Urgency.LOW    -> fullTaskList.filter { it.priority == ServicePriority.LOW }
         }
         serviceReviewAdapter.reset(filtered)
+
+        tvEmptyRequests.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun getTasksForDate(dateMillis: Long): List<ServiceRequestDto> =

@@ -104,17 +104,10 @@
             app:strokeColor="@android:color/transparent"
             app:cardBackgroundColor="@android:color/transparent">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:background="@drawable/rounded_card_background">
-
-            <!-- ✅ Only this scrolls -->
-            <androidx.core.widget.NestedScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fillViewport="true">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/tasksRecyclerView"
@@ -125,8 +118,48 @@
                     android:layout_marginTop="8dp"
                     tools:listitem="@layout/item_service_review"
                     tools:itemCount="1" />
-            </androidx.core.widget.NestedScrollView>
-        </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No service requests found"
+                android:textColor="@color/gradient_end"
+            android:fontFamily="@font/poppins_medium"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/emptyAll"
+                style="@style/EmptyStateText"
+                android:text="No requests yet"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/emptyUrgent"
+                style="@style/EmptyStateText"
+                android:text="No urgent requests"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/emptyMedium"
+                style="@style/EmptyStateText"
+                android:text="No medium priority requests"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:id="@+id/emptyLow"
+                style="@style/EmptyStateText"
+                android:text="No low priority requests"
+                android:visibility="gone"
+                android:layout_gravity="center"/>
+
+        </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
