@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "dev": "node server.js",
-     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +23,9 @@
     "express-validator": "^7.2.1",
     "firebase-admin": "^13.5.0",
     "fs": "^0.0.1-security",
-    "multer": "^2.0.2"
+    "mammoth": "^1.11.0",
+    "multer": "^2.0.2",
+    "pdf-parse": "^2.4.5"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",

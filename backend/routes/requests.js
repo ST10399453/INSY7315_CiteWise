@@ -9,6 +9,10 @@ import {
 } from "../db/dbManager.js"; // Firestore-backed ops (Firebase, 2019a)
 import { newFileId, safeName, uploadToR2 } from "../blobs/storage.js"; // R2 storage helpers (Cloudflare, 2024)
 import { bailIfInvalid } from "../utils/expressHelpers.js"; // Validation bail-out (express-validator, 2019)
+import { db } from "../db/firebaseAdmin.js";
+import { isAdmin } from "../utils/expressHelpers.js";
+import { notify } from "../utils/notify.js";
+import { wordCountFromBuffer, computeQuote, publicUrlFromR2Meta } from "../utils/quoteUtils.js";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipart handling
@@ -326,7 +330,7 @@ router.get(
 
       try {
         // This will include empty strings too; we filter those out below.
-        const qAssigned = await fsdb
+        const qAssigned = await db
           .collection("ServiceReviews")
           .where("consultantId", "!=", null) // requires composite index
           .limit(2000)
@@ -341,7 +345,7 @@ router.get(
         });
       } catch {
         // Fallback: scan recent slice and pick non-empty consultantId
-        const qAssigned2 = await fsdb
+        const qAssigned2 = await db
           .collection("ServiceReviews")
           .orderBy("createdAt", "desc")
           .limit(4000)
@@ -356,7 +360,7 @@ router.get(
       }
 
       // All consultants
-      const qAll = await fsdb
+      const qAll = await db
         .collection("users")
         .where("role", "==", "consultant")
         .orderBy("name", "asc")
@@ -385,13 +389,13 @@ router.get(
   }
 );
 
-// POST /requests/:id/annotated  (unchanged except for keeping as-is)
+// POST /requests/:id/annotated  (upload feedback + quote generation + Completed)
 router.post(
   "/:id/annotated",
   checkAuth,
   upload.single("file"),
   param("id").isString(),
-  body("status").optional().isIn(["review_submitted", "completed"]), // optional status bump
+  body("status").optional().isIn(["review_submitted", "completed"]), // kept for compatibility
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
 
@@ -401,31 +405,28 @@ router.post(
       const reqId = req.params.id;
       const actor = req.user;
 
-      // Pull the request, check authorization
-      const snap = await fsdb.collection("ServiceReviews").doc(reqId).get();
-      if (!snap.exists) return res.status(404).json({ message: "Request not found" });
+      // fetch request
+      const reqRef = db.collection("ServiceReviews").doc(reqId);
+      const reqSnap = await reqRef.get();
+      if (!reqSnap.exists) return res.status(404).json({ message: "Request not found" });
+      const requestDoc = reqSnap.data() || {};
 
-      const doc = snap.data();
-      const assignedConsultantId = doc?.consultantId || null;
-
+      // role check: admin or assigned consultant
+      const role = String(actor?.role || actor?.claims?.role || "").toLowerCase();
+      const isConsultant = role === "consultant";
       const allowed =
-        isAdmin(actor) ||
-        (isConsultant(actor) && assignedConsultantId && assignedConsultantId === actor.uid);
-
+        isAdmin(actor) || (isConsultant && requestDoc?.consultantId && requestDoc.consultantId === actor.uid);
       if (!allowed) return res.status(403).json({ message: "Forbidden" });
 
-      // Upload to R2
+      // 1) Upload annotated file to R2
       const original = req.file.originalname || "annotated.pdf";
       const safe = safeName(original);
       const mime = req.file.mimetype || "application/pdf";
       const size = req.file.size || req.file.buffer?.length || 0;
 
       const key = `annotations/${reqId}/${safe}`;
-      const r2Meta = await uploadToR2({
-        key,
-        body: req.file.buffer,
-        contentType: mime,
-      });
+      const r2Meta = await uploadToR2({ key, body: req.file.buffer, contentType: mime });
+      const publicUrl = await publicUrlFromR2Meta(r2Meta);
 
       const annotatedFile = {
         fileName: safe,
@@ -434,20 +435,88 @@ router.post(
         uploadedAt: Date.now(),
         uploadedBy: actor.uid,
         storage: { cloudflare: r2Meta },
+        ...(publicUrl ? { publicUrl } : {}),
       };
 
+      // 2) Count words (from annotated)
+      const words = await wordCountFromBuffer({
+        buffer: req.file.buffer,
+        mime,
+        originalName: original,
+      });
+
+      // 3) Compute quote
+      const serviceType = String(requestDoc?.serviceType || "OTHER");
+      const priority = String(requestDoc?.priority || "LOW");
+      const currency = process.env.QUOTE_CURRENCY || "USD";
+      const { ratePerWord, urgencyMultiplier, amount } = computeQuote({
+        serviceType, priority, words, currency,
+      });
+
+      // 4) Write Quotation
+      const quotePayload = {
+        requestId: reqId,
+        studentUid: requestDoc?.userId || null,
+        consultantUid: actor.uid,
+        serviceType,
+        priority,
+        words,                 // <— store word count here
+        ratePerWord,
+        urgencyMultiplier,
+        amount,
+        currency,
+        annotated: { key, fileName: safe, mimeType: mime, size, ...(publicUrl ? { publicUrl } : {}) },
+        status: "proposed",
+        createdAt: Date.now(),
+      };
+      const quoteRef = await db.collection("Quotations").add(quotePayload);
+      const quotationId = quoteRef.id;
+
+      // 5) Update request: attach annotated, link quote, force Completed
+      const nextStatus = "Completed";
       const updatePayload = {
         annotatedFile,
+        quotationId,
+        quotationWords: words,
+        quotationAmount: amount,
+        quotationCurrency: currency,
+        feedbackFileUrl: publicUrl || null,     // Android can View/Download immediately
+        feedbackFileName: safe,
+        status: nextStatus,
         updatedAt: Date.now(),
       };
-      if (req.body.status) updatePayload.status = req.body.status;
+      await reqRef.set(updatePayload, { merge: true });
 
-      await fsdb.collection("ServiceReviews").doc(reqId).set(updatePayload, { merge: true });
+      // 6) Push notify student
+      const studentUid = requestDoc?.userId;
+      if (studentUid) {
+        await notify.sendPushToUser(studentUid, {
+          title: "Your quotation is ready",
+          body: `Quote: ${currency} ${amount.toFixed(2)} for ${words} words.`,
+          data: {
+            type: "QUOTE_READY",
+            requestId: reqId,
+            quotationId,
+            amount: String(amount),
+            currency,
+          },
+        });
+        await notify.createFirestoreNotification(studentUid, {
+          type: "quote_ready",
+          fromUid: actor.uid,
+          message: `Quote available: ${currency} ${amount.toFixed(2)} (${words} words)`,
+        });
+      }
 
+      // 7) Respond
       return res.status(201).json({
         id: reqId,
+        status: nextStatus,
         annotatedFile,
-        status: updatePayload.status || doc?.status || null,
+        quotationId,
+        quote: { words, ratePerWord, urgencyMultiplier, amount, currency },
+        feedbackFileUrl: publicUrl || null,
+        feedbackFileName: safe,
       });
     } catch (err) {
       console.error("annotated upload failed:", err);
@@ -464,7 +533,7 @@ router.get(
     try {
       // You can't OR on Firestore, so do two queries and merge:
       // (A) consultantId == null
-      const qNull = await fsdb
+      const qNull = await db
         .collection("ServiceReviews")
         .where("consultantId", "==", null)
         .orderBy("createdAt", "desc")
@@ -472,7 +541,7 @@ router.get(
         .get();
 
       // (B) consultantId == "" (empty string)
-      const qEmpty = await fsdb
+      const qEmpty = await db
         .collection("ServiceReviews")
         .where("consultantId", "==", "")
         .orderBy("createdAt", "desc")
@@ -493,7 +562,7 @@ router.get(
     } catch (err) {
       // Fallback: pull recent slice and filter client-side for null OR ""
       try {
-        const q2 = await fsdb
+        const q2 = await db
           .collection("ServiceReviews")
           .orderBy("createdAt", "desc")
           .limit(400)
