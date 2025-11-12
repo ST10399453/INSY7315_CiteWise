@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Selected = white stroke so the blue pill has crisp edge on white track -->
-    <item android:state_checked="true" android:color="@android:color/white"/>
-    <!-- Unselected = blue outline on white pill -->
-    <item android:color="@color/gradient_end"/>
+    <!-- Selected -->
+    <item android:color="@color/gradient_end" android:state_checked="true" />
+    <!-- Default -->
+    <item android:color="@color/gradient_end" />
 </selector>

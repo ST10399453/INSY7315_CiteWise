@@ -24,14 +24,6 @@
             android:orientation="vertical">
 
             <!-- Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="16dp">
-
                 <ImageButton
                     android:id="@+id/btnMenu"
                     android:layout_width="32dp"
@@ -40,7 +32,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Menu"
                     android:visibility="gone"/>
-            </LinearLayout>
+
 
             <!--  Greeting Card -->
             <com.google.android.material.card.MaterialCardView
@@ -108,7 +100,7 @@
                 android:id="@+id/serviceCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 app:cardCornerRadius="20dp"
                 app:cardUseCompatPadding="true"
                 app:strokeColor="@android:color/transparent"
@@ -181,17 +173,18 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRequestService"
                 android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/btn_login"
-                android:fontFamily="@font/poppins_sembold"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/btn_register"
+                android:fontFamily="@font/poppins_bold"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:text="Request a Service"
-                android:textColor="@color/gradient_end"
-                android:textSize="16sp"
                 android:textAllCaps="true"
-                app:cornerRadius="50dp"
+                android:textColor="@color/text_light"
+                android:textSize="16sp"
                 app:backgroundTint="@null"/>
 
             <!-- Notifications-->
@@ -199,7 +192,7 @@
                 android:id="@+id/notifications"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 app:cardCornerRadius="20dp"
                 app:cardUseCompatPadding="true"
                 app:strokeColor="@android:color/transparent"

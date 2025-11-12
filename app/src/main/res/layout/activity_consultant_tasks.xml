@@ -108,7 +108,7 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
                 android:layout_marginTop="8dp"
-                tools:listitem="@layout/item_consultant_task_card"
+                tools:listitem="@layout/item_service_review"
                 tools:itemCount="5" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
