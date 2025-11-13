@@ -535,7 +535,7 @@ router.post(
       if (studentUid) {
         await notify.sendPushToUser(studentUid, {
           title: "Your quotation is ready",
-          body: `Quote: ${currency} ${amount.toFixed(2)} for ${words} words.`,
+          body: `Check under your Task Details`,
           data: {
             type: "QUOTE_READY",
             requestId: reqId,
@@ -548,7 +548,7 @@ router.post(
         await notify.createFirestoreNotification(studentUid, {
           type: "quote_ready",
           fromUid: actorId,
-          message: `Quote available: ${currency} ${amount.toFixed(2)} (${words} words)`,
+          message: `Check under your Task Details`,
         })
       }
 

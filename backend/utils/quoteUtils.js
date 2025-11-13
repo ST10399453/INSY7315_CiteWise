@@ -152,15 +152,19 @@ export function computeQuote({
 
 /** If your R2 adapter returns publicUrl, pass it through. Otherwise return null. */
 export async function publicUrlFromR2Meta(r2Meta) {
-  if (!r2Meta?.bucket || !r2Meta?.key) return null;
+  // If uploadToR2 already added a publicUrl, just use it.
+  if (r2Meta?.publicUrl) return r2Meta.publicUrl;
 
-  const { R2_PUBLIC_BASE_URL } = process.env;
+  const base = process.env.R2_PUBLIC_BASE;
+  if (!base || !r2Meta?.key) return null;
 
-  // 1) If you have a public base URL configured, just build a stable URL
-  if (R2_PUBLIC_BASE_URL) {
-    const base = R2_PUBLIC_BASE_URL.replace(/\/+$/, "");
-    return `${base}/${r2Meta.key}`;
-  }
+  // Ensure only one slash between base and key
+  const trimmedBase = base.replace(/\/+$/, "");
+  const key = String(r2Meta.key).replace(/^\/+/, "");
+
+  return `${trimmedBase}/${key}`;
+
+
 
   // 2) Fallback: long-lived signed URL (e.g. 7 days)
   try {
