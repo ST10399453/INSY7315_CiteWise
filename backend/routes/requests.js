@@ -7,7 +7,8 @@ import {
   transitionStartReview, transitionSubmitReview, transitionResubmit,
   transitionCancel
 } from "../db/dbManager.js"; // Firestore-backed ops (Firebase, 2019a)
-import { newFileId, safeName, uploadToR2 } from "../blobs/storage.js"; // R2 storage helpers (Cloudflare, 2024)
+
+import { newFileId, safeName, uploadToR2, r2SignedUrl } from "../blobs/storage.js"; // R2 storage helpers (Cloudflare, 2024)
 import { bailIfInvalid } from "../utils/expressHelpers.js"; // Validation bail-out (express-validator, 2019)
 import { db } from "../db/firebaseAdmin.js";
 import { isAdmin } from "../utils/expressHelpers.js";
@@ -437,7 +438,7 @@ router.get("/:id/feedback/download", checkAuth, async (req, res) => {
       return res.status(404).json({ message: "No feedback file uploaded" });
     }
 
-    const signed = await r2SignedUrl({
+    const signedUrl = await r2SignedUrl({
       bucket: storage.bucket,
       key: storage.key,
       expiresSeconds: 900,
@@ -445,9 +446,9 @@ router.get("/:id/feedback/download", checkAuth, async (req, res) => {
       disposition: "attachment",
     });
 
-    res.json({ url: signed });
+    return res.json({ url: signedUrl });
   } catch (err) {
-    console.error("feedback download error:", err);
+    console.error("Feedback download error:", err);
     res.status(500).json({ message: err.message });
   }
 });
