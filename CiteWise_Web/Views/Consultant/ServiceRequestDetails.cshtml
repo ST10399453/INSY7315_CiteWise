@@ -9,10 +9,93 @@
         <h2 class="page-title">Request Details</h2>
 
         <div class="dashboard-card">
-            <div class="category-header">
+            <div class="request-item">
+                <div class="category-header">
+                    @{
+                        var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
+                        Model.ServiceType.Replace("_", " ").ToLower()
+                        );
+                        if (displayName.Contains("Proofreading Editing"))
+                            displayName = displayName.Replace("Proofreading Editing", "Proofreading & Editing");
+                        if (displayName.Contains("Formatting Referencing"))
+                            displayName = displayName.Replace("Formatting Referencing", "Formatting & Referencing");
+                    }
+                    <p class="category-title">@displayName</p>
+                    <span class="priority-badge @(Model.Priority?.ToLower())">@Model.Priority</span>
+                </div>
+
+                <div class="request-content">
+                    <div class="content-left">
+                        <h3 class="request-title">@Model.File?.OriginalName</h3>
+
+                        <div class="request-footer mt-1">
+                            <div class="status-group">
+                               
+                            </div>
+                            <span class="deadline-text">
+                                Deadline: @(string.IsNullOrEmpty(Model.Deadline) ? "-" : Model.Deadline)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Upload Feedback</h2>
+
+            <!-- File actions below the main request-item -->
+            <div class="file-actions">
+                @if (!string.IsNullOrEmpty(Model.File?.FileId))
+                {
+                    <a asp-action="DownloadFile"
+                       asp-route-fileId="@Model.File.FileId"
+                       class="btn-next">
+                        Download Students Document
+                    </a>
+                }
+                else
+                {
+                    <span class="file-no-file">No file uploaded yet.</span>
+                }
+
+                <form asp-action="UploadAnnotated" method="post" enctype="multipart/form-data" class="register-form">
+                    <div class="form-group">
+                        <label class="form-label">File</label>
+
+                        <label class="file-upload-container" for="documentUpload">
+                            <img src="/icons/file_upload.svg" alt="Upload" class="upload-icon" />
+                            <div class="upload-text">
+                                <span class="upload-lines"></span>
+                                <span class="upload-label">Select a file</span>
+                                <span class="upload-lines"></span>
+                            </div>
+                            <input type="file" name="File" class="file-input-hidden" id="documentUpload" required />
+                        </label>
+
+                        <div id="selectedFileName" class="selected-file-name"></div>
+                    </div>
+
+                    <input type="hidden" name="requestId" value="@Model.Id" />
+
+                    <div class="button-container">
+                        <button class="btn-next" type="submit">Upload Annotated Doc</button>
+                    </div>
+                </form>
+            </div>
+
+
+
+
+
+
+
+            </div>
+
+            </div>
+
+        @*     <div class="category-header">
                 @{
                     var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
-                    Model.ServiceType.Replace("_", " ").ToLower()
+                        Model.ServiceType.Replace("_", " ").ToLower()
                     );
                     if (displayName.Contains("Proofreading Editing"))
                         displayName = displayName.Replace("Proofreading Editing", "Proofreading & Editing");
@@ -49,8 +132,4 @@
                     </form>
                 </div>
             </div>
-        </div>
-
-        <a asp-action="ConsultantDashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
-    </div>
-</div>
+        </div> *@

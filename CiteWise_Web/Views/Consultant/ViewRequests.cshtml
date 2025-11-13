@@ -29,6 +29,7 @@
                         return DateTime.TryParse(r.Deadline, out dt) ? dt : DateTime.MaxValue;
                     }))
                     {
+                        <a asp-action="ServiceRequestDetails" asp-route-id="@request.Id" class="request-item-link">
                         <div class="request-item">
                             <div class="category-header">
                                 @{
@@ -64,6 +65,7 @@
                                 </div>
                             </div>
                         </div>
+                        </a>
                     }
                 </div>
             }

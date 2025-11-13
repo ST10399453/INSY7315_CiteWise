@@ -154,28 +154,28 @@ namespace CiteWise_Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> ServiceRequestDetails(string id)
-        {
-            var token = HttpContext.Session.GetString("FirebaseToken");
-            var role = HttpContext.Session.GetString("UserRole");
+public async Task<IActionResult> ServiceRequestDetails(string id)
+{
+    var token = HttpContext.Session.GetString("FirebaseToken");
+    var role = HttpContext.Session.GetString("UserRole");
 
-            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(role) || role.ToLower() != "consultant")
-                return RedirectToAction("Login", "Account");
+    if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(role) || role.ToLower() != "consultant")
+        return RedirectToAction("Login", "Account");
 
-            // Fetch all assigned requests
-            var resp = await _apiService.GetAssignedRequestsAsync(token, HttpContext.Session.GetString("UserUid"));
-            if (!resp.IsSuccessStatusCode)
-                return RedirectToAction("ConsultantDashboard");
+    // Fetch all assigned requests
+    var resp = await _apiService.GetAssignedRequestsAsync(token, HttpContext.Session.GetString("UserUid"));
+    if (!resp.IsSuccessStatusCode)
+        return RedirectToAction("ConsultantDashboard");
 
-            var json = await resp.Content.ReadAsStringAsync();
-            var requests = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(json) ?? new List<ServiceRequestItem>();
+    var json = await resp.Content.ReadAsStringAsync();
+    var requests = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(json) ?? new List<ServiceRequestItem>();
 
-            var request = requests.FirstOrDefault(r => r.Id == id);
-            if (request == null)
-                return RedirectToAction("ConsultantDashboard");
+    var request = requests.FirstOrDefault(r => r.Id == id);
+    if (request == null)
+        return RedirectToAction("ConsultantDashboard");
 
-            return View(request);
-        }
+    return View(request);
+}
 
 
 

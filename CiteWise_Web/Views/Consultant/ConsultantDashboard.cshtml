@@ -24,7 +24,7 @@
 
 <div class="dashboard-header">
     @* <h2>Good morning, Connor</h2> *@
-    <h2>Good morning, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
+    <h2>Hi, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
     <br />
     <p>Here's what's happening with your tasks today.</p>
 </div>

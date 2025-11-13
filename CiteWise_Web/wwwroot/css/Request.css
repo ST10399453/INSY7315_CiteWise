@@ -627,3 +627,13 @@ select.input-validation-error.icon-input {
         font-size: 14px;
     }
 }
+
+
+.dashboard-card h2 {
+    color: #0027B2;
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
