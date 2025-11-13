@@ -26,15 +26,22 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-var firebasepath = Path.Combine(app.Environment.ContentRootPath, "FirebaseKey", "citewise_two.json");
+var firebasePathFromEnv = Environment.GetEnvironmentVariable("FIREBASE_KEY_PATH");
+
+var firebasepath = !string.IsNullOrEmpty(firebasePathFromEnv)
+    ? firebasePathFromEnv
+    : Path.Combine(app.Environment.ContentRootPath, "FirebaseKey", "citewise_two.json");
 
 if (!File.Exists(firebasepath))
+{
     throw new FileNotFoundException($"Firebase key not found {firebasepath}");
+}
 
 FirebaseApp.Create(new AppOptions()
 {
     Credential = GoogleCredential.FromFile(firebasepath)
 });
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
