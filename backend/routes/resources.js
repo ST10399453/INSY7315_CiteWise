@@ -15,7 +15,6 @@ import {
   ensureStorageReady,
   deleteFromR2,
 } from "../blobs/storage.js"; // Cloudflare R2 integration (Cloudflare, 2024)
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipart handling
@@ -23,9 +22,6 @@ const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipa
 /**
  * ============================================================
  * Create Resource (Admins only)
- * ------------------------------------------------------------
- * Uses input validation + RBAC guard pattern (express-validator, 2019; Manico & Detlefsen, 2015)
- * Uploads to R2 and persists metadata in Firestore (Cloudflare, 2024; Firebase, 2019a)
  * ============================================================
  */
 router.post(
@@ -44,28 +40,44 @@ router.post(
       console.log("Auth header present:", Boolean(req.headers.authorization));
       console.log("User parsed from token:", req.user); // { uid, email, claims, role? }
       console.log("Body:", req.body);
-      console.log("File:",
-        req.file ? {
-          originalname: req.file.originalname,
-          mimetype: req.file.mimetype,
-          size: req.file.size
-        } : "NO FILE");
+      console.log(
+        "File:",
+        req.file
+          ? {
+              originalname: req.file.originalname,
+              mimetype: req.file.mimetype,
+              size: req.file.size,
+            }
+          : "NO FILE"
+      );
       console.log("-------------------------------");
 
       if (!isAdmin(req.user)) {
-        console.log("❌ Forbidden: not admin. Role seen:", (req.user?.role || req.user?.claims?.role));
+        console.log(
+          "❌ Forbidden: not admin. Role seen:",
+          req.user?.role || req.user?.claims?.role
+        );
         return res.status(403).json({ message: "Forbidden" });
       }
-      if (!req.file) return res.status(400).json({ message: "file is required" });
+
+      if (!req.file) {
+        return res.status(400).json({ message: "file is required" });
+      }
 
       await ensureStorageReady();
 
-      const { name, faculty, category } = req.body;
+      const rawName = String(req.body.name || "");
+      const rawFaculty = String(req.body.faculty || "");
+      const rawCategory = String(req.body.category || "");
+
+      const name = safeName(rawName);
+      const faculty = rawFaculty.trim().toUpperCase();   // <-- normalize faculty
+      const category = rawCategory.trim().toUpperCase(); // already validated
+
       const id = newFileId();
-      const clean = safeName(name);
       const mime = req.file.mimetype || "application/pdf";
-      const size = req.file.size || req.file.buffer?.length || 0;
-      const objectKey = resourcesKey({ id, fileName: clean, mime });
+      const size = req.file.size || (req.file.buffer ? req.file.buffer.length : 0);
+      const objectKey = resourcesKey({ id, fileName: name, mime });
 
       const r2Meta = await uploadToR2({
         key: objectKey,
@@ -73,9 +85,10 @@ router.post(
         contentType: mime,
       });
 
+      const now = Date.now();
       const doc = {
         id,
-        name: clean,
+        name,
         faculty,
         category,
         mimeType: mime,
@@ -83,11 +96,15 @@ router.post(
         visibility: "students",
         storage: { cloudflare: r2Meta },
         createdBy: req.user.uid,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
       };
 
-      console.log("✅ Writing Firestore doc:", { id: doc.id, createdBy: doc.createdBy, role: req.user.role });
+      console.log("✅ Writing Firestore doc:", {
+        id: doc.id,
+        createdBy: doc.createdBy,
+        role: req.user.role,
+      });
 
       await fsdb.collection("resources").doc(id).set(doc);
 
@@ -113,8 +130,6 @@ router.post(
 /**
  * ============================================================
  * List Resources
- * ------------------------------------------------------------
- * Firestore filtering + client-side search/sort (Firebase, 2019a; express-validator, 2019)
  * ============================================================
  */
 router.get(
@@ -128,22 +143,38 @@ router.get(
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
-      const { faculty, visibility, q, sort = "date", dir = "desc" } = req.query;
+      // Everything from req.query is plain JS; normalize manually
+      let faculty = req.query.faculty;
+      let visibility = req.query.visibility;
+      let q = req.query.q;
+      let sort = req.query.sort || "date";
+      let dir = req.query.dir || "desc";
+
       let ref = fsdb.collection("resources");
-      if (faculty) ref = ref.where("faculty", "==", String(faculty));
-      if (visibility && visibility !== "all") ref = ref.where("visibility", "==", String(visibility));
+
+      if (faculty) {
+        const facNorm = String(faculty).trim().toUpperCase(); // <-- normalize filter
+        ref = ref.where("faculty", "==", facNorm);
+      }
+
+      if (visibility && visibility !== "all") {
+        ref = ref.where("visibility", "==", String(visibility));
+      }
+
       const snap = await ref.get();
       let items = snap.docs.map((d) => d.data());
 
       if (q) {
         const needle = String(q).toLowerCase();
-        items = items.filter((x) => (x.name || "").toLowerCase().includes(needle));
+        items = items.filter((x) =>
+          String(x.name || "").toLowerCase().includes(needle)
+        );
       }
 
       items.sort((a, b) => {
         if (sort === "alpha") {
-          const A = (a.name || "").toLowerCase();
-          const B = (b.name || "").toLowerCase();
+          const A = String(a.name || "").toLowerCase();
+          const B = String(b.name || "").toLowerCase();
           const cmp = A.localeCompare(B);
           return dir === "asc" ? cmp : -cmp;
         }
@@ -173,8 +204,6 @@ router.get(
 /**
  * ============================================================
  * Generate Signed URL (R2 only)
- * ------------------------------------------------------------
- * Short-lived URL for secure access (Cloudflare, 2024)
  * ============================================================
  */
 router.get(
@@ -186,9 +215,13 @@ router.get(
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
-      const { id } = req.params;
+      const id = req.params.id;
       const disposition = String(req.query.disposition || "inline").toLowerCase();
-      const expires = Math.max(60, Math.min(7200, parseInt(req.query.expires || "900", 10)));
+      const expiresRaw = req.query.expires || "900";
+      const expires = Math.max(
+        60,
+        Math.min(7200, parseInt(String(expiresRaw), 10))
+      );
 
       const docSnap = await fsdb.collection("resources").doc(id).get();
       if (!docSnap.exists) return res.status(404).json({ message: "Not found" });
@@ -213,8 +246,6 @@ router.get(
 /**
  * ============================================================
  * Stream File (R2 only)
- * ------------------------------------------------------------
- * Direct streaming with proper headers (Cloudflare, 2024)
  * ============================================================
  */
 router.get(
@@ -225,7 +256,7 @@ router.get(
   async (req, res) => {
     const v = bailIfInvalid(req, res); if (v) return v;
     try {
-      const { id } = req.params;
+      const id = req.params.id;
       const disposition = String(req.query.disposition || "inline").toLowerCase();
 
       const docSnap = await fsdb.collection("resources").doc(id).get();
@@ -238,9 +269,17 @@ router.get(
         key: doc.storage.cloudflare.key,
       });
 
-      res.setHeader("Content-Type", meta.contentType || doc.mimeType || "application/octet-stream");
-      if (meta.contentLength) res.setHeader("Content-Length", String(meta.contentLength));
-      res.setHeader("Content-Disposition", `${disposition}; filename="${encodeURIComponent(filename)}"`);
+      res.setHeader(
+        "Content-Type",
+        meta.contentType || doc.mimeType || "application/octet-stream"
+      );
+      if (meta.contentLength) {
+        res.setHeader("Content-Length", String(meta.contentLength));
+      }
+      res.setHeader(
+        "Content-Disposition",
+        `${disposition}; filename="${encodeURIComponent(filename)}"`
+      );
       meta.stream.pipe(res);
     } catch (e) {
       console.error(e);
@@ -252,8 +291,6 @@ router.get(
 /**
  * ============================================================
  * Delete Resource (Admins only)
- * ------------------------------------------------------------
- * Deletes both Firestore record and R2 object (Cloudflare, 2024)
  * ============================================================
  */
 router.delete(
@@ -266,24 +303,28 @@ router.delete(
 
     const startedAt = Date.now();
     const reqId = `${startedAt}-${Math.random().toString(36).slice(2, 8)}`;
-    const actor = req.user?.uid || "unknown";
-    const role = String(req.user?.role || req.user?.claims?.role || "").toLowerCase();
-    const { id } = req.params;
+    const actor = (req.user && req.user.uid) || "unknown";
+    const role = String(
+      (req.user && (req.user.role || (req.user.claims && req.user.claims.role))) || ""
+    ).toLowerCase();
+    const id = req.params.id;
 
-    // ── Logs: request envelope
     console.log("----- INCOMING DELETE /resources/%s [%s] -----", id, reqId);
     console.log("Auth header present:", Boolean(req.headers.authorization));
     console.log("User:", { uid: actor, role });
     console.log("Params:", req.params);
 
     try {
-      // ── RBAC
       if (role !== "admin") {
-        console.warn("❌ [%s] Forbidden: not admin (role=%s, uid=%s)", reqId, role, actor);
+        console.warn(
+          "❌ [%s] Forbidden: not admin (role=%s, uid=%s)",
+          reqId,
+          role,
+          actor
+        );
         return res.status(403).json({ message: "Forbidden" });
       }
 
-      // ── Load document
       const ref = fsdb.collection("resources").doc(id);
       const snap = await ref.get();
       if (!snap.exists) {
@@ -291,50 +332,68 @@ router.delete(
         return res.status(404).json({ message: "Not found" });
       }
 
-      /** @type {{ storage?: { cloudflare?: { bucket?: string, key?: string } } }} */
       const doc = snap.data() || {};
-      const bucket = doc?.storage?.cloudflare?.bucket;
-      const key = doc?.storage?.cloudflare?.key;
+      const bucket = doc &&
+        doc.storage &&
+        doc.storage.cloudflare &&
+        doc.storage.cloudflare.bucket;
+      const key =
+        doc &&
+        doc.storage &&
+        doc.storage.cloudflare &&
+        doc.storage.cloudflare.key;
 
-      // ── Try to delete object from R2 (best effort)
       if (bucket && key) {
         try {
           console.log("→ [%s] Deleting R2 object", reqId, { bucket, key });
           await deleteFromR2({ bucket, key });
           console.log("✓ [%s] R2 object deleted", reqId);
         } catch (err) {
-          // Don’t fail the whole request if storage delete hiccups.
-          console.error("⚠️  [%s] R2 delete failed (continuing): %s", reqId, err?.message);
+          console.error(
+            "⚠️  [%s] R2 delete failed (continuing): %s",
+            reqId,
+            err && err.message
+          );
         }
       } else {
         console.log("ℹ️  [%s] No R2 info on resource (bucket/key missing)", reqId);
       }
 
-      // ── Delete Firestore doc
       await ref.delete();
       console.log("✓ [%s] Firestore doc deleted: %s", reqId, id);
 
-      // ── (Optional) Audit trail
       try {
-        await fsdb
-          .collection("audit")
-          .add({
-            type: "resource.delete",
-            resourceId: id,
-            actor,
-            role,
-            ts: Date.now(),
-          });
+        await fsdb.collection("audit").add({
+          type: "resource.delete",
+          resourceId: id,
+          actor,
+          role,
+          ts: Date.now(),
+        });
         console.log("ℹ️  [%s] Audit record written", reqId);
       } catch (err) {
-        console.error("⚠️  [%s] Audit write failed: %s", reqId, err?.message);
+        console.error(
+          "⚠️  [%s] Audit write failed: %s",
+          reqId,
+          err && err.message
+        );
       }
 
-      console.log("✅ [%s] Done DELETE /resources/%s in %dms", reqId, id, Date.now() - startedAt);
+      console.log(
+        "✅ [%s] Done DELETE /resources/%s in %dms",
+        reqId,
+        id,
+        Date.now() - startedAt
+      );
       return res.json({ ok: true, id });
     } catch (e) {
-      console.error("💥 [%s] Error DELETE /resources/%s: %s", reqId, id, e?.message);
-      return res.status(400).json({ message: e?.message || "Delete failed" });
+      console.error(
+        "💥 [%s] Error DELETE /resources/%s: %s",
+        reqId,
+        id,
+        e && e.message
+      );
+      return res.status(400).json({ message: (e && e.message) || "Delete failed" });
     }
   }
 );
