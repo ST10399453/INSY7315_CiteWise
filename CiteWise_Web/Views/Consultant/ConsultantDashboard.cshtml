@@ -78,7 +78,11 @@
             else
             {
                 <div class="request-list">
-                    @foreach (var r in Model.Assigned)
+                    @{
+                        var sortedAssigned = Model.Assigned.OrderBy(r => r.Status == "Completed")
+                    .ThenBy(r => r.Deadline).ToList();
+                    }
+                    @foreach (var r in sortedAssigned)
                     {
                         <a asp-action="ServiceRequestDetails" asp-route-id="@r.Id" class="request-item-link">
                             <div class="request-item">
