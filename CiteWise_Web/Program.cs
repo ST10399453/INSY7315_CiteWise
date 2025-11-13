@@ -11,6 +11,7 @@ builder.Services.AddControllersWithViews();
 //Add HttpClient support
 builder.Services.AddHttpClient();
 
+//For appsettings.json
 //builder.Services.Configure<EmailSettings>(
 //    builder.Configuration.GetSection("EmailSettings"));
 
