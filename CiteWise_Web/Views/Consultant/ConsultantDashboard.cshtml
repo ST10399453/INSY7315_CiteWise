@@ -128,7 +128,7 @@
         </div>
 
         <!-- NEW: Priority circles card -->
-        <div class="dashboard-card priority-progress-card">
+        <div class="dashboard-card">
             <h3 class="dashboard-heading">My workload by priority</h3>
 
             <div class="priority-progress-body">
@@ -369,4 +369,51 @@
             align-items: flex-start;
         }
     }
+
+
+
+    .progress-circle .progress-inner {
+        position: relative;
+        z-index: 1;
+        font-weight: 700;
+        font-size: 1.1rem;
+        /* Add these lines */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
+
+    .progress-circle {
+        --ring-color: #2563eb;
+        --deg: 0deg;
+        width: 92px;
+        height: 92px;
+        border-radius: 999px;
+        padding: 4px;
+        background: conic-gradient(var(--ring-color) 0deg, #e5e7eb 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        transition: background 1.1s ease-out;
+    }
+
+        .progress-circle .progress-inner {
+            position: absolute; /* <-- absolute so it sits on top of the circle */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* <-- perfect center */
+            font-weight: 700;
+            font-size: 1.1rem;
+            z-index: 1;
+        }
+
+        .progress-circle .progress-value {
+            color: var(--ring-color);
+        }
+
 </style>
