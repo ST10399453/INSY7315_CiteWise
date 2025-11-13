@@ -90,6 +90,36 @@ namespace CiteWise_Web.Controllers
 
             return Redirect(url);
         }
+
+        public async Task<IActionResult> UploadAnnotated(string requestId, IFormFile file)
+        {
+            if(file == null || file.Length == 0)
+            {
+                TempData["Error"] = "Please Select a File before uploading";
+                return RedirectToAction("ConsultantDashboard");
+            }
+
+            string token = HttpContext.Session.GetString("FirebaseToken");
+
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Account");
+
+            var response = await _apiService.UploadAnnotatedFileAsync(requestId, file, token);
+
+            if(response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "File uploaded Successfully";
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["Error"] = $"Failed to upload: {error}";
+            }
+
+            return RedirectToAction("ConsultantDashboard");
+
+
+        }
     }
 }
 

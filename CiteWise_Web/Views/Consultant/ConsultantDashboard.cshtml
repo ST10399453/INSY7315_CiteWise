@@ -5,7 +5,7 @@
     Layout = "_LayoutAuth";
 }
 
-<!-- ✅ Success / Error Alerts -->
+<!-- Alerts -->
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-success fade show" id="alertMessage">
@@ -23,24 +23,24 @@
 <div class="dashboard-container">
     <div class="dashboard-grid">
 
-        <!-- Card: Overview -->
+        <!-- Overview -->
         <div class="dashboard-card text-center">
             <h3>Available Requests</h3>
             <p><strong>@Model.Unassigned.Count</strong> unassigned requests.</p>
-            <p>Click <b>"Assign to Me"</b> to claim one.</p>
+            <p>Click <b>“Assign to Me”</b> to claim one.</p>
         </div>
 
         <!-- Unassigned Requests -->
         <div class="dashboard-card" style="grid-column: span 2;">
             <h3>Unassigned Service Requests</h3>
 
-            <div class="table-scroll">
-                @if (!Model.Unassigned.Any())
-                {
-                    <p class="text-muted">No unassigned requests at the moment.</p>
-                }
-                else
-                {
+            @if (!Model.Unassigned.Any())
+            {
+                <p class="text-muted">No unassigned requests at the moment.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
                     <table class="table table-striped table-sm mt-2">
                         <thead class="table-light">
                             <tr>
@@ -49,7 +49,7 @@
                                 <th>Priority</th>
                                 <th>Deadline</th>
                                 <th>File</th>
-                                <th style="width: 100px;">Action</th>
+                                <th style="width:120px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,15 +79,17 @@
                                     <td>
                                         <form asp-action="AssignToMe" method="post" class="assign-form">
                                             <input type="hidden" name="id" value="@r.Id" />
-                                            <button type="submit" class="btn btn-success btn-sm">Assign to Me</button>
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                Assign to Me
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-                }
-            </div>
+                </div>
+            }
         </div>
 
         <!-- Assigned Requests -->
@@ -100,63 +102,98 @@
             }
             else
             {
-                <table class="table table-hover mt-2">
-                    <thead>
-                        <tr>
-                            <th>Document</th>
-                            <th>Service</th>
-                            <th>Status</th>
-                            <th>Deadline</th>
-                            <th>File</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var r in Model.Assigned)
-                        {
+                <div class="table-responsive">
+                    <table class="table table-hover mt-2">
+                        <thead>
                             <tr>
-                                <td>@r.DocumentName</td>
-                                <td>@r.ServiceType</td>
-                                <td>@r.Status</td>
-                                <td>@(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)</td>
-
-                                <td>
-                                    @if (!string.IsNullOrEmpty(r.File?.FileId))
-                                    {
-                                        <a asp-action="DownloadFile"
-                                           asp-route-fileId="@r.File.FileId"
-                                           class="btn btn-outline-primary btn-sm">
-                                            Download
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span style="color:#888;">No File</span>
-                                    }
-                                </td>
+                                <th>Document</th>
+                                <th>Service</th>
+                                <th>Status</th>
+                                <th>Deadline</th>
+                                <th>File</th>
+                                <th>Upload Annotated</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.Assigned)
+                            {
+                                <tr>
+                                    <td>@r.DocumentName</td>
+                                    <td>@r.ServiceType</td>
+                                    <td>@r.Status</td>
+                                    <td>@(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)</td>
 
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(r.File?.FileId))
+                                        {
+                                            <a asp-action="DownloadFile"
+                                               asp-route-fileId="@r.File.FileId"
+                                               class="btn btn-outline-primary btn-sm">
+                                                Download
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No File</span>
+                                        }
+                                    </td>
+
+                                    <!-- Upload Annotated Document -->
+                                    <td>
+                                        <form asp-action="UploadAnnotated"
+                                              method="post"
+                                              enctype="multipart/form-data"
+                                              class="upload-form">
+
+                                            <input type="hidden" name="requestId" value="@r.Id" />
+
+                                            <input type="file"
+                                                   name="file"
+                                                   accept=".pdf,.doc,.docx"
+                                                   class="form-control form-control-sm mb-2"
+                                                   required />
+
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                Upload
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
         </div>
+
     </div>
 </div>
 
-<!-- ✅ Smooth UI Feedback -->
 @section Scripts {
     <script>
-        // Fade out alert after 3 seconds
+        // Auto-hide alerts
         setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(a => a.classList.remove('show'));
+            document.querySelectorAll('.alert').forEach(a => {
+                a.style.opacity = "0";
+                setTimeout(() => a.remove(), 500);
+            });
         }, 3000);
 
-        // Add a mini loading state when assigning
+        // Disable assign button after click
         document.querySelectorAll('.assign-form').forEach(form => {
             form.addEventListener('submit', () => {
                 const btn = form.querySelector('button');
-                btn.innerText = "Assigning...";
                 btn.disabled = true;
+                btn.innerText = "Assigning...";
+            });
+        });
+
+        // Disable upload button after click
+        document.querySelectorAll('.upload-form').forEach(form => {
+            form.addEventListener('submit', () => {
+                const btn = form.querySelector('button');
+                btn.disabled = true;
+                btn.innerText = "Uploading...";
             });
         });
     </script>

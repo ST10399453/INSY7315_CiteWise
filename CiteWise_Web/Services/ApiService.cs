@@ -248,6 +248,38 @@ namespace CiteWise_Web.Services
             var resp = await _client.DeleteAsync($"resources/{resourceId}");
             return resp.IsSuccessStatusCode;
         }
+
+        public async Task<HttpResponseMessage> UploadAnnotatedFileAsync(string requestId, IFormFile file, string firebaseToken)
+        {
+            SetBearer(firebaseToken);
+
+            using var form = new MultipartFormDataContent();
+
+            var streamContent = new StreamContent(file.OpenReadStream());
+            streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+            form.Add(streamContent, "file", file.FileName);
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"requests/{requestId}/annotated")
+            {
+                Content = form
+            };
+
+            return await SendAsync(request);
+        }
+
+        public async Task<string>? GetAnnotatedFileUrlAsync(string id, string token)
+        {
+            SetBearer(token);
+
+            var resp = await _client.GetAsync($"requests/{id}/feedback/download");
+            if (!resp.IsSuccessStatusCode)
+                return null;
+
+            var json = await resp.Content.ReadAsStringAsync();
+            dynamic parsed = JsonConvert.DeserializeObject(json);
+            return parsed?.url;
+        }
     }
 }
 
