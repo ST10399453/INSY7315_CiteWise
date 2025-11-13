@@ -18,21 +18,29 @@ builder.Services.AddHttpClient();
 // ---------- EmailSettings from ENV instead of appsettings.json ----------
 builder.Services.Configure<EmailSettings>(options =>
 {
-    options.Provider = Environment.GetEnvironmentVariable("EMAIL_PROVIDER") ?? "Gmail";
-    options.SenderEmail = Environment.GetEnvironmentVariable("EMAIL_SENDER_EMAIL") ?? string.Empty;
-    options.SenderName = Environment.GetEnvironmentVariable("EMAIL_SENDER_NAME") ?? "CiteWise";
-    options.SmtpUsername = Environment.GetEnvironmentVariable("EMAIL_SMTP_USERNAME") ?? options.SenderEmail;
-    options.SmtpPassword = Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD") ?? string.Empty;
+    var provider = Environment.GetEnvironmentVariable("EMAIL_PROVIDER");
+    var sender = Environment.GetEnvironmentVariable("EMAIL_SENDER_EMAIL");
+    var senderName = Environment.GetEnvironmentVariable("EMAIL_SENDER_NAME");
+    var user = Environment.GetEnvironmentVariable("EMAIL_SMTP_USERNAME");
+    var pass = Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD");
+
+    options.Provider = string.IsNullOrWhiteSpace(provider) ? "Gmail" : provider;
+    options.SenderEmail = string.IsNullOrWhiteSpace(sender) ? "" : sender;
+    options.SenderName = string.IsNullOrWhiteSpace(senderName) ? "CiteWise" : senderName;
+    options.SmtpUsername = string.IsNullOrWhiteSpace(user) ? options.SenderEmail : user;
+    options.SmtpPassword = string.IsNullOrWhiteSpace(pass) ? "" : pass;
 
     if (string.IsNullOrWhiteSpace(options.SenderEmail) ||
         string.IsNullOrWhiteSpace(options.SmtpUsername) ||
         string.IsNullOrWhiteSpace(options.SmtpPassword))
     {
-        throw new InvalidOperationException(
-            "Email configuration is missing. Please set EMAIL_SENDER_EMAIL, " +
-            "EMAIL_SMTP_USERNAME and EMAIL_SMTP_PASSWORD environment variables.");
+        // DEMO MODE: don't crash the app if email isn't configured.
+        Console.WriteLine(
+            "WARNING: Email configuration is incomplete. " +
+            "Email features may not work, but the site will run.");
     }
 });
+
 // -----------------------------------------------------------------------
 
 //Register ApiService
