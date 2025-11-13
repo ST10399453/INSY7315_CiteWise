@@ -88,7 +88,9 @@ class TaskDetailsActivity :
     private lateinit var consultantCard: View
     private lateinit var imgConsultantAvatar: ImageView
     private lateinit var tvConsultantName: TextView
+    private lateinit var tvConsultantNameTwo: TextView
     private lateinit var tvConsultantAvailability: TextView
+    private lateinit var tvConsultantEmail: TextView
     private lateinit var btnChatConsultant: ImageButton
 
     // ---- Consultant extras ----
@@ -143,6 +145,7 @@ class TaskDetailsActivity :
         tvDeadline = findViewById(R.id.tvDeadline)
         tvStudentAndDeadline = findViewById(R.id.tvStudentAndDeadline)
         tvServiceName = findViewById(R.id.tvServiceName)
+        tvConsultantEmail = findViewById(R.id.tvConsultantEmail)
         tvFilesCount = findViewById(R.id.tvFilesCount)
         tvStudentFileName = findViewById(R.id.tvStudentFileName)
         tvFeedbackFileName = findViewById(R.id.tvFeedbackFileName)
@@ -163,6 +166,7 @@ class TaskDetailsActivity :
         consultantCard = findViewById(R.id.consultantCardRoot)
         imgConsultantAvatar = findViewById(R.id.imgConsultantAvatar)
         tvConsultantName = findViewById(R.id.tvConsultantName)
+        tvConsultantNameTwo = findViewById(R.id.tvConsultantNameTwo)
         tvConsultantAvailability = findViewById(R.id.tvConsultantAvailability)
         btnChatConsultant = findViewById(R.id.btnChatConsultant)
 
@@ -267,6 +271,16 @@ class TaskDetailsActivity :
     private fun bindRequest(req: ServiceRequestDto) {
         chipPriority.text = req.priority?.toPretty() ?: "—"
 
+        // Change text color based on priority
+        when (req.priority) {
+            ServicePriority.LOW -> chipPriority.setTextColor(getColor(R.color.priority_Low))
+            ServicePriority.MEDIUM -> chipPriority.setTextColor(getColor(R.color.priority_Medium))
+            ServicePriority.HIGH -> chipPriority.setTextColor(getColor(R.color.priority_High))
+            else -> chipPriority.setTextColor(getColor(R.color.text_faded))
+        }
+
+
+
         tvProjectName.text = when {
             !req.customName.isNullOrBlank()   -> req.customName
             !req.description.isNullOrBlank()  -> req.description
@@ -290,6 +304,13 @@ class TaskDetailsActivity :
         }
 
         tvServiceName.text = req.serviceType?.toPretty() ?: "Other"
+
+        tvDescription.text = when {
+            !req.description.isNullOrBlank() -> req.description
+            !req.customName.isNullOrBlank() -> req.customName
+            else -> "No additional details provided."
+        }
+
 
         // Annotated/feedback file visibility
         val hasFeedback = !req.feedbackFileUrl.isNullOrEmpty()
@@ -393,6 +414,8 @@ class TaskDetailsActivity :
                 val nameFinal = profile.name.ifBlank { "Consultant" }
                 consultantDisplayName = nameFinal
                 tvConsultantName.text = nameFinal
+                tvConsultantNameTwo.text = nameFinal
+                tvConsultantNameTwo.text = tvConsultantName.text
                 val availability = buildString {
                     if (profile.isOnline) append("Online") else if (profile.lastSeen > 0L) {
                         append("Last seen ${timeAgoShort(profile.lastSeen)}")
@@ -403,6 +426,7 @@ class TaskDetailsActivity :
                     }
                 }
                 tvConsultantAvailability.text = availability
+                tvConsultantEmail.text = profile.email.ifBlank { "Email not available" }
             }
         }
     }

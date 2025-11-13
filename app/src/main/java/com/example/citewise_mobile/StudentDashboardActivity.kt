@@ -41,7 +41,7 @@ class StudentDashboardActivity : BaseActivity() {
     private lateinit var tvMyRequests: TextView
     private lateinit var rvRequests: RecyclerView
     private lateinit var progressRequests: CircularProgressIndicator
-    private lateinit var emptyRequests: View
+    //private lateinit var emptyRequests: View
 
     private lateinit var tvEmptyRequests: TextView
 
@@ -72,7 +72,7 @@ class StudentDashboardActivity : BaseActivity() {
         tvViewAllTasks = childRoot.findViewById(R.id.tvViewAllTasks)
         rvRequests = childRoot.findViewById(R.id.rvRequests)
         progressRequests = childRoot.findViewById(R.id.progressRequests)
-        emptyRequests = childRoot.findViewById(R.id.emptyRequests)
+       // emptyRequests = childRoot.findViewById(R.id.emptyRequests)
         tvEmptyRequests = childRoot.findViewById(R.id.tvEmptyRequests)
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
@@ -191,13 +191,13 @@ class StudentDashboardActivity : BaseActivity() {
     private fun showLoading() {
         progressRequests.visibility = View.VISIBLE
         rvRequests.visibility = View.GONE
-        emptyRequests.visibility = View.GONE
+        //emptyRequests.visibility = View.GONE
     }
 
     private fun showEmpty() {
         progressRequests.visibility = View.GONE
         rvRequests.visibility = View.GONE
-        emptyRequests.visibility = View.VISIBLE
+        //emptyRequests.visibility = View.VISIBLE
         tvEmptyRequests.visibility = View.VISIBLE
     }
 
