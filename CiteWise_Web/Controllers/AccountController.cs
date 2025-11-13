@@ -93,16 +93,41 @@ namespace CiteWise_Web.Controllers
 
             var profile = await _firebaseService.GetUserProfileAsync(authResponse.LocalId, authResponse.IdToken);
 
-            if (profile == null || string.IsNullOrEmpty(profile.role) || profile.role == "Pending")
+            if (profile == null)
             {
-                return RedirectToAction("SelectRole", "Onboarding", new { uid = authResponse.LocalId, token = authResponse.IdToken });
+                return RedirectToAction(
+                    "SelectRole",
+                    "Onboarding",
+                    new { uid = authResponse.LocalId, token = authResponse.IdToken }
+                );
             }
 
-            HttpContext.Session.SetString("UserName", profile.firstName);
-            HttpContext.Session.SetString("UserSurname", profile.surname);
+            if (string.IsNullOrEmpty(profile.role) || profile.role == "Pending")
+            {
+                return RedirectToAction(
+                    "SelectRole",
+                    "Onboarding",
+                    new { uid = profile.uid, token = authResponse.IdToken }
+                );
+            }
+
+            
+            if (profile.role == "consultant" && profile.isApproved != true)
+            {
+               
+                HttpContext.Session.SetString("UserName", profile.firstName ?? "User");
+                HttpContext.Session.SetString("UserSurname", profile.surname ?? "");
+                HttpContext.Session.SetString("UserUid", profile.uid);
+                HttpContext.Session.SetString("UserRole", "consultant");
+                HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
+
+                return RedirectToAction("PendingApproval", "Onboarding");
+            }
+
+            HttpContext.Session.SetString("UserName", profile.firstName ?? "User");
+            HttpContext.Session.SetString("UserSurname", profile.surname ?? "");
             HttpContext.Session.SetString("UserUid", profile.uid);
             HttpContext.Session.SetString("UserRole", profile.role);
-
             HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
 
             if (profile.role == "student")
@@ -118,8 +143,10 @@ namespace CiteWise_Web.Controllers
                 return RedirectToAction("AdminDashboard", "Admin");
             }
 
-                return RedirectToAction("Login");
+            // Fallback
+            return RedirectToAction("Login");
         }
+
 
         public async Task<IActionResult> GoogleLogin([FromBody] TokenRequest req)
         {
