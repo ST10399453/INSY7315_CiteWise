@@ -43,8 +43,11 @@ router.get("/:documentId/download", checkAuth, async (req, res) => {
 
     res.json({ url, expiresInSeconds: expires, provider: "r2" });
   } catch (e) {
-    console.error(e);
-    res.status(400).json({ message: e.message });
+    const msg = e?.message || "";
+    if (msg.includes("The specified key does not exist")) {
+      return res.status(404).json({ message: "Document not found" });
+    }
+    res.status(400).json({ message: msg });
   }
 });
 
