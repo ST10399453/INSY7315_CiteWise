@@ -162,15 +162,15 @@ export async function publicUrlFromR2Meta(r2Meta) {
   return `${base}/${key}`;
 }
 
-// 2) Fallback: long-lived signed URL (e.g. 7 days)
-try {
-  const url = await r2SignedUrl({
-    bucket: r2Meta.bucket,
-    key: r2Meta.key,
-    expiresSeconds: 60 * 60 * 24 * 7, // 7 days
-  });
-  return url;
-} catch (e) {
-  console.error("publicUrlFromR2Meta: failed to create signed URL", e);
-  return null;
-}
+// // 2) Fallback: long-lived signed URL (e.g. 7 days)
+// try {
+//   const url = await r2SignedUrl({
+//     bucket: r2Meta.bucket,
+//     key: r2Meta.key,
+//     expiresSeconds: 60 * 60 * 24 * 7, // 7 days
+//   });
+//   return url;
+// } catch (e) {
+//   console.error("publicUrlFromR2Meta: failed to create signed URL", e);
+//   return null;
+// }
