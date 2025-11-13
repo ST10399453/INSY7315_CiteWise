@@ -23,14 +23,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp"
         android:text="@string/new_chat"
         android:textColor="#1D3DCA"
         android:textSize="20sp"
-        android:paddingTop="12dp"
-        android:paddingBottom="8dp"
-        app:layout_constraintTop_toBottomOf="@id/handle"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/handle" />
 
     <ImageButton
         android:id="@+id/btnClose"
@@ -67,6 +68,7 @@
             android:layout_height="48dp"
             android:inputType="textPersonName"
             android:imeOptions="actionSearch"
+            android:background="@drawable/outline_edittext"
             android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 

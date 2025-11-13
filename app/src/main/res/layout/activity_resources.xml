@@ -73,21 +73,21 @@
                     android:fontFamily="@font/poppins_medium"/>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilSearch"
                     style="@style/Widget.Material3.TextInputLayout.FilledBox.Dense"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/outline_edittext"
                     app:startIconDrawable="@drawable/ic_search_blue">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etSearch"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/outline_edittext"
                         android:hint="Type to search"
                         android:imeOptions="actionSearch"
                         android:singleLine="true"
                         android:textColor="@color/text_dark"
-                        android:background="@drawable/outline_edittext"
                         android:textColorHint="@color/text_dark"
                         android:fontFamily="@font/poppins"
                         android:textSize="14sp"
@@ -122,19 +122,19 @@
                         app:endIconDrawable="@drawable/ic_down_arrow"
                         app:endIconTint="@null">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actVisibility"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:inputType="none"
                             android:hint="All"
                             android:textSize="14sp"
-                            android:background="@drawable/text_field"
-                            android:popupBackground="@drawable/bg_spinner_popup_white"
                             android:paddingStart="16dp"
                             android:paddingEnd="16dp"
                             android:textColor="@color/text_dark"
-                            android:textColorHint="@color/text_dark"/>
+                            android:background="@drawable/outline_edittext"
+                            android:textColorHint="@color/text_dark"
+                            android:popupBackground="@drawable/bg_spinner_popup_white"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Faculty -->
@@ -158,19 +158,19 @@
                         app:endIconDrawable="@drawable/ic_down_arrow"
                         app:endIconTint="@null">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actFaculty"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:inputType="none"
                             android:hint="All"
                             android:textSize="14sp"
-                            android:background="@drawable/text_field"
-                            android:popupBackground="@drawable/bg_spinner_popup_white"
                             android:paddingStart="16dp"
                             android:paddingEnd="16dp"
+                            android:background="@drawable/outline_edittext"
                             android:textColor="@color/text_dark"
-                            android:textColorHint="@color/text_dark"/>
+                            android:textColorHint="@color/text_dark"
+                            android:popupBackground="@drawable/bg_spinner_popup_white"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Sort -->
@@ -196,19 +196,18 @@
                         app:endIconTint="@null"
                         android:visibility="gone">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actSort"
                             android:layout_width="match_parent"
                             android:layout_height="48dp"
                             android:inputType="none"
                             android:hint="Newest first"
                             android:textSize="14sp"
-                            android:background="@drawable/text_field"
-                            android:popupBackground="@drawable/bg_spinner_popup_white"
                             android:paddingStart="16dp"
                             android:paddingEnd="16dp"
                             android:textColor="@color/text_dark"
-                            android:textColorHint="@color/text_faded"/>
+                            android:textColorHint="@color/text_faded"
+                            android:popupBackground="@drawable/bg_spinner_popup_white"/>
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -306,6 +305,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
+            android:textColor="@android:color/white"
             android:backgroundTint="@color/gradient_end"
             android:tint="@android:color/white"
             app:icon="@drawable/ic_add"/>

@@ -109,6 +109,7 @@
                     android:inputType="text"
                     android:maxLines="1"
                     android:background="@drawable/outline_edittext"
+                    android:textColor="@color/text_dark"
                     android:paddingStart="48dp"
                     android:paddingEnd="16dp"
                     android:textSize="15sp"/>

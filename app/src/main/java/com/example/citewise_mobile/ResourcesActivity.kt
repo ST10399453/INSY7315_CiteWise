@@ -46,7 +46,6 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
 
     private val isAdminRole get() = getCurrentUserRole() == UserRole.ADMIN
 
-    // UI state gates
     private var lastItemsCount: Int = 0
     private var hasError: Boolean = false
     private var isLoading: Boolean = false
@@ -59,17 +58,14 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Base chrome (status/nav handling & bottom nav container)
         setContentView(R.layout.activity_base)
         applyInsets(R.id.main)
 
-        // Inflate actual screen into base container
         val baseContent = findViewById<ViewGroup>(R.id.baseContent)
         val content = layoutInflater.inflate(R.layout.activity_resources, baseContent, false)
         binding = ActivityResourcesBinding.bind(content)
         baseContent.addView(content)
 
-        // Bottom nav selection per role
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         val selectedId = if (isAdminRole) R.id.nav_resource_mgmt else R.id.nav_resources
         setupBottomNav(bottomNav, selectedId)
@@ -83,7 +79,7 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
         vm.refresh()
     }
 
-    // ─────────────────── Recycler ───────────────────
+    // ───────── Recycler ─────────
     private fun setupRecycler() {
         adapter = ResourcesAdapter(
             onOverflow = ::showOverflow,
@@ -94,7 +90,7 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
         binding.rvDocuments.adapter = adapter
     }
 
-    // ─────────────────── ViewModel / collectors ───────────────────
+    // ───────── ViewModel / collectors ─────────
     private fun setupViewModel() {
         val localRepos = LocalRepos(applicationContext)
         docsRepo = DocumentsRepository(RetrofitInstance.documentsApi, applicationContext)
@@ -106,7 +102,6 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
         )
         vm = ViewModelProvider(this, factory)[ResourcesViewModel::class.java]
 
-        // Items stream
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.items.collectLatest { list: List<ResourceEntity> ->
@@ -118,19 +113,16 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
             }
         }
 
-        // Error presence stream
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.error.collectLatest { err ->
                     hasError = (err != null)
-                    // If we already have items, prefer showing the list.
                     if (lastItemsCount > 0) hasError = false
                     renderState()
                 }
             }
         }
 
-        // Loading stream
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.loading.collectLatest { loading ->
@@ -142,7 +134,6 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
         }
     }
 
-    // Prefer showing the list. Overlays only show after a completed load.
     private fun renderState() {
         val showNoInternet = hasAttemptedFirstLoad && !isLoading && hasError && lastItemsCount == 0
         val showEmpty = hasAttemptedFirstLoad && !isLoading && !hasError && lastItemsCount == 0
@@ -153,53 +144,60 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
         binding.rvDocuments.isVisible = showList
     }
 
-    // ─────────────────── Search (debounced) ───────────────────
+    // ───────── Search (debounced) ─────────
     private fun setupSearch() {
         binding.etSearch.addTextChangedListener { editable ->
-            val text = editable?.toString()?.trim().orEmpty() // never "null"
+            val text = editable?.toString()?.trim().orEmpty()
             searchJob?.cancel()
             searchJob = lifecycleScope.launch {
                 delay(searchDelayMs)
-                vm.setQuery(text)        // VM should treat empty string as "no search"
+                vm.setQuery(text)
                 vm.refresh()
             }
         }
         binding.btnRetry.setOnClickListener { vm.refresh() }
     }
 
-    // ─────────────────── Filters (Exposed dropdowns) ───────────────────
+    // ───────── Filters (exposed dropdowns, collapsible) ─────────
     private fun setupDropdowns() {
         val visibilityOptions = listOf("All", "Public", "Private")
-        val facultyOptions = listOf("All", "Engineering", "Science", "Humanities", "Business")
+        val facultyOptions = listOf("All", "Engineering", "Science", "Business", "Law", "Education", "Health", "Arts")
         val sortOptions = listOf("Newest first", "Oldest first", "A–Z", "Z–A")
+        val itemLayout = R.layout.item_dropdown_text
 
-        // Visibility — pass labels; VM maps labels → API params internally
+        // Visibility
         (binding.actVisibility as? AutoCompleteTextView)?.apply {
-            setAdapter(ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, visibilityOptions))
+            setAdapter(ArrayAdapter(context, itemLayout, visibilityOptions))
             setOnItemClickListener { parent, _, pos, _ ->
                 val label = parent.getItemAtPosition(pos)?.toString()
-                vm.setVisibility(label) // "All" | "Public" | "Private"
+                vm.setVisibility(label)
                 vm.refresh()
+                clearFocus()      // collapse dropdown
             }
-            setText(visibilityOptions.first(), false) // "All"
+            setText(visibilityOptions.first(), false)
             vm.setVisibility("All")
+
+            // tap again to toggle dropdown
+            setOnClickListener { showDropDown() }
         }
 
-        // Faculty — send null for “All”
+        // Faculty
         (binding.actFaculty as? AutoCompleteTextView)?.apply {
-            setAdapter(ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, facultyOptions))
+            setAdapter(ArrayAdapter(context, itemLayout, facultyOptions))
             setOnItemClickListener { parent, _, pos, _ ->
                 val v = parent.getItemAtPosition(pos)?.toString()
                 vm.setFaculty(v?.takeUnless { it.equals("All", true) })
                 vm.refresh()
+                clearFocus()
             }
-            setText(facultyOptions.first(), false) // "All"
+            setText(facultyOptions.first(), false)
             vm.setFaculty(null)
+            setOnClickListener { showDropDown() }
         }
 
         // Sort
         (binding.actSort as? AutoCompleteTextView)?.apply {
-            setAdapter(ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, sortOptions))
+            setAdapter(ArrayAdapter(context, itemLayout, sortOptions))
             setOnItemClickListener { _, _, pos, _ ->
                 when (pos) {
                     0 -> vm.setSort("date")
@@ -208,13 +206,15 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
                     3 -> vm.setSort("alpha_desc")
                 }
                 vm.refresh()
+                clearFocus()
             }
             setText(sortOptions.first(), false)
             vm.setSort("date")
+            setOnClickListener { showDropDown() }
         }
     }
 
-    // ─────────────────── Role-specific UI ───────────────────
+    // ───────── Role-specific UI ─────────
     private fun setupRoleUi() {
         binding.fabAdd.apply {
             isVisible = isAdminRole
@@ -227,13 +227,13 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
         }
     }
 
-    // ─────────────────── AddResourceBottom.Callback ───────────────────
+    // ───────── AddResourceBottom.Callback ─────────
     override fun onResourceCreated() {
         vm.refresh()
         snackShort("Resource queued for upload")
     }
 
-    // ─────────────────── Overflow / actions ───────────────────
+    // ───────── Overflow / actions ─────────
     private fun showOverflow(res: ResourceEntity, anchor: View) {
         val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
         val menuId = if (isAdminRole) R.menu.menu_document_admin else R.menu.menu_document_item
@@ -269,8 +269,6 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val api = RetrofitInstance.resourcesApi
-
-                // 1) try to fetch signed download URL
                 val urlDto = api.getResourceDownloadUrl(
                     id = resourceId,
                     disposition = "attachment"
@@ -282,7 +280,6 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
                 }
 
             } catch (e: Exception) {
-                // 2) fallback to streaming
                 val resp = RetrofitInstance.resourcesApi.streamResourceFile(resourceId)
                 if (resp.isSuccessful) {
                     val body = resp.body()

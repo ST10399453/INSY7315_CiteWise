@@ -597,25 +597,33 @@ class ManageConsultantsActivity : BaseActivity() {
             h.ddConsultants?.visibility = if (showDropdown) View.VISIBLE else View.GONE
 
             if (showDropdown) {
-                val options = assignableConsultants.map { c ->
-                    val name = if (c.firstName.isBlank()) "Unknown" else c.firstName
-                    "$name · ${c.email}"
-                }
+                val dropdownAdapter = ConsultantDropdownAdapter(context, assignableConsultants)
+                h.ddConsultants?.apply {
+                    setAdapter(dropdownAdapter)
+                    setDropDownBackgroundResource(R.drawable.bg_spinner_popup_white)
 
-                val adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, options)
-                h.ddConsultants?.setAdapter(adapter)
-                h.ddConsultants?.setOnClickListener { h.ddConsultants?.showDropDown() }
-                h.ddConsultants?.setOnFocusChangeListener { v, hasFocus ->
-                    if (hasFocus) (v as? MaterialAutoCompleteTextView)?.showDropDown()
-                }
+                    // open dropdown when field tapped
+                    setOnClickListener { showDropDown() }
+                    setOnFocusChangeListener { v, hasFocus ->
+                        if (hasFocus) (v as? MaterialAutoCompleteTextView)?.showDropDown()
+                    }
 
-                h.ddConsultants?.setText("", false)
-                h.ddConsultants?.tag = null
+                    // clear any old selection when reused
+                    setText("", false)
+                    tag = null
 
-                h.ddConsultants?.setOnItemClickListener { _, _, idx, _ ->
-                    val chosen = assignableConsultants.getOrNull(idx) ?: return@setOnItemClickListener
-                    onAssign(item, chosen)
-                    h.ddConsultants?.setText("${chosen.firstName} · ${chosen.email}", false)
+                    setOnItemClickListener { _, _, idx, _ ->
+                        val chosen = assignableConsultants.getOrNull(idx) ?: return@setOnItemClickListener
+                        onAssign(item, chosen)
+                        // Show selected consultant in the field
+                        val label = buildString {
+                            append(if (chosen.firstName.isBlank()) "Unknown" else chosen.firstName)
+                            append(" · ")
+                            append(chosen.email)
+                        }
+                        setText(label, false)
+                        clearFocus() // collapse dropdown
+                    }
                 }
             }
         }
@@ -624,6 +632,44 @@ class ManageConsultantsActivity : BaseActivity() {
 
         private fun SimpleDateFormat.safe(ts: Long?): String =
             ts?.let { format(Date(it)) } ?: "—"
+
+        private class ConsultantDropdownAdapter(
+            context: android.content.Context,
+            private val items: List<Consultant>
+        ) : ArrayAdapter<Consultant>(context, 0, items) {
+
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                // Text shown in the field after selection
+                return createItemView(position, convertView, parent)
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                // Rows in the dropdown list
+                return createItemView(position, convertView, parent)
+            }
+
+            private fun createItemView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = convertView ?: LayoutInflater.from(context)
+                    .inflate(R.layout.item_assign_consultant_option, parent, false)
+
+                val consultant = items[position]
+
+                val tvAvatar = v.findViewById<TextView>(R.id.tvAvatar)
+                val tvName = v.findViewById<TextView>(R.id.tvName)
+                val tvEmail = v.findViewById<TextView>(R.id.tvEmail)
+
+                val initial = (consultant.firstName.trim().firstOrNull()
+                    ?: consultant.email.trim().firstOrNull()
+                    ?: '?').uppercaseChar()
+
+                tvAvatar.text = initial.toString()
+                tvName.text = if (consultant.firstName.isBlank()) "Unknown" else consultant.firstName
+                tvEmail.text = consultant.email
+
+                return v
+            }
+        }
+
     }
 
     private class ConsultantRowAdapter(
