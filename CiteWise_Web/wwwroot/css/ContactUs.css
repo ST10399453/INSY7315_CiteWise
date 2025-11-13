@@ -56,11 +56,13 @@
     width: 100%;
 }
 
-.form-row {
+/* Name + Email row – clear gap so fields don't touch */
+.contact-card .form-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.2rem;
-    margin-bottom: 1.1rem;
+    column-gap: 2rem; /* horizontal gap between Name & Email */
+    row-gap: 0;
+    margin-bottom: 1.3rem;
 }
 
 .form-group {
@@ -104,7 +106,28 @@
     margin-top: 1.3rem;
 }
 
-/* Reuse btn-primary look from your sample */
+/* Green success message */
+.alert-success {
+    background: #e8f7ed !important;
+    border: 1px solid #4caf50 !important;
+    color: #1e7b32 !important;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+/* Red error message */
+.alert-danger {
+    background: #fdecea !important;
+    border: 1px solid #ff4646 !important;
+    color: #b10000 !important;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+/* Button */
 .btn-primary {
     background: linear-gradient(135deg, #0027b2 0%, #02134d 100%);
     font-size: 15px;
@@ -174,8 +197,10 @@
         padding: 2.5rem 5% 3rem;
     }
 
-    .form-row {
+    /* Stack Name & Email on small screens */
+    .contact-card .form-row {
         grid-template-columns: minmax(0, 1fr);
+        row-gap: 1rem;
     }
 
     .contact-card {

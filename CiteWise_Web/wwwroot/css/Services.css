@@ -224,13 +224,14 @@
     display: flex;
     gap: 1.5rem;
     margin-bottom: 1.2rem;
-    width: 100%;
 }
 
-    .form-row .form-group {
-        flex: 1; /* Ensures equal width */
-        min-width: 240px; /* Prevents inputs from touching */
-    }
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 1.2rem;
+}
 
 .form-input,
 .form-textarea {
@@ -306,3 +307,4 @@
         gap: 1rem;
     }
 }
+

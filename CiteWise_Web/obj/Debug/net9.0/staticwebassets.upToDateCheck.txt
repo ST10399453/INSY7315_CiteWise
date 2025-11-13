@@ -1,4 +1,6 @@
 wwwroot\CiteWise_Logo.ico
+wwwroot\css\AboutUs.css
+wwwroot\css\ContactUs.css
 wwwroot\css\flatpicker-cal.css
 wwwroot\css\LandingPage.css
 wwwroot\css\MainApplicationNavBar.css
@@ -6,6 +8,7 @@ wwwroot\css\prioritycircles.css
 wwwroot\css\ProfileSettings.css
 wwwroot\css\register.css
 wwwroot\css\Request.css
+wwwroot\css\Services.css
 wwwroot\css\site.css
 wwwroot\css\StudentDashboard.css
 wwwroot\css\StudentViewRequests.css
@@ -14,15 +17,18 @@ wwwroot\icons\AI_icon.svg
 wwwroot\icons\cal.svg
 wwwroot\icons\confirm.svg
 wwwroot\icons\Dashboard.svg
+wwwroot\icons\document.png
 wwwroot\icons\down_arrow.svg
 wwwroot\icons\eye_closed.svg
 wwwroot\icons\eye_open.svg
+wwwroot\icons\feedback.png
 wwwroot\icons\feedback.svg
 wwwroot\icons\file_upload.svg
 wwwroot\icons\google.svg
 wwwroot\icons\Icon.svg
 wwwroot\icons\menu_sidebar.svg
 wwwroot\icons\message.svg
+wwwroot\icons\messages.png
 wwwroot\icons\Messages.svg
 wwwroot\icons\missing_doc.svg
 wwwroot\icons\notification.svg
@@ -32,6 +38,7 @@ wwwroot\icons\r.svg
 wwwroot\icons\Rate.svg
 wwwroot\icons\rates.svg
 wwwroot\icons\Request.png
+wwwroot\icons\resources.png
 wwwroot\icons\Resources.svg
 wwwroot\icons\right_arrow.svg
 wwwroot\icons\status_update.svg
@@ -112,9 +119,6 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\css\AboutUs.css
-wwwroot\css\ContactUs.css
-wwwroot\css\Services.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\AboutUs.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js
@@ -220,5 +224,5 @@ C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\MainApplicatio
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\lib\jquery\dist\jquery.min.js
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\ProfileSettings.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\prioritycircles.css
-C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\ContactUs.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\Services.css
+C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\ContactUs.css
