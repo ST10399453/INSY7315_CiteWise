@@ -389,6 +389,40 @@ router.get(
   }
 );
 
+// GET /requests/:id/feedback/download
+router.get("/:id/feedback/download", checkAuth, async (req, res) => {
+  try {
+    const reqId = req.params.id;
+
+    const snap = await db.collection("ServiceReviews").doc(reqId).get();
+    if (!snap.exists) return res.status(404).json({ message: "Request not found" });
+
+    const data = snap.data();
+
+    if (!data.feedbackFileName || !data.annotatedFile?.storage?.cloudflare) {
+      return res.status(404).json({ message: "No feedback file uploaded" });
+    }
+
+    // Rebuild R2 key
+    const key = data.annotatedFile.storage.cloudflare.key;
+
+    // Generate signed URL
+    const url = await r2SignedUrl({
+      bucket: data.annotatedFile.storage.cloudflare.bucket,
+      key,
+      expiresSeconds: 900,
+      filename: data.feedbackFileName,
+      disposition: "attachment",
+    });
+
+    res.json({ url });
+  } catch (e) {
+    console.error("feedback download error:", e);
+    res.status(500).json({ message: e.message });
+  }
+});
+
+
 // POST /requests/:id/annotated  (upload feedback + quote generation + Completed)
 router.post(
   "/:id/annotated",
@@ -441,7 +475,7 @@ router.post(
       const mime = req.file.mimetype || "application/pdf"
       const size = req.file.size || req.file.buffer?.length || 0
 
-      const key = `annotations/${reqId}/${safe}`
+      const key = `uploads/${reqId}/${safe}`
       const r2Meta = await uploadToR2({
         key,
         body: req.file.buffer,
