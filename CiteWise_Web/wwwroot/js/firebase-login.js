@@ -7,7 +7,7 @@
 //};
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCrl_CvkGXJoAZP0eYgqU6HPqGxPZWe32g",
+    apiKey: "AIzaSyCDpCTSGDhZFtp-bnCGnNRW1KsjPNXfBds",
     //apiKey: config["Firebase:ApiKey"],
     authDomain: "citewise-30611.firebaseapp.com",
     projectId: "citewise-30611",

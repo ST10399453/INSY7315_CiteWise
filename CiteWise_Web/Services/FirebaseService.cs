@@ -97,7 +97,7 @@ namespace CiteWise_Web.Services
             var json = JsonConvert.SerializeObject(data);
 
             var response = await _client.PostAsync(
-                $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDwPulYyuQA-CqcFCuXwY05_gxm-PZ7P1M",
+                $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCDpCTSGDhZFtp-bnCGnNRW1KsjPNXfBds\r\n",
                 new StringContent(json, Encoding.UTF8, "application/json")
             );
 
