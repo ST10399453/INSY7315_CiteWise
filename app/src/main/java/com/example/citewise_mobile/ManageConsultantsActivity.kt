@@ -232,16 +232,21 @@ class ManageConsultantsActivity : BaseActivity() {
                 pendingConsultants.clear()
                 snapshot.children.forEach { u ->
                     val uid = u.key ?: return@forEach
+
                     val isApproved = u.child("isApproved").getValue(Boolean::class.java) ?: false
-                    if (!isApproved) {
+                    val role = u.child("role").getValue(String::class.java)?.lowercase() ?: ""
+
+
+                    if (!isApproved && role == "consultant") {
                         pendingConsultants += Consultant(
                             uid = uid,
                             firstName = u.child("firstName").getValue(String::class.java) ?: "(no name)",
                             email = u.child("email").getValue(String::class.java).orEmpty(),
-                            specialty = u.child("specialty").getValue(String::class.java).orEmpty()
+                            specialty = u.child("specialtisation").getValue(String::class.java).orEmpty()
                         )
                     }
                 }
+
 
                 pendingConsAdapter.notifyDataSetChanged()
                 toggleEmptyState(pendingConsultants.isEmpty(), binding.rvPendingConsultants, binding.emptyPendingConsultants)

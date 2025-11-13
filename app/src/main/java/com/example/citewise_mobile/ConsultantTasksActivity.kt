@@ -68,8 +68,10 @@ class ConsultantTasksActivity : BaseActivity() {
 
         // ✅ Setup adapter
         val onTaskClick: (ServiceRequestDto) -> Unit = { req ->
-            startActivity(Intent(this, TaskDetailsActivity::class.java)
-                .putExtra(TaskDetailsActivity.EXTRA_REQUEST, req))
+            startActivity(
+                Intent(this, TaskDetailsActivity::class.java)
+                    .putExtra(TaskDetailsActivity.EXTRA_REQUEST, req)
+            )
         }
         adapter = ServiceReviewAdapter(mutableListOf(), onTaskClick)
         tasksRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -125,12 +127,16 @@ class ConsultantTasksActivity : BaseActivity() {
     }
 
     private fun filterTasks(urgency: Urgency) {
-        val filtered = when (urgency) {
+        // First filter by priority
+        val base = when (urgency) {
             Urgency.ALL -> fullTaskList
             Urgency.URGENT -> fullTaskList.filter { it.priority == ServicePriority.HIGH }
             Urgency.MEDIUM -> fullTaskList.filter { it.priority == ServicePriority.MEDIUM }
             Urgency.LOW -> fullTaskList.filter { it.priority == ServicePriority.LOW }
         }
+
+        // Then push completed ones to the bottom
+        val filtered = base.sortedBy { it.status == "Completed" }
 
         adapter.reset(filtered)
 

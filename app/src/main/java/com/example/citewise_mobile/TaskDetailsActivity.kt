@@ -9,7 +9,6 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -46,6 +45,7 @@ import java.util.TimeZone
  * - Shows quote summary (amount + word count) when available.
  * - Student can view/download annotated file once uploaded.
  * - Bottom sheet opens expanded reliably. Chat wired to ConversationActivity.
+ * - If service request status is completed, hide feedback upload and consultant preview buttons.
  */
 class TaskDetailsActivity :
     BaseActivity(),
@@ -121,8 +121,8 @@ class TaskDetailsActivity :
         }
         currentReq = req
 
+        // ✅ This alone will now control visibility, including Completed state
         bindRequest(req)
-        applyRoleVisibility(getCurrentUserRole())
 
         // Populate consultant card only for Student role
         if (getCurrentUserRole() == UserRole.STUDENT) {
@@ -155,7 +155,7 @@ class TaskDetailsActivity :
         tvQuoteSummary = findViewById(R.id.tvQuoteSummary)
         btnAcceptQuote = findViewById(R.id.btnAcceptQuote)
         btnDeclineQuote = findViewById(R.id.btnDeclineQuote)
-        //btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
+//        btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
 
         // Consultant card (student-facing)
         consultantCard = findViewById(R.id.consultantCardRoot)
@@ -211,30 +211,6 @@ class TaskDetailsActivity :
             // Server will do: count words, compute quote, set status to Completed, push to student.
             openFeedbackBottomSheet(id, nextStatus = "review_submitted")
         }
-
-//        // Generate + view Quote PDF (with logo + table)
-//        btnDownloadPdf.setOnClickListener {
-//            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
-//
-//            // Use quotationAmount as the source of truth for whether a quote exists
-//            if (req.quotationAmount == null) {
-//                toast("No quotation available.")
-//                return@setOnClickListener
-//            }
-//
-//            lifecycleScope.launch(Dispatchers.IO) {
-//                try {
-//                    val file = generateQuotePdf(req)
-//                    withContext(Dispatchers.Main) {
-//                        openFile(file)
-//                    }
-//                } catch (t: Throwable) {
-//                    withContext(Dispatchers.Main) {
-//                        toast("Failed to generate PDF: ${t.message}")
-//                    }
-//                }
-//            }
-//        }
 
         // ---------------- Download feedback (system) ----------------
         btnDownloadFeedbackFile.setOnClickListener {
@@ -306,22 +282,23 @@ class TaskDetailsActivity :
         chipPriority.text = req.priority?.toPretty() ?: "—"
 
         tvProjectName.text = when {
-            !req.customName.isNullOrBlank()   -> req.customName
-            !req.description.isNullOrBlank()  -> req.description
-            req.serviceType != null           -> req.serviceType.toPretty()
-            else                              -> "Untitled Project"
+            !req.customName.isNullOrBlank() -> req.customName
+            !req.description.isNullOrBlank() -> req.description
+            req.serviceType != null -> req.serviceType.toPretty()
+            else -> "Untitled Project"
         }
 
         val deadlineFromRemote = req.deadline.toUiDate()
         tvDeadline.text = deadlineFromRemote
         val displayFileName = req.customName ?: req.originalFileName ?: "Student File"
         val student = req.studentName ?: "Student"
-        tvStudentAndDeadline.text = "$student"
+        tvStudentAndDeadline.text = student
 
         lifecycleScope.launch(Dispatchers.IO) {
             val localIso = tryFindLocalDeadlineIso(req)
             val localUi = isoToUiDate(localIso)
-            val finalDeadline = if (deadlineFromRemote != "—") deadlineFromRemote else (localUi ?: "—")
+            val finalDeadline =
+                if (deadlineFromRemote != "—") deadlineFromRemote else (localUi ?: "—")
             withContext(Dispatchers.Main) {
                 tvDeadline.text = finalDeadline
                 tvStudentAndDeadline.text = "$displayFileName     $finalDeadline"
@@ -347,7 +324,6 @@ class TaskDetailsActivity :
         val amount = req.quotationAmount
         val currency = (req.quotationCurrency ?: "").ifBlank { "USD" }
 
-        // Use "has quote" = there is a non-null amount
         val hasQuote = amount != null
 
         if (hasQuote) {
@@ -364,12 +340,21 @@ class TaskDetailsActivity :
 
         tvDocName.text = req.originalFileName ?: displayFileName
 
-        // Update button visibilities that depend on student/consultant and quote presence
-        applyRoleVisibility(getCurrentUserRole(), hasQuote)
+        // ✅ Robust Completed check (handles case & whitespace)
+        val isCompleted = req.status
+            ?.trim()
+            ?.equals("Completed", ignoreCase = true) == true
+
+        // Update button visibilities that depend on student/consultant, quote presence, and completion
+        applyRoleVisibility(getCurrentUserRole(), hasQuote, isCompleted)
     }
 
     // ---------------- Role-driven visibility ----------------
-    private fun applyRoleVisibility(role: UserRole, hasQuote: Boolean? = null) {
+    private fun applyRoleVisibility(
+        role: UserRole,
+        hasQuote: Boolean? = null,
+        isCompleted: Boolean = false
+    ) {
         val isStudent = role == UserRole.STUDENT
         val isConsultant = role == UserRole.CONSULTANT
 
@@ -380,15 +365,13 @@ class TaskDetailsActivity :
         setVisible(consultantCard, isStudent)
 
         setVisible(cardQualitativeStudy, isConsultant)
-        setVisible(btnUploadFeedback, isConsultant)
-        // Download Pdf only for consultants and only when a quote amount exists
-//        if (hasQuote != null) {
-//            setVisible(btnDownloadPdf, isConsultant && hasQuote)
-//        } else {
-//            setVisible(btnDownloadPdf, isConsultant)
-//        }
 
-        setVisible(btnConsultantPreview, isConsultant)
+        // Hide feedback upload when request is completed
+        setVisible(btnUploadFeedback, isConsultant && !isCompleted)
+
+        // Hide consultant preview when request is completed
+        setVisible(btnConsultantPreview, isConsultant && !isCompleted)
+
         setVisible(btnConsultantDownload, isConsultant)
 
         setVisible(btnViewStudentFile, isStudent)
@@ -478,8 +461,8 @@ class TaskDetailsActivity :
         if (!node.exists()) return null
 
         val first = node.child("firstName").getValue(String::class.java)?.trim().orEmpty()
-        val sur   = node.child("surname").getValue(String::class.java)?.trim().orEmpty()
-        val name  = when {
+        val sur = node.child("surname").getValue(String::class.java)?.trim().orEmpty()
+        val name = when {
             first.isNotEmpty() || sur.isNotEmpty() -> "$first $sur".trim()
             else -> node.child("name").getValue(String::class.java)?.trim().orEmpty()
         }.ifBlank { "Consultant" }
@@ -507,13 +490,13 @@ class TaskDetailsActivity :
         val diff = System.currentTimeMillis() - lastSeenMillis
         if (diff < 0) return "just now"
         val mins = diff / 60000
-        val hrs  = mins / 60
+        val hrs = mins / 60
         val days = hrs / 24
         return when {
-            mins < 1  -> "just now"
+            mins < 1 -> "just now"
             mins < 60 -> "${mins}m ago"
-            hrs < 24  -> "${hrs}h ago"
-            else      -> "${days}d ago"
+            hrs < 24 -> "${hrs}h ago"
+            else -> "${days}d ago"
         }
     }
 
@@ -559,7 +542,8 @@ class TaskDetailsActivity :
     // ---------------- Helpers ----------------
     private suspend fun tryFindLocalDeadlineIso(req: ServiceRequestDto): String? =
         withContext(Dispatchers.IO) {
-            val byRemote = req.id?.let { runCatching { localRepos.requests.findByRemoteId(it) }.getOrNull() }
+            val byRemote =
+                req.id?.let { runCatching { localRepos.requests.findByRemoteId(it) }.getOrNull() }
             byRemote?.deadlineIso ?: run {
                 val docId = req.documentId ?: return@run null
                 val all = runCatching { localRepos.requests.getAll() }.getOrNull().orEmpty()
@@ -573,7 +557,11 @@ class TaskDetailsActivity :
             timeZone = TimeZone.getTimeZone("UTC")
         }
         val dst = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return try { src.parse(iso)?.let(dst::format) } catch (_: ParseException) { null }
+        return try {
+            src.parse(iso)?.let(dst::format)
+        } catch (_: ParseException) {
+            null
+        }
     }
 
     private fun openFile(file: File) {
@@ -603,14 +591,24 @@ class TaskDetailsActivity :
                     when (val saved = docsRepo.downloadFromUrlToDisk(url, preferredName)) {
                         is NetResult.Ok -> withContext(Dispatchers.Main) {
                             val file = saved.data
-                            val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
-                                .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
-                                .putExtra(DocumentViewerActivity.EXTRA_REQUEST_ID, currentReq?.id)
-                                .putExtra(DocumentViewerActivity.EXTRA_DISPLAY_NAME, preferredName)
-                                .putExtra(
-                                    DocumentViewerActivity.EXTRA_CAN_ANNOTATE,
-                                    getCurrentUserRole() == UserRole.CONSULTANT
-                                )
+                            val intent =
+                                Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
+                                    .putExtra(
+                                        DocumentViewerActivity.EXTRA_FILE_PATH,
+                                        file.absolutePath
+                                    )
+                                    .putExtra(
+                                        DocumentViewerActivity.EXTRA_REQUEST_ID,
+                                        currentReq?.id
+                                    )
+                                    .putExtra(
+                                        DocumentViewerActivity.EXTRA_DISPLAY_NAME,
+                                        preferredName
+                                    )
+                                    .putExtra(
+                                        DocumentViewerActivity.EXTRA_CAN_ANNOTATE,
+                                        getCurrentUserRole() == UserRole.CONSULTANT
+                                    )
 
                             startActivity(intent)
                         }
@@ -635,7 +633,10 @@ class TaskDetailsActivity :
             .setTitle(fileName)
             .setDescription("Downloading…")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_DOWNLOADS, fileName)
+            .setDestinationInExternalPublicDir(
+                android.os.Environment.DIRECTORY_DOWNLOADS,
+                fileName
+            )
             .setAllowedOverMetered(true)
             .setAllowedOverRoaming(true)
 
@@ -645,8 +646,11 @@ class TaskDetailsActivity :
     }
 
     private fun openUrl(url: String) {
-        try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-        catch (_: Throwable) { toast("No app can handle this link.") }
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: Throwable) {
+            toast("No app can handle this link.")
+        }
     }
 
     private fun ServicePriority.toPretty(): String = when (this) {
@@ -699,7 +703,8 @@ class TaskDetailsActivity :
             if (logoRaw != null) {
                 val desiredWidth = 80
                 val scaledHeight = logoRaw.height * desiredWidth / logoRaw.width
-                val logo = Bitmap.createScaledBitmap(logoRaw, desiredWidth, scaledHeight, true)
+                val logo =
+                    Bitmap.createScaledBitmap(logoRaw, desiredWidth, scaledHeight, true)
                 canvas.drawBitmap(logo, 40f, topY, null)
                 logo.recycle()
                 logoRaw.recycle()
@@ -725,7 +730,11 @@ class TaskDetailsActivity :
         canvas.drawRect(leftX, topY, rightX, topY + rowHeight, headerPaint)
 
         // Header row text
-        canvas.drawText("Field", leftX + 10f, topY + 22f, bodyPaint.apply { typeface = Typeface.DEFAULT_BOLD })
+        canvas.drawText(
+            "Field",
+            leftX + 10f,
+            topY + 22f,
+            bodyPaint.apply { typeface = Typeface.DEFAULT_BOLD })
         canvas.drawText("Value", colDividerX + 10f, topY + 22f, bodyPaint)
 
         // Reset body font
