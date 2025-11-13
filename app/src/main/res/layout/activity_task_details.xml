@@ -140,6 +140,7 @@
 
         <!-- ===== Files (Student default) ===== -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/rowStudentFile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="18dp"
@@ -185,7 +186,6 @@
 
                 <!-- Original file line -->
                 <LinearLayout
-                    android:id="@+id/rowStudentFile"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:gravity="center_vertical"
@@ -292,57 +292,89 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- ===== Consultant-only: file row + preview/download ===== -->
-        <LinearLayout
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardQualitativeStudy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:background="@drawable/rounded_card_background"
-            android:elevation="2dp"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            app:cardCornerRadius="18dp"
+            app:cardUseCompatPadding="true"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="4dp">
 
-            <TextView
-                android:id="@+id/tvDocName"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Student Document"
-                android:textSize="16sp"
-                android:textColor="@color/text_dark" />
+                android:background="@drawable/rounded_card_background"
+                android:padding="14dp"
+                android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnConsultantPreview"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:minWidth="48dp"
-                android:paddingHorizontal="10dp"
-                android:backgroundTint="@android:color/transparent"
-                app:strokeColor="@color/gradient_middle"
-                app:strokeWidth="1dp"
-                app:icon="@drawable/ic_feedback_consultant"
-                app:iconTint="@color/text_dark"
-                app:iconSize="18dp"
-                android:contentDescription="Preview" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnConsultantDownload"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:minWidth="48dp"
-                android:paddingHorizontal="10dp"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="@android:color/transparent"
-                app:strokeColor="@color/gradient_middle"
-                app:strokeWidth="1dp"
-                app:icon="@drawable/ic_download"
-                app:iconTint="@color/text_dark"
-                app:iconSize="18dp"
-                android:contentDescription="Download" />
-        </LinearLayout>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Files"
+                        android:textSize="20sp"
+                        android:textColor="@color/text_faded"
+                        android:fontFamily="@font/poppins_medium" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_pill_soft"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:id="@+id/tvDocName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Student Document"
+                        android:textSize="16sp"
+                        android:textColor="@color/gradient_end" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnConsultantPreview"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:minWidth="14dp"
+                        android:paddingHorizontal="10dp"
+                        android:backgroundTint="@android:color/transparent"
+                        app:strokeColor="@color/ui_background"
+                        app:strokeWidth="1dp"
+                        app:icon="@drawable/ic_feedback_consultant"
+                        app:iconTint="@color/gradient_end"
+                        app:iconSize="20dp"
+                        android:contentDescription="Preview" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnConsultantDownload"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:minWidth="14dp"
+                        android:paddingHorizontal="1dp"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@android:color/transparent"
+                        app:strokeColor="@color/ui_background"
+                        app:strokeWidth="1dp"
+                        app:icon="@drawable/ic_download"
+                        app:iconTint="@color/gradient_end"
+                        app:iconSize="20dp"
+                        android:contentDescription="Download" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- ===== Upload feedback (opens bottom sheet) ===== -->
         <LinearLayout

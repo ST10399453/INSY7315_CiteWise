@@ -24,6 +24,7 @@ import com.example.citewise_mobile.data.NetResult
 import com.example.citewise_mobile.data.ServiceReviewsRepository
 import com.example.citewise_mobile.offline.LocalRepos
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -94,7 +95,7 @@ class TaskDetailsActivity :
     private lateinit var btnChatConsultant: ImageButton
 
     // ---- Consultant extras ----
-    private lateinit var cardQualitativeStudy: View
+//    private lateinit var cardQualitativeStudy: View
     private lateinit var tvDocName: TextView
     private lateinit var btnUploadFeedback: View
     private lateinit var btnRevise: Button
@@ -102,6 +103,9 @@ class TaskDetailsActivity :
     private lateinit var btnDownloadPdf: Button
     private lateinit var btnConsultantPreview: MaterialButton
     private lateinit var btnConsultantDownload: MaterialButton
+
+    private lateinit var rowStudentFile: MaterialCardView
+    private lateinit var cardQualitativeStudy: MaterialCardView
 
     private var currentReq: ServiceRequestDto? = null
 
@@ -130,6 +134,8 @@ class TaskDetailsActivity :
         // Populate consultant card only for Student role
         if (getCurrentUserRole() == UserRole.STUDENT) {
             lifecycleScope.launch(Dispatchers.IO) { populateConsultantForStudent(req) }
+        } else if (getCurrentUserRole() == UserRole.CONSULTANT) {
+            lifecycleScope.launch(Dispatchers.IO) { populateStudentForConsultant(req) }
         }
     }
 
@@ -179,6 +185,10 @@ class TaskDetailsActivity :
         btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
         btnConsultantPreview = findViewById(R.id.btnConsultantPreview)
         btnConsultantDownload = findViewById(R.id.btnConsultantDownload)
+
+        rowStudentFile = findViewById(R.id.rowStudentFile)
+        cardQualitativeStudy = findViewById(R.id.cardQualitativeStudy)
+
 
         // Consultant: preview/download original + open bottom sheet
         cardQualitativeStudy.setOnClickListener { handleOpenFile() }
@@ -367,6 +377,7 @@ class TaskDetailsActivity :
         setVisible(btnConsultantPreview, isConsultant)
         setVisible(btnConsultantDownload, isConsultant)
 
+        setVisible(rowStudentFile, isStudent)
         setVisible(btnViewStudentFile, isStudent)
         setVisible(btnDownloadStudentFile, isStudent)
 
@@ -481,6 +492,57 @@ class TaskDetailsActivity :
         val isOnline: Boolean,
         val lastSeen: Long
     )
+
+    private suspend fun populateStudentForConsultant(req: ServiceRequestDto) {
+        val studentUid = req.userId ?: return withContext(Dispatchers.Main) {
+            tvConsultantName.text = "Unknown Student"
+        }
+
+        val fs = FirebaseDatabase.getInstance().reference
+            .child("users")
+            .child(studentUid)
+            .get()
+            .await()
+
+        if (!fs.exists()) {
+            withContext(Dispatchers.Main) {
+                tvConsultantName.text = "Student not found"
+            }
+            return
+        }
+
+        val first = fs.child("firstName").getValue(String::class.java)?.trim().orEmpty()
+        val sur = fs.child("surname").getValue(String::class.java)?.trim().orEmpty()
+        val name = when {
+            first.isNotEmpty() || sur.isNotEmpty() -> "$first $sur".trim()
+            else -> fs.child("name").getValue(String::class.java)?.trim().orEmpty()
+        }.ifBlank { "Student" }
+
+        val email = fs.child("email").getValue(String::class.java).orEmpty()
+
+        withContext(Dispatchers.Main) {
+            tvConsultantName.text = name
+            tvConsultantEmail.text = email
+            tvConsultantAvailability.text = "Student"
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private fun timeAgoShort(lastSeenMillis: Long): String {
         val diff = System.currentTimeMillis() - lastSeenMillis
