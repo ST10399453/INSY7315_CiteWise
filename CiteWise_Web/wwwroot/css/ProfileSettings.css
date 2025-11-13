@@ -1,10 +1,13 @@
-﻿/* Base layout */
-.profile-page {
-    max-width: 960px;
-    margin: 2rem auto 3rem auto;
+﻿.profile-page {
+    width: 100%; /* Use full width of viewport */
+    max-width: 1300px; /* Optional: limit very wide screens */
+    margin: 0 auto; /* Centers horizontally */
+    padding: 2rem 1rem; /* Optional spacing around content */
     font-family: 'Public Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: #1f2933;
+    box-sizing: border-box; /* Ensures padding doesn’t break width */
 }
+
 
 .profile-title {
     font-size: 1.75rem;
@@ -41,7 +44,7 @@
 
 /* Role-specific active toggle colors */
 .student-profile .profile-toggle button.active {
-    background: #2563eb;
+    background: #0027B2;
     color: #ffffff;
     font-weight: 600;
     transform: translateY(-1px);
@@ -49,7 +52,7 @@
 }
 
 .admin-profile .profile-toggle button.active {
-    background: #4f46e5;
+    background: #0027B2;
     color: #ffffff;
     font-weight: 600;
     transform: translateY(-1px);
@@ -57,7 +60,7 @@
 }
 
 .consultant-profile .profile-toggle button.active {
-    background: #059669;
+    background: #0027B2;
     color: #ffffff;
     font-weight: 600;
     transform: translateY(-1px);
@@ -65,11 +68,6 @@
 }
 
 /* Layout */
-.profile-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(260px, 1.25fr);
-    gap: 1.5rem;
-}
 
 @media (max-width: 900px) {
     .profile-layout {
@@ -122,15 +120,15 @@
 
 /* Role-specific avatar gradients */
 .student-profile .avatar-circle {
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    background: #0027B2;
 }
 
 .admin-profile .avatar-circle {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: #0027B2;
 }
 
 .consultant-profile .avatar-circle {
-    background: linear-gradient(135deg, #059669, #10b981);
+    background: #0027B2;
 }
 
 /* Name + Email */
@@ -195,27 +193,27 @@
 }
 
 .stat-label {
-    font-size: 0.72rem;
-    color: #6b7280;
+    font-size: 16px;
+    color: black;
     margin-bottom: 0.25rem;
 }
 
 .stat-value {
-    font-size: 1.05rem;
+    font-size: 20px;
     font-weight: 700;
 }
 
 /* Role-specific stat colors */
 .student-profile .stat-value {
-    color: #2563eb;
+    color: #0027B2;
 }
 
 .admin-profile .stat-value {
-    color: #4f46e5;
+    color: #0027B2;
 }
 
 .consultant-profile .stat-value {
-    color: #059669;
+    color: #0027B2;
 }
 
 /* Info rows */
@@ -233,12 +231,12 @@
     }
 
 .info-label {
-    color: #6b7280;
+    color: black;
 }
 
 .info-value {
     font-weight: 500;
-    color: #111827;
+    color: #0027B2;
     text-align: right;
     max-width: 60%;
     word-break: break-word;
@@ -246,9 +244,9 @@
 
 /* Section title */
 .section-title {
-    font-size: 0.85rem;
+    font-size: 20px;
     font-weight: 600;
-    color: #6b7280;
+    color: #0027B2;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 0.4rem;
@@ -357,11 +355,11 @@
 .logout-btn {
     margin-top: 1.3rem;
     width: 100%;
-    border-radius: 999px;
-    border: 1px solid #ef4444;
-    background: #fef2f2;
-    color: #b91c1c;
-    padding: 0.55rem 1rem;
+    border-radius: 12px;
+    color: white;
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    box-shadow: 3px 3px 6.1px -3px rgba(255, 255, 255, 0.36) inset, -4px -4px 6px -4px rgba(0, 0, 0, 0.10) inset;
+    padding: 12px 14px;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -369,13 +367,11 @@
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
-    transition: background 0.15s ease, transform 0.06s ease, box-shadow 0.12s ease;
 }
 
     .logout-btn:hover {
-        background: #fee2e2;
-        transform: translateY(-1px);
-        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+        background: #0027B2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
     }
 
     .logout-btn i {
@@ -395,11 +391,6 @@
 /* --- Shared settings forms --- */
 
 .profile-form-card {
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 1.4rem 1.6rem;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-    border: 1px solid #e5e7eb;
     max-width: 640px;
     margin: 0 auto 2rem auto;
 }
@@ -543,4 +534,58 @@
     font-size: 0.8rem;
     color: #6b7280;
     margin-top: 0.15rem;
+}
+
+
+.centereds {
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    width: 100%; /* Full width of container */
+    /* Optional spacing top/bottom */
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 52px;
+    width: 100%;
+}
+
+background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+box-shadow: 3px 3px 6.1px -3px rgba(255, 255, 255, 0.36) inset, -4px -4px 6px -4px rgba(0, 0, 0, 0.10) inset;
+/* Optional: make cards fill their column */
+.dashboard-card {
+    width: 100%;
+}
+
+
+/* Make the toggle container bigger */
+.profile-toggle {
+    display: inline-flex;
+    background: #f3f4f6;
+    border-radius: 999px;
+    padding: 0.5rem; /* increased from 0.2rem */
+    margin-bottom: 2rem; /* slightly larger spacing below */
+}
+
+    /* Make the buttons bigger */
+    .profile-toggle button {
+        border: none;
+        background: transparent;
+        padding: 0.75rem 2rem; /* bigger padding: taller and wider */
+        font-size: 1.1rem; /* larger font */
+        border-radius: 999px;
+        cursor: pointer;
+        color:;
+        transition: background 0.18s ease, color 0.18s ease, transform 0.08s ease;
+    }
+
+/* Active buttons (role-specific) - keep existing styles, they scale automatically */
+.admin-profile .profile-toggle button.active {
+    background: #0027B2;
+    color: #ffffff;
+    font-weight: 600;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
 }

@@ -6,140 +6,122 @@
 
 <link rel="stylesheet" href="~/css/ProfileSettings.css" asp-append-version="true" />
 
+
+
+<div class="dashboard-header">
+    @* <h2>Good morning, Connor</h2> *@
+    <h2>Consultant profile</h2>
+    <br />
+    <p>See your workload, specialisation and update your account..</p>
+</div>
+
+
 <div class="profile-page consultant-profile">
-    <div class="profile-title">Consultant profile</div>
-    <div class="profile-subtitle">See your workload, specialisation and update your account.</div>
 
-    <div class="profile-toggle">
-        <button type="button" class="toggle-btn active" data-target="overview">Overview</button>
-        <button type="button" class="toggle-btn" data-target="settings">Settings</button>
+    <div class="centereds">
+        <div class="profile-toggle">
+            <button type="button" class="toggle-btn active" data-target="overview">Overview</button>
+            <button type="button" class="toggle-btn" data-target="settings">Settings</button>
+        </div>
     </div>
-
     <div class="profile-layout">
         <div>
             <!-- OVERVIEW -->
             <div id="overview-section" class="profile-section active">
-                <div class="profile-card">
-                    <div class="profile-card-header">
-                        <div class="avatar-circle">
-                            @if (!string.IsNullOrEmpty(Model.AvatarUrl))
-                            {
-                                <img src="@Model.AvatarUrl" alt="Profile" />
-                            }
-                            else
-                            {
-                                var initials = string.Join("",
-                                (Model.Name ?? "Consultant")
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                .Take(2)
-                                .Select(s => char.ToUpperInvariant(s[0])));
-                                @initials
-                            }
+                <div class="overview-grid">
+                    <div class="dashboard-card">
+                        <div class="profile-card-header">
+                            <div class="avatar-circle">
+                                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                                {
+                                    <img src="@Model.AvatarUrl" alt="Profile" />
+                                }
+                                else
+                                {
+                                    var initials = string.Join("",
+                                    (Model.Name ?? "Consultant")
+                                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                    .Take(2)
+                                    .Select(s => char.ToUpperInvariant(s[0])));
+                                    @initials
+                                }
+                            </div>
+                            <div>
+                                <div class="profile-name">@(!string.IsNullOrWhiteSpace(Model.Name) ? Model.Name : "Consultant")</div>
+                                <div class="profile-email">@Model.Email</div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="profile-name">@(!string.IsNullOrWhiteSpace(Model.Name) ? Model.Name : "Consultant")</div>
-                            <div class="profile-email">@Model.Email</div>
-                            <div class="chip-role">
-                                <i class="fa-solid fa-briefcase"></i>
-                                <span>Consultant</span>
+
+                        <div class="stats-grid">
+                            <div class="stat-pill">
+                                <div class="stat-label">Assigned</div>
+                                <div class="stat-value">@Model.Stats.TotalRequests</div>
+                            </div>
+                            <div class="stat-pill">
+                                <div class="stat-label">Completed</div>
+                                <div class="stat-value">@Model.Stats.Completed</div>
+                            </div>
+                            <div class="stat-pill">
+                                <div class="stat-label">In progress</div>
+                                <div class="stat-value">@Model.Stats.InProgress</div>
+                            </div>
+                            <div class="stat-pill">
+                                <div class="stat-label">Pending</div>
+                                <div class="stat-value">@Model.Stats.Pending</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stats-grid">
-                        <div class="stat-pill">
-                            <div class="stat-label">Assigned</div>
-                            <div class="stat-value">@Model.Stats.TotalRequests</div>
+                    <div class="dashboard-card">
+                        <div class="section-title">Professional info</div>
+                        <div class="info-row">
+                            <span class="info-label">Specialisation</span>
+                            <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Specialisation) ? Model.Specialisation : "Not set")</span>
                         </div>
-                        <div class="stat-pill">
-                            <div class="stat-label">Completed</div>
-                            <div class="stat-value">@Model.Stats.Completed</div>
+                        <div class="info-row">
+                            <span class="info-label">Language</span>
+                            <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Language) ? Model.Language : "English")</span>
                         </div>
-                        <div class="stat-pill">
-                            <div class="stat-label">In progress</div>
-                            <div class="stat-value">@Model.Stats.InProgress</div>
+                        <div class="info-row">
+                            <span class="info-label">Role</span>
+                            <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Role) ? Model.Role : "Consultant")</span>
                         </div>
-                        <div class="stat-pill">
-                            <div class="stat-label">Pending</div>
-                            <div class="stat-value">@Model.Stats.Pending</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <div class="section-title">Professional info</div>
-                    <div class="info-row">
-                        <span class="info-label">Specialisation</span>
-                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Specialisation) ? Model.Specialisation : "Not set")</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Language</span>
-                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Language) ? Model.Language : "English")</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Role</span>
-                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Role) ? Model.Role : "Consultant")</span>
                     </div>
                 </div>
             </div>
 
             <!-- SETTINGS -->
             <div id="settings-section" class="profile-section">
-                <div class="profile-card">
-                    <div class="section-title">Account</div>
-                    <div class="settings-list">
-                        <a asp-controller="AccountSettings" asp-action="EditProfile" class="settings-item">
-                            <div class="settings-label">
-                                <i class="fa-regular fa-pen-to-square"></i>
-                                <span>Edit profile</span>
-                            </div>
-                            <span class="settings-chevron"><i class="fa-solid fa-chevron-right"></i></span>
-                        </a>
+                <div class="overview-grid">
+                    <div class="dashboard-card">
+                        <div class="section-title">Account</div>
+                        <div class="settings-list">
+                            <a asp-controller="AccountSettings" asp-action="EditProfile" class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                    <span>Edit profile</span>
+                                </div>
+                                <span class="settings-chevron"><i class="fa-solid fa-chevron-right"></i></span>
+                            </a>
 
-                        <a asp-controller="AccountSettings" asp-action="ChangePassword" class="settings-item">
-                            <div class="settings-label">
-                                <i class="fa-solid fa-key"></i>
-                                <span>Change password</span>
-                            </div>
-                            <span class="settings-chevron"><i class="fa-solid fa-chevron-right"></i></span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="profile-card">
-                    <div class="section-title">Notifications</div>
-                    <div class="settings-list">
-                        <div class="settings-item">
-                            <div class="settings-label">
-                                <i class="fa-solid fa-bell"></i>
-                                <span>Job updates</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" checked disabled />
-                                <span class="slider"></span>
-                            </label>
+                            <a asp-controller="AccountSettings" asp-action="ChangePassword" class="settings-item">
+                                <div class="settings-label">
+                                    <i class="fa-solid fa-key"></i>
+                                    <span>Change password</span>
+                                </div>
+                                <span class="settings-chevron"><i class="fa-solid fa-chevron-right"></i></span>
+                            </a>
                         </div>
-                        <div class="settings-item">
-                            <div class="settings-label">
-                                <i class="fa-regular fa-envelope"></i>
-                                <span>Email summary</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" disabled />
-                                <span class="slider"></span>
-                            </label>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="section-title">Language</div>
+                        <div class="info-row">
+                            <span class="info-label">App language</span>
+                            <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Language) ? Model.Language : "English")</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="profile-card">
-                    <div class="section-title">Language</div>
-                    <div class="info-row">
-                        <span class="info-label">App language</span>
-                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Language) ? Model.Language : "English")</span>
-                    </div>
-                </div>
-
                 <form asp-controller="Account" asp-action="Logout" method="post">
                     <button type="submit" class="logout-btn">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
