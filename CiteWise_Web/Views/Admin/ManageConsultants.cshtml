@@ -1,5 +1,7 @@
-﻿@{
+﻿@model List<CiteWise_Web.Models.ServiceRequest.ServiceRequestItem>
+@{
     Layout = "_LayoutAuth";
+    var selectedPriority = (string)Context.Request.Query["priority"] ?? "All";
 }
 
 
@@ -7,9 +9,11 @@
     ViewData["Title"] = "Manage Consultants";
     var pending = ViewBag.Pending as List<CiteWise_Web.Models.ConsultantItem>;
     var approved = ViewBag.Approved as List<CiteWise_Web.Models.ConsultantItem>;
+    var consultants = ViewBag.Consultants as List<CiteWise_Web.Models.ConsultantItem>;
+    var students = ViewBag.Students as List<CiteWise_Web.Models.Account.UserProfile>;
+
 }
 
-<h2>Manage Consultants</h2>
 
 @if (TempData["Message"] != null)
 {
@@ -20,67 +24,99 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<h3>Pending Consultants</h3>
-@if (pending != null && pending.Any())
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Speciality</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var c in pending)
-            {
-                <tr>
-                    <td>@c.Name</td>
-                    <td>@c.Email</td>
-                    <td>@c.Speciality</td>
-                    <td>
-                        <form asp-action="ApproveConsultant" method="post">
-                            <input type="hidden" name="id" value="@c.Id" />
-                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No pending consultants.</p>
-}
 
-<hr />
 
-<h3>Approved Consultants</h3>
-@if (approved != null && approved.Any())
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Speciality</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var c in approved)
+@* <div class="dashboard-header">
+    <h2>Consultant management</h2>
+    <br />
+    <p>Manage consultants and their information.</p>
+</div>
+ *@
+
+
+
+<div class="studentbody">
+    <div class="centered">
+        <h2 class="page-title">Consultant Management</h2>
+
+
+        <div class="filter-tabs">
+            <div class="active-bg"></div>
+            <a class="tab @(selectedPriority == "All" ? "active" : "")" data-priority="All">All</a>
+            <a class="tab @(selectedPriority == "High" ? "active" : "")" data-priority="High">High</a>
+            <a class="tab @(selectedPriority == "Medium" ? "active" : "")" data-priority="Medium">Medium</a>
+            <a class="tab @(selectedPriority == "Low" ? "active" : "")" data-priority="Low">Low</a>
+        </div>
+
+        <div class="dashboard-card">
+            @if (!Model.Any())
             {
-                <tr>
-                    <td>@c.Name</td>
-                    <td>@c.Email</td>
-                    <td>@c.Speciality</td>
-                </tr>
+                <p>No unassigned service requests found.</p>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No approved consultants yet.</p>
-}
+            else
+            {
+                <div class="request-list">
+                    @foreach (var req in Model)
+                    {
+                        <div class="request-item">
+                            <div class="category-header d-flex justify-content-between align-items-center">
+                                @{
+                                    var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
+                                    req.ServiceType.Replace("_", " ").ToLower()
+                                    );
+
+                                    if (displayName.Contains("Proofreading Editing"))
+                                        displayName = displayName.Replace("Proofreading Editing", "Proofreading & Editing");
+
+                                    if (displayName.Contains("Formatting Referencing"))
+                                        displayName = displayName.Replace("Formatting Referencing", "Formatting & Referencing");
+                                }
+                                <p class="category-title">@displayName</p>
+                                <span class="priority-badge @(req.Priority?.ToLower())">@req.Priority</span>
+                            </div>
+
+                            <div class="request-content">
+                                <div class="content-left">
+                                    <h3 class="request-title">@req.DocumentName</h3>
+                                    <p class="submission-date">
+                                        Deadline: @(string.IsNullOrEmpty(req.Deadline) ? "-" : req.Deadline)
+                                    </p>
+
+                                    <div class="request-footer d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <form asp-action="Assign" method="post" class="register-form">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="requestId" value="@req.Id" />
+
+                                                <select class="form-input" name="consultantId" required>
+                                                    <option value="">-- Select Consultant --</option>
+                                                    @if (consultants != null && consultants.Any())
+                                                    {
+                                                        foreach (var c in consultants)
+                                                        {
+                                                            <option value="@c.Id">@c.Name (@c.Email)</option>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <option disabled>No consultants available</option>
+                                                    }
+                                                </select>
+
+                                                <button type="submit" class="btn-next">
+                                                    Assign
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+
+        </div>
+    </div>
+</div>

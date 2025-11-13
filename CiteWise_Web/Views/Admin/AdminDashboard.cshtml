@@ -5,164 +5,156 @@
     Layout = "_LayoutAuth";
     var consultants = ViewBag.Consultants as List<CiteWise_Web.Models.ConsultantItem>;
     var students = ViewBag.Students as List<CiteWise_Web.Models.Account.UserProfile>;
+    var pending = ViewBag.Pending as List<CiteWise_Web.Models.ConsultantItem>;
+    var approved = ViewBag.Approved as List<CiteWise_Web.Models.ConsultantItem>;
 }
 
 
 
 
-
 <div class="dashboard-header">
-    @* <h2>Good morning, Connor</h2> *@
-    <h2>Good morning, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
+    <h2>Hi, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
     <br />
     <p>Here's what's happening with your team today.</p>
 </div>
 
 <div class="dashboard-container">
 
-    <div class="dashboard-grid">
+    <div class="admin-grid">
 
         <div class="dashboard-card">
             <h3 class="dashboard-heading">
-                Total Consultant
-                <img src="~/icons/Icon.svg" alt="Progress Icon" class="heading-icon" />
+                Total Consultants
             </h3>
             <p>
-                <strong>@(consultants?.Count ?? 0)</strong>
+                <strong style="font-size: 2rem; color: #0027B2; font-family: 'Poppins', sans-serif;">@(consultants?.Count ?? 0)</strong>
             </p>
         </div>
 
         <div class="dashboard-card">
             <h3 class="dashboard-heading">
                 Total Students
-                <img src="~/icons/Icon.svg" alt="Progress Icon" class="heading-icon" />
             </h3>
             <p>
-                <strong>@(students?.Count ?? 0)</strong>
+                <strong style="font-size: 2rem; color: #0027B2; font-family: 'Poppins', sans-serif;">@(students?.Count ?? 0)</strong>
             </p>
         </div>
 
-    </div>
-</div>
+        <div class="dashboard-card">
+            <h3 class="dashboard-heading">
+                Pending Consultants
+            </h3>
 
-
-
-@if (TempData["Message"] != null)
-{
-    <div class="alert alert-success">@TempData["Message"]</div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
-<div class="dashboard-container mt-4">
-    <h2 class="mb-4 text-center">Admin Dashboard</h2>
-
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h4>Unassigned Requests</h4>
-                    <p><strong>@Model.Count</strong> waiting for assignment.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h4>Available Consultants</h4>
-                    <p>
-                        <strong>@(consultants?.Count ?? 0)</strong> consultants loaded from Firebase.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h4 class="mb-3">Pending Service Requests</h4>
-
-            @if (!Model.Any())
+            @if (pending != null && pending.Any())
             {
-                <p class="text-muted">No unassigned service requests found.</p>
+                <div class="feedback-list">
+                    @foreach (var c in pending)
+                    {
+                        <div class="request-item">
+                            <div class="category-header">
+                                <p class="category-title">@c.Name</p>
+
+                            </div>
+                            <div class="request-content">
+                                <div class="content-left">
+                                    <p class="submission-date">
+                                        @c.Email
+                                    </p>
+                                    <p class="submission-date">
+                                        @c.Speciality
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="content-right">
+                                <form asp-action="ApproveConsultant" method="post">
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                    <button type="submit" class="download-btn">Approve</button>
+                                </form>
+
+                                <form asp-action="RejectConsultant" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" value="@c.Id" />
+                                    <button type="submit" class="download-btn">Reject</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
             }
             else
             {
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Document</th>
-                                <th>Service</th>
-                                <th>Priority</th>
-                                <th>Deadline</th>
-                                <th>Consultant</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var req in Model)
-                            {
-                                <tr>
-                                    <td>@req.DocumentName</td>
-                                    <td>@req.ServiceType</td>
-                                    <td>@req.Priority</td>
-                                    <td>@(string.IsNullOrEmpty(req.Deadline) ? "-" : req.Deadline)</td>
-                                    <td colspan="2">
-                                        <form asp-action="Assign" method="post" class="d-flex align-items-center">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="requestId" value="@req.Id" />
-
-                                            <select class="form-select form-select-sm me-2" name="consultantId" required>
-                                                <option value="">-- Select Consultant --</option>
-                                                @if (consultants != null && consultants.Any())
-                                                {
-                                                    foreach (var c in consultants)
-                                                    {
-                                                        <option value="@c.Id">@c.Name (@c.Email)</option>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <option disabled>No consultants available</option>
-                                                }
-                                            </select>
-
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                Assign
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                <p>No pending consultants.</p>
             }
         </div>
+
     </div>
+    <br />
+    <div class="dashboard-card">
+        <h3 class="dashboard-heading">
+            Approved Consultants
+        </h3>
+        @if (approved != null && approved.Any())
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Speciality</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in approved)
+                    {
+                        <tr>
+                            <td>@c.Name</td>
+                            <td>@c.Email</td>
+                            <td>@c.Speciality</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No approved consultants yet.</p>
+        }
+
+    </div>
+
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 <style>
-    .dashboard-container {
-        max-width: 1200px;
+
+    /* Added styles to make the cards narrower */
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 2fr; /* first 2 small, last 2 larger */
+        gap: 25px; /* spacing between columns */
+        align-items: start;
+        justify-content: center;
+        width: 100%;
+        max-width: 1400px;
         margin: 0 auto;
     }
 
-    .card {
-        border-radius: 12px;
-        border: none;
+    .dashboard-card-narrow {
+        max-width: 180px;
+        min-width: 250px;
+        flex-shrink: 0;
+        a margin: 0 auto;
     }
 
-    .table th, .table td {
-        vertical-align: middle;
-    }
-
-    .btn-sm {
-        padding: 4px 10px;
-    }
 </style>

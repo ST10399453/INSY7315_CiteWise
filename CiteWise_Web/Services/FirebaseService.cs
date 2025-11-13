@@ -97,7 +97,7 @@ namespace CiteWise_Web.Services
             var json = JsonConvert.SerializeObject(data);
 
             var response = await _client.PostAsync(
-                $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCDpCTSGDhZFtp-bnCGnNRW1KsjPNXfBds\r\n",
+                $"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyDwPulYyuQA-CqcFCuXwY05_gxm-PZ7P1M",
                 new StringContent(json, Encoding.UTF8, "application/json")
             );
 
@@ -184,13 +184,13 @@ namespace CiteWise_Web.Services
             var allUsers = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
             var consultants = new List<ConsultantItem>();
 
-            if(allUsers != null)
+            if (allUsers != null)
             {
-                foreach(var(key,user) in allUsers)
+                foreach (var (key, user) in allUsers)
                 {
                     try
                     {
-                        if(user.role == "consultant")
+                        if (user.role == "consultant")
                         {
                             consultants.Add(new ConsultantItem
                             {
@@ -372,6 +372,24 @@ namespace CiteWise_Web.Services
 
             return true;
         }
+
+
+        // ===============================
+        // DELETE USER FROM FIREBASE (Reject Consultant)
+        // ===============================
+        public async Task<bool> DeleteUserAsync(string userId)
+        {
+            try
+            {
+                var response = await _client.DeleteAsync($"{_databaseUrl}/users/{userId}.json");
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
 
     }
 
