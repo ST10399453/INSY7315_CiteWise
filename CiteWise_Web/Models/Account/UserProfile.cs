@@ -10,7 +10,7 @@ namespace CiteWise_Web.Models.Account
         public string email { get; set; }
         public string role { get; set; } = "Pending"; // until onboarding
                                                       //public long CreatedAt { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        public bool isApproved { get; set; }
+        public bool? isApproved { get; set; }
 
         [JsonProperty("createdAt")]
         [JsonConverter(typeof(FlexibleDateTimeConverter))]

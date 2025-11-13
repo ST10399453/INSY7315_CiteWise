@@ -2,11 +2,10 @@ wwwroot\CiteWise_Logo.ico
 wwwroot\css\flatpicker-cal.css
 wwwroot\css\LandingPage.css
 wwwroot\css\MainApplicationNavBar.css
-wwwroot\css\ProfileSettings.css
 wwwroot\css\register.css
-wwwroot\css\Request.css
-wwwroot\css\site.css
 wwwroot\css\StudentDashboard.css
+wwwroot\css\site.css
+wwwroot\css\Request.css
 wwwroot\css\StudentViewRequests.css
 wwwroot\favicon.ico
 wwwroot\icons\AI_icon.svg
@@ -111,6 +110,7 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\css\ProfileSettings.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js
@@ -163,8 +163,8 @@ C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\icons\file_upload.
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\icons\eye_open.svg
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\icons\eye_closed.svg
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\icons\Dashboard.svg
-C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\StudentDashboard.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\Request.css
+C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\StudentDashboard.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\css\site.css
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\icons\Rate.svg
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\wwwroot\favicon.ico
