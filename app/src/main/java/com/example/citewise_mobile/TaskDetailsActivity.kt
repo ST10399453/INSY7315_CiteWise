@@ -84,7 +84,7 @@ class TaskDetailsActivity :
     private lateinit var tvQuoteSummary: TextView
     private lateinit var btnAcceptQuote: MaterialButton
     private lateinit var btnDeclineQuote: MaterialButton
-    private lateinit var btnDownloadPdf: Button
+//    private lateinit var btnDownloadPdf: Button
 
     // ---- Student: consultant card ----
     private lateinit var consultantCard: View
@@ -97,11 +97,8 @@ class TaskDetailsActivity :
     private lateinit var cardQualitativeStudy: View
     private lateinit var tvDocName: TextView
     private lateinit var btnUploadFeedback: View
-    private lateinit var btnRevise: Button
-    private lateinit var btnSendToStudent: Button
     private lateinit var btnConsultantPreview: MaterialButton
     private lateinit var btnConsultantDownload: MaterialButton
-    private lateinit var consultantFooterActions: View
 
     private var currentReq: ServiceRequestDto? = null
 
@@ -158,7 +155,7 @@ class TaskDetailsActivity :
         tvQuoteSummary = findViewById(R.id.tvQuoteSummary)
         btnAcceptQuote = findViewById(R.id.btnAcceptQuote)
         btnDeclineQuote = findViewById(R.id.btnDeclineQuote)
-        btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
+        //btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
 
         // Consultant card (student-facing)
         consultantCard = findViewById(R.id.consultantCardRoot)
@@ -171,11 +168,8 @@ class TaskDetailsActivity :
         cardQualitativeStudy = findViewById(R.id.cardQualitativeStudy)
         tvDocName = findViewById(R.id.tvDocName)
         btnUploadFeedback = findViewById(R.id.btnUploadFeedback)
-        btnRevise = findViewById(R.id.btnRevise)
-        btnSendToStudent = findViewById(R.id.btnSendToStudent)
         btnConsultantPreview = findViewById(R.id.btnConsultantPreview)
         btnConsultantDownload = findViewById(R.id.btnConsultantDownload)
-        consultantFooterActions = findViewById(R.id.consultantFooterActions)
 
         // Consultant: preview/download original + open bottom sheet
         cardQualitativeStudy.setOnClickListener { handleOpenFile() }
@@ -218,30 +212,29 @@ class TaskDetailsActivity :
             openFeedbackBottomSheet(id, nextStatus = "review_submitted")
         }
 
-        btnRevise.setOnClickListener { toast("Opening revision tools…") }
-        btnSendToStudent.setOnClickListener { toast("Status updated and sent to student.") }
-
-        // Generate + view Quote PDF (with logo + table)
-        btnDownloadPdf.setOnClickListener {
-            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
-            if (req.quotationId == null) {
-                toast("No quotation available.")
-                return@setOnClickListener
-            }
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val file = generateQuotePdf(req)
-                    withContext(Dispatchers.Main) {
-                        openFile(file)
-                    }
-                } catch (t: Throwable) {
-                    withContext(Dispatchers.Main) {
-                        toast("Failed to generate PDF: ${t.message}")
-                    }
-                }
-            }
-        }
+//        // Generate + view Quote PDF (with logo + table)
+//        btnDownloadPdf.setOnClickListener {
+//            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
+//
+//            // Use quotationAmount as the source of truth for whether a quote exists
+//            if (req.quotationAmount == null) {
+//                toast("No quotation available.")
+//                return@setOnClickListener
+//            }
+//
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                try {
+//                    val file = generateQuotePdf(req)
+//                    withContext(Dispatchers.Main) {
+//                        openFile(file)
+//                    }
+//                } catch (t: Throwable) {
+//                    withContext(Dispatchers.Main) {
+//                        toast("Failed to generate PDF: ${t.message}")
+//                    }
+//                }
+//            }
+//        }
 
         // ---------------- Download feedback (system) ----------------
         btnDownloadFeedbackFile.setOnClickListener {
@@ -353,9 +346,11 @@ class TaskDetailsActivity :
         // Quote summary
         val amount = req.quotationAmount
         val currency = (req.quotationCurrency ?: "").ifBlank { "USD" }
-        val hasQuote = req.quotationId != null
 
-        if (hasQuote && amount != null) {
+        // Use "has quote" = there is a non-null amount
+        val hasQuote = amount != null
+
+        if (hasQuote) {
             tvQuoteSummary.visibility = View.VISIBLE
             tvQuoteSummary.text = buildString {
                 append(currency)
@@ -386,17 +381,12 @@ class TaskDetailsActivity :
 
         setVisible(cardQualitativeStudy, isConsultant)
         setVisible(btnUploadFeedback, isConsultant)
-
-        setVisible(consultantFooterActions, isConsultant)
-        setVisible(btnRevise, isConsultant)
-        setVisible(btnSendToStudent, isConsultant)
-
-        // Download Pdf only for consultants and only when a quote exists
-        if (hasQuote != null) {
-            setVisible(btnDownloadPdf, isConsultant && hasQuote)
-        } else {
-            setVisible(btnDownloadPdf, isConsultant)
-        }
+        // Download Pdf only for consultants and only when a quote amount exists
+//        if (hasQuote != null) {
+//            setVisible(btnDownloadPdf, isConsultant && hasQuote)
+//        } else {
+//            setVisible(btnDownloadPdf, isConsultant)
+//        }
 
         setVisible(btnConsultantPreview, isConsultant)
         setVisible(btnConsultantDownload, isConsultant)

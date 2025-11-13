@@ -511,23 +511,23 @@
                     android:gravity="end"
                     android:layout_marginTop="8dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnDownloadPdf"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:minWidth="48dp"
-                        android:paddingHorizontal="16dp"
-                        android:text="Download Pdf"
-                        android:textSize="10dp"
-                        android:textAllCaps="false"
-                        android:textColor="@android:color/white"
-                        android:backgroundTint="@color/gradient_middle"
-                        app:cornerRadius="18dp"
-                        app:icon="@drawable/ic_download"
-                        app:iconTint="@android:color/white"
-                        app:iconGravity="textStart"
-                        app:iconPadding="8dp" />
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/btnDownloadPdf"-->
+<!--                        style="@style/Widget.MaterialComponents.Button"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="36dp"-->
+<!--                        android:minWidth="48dp"-->
+<!--                        android:paddingHorizontal="16dp"-->
+<!--                        android:text="Download Pdf"-->
+<!--                        android:textSize="10dp"-->
+<!--                        android:textAllCaps="false"-->
+<!--                        android:textColor="@android:color/white"-->
+<!--                        android:backgroundTint="@color/gradient_middle"-->
+<!--                        app:cornerRadius="18dp"-->
+<!--                        app:icon="@drawable/ic_download"-->
+<!--                        app:iconTint="@android:color/white"-->
+<!--                        app:iconGravity="textStart"-->
+<!--                        app:iconPadding="8dp" />-->
                 </LinearLayout>
 
             </LinearLayout>
@@ -670,40 +670,6 @@
                     android:text="Completed"
                     android:drawableStart="@drawable/ic_dot_blue" />
             </LinearLayout>
-        </LinearLayout>
-
-        <!-- ===== Consultant-only: Footer actions (Revise / Send) ===== -->
-        <LinearLayout
-            android:id="@+id/consultantFooterActions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp"
-            android:visibility="gone">
-
-            <Button
-                android:id="@+id/btnRevise"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Revise"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:textColor="@color/gradient_end"
-                android:textAllCaps="true"
-                app:strokeColor="@color/gradient_end"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/btnSendToStudent"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Send to student"
-                android:textColor="@color/text_light"
-                android:textAllCaps="true"
-                android:backgroundTint="@color/gradient_end" />
         </LinearLayout>
 
         <!-- ===== Consultant (student-facing info card) ===== -->

@@ -285,19 +285,31 @@ class ManageConsultantsActivity : BaseActivity() {
         pendingAssignments.clear()
         pendingAssignments += unassignedReviews
         assignmentAdapter.resetBase(pendingAssignments)
-        toggleEmptyState(pendingAssignments.isEmpty(), binding.rvPendingAssignments, binding.emptyPendingAssignments)
+        toggleEmptyState(
+            pendingAssignments.isEmpty(),
+            binding.rvPendingAssignments,
+            binding.emptyPendingAssignments
+        )
 
         // Who is assigned anywhere?
-        val assignedIds = allReviews.mapNotNull { it.consultantId?.takeIf { id -> id.isNotBlank() } }.toSet()
+        val assignedIds = allReviews
+            .mapNotNull { it.consultantId?.takeIf { id -> id.isNotBlank() } }
+            .toSet()
 
-        // Compute both pools
-        val all = allApprovedUsers.values.sortedBy { it.firstName.lowercase(Locale.getDefault()) }
+        // All approved consultants (like web's GetConsultantAsync)
+        val all = allApprovedUsers.values
+            .sortedBy { it.firstName.lowercase(Locale.getDefault()) }
 
+        // Split into "unassigned" vs "assigned" for the bottom list UI only
         unassignedConsultants.clear()
         assignedConsultants.clear()
 
         all.forEach { c ->
-            if (c.uid in assignedIds) assignedConsultants += c else unassignedConsultants += c
+            if (c.uid in assignedIds) {
+                assignedConsultants += c
+            } else {
+                unassignedConsultants += c
+            }
         }
 
         unassignedAdapter.reset()
@@ -305,16 +317,23 @@ class ManageConsultantsActivity : BaseActivity() {
 
         // Empty states based on the currently visible pool
         if (showingUnassigned) {
-            toggleEmptyState(unassignedConsultants.isEmpty(), binding.rvAssignedConsultants, binding.emptyUnassignedConsultants)
+            toggleEmptyState(
+                unassignedConsultants.isEmpty(),
+                binding.rvAssignedConsultants,
+                binding.emptyUnassignedConsultants
+            )
             binding.emptyAssignedConsultants.visibility = View.GONE
         } else {
-            toggleEmptyState(assignedConsultants.isEmpty(), binding.rvAssignedConsultants, binding.emptyAssignedConsultants)
+            toggleEmptyState(
+                assignedConsultants.isEmpty(),
+                binding.rvAssignedConsultants,
+                binding.emptyAssignedConsultants
+            )
             binding.emptyUnassignedConsultants.visibility = View.GONE
         }
-
-        // For assigning on pending tasks, only unassigned pool should be available
-        assignmentAdapter.setAssignableConsultants(unassignedConsultants)
+        assignmentAdapter.setAssignableConsultants(all)
     }
+
 
     private fun assignConsultantTo(assignment: Assignment, consultant: Consultant) {
         db.collection(COL_REVIEWS).document(assignment.id)

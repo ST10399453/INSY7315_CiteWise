@@ -57,7 +57,7 @@ class TopConsultantAdapter(
         holder.tvInitials.text = initials.ifBlank { "?" }
 
         // Rating chip
-        holder.tvRatingChip.text = "⭐ ${String.format("%.1f", item.rating)}"
+        holder.tvRatingChip.text = "${String.format("%.1f", item.rating)}"
     }
 
     override fun getItemCount(): Int = items.size
