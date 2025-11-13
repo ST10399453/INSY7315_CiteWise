@@ -1,5 +1,110 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "About Us";
 }
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/AboutUs.css" asp-append-version="true" />
+}
+
+<div class="about-page">
+    <section class="about-hero">
+        <h1>About CiteWise</h1>
+        <p>
+            CiteWise is a postgraduate support platform implemented and managed by
+            <strong>Dr Majoko Projects (Pty) Ltd</strong>. We exist to close the gap
+            between students, supervisors, and quality research support.
+        </p>
+    </section>
+
+    <section class="about-grid">
+        <article class="about-card">
+            <h2>Our mission</h2>
+            <p>
+                To provide structured, accessible and high-quality research support for
+                postgraduate students, while giving institutions a clear view of progress,
+                engagement and support needs.
+            </p>
+            <ul>
+                <li>Reduce time-to-completion for Masters and PhD studies</li>
+                <li>Improve research quality and academic writing</li>
+                <li>Support supervisors through complementary feedback mechanisms</li>
+            </ul>
+        </article>
+
+        <article class="about-card">
+            <h2>How CiteWise works</h2>
+            <ol class="steps-list">
+                <li>
+                    <span class="step-number">1</span>
+                    <div>
+                        <h3>Students upload their work</h3>
+                        <p>
+                            Students submit proposals, chapters and manuscripts directly to the platform.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">2</span>
+                    <div>
+                        <h3>Consultants provide feedback</h3>
+                        <p>
+                            Experienced consultants review submissions and return structured feedback.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">3</span>
+                    <div>
+                        <h3>Admins curate resources</h3>
+                        <p>
+                            Admin users upload guides, exemplars and key policy documents for students.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">4</span>
+                    <div>
+                        <h3>Conversation stays in one place</h3>
+                        <p>
+                            Messaging between students and consultants happens in-context, attached to
+                            the relevant submission.
+                        </p>
+                    </div>
+                </li>
+            </ol>
+        </article>
+    </section>
+
+    <section class="stats-strip">
+        <div class="stat-item">
+            <span class="stat-value">3</span>
+            <span class="stat-label">Core roles</span>
+            <span class="stat-footnote">Students, Consultants, Admins</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">1</span>
+            <span class="stat-label">Central platform</span>
+            <span class="stat-footnote">Submissions, feedback & resources</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">24/7</span>
+            <span class="stat-label">Access</span>
+            <span class="stat-footnote">Cloud-based and secure</span>
+        </div>
+    </section>
+
+    <section class="about-footer-cta">
+        <div>
+            <h2>Partnering with Dr Majoko Projects (Pty) Ltd</h2>
+            <p>
+                As the implementation and support partner, Dr Majoko Projects (Pty) Ltd
+                works closely with institutions to configure CiteWise, onboard users,
+                and ensure the platform aligns with local requirements and policies.
+            </p>
+        </div>
+        <div class="footer-cta-actions">
+            <a asp-action="Services" class="cta-btn-primary">Explore our services</a>
+            <a asp-action="ContactUs" class="cta-btn-ghost">Contact the team</a>
+        </div>
+    </section>
+</div>

@@ -76,23 +76,30 @@ namespace CiteWise_Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginModel model)
         {
+            // If basic model validation fails (required fields / email format)
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
+            // Try authenticate with Firebase
             var authResponse = await _firebaseService.LoginUserAsync(model.email, model.Password);
 
+            // If Firebase returns null or no LocalId, login failed
             if (authResponse == null || string.IsNullOrEmpty(authResponse.LocalId))
             {
-                ModelState.AddModelError("", "Login failed. Check your email and password.");
+                // Model-level error -> shown in validation summary
+                ModelState.AddModelError(string.Empty, "Login failed. Check your email and password.");
                 return View(model);
             }
 
+            // Try get profile
             var profile = await _firebaseService.GetUserProfileAsync(authResponse.LocalId, authResponse.IdToken);
 
+            // If no profile, send user to role selection onboarding
             if (profile == null)
             {
                 return RedirectToAction(
@@ -102,6 +109,7 @@ namespace CiteWise_Web.Controllers
                 );
             }
 
+            // If role is missing or still pending, send to onboarding
             if (string.IsNullOrEmpty(profile.role) || profile.role == "Pending")
             {
                 return RedirectToAction(
@@ -111,10 +119,9 @@ namespace CiteWise_Web.Controllers
                 );
             }
 
-            
+            // If consultant is not yet approved
             if (profile.role == "consultant" && profile.isApproved != true)
             {
-               
                 HttpContext.Session.SetString("UserName", profile.firstName ?? "User");
                 HttpContext.Session.SetString("UserSurname", profile.surname ?? "");
                 HttpContext.Session.SetString("UserUid", profile.uid);
@@ -130,21 +137,14 @@ namespace CiteWise_Web.Controllers
             HttpContext.Session.SetString("UserRole", profile.role);
             HttpContext.Session.SetString("FirebaseToken", authResponse.IdToken);
 
-            if (profile.role == "student")
+            // Redirect based on role
+            return profile.role switch
             {
-                return RedirectToAction("StudentDashboard", "Student");
-            }
-            else if (profile.role == "consultant")
-            {
-                return RedirectToAction("ConsultantDashboard", "Consultant");
-            }
-            else if (profile.role == "admin")
-            {
-                return RedirectToAction("AdminDashboard", "Admin");
-            }
-
-            // Fallback
-            return RedirectToAction("Login");
+                "student" => RedirectToAction("StudentDashboard", "Student"),
+                "consultant" => RedirectToAction("ConsultantDashboard", "Consultant"),
+                "admin" => RedirectToAction("AdminDashboard", "Admin"),
+                _ => RedirectToAction(nameof(Login)) // Fallback
+            };
         }
 
 

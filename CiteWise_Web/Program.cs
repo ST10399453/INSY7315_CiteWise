@@ -1,3 +1,4 @@
+using CiteWise_Web.Models;
 using CiteWise_Web.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
@@ -9,6 +10,29 @@ builder.Services.AddControllersWithViews();
 
 //Add HttpClient support
 builder.Services.AddHttpClient();
+
+//builder.Services.Configure<EmailSettings>(
+//    builder.Configuration.GetSection("EmailSettings"));
+
+// ---------- EmailSettings from ENV instead of appsettings.json ----------
+builder.Services.Configure<EmailSettings>(options =>
+{
+    options.Provider = Environment.GetEnvironmentVariable("EMAIL_PROVIDER") ?? "Gmail";
+    options.SenderEmail = Environment.GetEnvironmentVariable("EMAIL_SENDER_EMAIL") ?? string.Empty;
+    options.SenderName = Environment.GetEnvironmentVariable("EMAIL_SENDER_NAME") ?? "CiteWise";
+    options.SmtpUsername = Environment.GetEnvironmentVariable("EMAIL_SMTP_USERNAME") ?? options.SenderEmail;
+    options.SmtpPassword = Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD") ?? string.Empty;
+
+    if (string.IsNullOrWhiteSpace(options.SenderEmail) ||
+        string.IsNullOrWhiteSpace(options.SmtpUsername) ||
+        string.IsNullOrWhiteSpace(options.SmtpPassword))
+    {
+        throw new InvalidOperationException(
+            "Email configuration is missing. Please set EMAIL_SENDER_EMAIL, " +
+            "EMAIL_SMTP_USERNAME and EMAIL_SMTP_PASSWORD environment variables.");
+    }
+});
+// -----------------------------------------------------------------------
 
 //Register ApiService
 builder.Services.AddScoped<ApiService>();
