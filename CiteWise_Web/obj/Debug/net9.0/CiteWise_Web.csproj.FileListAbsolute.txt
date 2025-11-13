@@ -652,3 +652,4 @@ C:\Users\ctvan\Source\Repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\comp
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\9d6q82ldb3-q7m207zaee.gz
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\i69gjstz8j-zv2yzl5u2e.gz
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\ngbieckld1-1dy5whuwat.gz
+C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\fhw82tx984-yvc2juwpto.gz

@@ -3,8 +3,33 @@
 @{
     ViewData["Title"] = "Consultant Dashboard";
     Layout = "_LayoutAuth";
+    <link rel="stylesheet" href="~/css/prioritycircles.css" />
     var selectedPriority = (string)Context.Request.Query["priority"] ?? "All";
+
+    // --- Priority stats for circles ---
+    var assigned = Model?.Assigned ?? Enumerable.Empty<CiteWise_Web.Models.ServiceRequest.RequestItem>();
+    int totalAssigned = assigned.Count();
+
+    Func<string?, string> normalize = p => (p ?? "").Trim().ToUpperInvariant();
+
+    int highCount = assigned.Count(r =>
+        normalize(r.Priority) == "HIGH" || normalize(r.Priority) == "URGENT");
+
+    int mediumCount = assigned.Count(r =>
+        normalize(r.Priority) == "MEDIUM");
+
+    int lowCount = assigned.Count(r =>
+        normalize(r.Priority) == "LOW");
+
+    int highPct = totalAssigned > 0 ? (int)Math.Round(highCount * 100.0 / totalAssigned) : 0;
+    int mediumPct = totalAssigned > 0 ? (int)Math.Round(mediumCount * 100.0 / totalAssigned) : 0;
+    int lowPct = totalAssigned > 0 ? (int)Math.Round(lowCount * 100.0 / totalAssigned) : 0;
+
+    double highDeg = highPct * 3.6;
+    double mediumDeg = mediumPct * 3.6;
+    double lowDeg = lowPct * 3.6;
 }
+
 
 <!-- Alerts -->
 @if (TempData["Message"] != null)
@@ -23,7 +48,6 @@
 
 
 <div class="dashboard-header">
-    @* <h2>Good morning, Connor</h2> *@
     <h2>Hi, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
     <br />
     <p>Here's what's happening with your tasks today.</p>
@@ -38,10 +62,10 @@
     </div>
 </div>
 
-
 <div class="dashboard-container">
     <div class="consult-grid">
 
+        <!-- Assigned list card (unchanged) -->
         <div class="dashboard-card">
             <h3 class="dashboard-heading">
                 Assigned to me (@(Model?.Assigned?.Count() ?? 0))
@@ -78,9 +102,9 @@
                                 <div class="request-content">
                                     <div class="content-left">
                                         <h3 class="request-title">@r.File?.OriginalName</h3>
-                                    <p class="submission-date">
-                                        Submitted: @(r.CreatedAt.HasValue? r.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy"): "-")
-                                    </p>
+                                        <p class="submission-date">
+                                            Submitted: @(r.CreatedAt.HasValue? r.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy") : "-")
+                                        </p>
                                         <div class="request-footer">
                                             <div class="status-group">
                                                 <span class="status-dot @(r.Status?.ToLower().Replace(" ", "-"))"></span>
@@ -99,271 +123,73 @@
             }
         </div>
 
-        <div class="dashboard-card">
-            <h3>ddkjdkj</h3>
+        <!-- NEW: Priority circles card -->
+        <div class="dashboard-card priority-progress-card">
+            <h3 class="dashboard-heading">My workload by priority</h3>
+
+            <div class="priority-progress-body">
+
+                <div class="priority-circles">
+
+                    <!-- HIGH -->
+                    <div class="priority-circle-wrapper">
+                        <div class="progress-circle urgent"
+                             style="--percent:@highPct;">
+                            <div class="progress-inner">
+                                <span class="progress-value">@highPct%</span>
+                            </div>
+                        </div>
+                        <div class="progress-label">High</div>
+                    </div>
+
+                    <!-- LOW -->
+                    <div class="priority-circle-wrapper">
+                        <div class="progress-circle low"
+                             style="--percent:@lowPct;">
+                            <div class="progress-inner">
+                                <span class="progress-value">@lowPct%</span>
+                            </div>
+                        </div>
+                        <div class="progress-label">Low</div>
+                    </div>
+
+                    <!-- MEDIUM -->
+                    <div class="priority-circle-wrapper">
+                        <div class="progress-circle medium"
+                             style="--percent:@mediumPct;">
+                            <div class="progress-inner">
+                                <span class="progress-value">@mediumPct%</span>
+                            </div>
+                        </div>
+                        <div class="progress-label">Medium</div>
+                    </div>
+
+                </div>
+
+                <div class="priority-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot urgent"></span> High priority
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot low"></span> Low priority
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot medium"></span> Medium priority
+                    </div>
+                </div>
+
             </div>
+
+          @*   <p class="priority-hint text-muted">
+                Percentages are based on @totalAssigned assigned request@(totalAssigned == 1 ? "" : "s").
+            </p> *@
+        </div>
+
+
 
 
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @*     <div class="content-right">
-            @if (!string.IsNullOrEmpty(r.File?.FileId))
-            {
-                <a asp-action="DownloadFile"
-                   asp-route-fileId="@r.File.FileId"
-                   class="btn btn-outline-primary btn-sm">
-                    Download
-                </a>
-            }
-            else
-            {
-                <span class="text-muted">No File</span>
-            }
-        </div>
-    </div>
-
-    <div class="upload-annotated mt-2">
-        <form asp-action="UploadAnnotated"
-              method="post"
-              enctype="multipart/form-data"
-              class="upload-form d-flex gap-2">
-
-            <input type="hidden" name="requestId" value="@r.Id" />
-
-            <input type="file"
-                   name="file"
-                   accept=".pdf,.doc,.docx"
-                   class="form-control form-control-sm"
-                   required />
-
-            <button type="submit" class="btn btn-primary btn-sm">
-                Upload
-            </button>
-        </form>
-    </div> *@
-
-
-
-
-
-    @*     <div class="content-right">
-            @if (!string.IsNullOrEmpty(r.File?.FileId))
-            {
-                <a asp-action="DownloadFile"
-                   asp-route-fileId="@r.File.FileId"
-                   class="btn btn-outline-primary btn-sm">
-                    Download
-                </a>
-            }
-            else
-            {
-                <span class="text-muted">No File</span>
-            }
-        </div>
-    </div>
-
-    <div class="upload-annotated mt-2">
-        <form asp-action="UploadAnnotated"
-              method="post"
-              enctype="multipart/form-data"
-              class="upload-form d-flex gap-2">
-
-            <input type="hidden" name="requestId" value="@r.Id" />
-
-            <input type="file"
-                   name="file"
-                   accept=".pdf,.doc,.docx"
-                   class="form-control form-control-sm"
-                   required />
-
-            <button type="submit" class="btn btn-primary btn-sm">
-                Upload
-            </button>
-        </form>
-    </div> *@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <!-- Overview -->
-        @* <div class="dashboard-card text-center">
-            <h3>Available Requests</h3>
-            <p><strong>@Model.Unassigned.Count</strong> unassigned requests.</p>
-            <p>Click <b>“Assign to Me”</b> to claim one.</p>
-        </div> *@
-
-        <!-- Unassigned Requests -->
-        @* <div class="dashboard-card" style="grid-column: span 2;">
-            <h3>Unassigned Service Requests</h3>
-
-            @if (!Model.Unassigned.Any())
-            {
-                <p class="text-muted">No unassigned requests at the moment.</p>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm mt-2">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Document</th>
-                                <th>Service</th>
-                                <th>Priority</th>
-                                <th>Deadline</th>
-                                <th>File</th>
-                                <th style="width:120px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var r in Model.Unassigned)
-                            {
-                                <tr>
-                                    <td>@r.DocumentName</td>
-                                    <td>@r.ServiceType</td>
-                                    <td>@r.Priority</td>
-                                    <td>@(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)</td>
-
-                                    <td>
-                                        @if (!string.IsNullOrEmpty(r.File?.FileId))
-                                        {
-                                            <a asp-action="DownloadFile"
-                                               asp-route-fileId="@r.File.FileId"
-                                               class="btn btn-outline-primary btn-sm">
-                                                Download
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">No File</span>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        <form asp-action="AssignToMe" method="post" class="assign-form">
-                                            <input type="hidden" name="id" value="@r.Id" />
-                                            <button type="submit" class="btn btn-success btn-sm">
-                                                Assign to Me
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div> *@
-
-        <!-- Assigned Requests -->
-        @* <div class="dashboard-card" style="grid-column: span 3;">
-            <h3>My Assigned Requests (@Model.Assigned.Count)</h3>
-
-            @if (!Model.Assigned.Any())
-            {
-                <p class="text-muted">You haven’t claimed any requests yet.</p>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover mt-2">
-                        <thead>
-                            <tr>
-                                <th>Document</th>
-                                <th>Service</th>
-                                <th>Status</th>
-                                <th>Deadline</th>
-                                <th>File</th>
-                                <th>Upload Annotated</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var r in Model.Assigned)
-                            {
-                                <tr>
-                                    <td>@r.DocumentName</td>
-                                    <td>@r.ServiceType</td>
-                                    <td>@r.Status</td>
-                                    <td>@(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)</td>
-
-                                    <td>
-                                        @if (!string.IsNullOrEmpty(r.File?.FileId))
-                                        {
-                                            <a asp-action="DownloadFile"
-                                               asp-route-fileId="@r.File.FileId"
-                                               class="btn btn-outline-primary btn-sm">
-                                                Download
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">No File</span>
-                                        }
-                                    </td>
-
-                                    <!-- Upload Annotated Document -->
-                                    <td>
-                                        <form asp-action="UploadAnnotated"
-                                              method="post"
-                                              enctype="multipart/form-data"
-                                              class="upload-form">
-
-                                            <input type="hidden" name="requestId" value="@r.Id" />
-
-                                            <input type="file"
-                                                   name="file"
-                                                   accept=".pdf,.doc,.docx"
-                                                   class="form-control form-control-sm mb-2"
-                                                   required />
-
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                Upload
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div> *@
-
-@*     </div>
-</div> *@
 
 @section Scripts {
     <script>
@@ -379,6 +205,7 @@
         document.querySelectorAll('.assign-form').forEach(form => {
             form.addEventListener('submit', () => {
                 const btn = form.querySelector('button');
+                if (!btn) return;
                 btn.disabled = true;
                 btn.innerText = "Assigning...";
             });
@@ -388,9 +215,154 @@
         document.querySelectorAll('.upload-form').forEach(form => {
             form.addEventListener('submit', () => {
                 const btn = form.querySelector('button');
+                if (!btn) return;
                 btn.disabled = true;
                 btn.innerText = "Uploading...";
             });
         });
+
+        // Animate priority circles
+        document.addEventListener('DOMContentLoaded', function () {
+            const circles = document.querySelectorAll('.progress-circle');
+            circles.forEach(circle => {
+                // start from 0deg then transition to target deg
+                circle.style.setProperty('--start-deg', '0deg');
+                // trigger reflow then add class so transition kicks in
+                requestAnimationFrame(() => {
+                    circle.classList.add('fill');
+                });
+            });
+        });
     </script>
 }
+
+<style>
+    /* ===== Priority circles styles ===== */
+
+    .priority-progress-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .priority-progress-body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-top: 0.75rem;
+    }
+
+    .priority-circles {
+        display: flex;
+        gap: 1.75rem;
+    }
+
+    .priority-circle-wrapper {
+        text-align: center;
+    }
+
+    .progress-circle {
+        --ring-color: #2563eb;
+        --deg: 0deg;
+        width: 92px;
+        height: 92px;
+        border-radius: 999px;
+        padding: 4px;
+        background: conic-gradient(var(--ring-color) 0deg, #e5e7eb 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        transition: background 1.1s ease-out;
+    }
+
+        .progress-circle::before {
+            content: "";
+            position: absolute;
+            inset: 6px;
+            border-radius: 999px;
+            background: #f9fafb;
+            box-shadow: inset 0 2px 4px rgba(148, 163, 184, 0.4);
+        }
+
+        .progress-circle .progress-inner {
+            position: relative;
+            z-index: 1;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .progress-circle .progress-value {
+            color: var(--ring-color);
+        }
+
+        .progress-circle.fill {
+            background: conic-gradient(var(--ring-color) var(--deg), #e5e7eb 0deg);
+        }
+
+    .progress-label {
+        margin-top: 0.4rem;
+        font-size: 0.82rem;
+        color: #4b5563;
+        font-weight: 600;
+    }
+
+    .priority-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: #4b5563;
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 6px;
+        border-radius: 999px;
+        background: #d1d5db;
+    }
+
+        .legend-dot.urgent {
+            background: #f97373;
+        }
+
+        .legend-dot.low {
+            background: #4ade80;
+        }
+
+        .legend-dot.medium {
+            background: #facc6b;
+        }
+
+    .progress-circle.urgent {
+        --ring-color: #f97373;
+    }
+
+    .progress-circle.low {
+        --ring-color: #4ade80;
+    }
+
+    .progress-circle.medium {
+        --ring-color: #facc6b;
+    }
+
+    .priority-hint {
+        margin-top: 0.75rem;
+        font-size: 0.78rem;
+    }
+
+    @@media (max-width: 900px) {
+        .priority-progress-body {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
