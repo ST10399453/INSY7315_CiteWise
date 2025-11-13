@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Empty stars -->
+    <item android:id="@android:id/background"
+        android:drawable="@drawable/rating_star_selector" />
+
+    <!-- Partial stars (optional, used for half ratings) -->
+    <item android:id="@android:id/secondaryProgress"
+        android:drawable="@drawable/rating_star_selector" />
+
+    <!-- Filled stars -->
+    <item android:id="@android:id/progress"
+        android:drawable="@drawable/rating_star_selector" />
+
+</layer-list>

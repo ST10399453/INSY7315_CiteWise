@@ -83,6 +83,9 @@ interface ServiceReviewsApi {
         @Part file: MultipartBody.Part,
         @Part("status") status: RequestBody? = null
     ): Response<ServiceRequestDto>
+
+    @GET("/requests/{id}/feedback/download")
+    suspend fun getFeedbackDownloadUrl(@Path("id") id: String): Response<SignedUrlDto>
 }
 
 /* ---------- Supporting DTOs (add if not present) ---------- */

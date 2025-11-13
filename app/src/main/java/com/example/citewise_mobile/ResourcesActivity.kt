@@ -36,7 +36,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import java.io.File
 import java.io.InputStream
-import java.net.HttpURLConnection
 
 class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
 
@@ -264,65 +263,40 @@ class ResourcesActivity : BaseActivity(), AddResourceBottom.Callback {
     }
 
     private fun openResource(res: ResourceEntity) {
-        val docId = res.documentId
-        val displayName = res.title.ifBlank { res.fileName ?: "file" }
-        if (docId.isNullOrBlank()) {
-            snack("No document is linked to this resource yet.")
-            return
-        }
-        downloadByDocumentId(docId, displayName)
-    }
+        val resourceId = res.remoteId
+        val fileName = res.fileName ?: res.title
 
-    // ─────────────────── Download helpers ───────────────────
-    private fun downloadByDocumentId(documentId: String, fileName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val auth = authHeaderOrNull()
-                if (auth == null) {
-                    withContext(Dispatchers.Main) { snack("Not signed in.") }
-                    return@launch
-                }
+                val api = RetrofitInstance.resourcesApi
 
-                // 1) Prefer a signed URL
-                when (val urlRes = docsRepo.getSignedUrl(documentId = documentId, auth = auth)) {
-                    is com.example.citewise_mobile.data.NetResult.Ok -> {
-                        withContext(Dispatchers.Main) {
-                            enqueueDownload(urlRes.data, fileName)
-                            snackShort("Downloading…")
-                        }
-                        return@launch
-                    }
-                    is com.example.citewise_mobile.data.NetResult.Err -> {
-                        // fall through to streaming
-                    }
-                }
-
-                // 2) Fallback streaming
-                val streamResp = RetrofitInstance.documentsApi.streamFile(
-                    documentId = documentId,
-                    provider = null,
-                    disposition = "attachment",
-                    auth = auth
+                // 1) try to fetch signed download URL
+                val urlDto = api.getResourceDownloadUrl(
+                    id = resourceId,
+                    disposition = "attachment"
                 )
-                if (streamResp.isSuccessful && streamResp.body() != null) {
-                    val file = saveToAppDownloads(streamResp.body()!!, fileName)
-                    withContext(Dispatchers.Main) { snackShort("Saved to ${file.absolutePath}") }
-                    return@launch
+
+                withContext(Dispatchers.Main) {
+                    enqueueDownload(urlDto.url, fileName)
+                    snackShort("Downloading…")
                 }
 
-                val code = streamResp.code()
-                withContext(Dispatchers.Main) {
-                    when (code) {
-                        HttpURLConnection.HTTP_FORBIDDEN,
-                        HttpURLConnection.HTTP_UNAUTHORIZED ->
-                            snack("You don’t have permission to download this file (code $code).")
-                        HttpURLConnection.HTTP_NOT_FOUND ->
-                            snack("File not found (code $code).")
-                        else -> snack("Download failed${if (code > 0) " (code $code)" else ""}.")
+            } catch (e: Exception) {
+                // 2) fallback to streaming
+                val resp = RetrofitInstance.resourcesApi.streamResourceFile(resourceId)
+                if (resp.isSuccessful) {
+                    val body = resp.body()
+                    if (body != null) {
+                        val saved = saveToAppDownloads(body, fileName)
+                        withContext(Dispatchers.Main) {
+                            snackShort("Saved to ${saved.absolutePath}")
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        snack("Download failed (${resp.code()})")
                     }
                 }
-            } catch (t: Throwable) {
-                withContext(Dispatchers.Main) { snack("Download failed: ${t.message}") }
             }
         }
     }

@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/rootCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ui_background"
@@ -88,7 +88,7 @@
                         android:singleLine="true"
                         android:textColor="@color/text_dark"
                         android:background="@drawable/outline_edittext"
-                        android:textColorHint="@color/text_faded"
+                        android:textColorHint="@color/text_dark"
                         android:fontFamily="@font/poppins"
                         android:textSize="14sp"
                         android:contentDescription="Search resources"/>
@@ -134,7 +134,7 @@
                             android:paddingStart="16dp"
                             android:paddingEnd="16dp"
                             android:textColor="@color/text_dark"
-                            android:textColorHint="@color/text_faded"/>
+                            android:textColorHint="@color/text_dark"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Faculty -->
@@ -170,7 +170,7 @@
                             android:paddingStart="16dp"
                             android:paddingEnd="16dp"
                             android:textColor="@color/text_dark"
-                            android:textColorHint="@color/text_faded"/>
+                            android:textColorHint="@color/text_dark"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Sort -->

@@ -1,8 +1,12 @@
 package com.example.citewise_mobile.data
 
+import android.content.Context
 import com.example.citewise_mobile.api.ResourceDto
 import com.example.citewise_mobile.api.ResourcesApi
 import java.io.File
+import java.io.FileOutputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -13,7 +17,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * Repository wrapper for Resources API with NetResult safety.
  */
 class ResourcesRepository(
-    private val api: ResourcesApi
+    private val api: ResourcesApi,
+    private val appContext: Context
 ) {
 
     suspend fun createResourceMultipart(
@@ -66,6 +71,48 @@ class ResourcesRepository(
     suspend fun deleteResource(id: String, auth: String, strict: Boolean = false): NetResult<Unit> =
         safeCall { api.deleteResource(id, auth, strict) }
 
+    /**
+     * NEW: Download a resource file to disk using /resources/:id/file
+     * and return the File wrapped in NetResult.
+     */
+    suspend fun downloadResourceToDisk(
+        id: String,
+        preferredName: String
+    ): NetResult<File> = withContext(Dispatchers.IO) {
+        try {
+            val resp = api.streamResourceFile(id, disposition = "attachment")
+            if (!resp.isSuccessful) {
+                return@withContext NetResult.Err(
+                    message = resp.errorBody()?.string()
+                        ?.takeUnless { it.isNullOrBlank() }
+                        ?: "HTTP ${resp.code()}",
+                    code = resp.code()
+                )
+            }
+
+            val body = resp.body()
+                ?: return@withContext NetResult.Err("Empty body from server", resp.code())
+
+            val safeName = preferredName
+                .ifBlank { "resource_$id.bin" }
+                .replace(Regex("""[\\/:*?"<>|]"""), "_")
+
+            val outFile = File(appContext.filesDir, safeName)
+
+            body.use { b ->
+                FileOutputStream(outFile).use { out ->
+                    b.byteStream().copyTo(out)
+                }
+            }
+
+            NetResult.Ok(outFile)
+        } catch (t: Throwable) {
+            NetResult.Err(t.message ?: "Download error", null)
+        }
+    }
+
+    // ---------- helpers ----------
+
     private fun String.toPlainPart(): RequestBody =
         this.toRequestBody("text/plain".toMediaTypeOrNull())
 
@@ -75,9 +122,14 @@ class ResourcesRepository(
             if (resp.isSuccessful) {
                 NetResult.Ok(resp.body() as T)
             } else {
-                NetResult.Err(resp.errorBody()?.string() ?: "HTTP ${resp.code()},resp.code() }")
+                NetResult.Err(
+                    message = resp.errorBody()?.string()
+                        ?.takeUnless { it.isNullOrBlank() }
+                        ?: "HTTP ${resp.code()}",
+                    code = resp.code()
+                )
             }
         } catch (t: Throwable) {
-            NetResult.Err(t.message ?: "Network error",null )
+            NetResult.Err(t.message ?: "Network error", null)
         }
 }

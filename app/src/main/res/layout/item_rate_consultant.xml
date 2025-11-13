@@ -40,7 +40,14 @@
             android:layout_height="wrap_content"
             android:numStars="5"
             android:stepSize="1.0"
-            android:isIndicator="false" />
+            android:isIndicator="false"
+            android:progressDrawable="@drawable/ratingbar_custom"
+            android:layout_marginTop="8dp"
+            android:foregroundTint="@color/gradient_end"
+            android:secondaryProgressTint="@color/gradient_end"
+            android:progressTint="@color/gradient_end"
+            />
+
 
 
     </LinearLayout>

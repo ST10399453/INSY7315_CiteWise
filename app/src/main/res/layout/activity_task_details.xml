@@ -267,6 +267,7 @@
                         android:textSize="14sp"
                         android:fontFamily="@font/poppins_medium" />
 
+                    <!-- Hidden view button for feedback -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewFeedbackFile"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -280,7 +281,8 @@
                         app:icon="@drawable/ic_eye"
                         app:iconTint="@color/text_dark"
                         app:iconSize="18dp"
-                        android:contentDescription="View" />
+                        android:contentDescription="View"
+                        android:visibility="gone" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDownloadFeedbackFile"
@@ -423,7 +425,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== Quote (Student-side) ===== -->
+        <!-- ===== Quote (Student-side + Download Pdf inside card) ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -448,7 +450,7 @@
                     android:textColor="@color/text_faded"
                     android:fontFamily="@font/poppins_medium" />
 
-                <!-- NEW: quote amount + words shown here -->
+                <!-- Quote amount or "No quotation available" is set in code -->
                 <TextView
                     android:id="@+id/tvQuoteSummary"
                     android:layout_width="match_parent"
@@ -461,6 +463,7 @@
                     android:layout_marginTop="8dp"
                     android:visibility="gone"/>
 
+                <!-- Student actions -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -499,24 +502,34 @@
                         app:iconTint="@color/gradient_middle"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />
+                </LinearLayout>
+
+                <!-- Consultant-only: Download Pdf inside quote card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:layout_marginTop="8dp">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRequestReview"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:id="@+id/btnDownloadPdf"
+                        style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:text="Query"
+                        android:minWidth="48dp"
+                        android:paddingHorizontal="16dp"
+                        android:text="Download Pdf"
                         android:textSize="10dp"
                         android:textAllCaps="false"
-                        android:textColor="@color/gradient_middle"
-                        app:strokeColor="@color/gradient_middle"
-                        app:strokeWidth="1dp"
-                        app:icon="@drawable/ic_edit"
-                        app:iconTint="@color/gradient_middle"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="@color/gradient_middle"
+                        app:cornerRadius="18dp"
+                        app:icon="@drawable/ic_download"
+                        app:iconTint="@android:color/white"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp" />
                 </LinearLayout>
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -659,14 +672,16 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ===== Consultant-only: Footer actions ===== -->
+        <!-- ===== Consultant-only: Footer actions (Revise / Send) ===== -->
         <LinearLayout
+            android:id="@+id/consultantFooterActions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
 
             <Button
                 android:id="@+id/btnRevise"
@@ -686,17 +701,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Send to student"
-                android:textColor="@color/text_light"
-                android:textAllCaps="true"
-                android:backgroundTint="@color/gradient_end"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/btnDownloadPdf"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Download Pdf"
                 android:textColor="@color/text_light"
                 android:textAllCaps="true"
                 android:backgroundTint="@color/gradient_end" />

@@ -406,7 +406,8 @@ class ResourcesSyncWorker(
     private val local by lazy { LocalRepos(applicationContext) }
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val fs   by lazy { FirebaseFirestore.getInstance() }
-    private val repo by lazy { ResourcesRepository(RetrofitInstance.resourcesApi) }
+    private val repo by lazy { ResourcesRepository(RetrofitInstance.resourcesApi, applicationContext) }
+
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
@@ -463,17 +464,23 @@ class ResourcesSyncWorker(
                                     is NetResult.Ok -> {
                                         val dto = result.data
 
+                                        // delete staged file once successfully uploaded
                                         runCatching { if (stagedFile.exists()) stagedFile.delete() }
 
+                                        // Use the resource id from the backend as our documentId for offline downloads
+                                        val docId = dto.id ?: res.documentId
+
+                                        // 1) Update the local Room row, including documentId
                                         local.resources.update(
                                             res.copy(
-                                                remoteId  = dto.id,
-                                                syncState = SyncState.SYNCED,
-                                                updatedAt = System.currentTimeMillis()
+                                                remoteId   = dto.id,
+                                                documentId = docId, // <-- THIS FIXES documentId being null
+                                                syncState  = SyncState.SYNCED,
+                                                updatedAt  = System.currentTimeMillis()
                                             )
                                         )
 
-                                        // Mirror to Firestore (optional)
+                                        // 2) Mirror to Firestore with the same documentId
                                         val fsId = dto.id ?: res.remoteId ?: res.localId.toString()
                                         val payload = hashMapOf(
                                             "id"          to fsId,
@@ -481,7 +488,7 @@ class ResourcesSyncWorker(
                                             "description" to (desc ?: ""),
                                             "category"    to (category ?: "AI_USAGE"),
                                             "faculty"     to faculty,
-                                            "documentId"  to (res.documentId ?: ""),
+                                            "documentId"  to (docId ?: ""), // <-- use the same docId we just computed
                                             "fileName"    to (res.fileName ?: stagedFile.name),
                                             "adminUid"    to (res.adminUid ?: auth.currentUser?.uid.orEmpty()),
                                             "createdAt"   to res.createdAt,
@@ -493,11 +500,15 @@ class ResourcesSyncWorker(
                                                 .set(payload, SetOptions.merge())
                                         }
 
-                                        if (!res.documentId.isNullOrBlank()) {
+                                        // 3) Kick off document download worker if we have a documentId now
+                                        if (!docId.isNullOrBlank()) {
                                             DocumentsSyncWorker.oneShot(applicationContext)
                                         }
 
-                                        Log.d(TAG, "Uploaded resource localId=${res.localId} -> remoteId=${dto.id}")
+                                        Log.d(
+                                            TAG,
+                                            "Uploaded resource localId=${res.localId} -> remoteId=${dto.id}, documentId=$docId"
+                                        )
                                         true
                                     }
                                     is NetResult.Err -> {
@@ -663,7 +674,16 @@ class DocumentsSyncWorker(
     private val TAG = "DocumentsSyncWorker"
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val local by lazy { LocalRepos(applicationContext) }
-    private val docsRepo by lazy { DocumentsRepository(RetrofitInstance.documentsApi, applicationContext) }
+
+    // Existing documents repo (for "real" documents API)
+    private val docsRepo by lazy {
+        DocumentsRepository(RetrofitInstance.documentsApi, applicationContext)
+    }
+
+    // New: resources repo with download helper we just added
+    private val resourcesRepo by lazy {
+        ResourcesRepository(RetrofitInstance.resourcesApi, applicationContext)
+    }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         if (!Net.isOnline(applicationContext)) return@withContext Result.retry()
@@ -671,41 +691,58 @@ class DocumentsSyncWorker(
 
         val requestDocs  = local.requests.allWithDocumentId()
         val resourceDocs = local.resources.allWithDocumentId()
-        val docIdToPreferredName = linkedMapOf<String, String>()
 
+        val docIdToPreferredName = linkedMapOf<String, String>()
+        val requestDocIds = mutableSetOf<String>()
+        val resourceDocIds = mutableSetOf<String>()
+
+        // Build names + remember which docId came from where
         requestDocs.forEach { sr ->
             sr.documentId?.let { docId ->
                 val name = (sr.documentName).ifBlank { "document_$docId" }
                 docIdToPreferredName.putIfAbsent(docId, name)
+                requestDocIds += docId
             }
         }
         resourceDocs.forEach { res ->
             res.documentId?.let { docId ->
                 val name = (res.fileName ?: "").ifBlank { "resource_$docId" }
                 docIdToPreferredName.putIfAbsent(docId, name)
+                resourceDocIds += docId
             }
         }
 
         if (docIdToPreferredName.isEmpty()) return@withContext Result.success()
 
         for ((docId, preferredName) in docIdToPreferredName) {
+            // Skip if already cached locally
             val existingDoc = local.documents.getById(docId)
             if (existingDoc?.localPath?.let { File(it).exists() } == true) continue
 
-            when (val dl = docsRepo.downloadToDisk(docId, preferredName)) {
+            val isResourceDoc = resourceDocIds.contains(docId)
+
+            val dl = if (isResourceDoc) {
+                // 🔹 NEW: resource docs use /resources/:id/file
+                resourcesRepo.downloadResourceToDisk(docId, preferredName)
+            } else {
+                // existing behavior for /documents/:id/...
+                docsRepo.downloadToDisk(docId, preferredName)
+            }
+
+            when (dl) {
                 is NetResult.Ok -> {
                     val file = dl.data
                     val upsert = DocumentEntity(
-                        id = docId,
-                        ownerUid = uid,
-                        fileName = preferredName,
-                        mimeType = guessMime(preferredName),
-                        sizeBytes = file.length(),
-                        updatedAt = System.currentTimeMillis(),
-                        etag = null,
+                        id            = docId,
+                        ownerUid      = uid,
+                        fileName      = preferredName,
+                        mimeType      = guessMime(preferredName),
+                        sizeBytes     = file.length(),
+                        updatedAt     = System.currentTimeMillis(),
+                        etag          = null,
                         remoteUrlHint = null,
-                        localPath = file.absolutePath,
-                        downloadedAt = System.currentTimeMillis()
+                        localPath     = file.absolutePath,
+                        downloadedAt  = System.currentTimeMillis()
                     )
                     local.documents.upsertAll(listOf(upsert))
                 }

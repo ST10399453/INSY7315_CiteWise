@@ -64,9 +64,6 @@ class DocumentsRepository(
             return@withContext saveBodyToFile(streamTry.body()!!, documentId, preferredName)
         }
 
-        // ❗️CHANGED: do NOT bail out on non-404 – we just fall back to signed URL
-        // (You can log streamTry.code() here if you want)
-        // ------------------------------------------------------------
         // 2) Get signed URL
         val signed = runCatching {
             api.signedUrl(
@@ -93,6 +90,28 @@ class DocumentsRepository(
             return@withContext saveBodyToFile(body, documentId, preferredName)
         }
     }
+
+    /** Download a file using a fully qualified signed URL (direct download). */
+    suspend fun downloadFromUrlToDisk(
+        url: String,
+        preferredName: String
+    ): NetResult<File> = withContext(Dispatchers.IO) {
+        val safeName = preferredName
+            .replace(Regex("""[\\/:*?"<>|]"""), "_")
+            .ifBlank { "download.bin" }
+
+        val req = Request.Builder().url(url).get().build()
+        val resp = runCatching { rawHttp.newCall(req).execute() }
+            .getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Direct download failed") }
+
+        resp.use { r ->
+            if (!r.isSuccessful) return@withContext NetResult.Err("HTTP ${r.code}", r.code)
+            val body = r.body ?: return@withContext NetResult.Err("Empty body")
+
+            return@withContext saveBodyToFile(body, safeName, safeName)
+        }
+    }
+
 
     // -------- Fallback via /download + raw GET --------
 
@@ -157,26 +176,30 @@ class DocumentsRepository(
 
     // -------- Internal helpers --------
 
+    /** Save ResponseBody to disk. Works for both docId-based and URL-based downloads. */
     private fun saveBodyToFile(
         body: ResponseBody,
-        documentId: String,
+        fileName: String,
         preferredName: String?
-    ): NetResult<File> = try {
-        val safeName = preferredName
-            ?.takeIf { it.isNotBlank() }
-            ?.replace(Regex("""[\\/:*?"<>|]"""), "_")
-            ?: "$documentId.bin"
+    ): NetResult<File> {
+        return try {
+            val safeName = preferredName
+                ?.replace(Regex("""[\\/:*?"<>|]"""), "_")
+                ?.ifBlank { fileName }
+                ?: fileName
 
-        val base = ctx.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS)
-            ?: ctx.filesDir
-        val dir = File(base, "CiteWise").apply { if (!exists()) mkdirs() }
+            val base = ctx.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS)
+                ?: ctx.filesDir
+            val dir = File(base, "CiteWise").apply { if (!exists()) mkdirs() }
 
-        val target = File(dir, safeName)
-        body.byteStream().use { input ->
-            target.outputStream().use { output -> input.copyTo(output) }
+            val target = File(dir, safeName)
+            body.byteStream().use { input ->
+                target.outputStream().use { output -> input.copyTo(output) }
+            }
+            NetResult.Ok(target)
+        } catch (t: Throwable) {
+            NetResult.Err(t.message ?: "Save failed")
         }
-        NetResult.Ok(target)
-    } catch (t: Throwable) {
-        NetResult.Err(t.message ?: "Save failed")
     }
+
 }

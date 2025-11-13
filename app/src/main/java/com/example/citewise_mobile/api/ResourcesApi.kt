@@ -4,6 +4,7 @@ import com.example.citewise_mobile.offline.ResourceEntity
 import com.example.citewise_mobile.offline.SyncState
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -96,4 +97,19 @@ interface ResourcesApi {
         @Header("Authorization") auth: String,
         @Query("strict") strict: Boolean = false
     ): Response<Unit>
+
+    @GET("resources/{id}/download")
+    suspend fun getResourceDownloadUrl(
+        @Path("id") id: String?,
+        @Query("disposition") disposition: String = "attachment",
+        @Query("expires") expires: Int = 900
+    ): SignedUrlDto
+
+    @Streaming
+    @GET("resources/{id}/file")
+    suspend fun streamResourceFile(
+        @Path("id") id: String?,
+        @Query("disposition") disposition: String = "attachment"
+    ): Response<ResponseBody>
+
 }

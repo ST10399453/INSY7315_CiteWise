@@ -4,45 +4,70 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="6dp"
     app:cardUseCompatPadding="true"
-    app:cardCornerRadius="18dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
     app:strokeColor="@android:color/transparent"
     app:cardBackgroundColor="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:background="@drawable/card_neumorphic_background"
-        android:orientation="vertical">
+        android:padding="10dp">
 
-        <!-- Cover / file icon area -->
+        <!-- Thumbnail box -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:padding="12dp">
+            android:layout_height="90dp"
+            android:gravity="center">
 
+            <!-- Main thumbnail -->
             <ImageView
                 android:id="@+id/imgCover"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:background="@drawable/btn_login"
-                android:contentDescription="Cover"/>
+                android:contentDescription="Thumbnail"
+                android:clipToOutline="true"
+                android:outlineProvider="background"/>
 
-            <!-- (Optional) little badge could be added here if you want -->
+            <!-- File-type icon (PDF) -->
+            <ImageView
+                android:id="@+id/iconPdf"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_pdf"
+                app:tint="@android:color/holo_red_light"
+                android:alpha="0.9" />
+
+            <!-- Hidden tag (still usable if needed) -->
+            <TextView
+                android:id="@+id/tvFileType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="4dp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="PDF"
+                android:textSize="10sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/badge_background"
+                android:visibility="gone"/>
         </FrameLayout>
 
-        <!-- Meta row -->
+        <!-- Title + menu -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="12dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingTop="8dp">
 
             <TextView
                 android:id="@+id/tvDocName"
@@ -53,17 +78,19 @@
                 android:ellipsize="end"
                 android:text="Document name.pdf"
                 android:textColor="@color/text_dark"
-                android:textSize="14sp"
-                android:fontFamily="@font/poppins_medium"/>
+                android:textSize="13sp"
+                android:fontFamily="@font/poppins"/>
 
             <ImageButton
                 android:id="@+id/btnOverflow"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Menu"
-                android:src="@drawable/ic_overflow"/>
+                android:contentDescription="More options"
+                android:src="@drawable/ic_overflow"
+                app:tint="@color/text_dark"/>
         </LinearLayout>
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

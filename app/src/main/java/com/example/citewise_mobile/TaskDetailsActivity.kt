@@ -4,6 +4,8 @@ import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.*
+import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -32,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.net.URLConnection
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -75,14 +78,13 @@ class TaskDetailsActivity :
     private lateinit var btnDownloadStudentFile: MaterialButton
     private lateinit var btnDownloadFeedbackFile: MaterialButton
     private lateinit var btnViewStudentFile: MaterialButton
-    private lateinit var btnViewFeedbackFile: MaterialButton
     private lateinit var tvDescription: TextView
 
     // ---- Quote UI ----
     private lateinit var tvQuoteSummary: TextView
     private lateinit var btnAcceptQuote: MaterialButton
     private lateinit var btnDeclineQuote: MaterialButton
-    private lateinit var btnRequestReview: MaterialButton
+    private lateinit var btnDownloadPdf: Button
 
     // ---- Student: consultant card ----
     private lateinit var consultantCard: View
@@ -97,9 +99,9 @@ class TaskDetailsActivity :
     private lateinit var btnUploadFeedback: View
     private lateinit var btnRevise: Button
     private lateinit var btnSendToStudent: Button
-    private lateinit var btnDownloadPdf: Button
     private lateinit var btnConsultantPreview: MaterialButton
     private lateinit var btnConsultantDownload: MaterialButton
+    private lateinit var consultantFooterActions: View
 
     private var currentReq: ServiceRequestDto? = null
 
@@ -150,14 +152,13 @@ class TaskDetailsActivity :
         btnDownloadStudentFile = findViewById(R.id.btnDownloadStudentFile)
         btnDownloadFeedbackFile = findViewById(R.id.btnDownloadFeedbackFile)
         btnViewStudentFile = findViewById(R.id.btnViewStudentFile)
-        btnViewFeedbackFile = findViewById(R.id.btnViewFeedbackFile)
         tvDescription = findViewById(R.id.tvDescription)
 
         // Quote widgets
         tvQuoteSummary = findViewById(R.id.tvQuoteSummary)
         btnAcceptQuote = findViewById(R.id.btnAcceptQuote)
         btnDeclineQuote = findViewById(R.id.btnDeclineQuote)
-        btnRequestReview = findViewById(R.id.btnRequestReview)
+        btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
 
         // Consultant card (student-facing)
         consultantCard = findViewById(R.id.consultantCardRoot)
@@ -172,32 +173,39 @@ class TaskDetailsActivity :
         btnUploadFeedback = findViewById(R.id.btnUploadFeedback)
         btnRevise = findViewById(R.id.btnRevise)
         btnSendToStudent = findViewById(R.id.btnSendToStudent)
-        btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
         btnConsultantPreview = findViewById(R.id.btnConsultantPreview)
         btnConsultantDownload = findViewById(R.id.btnConsultantDownload)
+        consultantFooterActions = findViewById(R.id.consultantFooterActions)
 
         // Consultant: preview/download original + open bottom sheet
         cardQualitativeStudy.setOnClickListener { handleOpenFile() }
 
+        // Consultant VIEW → open in DocumentViewerActivity (annotate enabled)
         btnConsultantPreview.setOnClickListener {
-            val req = currentReq ?: return@setOnClickListener
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
             val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
-            val fileName = req.originalFileName ?: req.customName ?: "${docId}.bin"
+
+            val rawName = req.originalFileName ?: req.customName ?: "Student File"
+            val fileName = ensurePdfExtension(rawName)
+
             downloadAndOpenInApp(docId, fileName)
         }
 
+        // Consultant DOWNLOAD → system DownloadManager (no internal fallback)
         btnConsultantDownload.setOnClickListener {
-            val req = currentReq ?: return@setOnClickListener
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
             val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
-            val fileName = req.originalFileName ?: req.customName ?: "Student File"
+
+            val rawName = req.originalFileName ?: req.customName ?: "Student File"
+            val fileName = ensurePdfExtension(rawName)
+
             lifecycleScope.launch(Dispatchers.IO) {
                 when (val s = docsRepo.getSignedUrl(docId)) {
-                    is NetResult.Ok -> withContext(Dispatchers.Main) { enqueueSystemDownload(s.data, fileName) }
+                    is NetResult.Ok -> withContext(Dispatchers.Main) {
+                        enqueueSystemDownload(s.data, fileName)
+                    }
                     is NetResult.Err -> withContext(Dispatchers.Main) {
-                        when (val saved = docsRepo.downloadToDisk(docId, fileName)) {
-                            is NetResult.Ok -> toast("Saved to ${saved.data.absolutePath}")
-                            is NetResult.Err -> toast("Download failed: ${saved.message}")
-                        }
+                        toast("Unable to download file: ${s.message}")
                     }
                 }
             }
@@ -212,41 +220,81 @@ class TaskDetailsActivity :
 
         btnRevise.setOnClickListener { toast("Opening revision tools…") }
         btnSendToStudent.setOnClickListener { toast("Status updated and sent to student.") }
-        btnDownloadPdf.setOnClickListener { toast("Downloading Quote PDF…") }
 
-        // Student file actions
-        btnViewStudentFile.setOnClickListener {
-            val req = currentReq ?: return@setOnClickListener
-            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
-            val fileName = req.customName ?: req.originalFileName ?: "Student File"
-            downloadAndOpenInApp(docId, fileName)
-        }
-        btnDownloadStudentFile.setOnClickListener {
-            val req = currentReq ?: return@setOnClickListener
-            val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
-            val fileName = req.customName ?: req.originalFileName ?: "Student File"
+        // Generate + view Quote PDF (with logo + table)
+        btnDownloadPdf.setOnClickListener {
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
+            if (req.quotationId == null) {
+                toast("No quotation available.")
+                return@setOnClickListener
+            }
+
             lifecycleScope.launch(Dispatchers.IO) {
-                when (val s = docsRepo.getSignedUrl(docId)) {
-                    is NetResult.Ok -> withContext(Dispatchers.Main) { enqueueSystemDownload(s.data, fileName) }
-                    is NetResult.Err -> withContext(Dispatchers.Main) {
-                        when (val saved = docsRepo.downloadToDisk(docId, fileName)) {
-                            is NetResult.Ok -> toast("Saved to ${saved.data.absolutePath}")
-                            is NetResult.Err -> toast("Download failed: ${saved.message}")
-                        }
+                try {
+                    val file = generateQuotePdf(req)
+                    withContext(Dispatchers.Main) {
+                        openFile(file)
+                    }
+                } catch (t: Throwable) {
+                    withContext(Dispatchers.Main) {
+                        toast("Failed to generate PDF: ${t.message}")
                     }
                 }
             }
         }
 
-        // Feedback file actions (student)
-        btnViewFeedbackFile.setOnClickListener {
-            val url = currentReq?.feedbackFileUrl
-            if (url.isNullOrBlank()) toast("No feedback file yet.") else openUrl(url)
-        }
+        // ---------------- Download feedback (system) ----------------
         btnDownloadFeedbackFile.setOnClickListener {
-            val url = currentReq?.feedbackFileUrl
-            val name = currentReq?.feedbackFileName ?: "Feedback"
-            if (url.isNullOrBlank()) toast("No feedback file yet.") else enqueueSystemDownload(url, name)
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
+            val requestId = req.id ?: return@setOnClickListener toast("Request ID missing.")
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val response = RetrofitInstance.api.getFeedbackDownloadUrl(requestId)
+
+                if (response.isSuccessful && response.body()?.url != null) {
+                    val signedUrl = response.body()!!.url
+                    val filename = req.feedbackFileName ?: "Feedback File"
+
+                    withContext(Dispatchers.Main) {
+                        enqueueSystemDownload(signedUrl, filename)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        toast("Unable to download feedback file.")
+                    }
+                }
+            }
+        }
+
+        // ---------------- Student file actions (system download only) ----------------
+        btnDownloadStudentFile.setOnClickListener {
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
+            val docId = req.documentId ?: return@setOnClickListener toast("Document not available.")
+
+            val rawName = req.originalFileName ?: req.customName ?: "Student File"
+            val fileName = ensurePdfExtension(rawName)
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                when (val s = docsRepo.getSignedUrl(docId)) {
+                    is NetResult.Ok -> withContext(Dispatchers.Main) {
+                        enqueueSystemDownload(s.data, fileName)
+                    }
+                    is NetResult.Err -> withContext(Dispatchers.Main) {
+                        toast("Unable to download file: ${s.message}")
+                    }
+                }
+            }
+        }
+
+        // Student VIEW → open in DocumentViewerActivity (read-only)
+        btnViewStudentFile.setOnClickListener {
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
+            val docId = req.documentId ?: return@setOnClickListener toast("Document not available.")
+
+            val rawName = req.originalFileName ?: req.customName ?: "Student File"
+            val fileName = ensurePdfExtension(rawName)
+
+            downloadAndOpenInApp(docId, fileName)
         }
 
         // Quote actions (student) — endpoints TBD server-side
@@ -255,9 +303,6 @@ class TaskDetailsActivity :
         }
         btnDeclineQuote.setOnClickListener {
             toast("Decline tapped. (Hook to /quotes/{id}/decline when available.)")
-        }
-        btnRequestReview.setOnClickListener {
-            toast("Query tapped. (Open chat or feedback dialog.)")
         }
 
         // Chat
@@ -277,7 +322,8 @@ class TaskDetailsActivity :
         val deadlineFromRemote = req.deadline.toUiDate()
         tvDeadline.text = deadlineFromRemote
         val displayFileName = req.customName ?: req.originalFileName ?: "Student File"
-        tvStudentAndDeadline.text = "$displayFileName     $deadlineFromRemote"
+        val student = req.studentName ?: "Student"
+        tvStudentAndDeadline.text = "$student"
 
         lifecycleScope.launch(Dispatchers.IO) {
             val localIso = tryFindLocalDeadlineIso(req)
@@ -291,6 +337,12 @@ class TaskDetailsActivity :
 
         tvServiceName.text = req.serviceType?.toPretty() ?: "Other"
 
+        tvDescription.text = if (!req.description.isNullOrBlank()) {
+            req.description!!.trim()
+        } else {
+            "—"
+        }
+
         // Annotated/feedback file visibility
         val hasFeedback = !req.feedbackFileUrl.isNullOrEmpty()
         tvFilesCount.text = if (hasFeedback) "2" else "1"
@@ -298,24 +350,21 @@ class TaskDetailsActivity :
         tvFeedbackFileName.text = req.feedbackFileName ?: "Feedback/Annotated File"
         rowFeedbackFile.visibility = if (hasFeedback) View.VISIBLE else View.GONE
 
-        // Quote summary (only if server provided a quote)
+        // Quote summary
         val amount = req.quotationAmount
-        val words = req.quotationWords
         val currency = (req.quotationCurrency ?: "").ifBlank { "USD" }
-        val hasQuote = req.quotationId != null && amount != null && words != null
+        val hasQuote = req.quotationId != null
 
-        if (hasQuote) {
+        if (hasQuote && amount != null) {
             tvQuoteSummary.visibility = View.VISIBLE
             tvQuoteSummary.text = buildString {
                 append(currency)
                 append(" ")
                 append(String.format(Locale.US, "%.2f", amount))
-                append(" • ")
-                append(words)
-                append(" words")
             }
         } else {
-            tvQuoteSummary.visibility = View.GONE
+            tvQuoteSummary.visibility = View.VISIBLE
+            tvQuoteSummary.text = "No quotation available"
         }
 
         tvDocName.text = req.originalFileName ?: displayFileName
@@ -329,20 +378,26 @@ class TaskDetailsActivity :
         val isStudent = role == UserRole.STUDENT
         val isConsultant = role == UserRole.CONSULTANT
 
-        // If hasQuote is provided, only show the quote actions when a quote exists
         val showQuoteActions = hasQuote ?: true
         setVisible(btnAcceptQuote, isStudent && showQuoteActions)
         setVisible(btnDeclineQuote, isStudent && showQuoteActions)
-        setVisible(btnRequestReview, isStudent && showQuoteActions)
 
         setVisible(consultantCard, isStudent)
 
         setVisible(cardQualitativeStudy, isConsultant)
         setVisible(btnUploadFeedback, isConsultant)
 
+        setVisible(consultantFooterActions, isConsultant)
         setVisible(btnRevise, isConsultant)
         setVisible(btnSendToStudent, isConsultant)
-        setVisible(btnDownloadPdf, isConsultant)
+
+        // Download Pdf only for consultants and only when a quote exists
+        if (hasQuote != null) {
+            setVisible(btnDownloadPdf, isConsultant && hasQuote)
+        } else {
+            setVisible(btnDownloadPdf, isConsultant)
+        }
+
         setVisible(btnConsultantPreview, isConsultant)
         setVisible(btnConsultantDownload, isConsultant)
 
@@ -534,7 +589,7 @@ class TaskDetailsActivity :
     private fun openFile(file: File) {
         try {
             val uri = FileProvider.getUriForFile(this, fileProviderAuthority, file)
-            val mime = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
+            val mime = URLConnection.guessContentTypeFromName(file.name) ?: "application/pdf"
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, mime)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -549,17 +604,37 @@ class TaskDetailsActivity :
 
     private fun downloadAndOpenInApp(documentId: String, preferredName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            when (val result = docsRepo.downloadToDisk(documentId, preferredName)) {
-                is NetResult.Ok -> withContext(Dispatchers.Main) {
-                    val file = result.data
-                    val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
-                        .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
-                        .putExtra(DocumentViewerActivity.EXTRA_REQUEST_ID, currentReq?.id)
-                        .putExtra(DocumentViewerActivity.EXTRA_DISPLAY_NAME, preferredName)
-                    startActivity(intent)
+            // 1) Get signed URL from backend
+            when (val signed = docsRepo.getSignedUrl(documentId)) {
+                is NetResult.Ok -> {
+                    val url = signed.data
+
+                    // 2) Download the actual file using the URL
+                    when (val saved = docsRepo.downloadFromUrlToDisk(url, preferredName)) {
+                        is NetResult.Ok -> withContext(Dispatchers.Main) {
+                            val file = saved.data
+                            val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
+                                .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
+                                .putExtra(DocumentViewerActivity.EXTRA_REQUEST_ID, currentReq?.id)
+                                .putExtra(DocumentViewerActivity.EXTRA_DISPLAY_NAME, preferredName)
+                                .putExtra(
+                                    DocumentViewerActivity.EXTRA_CAN_ANNOTATE,
+                                    getCurrentUserRole() == UserRole.CONSULTANT
+                                )
+
+                            startActivity(intent)
+                        }
+
+                        is NetResult.Err -> withContext(Dispatchers.Main) {
+                            toast("Download failed: ${saved.message}")
+                        }
+                    }
                 }
-                is NetResult.Err -> withContext(Dispatchers.Main) {
-                    toast("Download failed: ${result.message}")
+
+                is NetResult.Err -> {
+                    withContext(Dispatchers.Main) {
+                        toast("Unable to fetch file URL: ${signed.message}")
+                    }
                 }
             }
         }
@@ -602,10 +677,123 @@ class TaskDetailsActivity :
     private fun handleOpenFile() {
         val req = currentReq ?: return
         val docId = req.documentId ?: return toast("Document not available yet.")
-        val fileName = req.originalFileName ?: req.customName ?: "${docId}.bin"
+        val rawName = req.originalFileName ?: req.customName ?: "${docId}.bin"
+        val fileName = ensurePdfExtension(rawName)
         downloadAndOpenInApp(docId, fileName)
+    }
+
+    /** Generate a simple Quote PDF with CiteWise logo in the header and a table of fields. */
+    private fun generateQuotePdf(req: ServiceRequestDto): File {
+        val doc = PdfDocument()
+        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4-ish
+        val page = doc.startPage(pageInfo)
+        val canvas = page.canvas
+
+        val titlePaint = Paint().apply {
+            isAntiAlias = true
+            textSize = 20f
+            typeface = Typeface.create(Typeface.DEFAULT_BOLD, Typeface.BOLD)
+            color = Color.BLACK
+        }
+
+        val bodyPaint = Paint().apply {
+            isAntiAlias = true
+            textSize = 12f
+            color = Color.BLACK
+        }
+
+        // Header: logo + text
+        var topY = 40f
+        try {
+            val logoRaw = BitmapFactory.decodeResource(resources, R.drawable.citewise_logo)
+            if (logoRaw != null) {
+                val desiredWidth = 80
+                val scaledHeight = logoRaw.height * desiredWidth / logoRaw.width
+                val logo = Bitmap.createScaledBitmap(logoRaw, desiredWidth, scaledHeight, true)
+                canvas.drawBitmap(logo, 40f, topY, null)
+                logo.recycle()
+                logoRaw.recycle()
+            }
+        } catch (_: Throwable) {
+            // If logo fails, just ignore and draw text
+        }
+
+        canvas.drawText("CiteWise Quote", 150f, topY + 30f, titlePaint)
+
+        // Table start
+        topY = 120f
+        val leftX = 40f
+        val colDividerX = 220f
+        val rightX = 555f
+        val rowHeight = 32f
+
+        // Header row background
+        val headerPaint = Paint().apply {
+            color = Color.LTGRAY
+            style = Paint.Style.FILL
+        }
+        canvas.drawRect(leftX, topY, rightX, topY + rowHeight, headerPaint)
+
+        // Header row text
+        canvas.drawText("Field", leftX + 10f, topY + 22f, bodyPaint.apply { typeface = Typeface.DEFAULT_BOLD })
+        canvas.drawText("Value", colDividerX + 10f, topY + 22f, bodyPaint)
+
+        // Reset body font
+        bodyPaint.typeface = Typeface.DEFAULT
+
+        // Rows
+        val rows = mutableListOf<Pair<String, String>>()
+
+        val serviceName = req.serviceType?.toPretty() ?: "N/A"
+        val amountText = req.quotationAmount?.let {
+            val currency = (req.quotationCurrency ?: "").ifBlank { "USD" }
+            "$currency ${String.format(Locale.US, "%.2f", it)}"
+        } ?: "N/A"
+
+        val wordsText = req.quotationWords?.toString() ?: "N/A"
+        val deadlineText = req.deadline.toUiDate().ifBlank { "N/A" }
+        val requestIdText = req.id ?: "N/A"
+
+        rows += "Service" to serviceName
+        rows += "Amount" to amountText
+        rows += "Words" to wordsText
+        rows += "Deadline" to deadlineText
+        rows += "Request ID" to requestIdText
+
+        var currentY = topY + rowHeight
+
+        val borderPaint = Paint().apply {
+            color = Color.DKGRAY
+            strokeWidth = 1f
+            style = Paint.Style.STROKE
+        }
+
+        for ((label, value) in rows) {
+            // Row border
+            canvas.drawRect(leftX, currentY, rightX, currentY + rowHeight, borderPaint)
+
+            canvas.drawText(label, leftX + 10f, currentY + 22f, bodyPaint)
+            canvas.drawText(value, colDividerX + 10f, currentY + 22f, bodyPaint)
+
+            currentY += rowHeight
+        }
+
+        doc.finishPage(page)
+
+        val outFile = File(cacheDir, "quote_${req.id ?: "temp"}.pdf")
+        FileOutputStream(outFile).use { fos ->
+            doc.writeTo(fos)
+        }
+        doc.close()
+
+        return outFile
     }
 
     private fun toast(msg: String) =
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+}
+
+private fun ensurePdfExtension(name: String): String {
+    // If it already has an extension, keep it
+    return if (name.contains('.')) name else "$name.pdf"
 }
