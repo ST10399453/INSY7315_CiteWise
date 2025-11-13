@@ -151,31 +151,26 @@ export function computeQuote({
 }
 
 /** If your R2 adapter returns publicUrl, pass it through. Otherwise return null. */
+// utils/quoteUtils.js
 export async function publicUrlFromR2Meta(r2Meta) {
-  // If uploadToR2 already added a publicUrl, just use it.
-  if (r2Meta?.publicUrl) return r2Meta.publicUrl;
+  const { R2_PUBLIC_BASE } = process.env || {};
+  if (!r2Meta?.key || !R2_PUBLIC_BASE) return null;
 
-  const base = process.env.R2_PUBLIC_BASE;
-  if (!base || !r2Meta?.key) return null;
+  const base = R2_PUBLIC_BASE.replace(/\/+$/, "");
+  const key = encodeURI(r2Meta.key.replace(/^\/+/, ""));
 
-  // Ensure only one slash between base and key
-  const trimmedBase = base.replace(/\/+$/, "");
-  const key = String(r2Meta.key).replace(/^\/+/, "");
+  return `${base}/${key}`;
+}
 
-  return `${trimmedBase}/${key}`;
-
-
-
-  // 2) Fallback: long-lived signed URL (e.g. 7 days)
-  try {
-    const url = await r2SignedUrl({
-      bucket: r2Meta.bucket,
-      key: r2Meta.key,
-      expiresSeconds: 60 * 60 * 24 * 7, // 7 days
-    });
-    return url;
-  } catch (e) {
-    console.error("publicUrlFromR2Meta: failed to create signed URL", e);
-    return null;
-  }
+// 2) Fallback: long-lived signed URL (e.g. 7 days)
+try {
+  const url = await r2SignedUrl({
+    bucket: r2Meta.bucket,
+    key: r2Meta.key,
+    expiresSeconds: 60 * 60 * 24 * 7, // 7 days
+  });
+  return url;
+} catch (e) {
+  console.error("publicUrlFromR2Meta: failed to create signed URL", e);
+  return null;
 }
