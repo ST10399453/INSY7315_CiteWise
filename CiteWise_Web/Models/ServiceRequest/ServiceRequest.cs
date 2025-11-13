@@ -53,5 +53,8 @@ namespace CiteWise_Web.Models.ServiceRequest
         [JsonProperty("updatedAt")]
         [JsonConverter(typeof(FlexibleTimestampConverter))]
         public DateTime? UpdatedAt { get; set; }
+
+        public double? QuotationAmount { get; set; }
+        public int? QuotationWords { get; set; }
     }
 }

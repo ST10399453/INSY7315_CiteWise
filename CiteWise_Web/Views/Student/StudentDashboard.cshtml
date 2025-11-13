@@ -22,10 +22,6 @@
             <img src="~/icons/view_requests.png" alt="View all Requests" class="feature-icon" />
             <span>View All Requests</span>
         </a>
-        <div class="feature-btn">
-            <img src="~/icons/AI_Icon.svg" alt="AI Assistant" class="feature-icon" />
-            <span>AI Assistant</span>
-        </div>
         <a asp-controller="Student" asp-action="Resources" class="feature-btn">
             <img src="~/icons/Resources.svg" alt="Resources" class="feature-icon" />
             <span>Resources</span>
@@ -76,7 +72,7 @@
                                     <h3 class="request-title">@closestRequest.File?.OriginalName</h3>
                                     <p class="submission-date">
                                         Submitted: @(closestRequest.CreatedAt.HasValue? closestRequest.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy"): "-")
-                                            </p>
+                                    </p>
                                     <div class="request-footer">
                                         <div class="status-group">
                                             <span class="status-dot @(closestRequest.Status?.ToLower().Replace(" ", "-"))"></span>
@@ -86,13 +82,13 @@
                                             Deadline: @(string.IsNullOrEmpty(closestRequest.Deadline)
                                                                                 ? "-" : closestRequest.Deadline)
 
-                                        </span>
-                                    </div>                                   
-                                </div>
+                                </span>
                             </div>
                         </div>
                     </div>
-                }
+                </div>
+            </div>
+                        }
                 else
                 {
                     <p>No valid deadlines found.</p>
@@ -107,7 +103,7 @@
 
 
         <!-- Notifications -->
-        <div class="dashboard-card">
+        @* <div class="dashboard-card">
             <h3 class="dashboard-heading">
                 Notifications
                 <img src="~/icons/notification.svg" alt="Notification Icon" class="heading-icon" />
@@ -139,23 +135,73 @@
                 </li>
 
             </ul>
-        </div>
+        </div> *@
 
 
         <!-- Service Quote -->
-            @* <h3>Service Quote</h3> *@
-            <div class="request-item">
-                <p><strong>Business Plan Draft</strong></p>
-                <p>Total: <strong>R450.00</strong></p>
-                <p>Deadline: 25.08.2025</p>
-            </div>
-            @* <div class="btn-group">
+        @* <h3>Service Quote</h3> *@
+        @if (Model != null && Model.Any())
+        {
+            var completed = Model.Where(r => r.Status == "Completed").ToList();
+
+            if (completed.Any())
+            {
+                <div class="dashboard-card">
+                    @* <h3 class="dashboard-header">Feedback Ready</h3> *@
+                    <h3 class="dashboard-heading">
+                        Feedback Ready
+                    </h3>
+
+                    <div class="feedback-list">
+                        @foreach (var req in completed)
+                        {
+                            <div class="request-item">
+                                <div class="category-header">
+                                    <p class="category-title">@req.ServiceType</p>
+                                </div>
+                                <div class="request-content">
+                                    <div class="content-left">
+                                        <h3 class="request-title">@req.File?.OriginalName</h3>
+                                        <p class="submission-date">
+                                            Submitted: @req.CreatedAt
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="request-content">
+                                    <div class="content-left">
+                                        <h3 class="category-title">Total Quotation: R @req.QuotationAmount</h3>
+                                        
+                                    </div>
+                                </div>
+                                <div class="content-right">
+                                    <a asp-action="DownloadFeedback"
+                                       asp-route-requestId="@req.Id"
+                                       class="download-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 3V16M12 16L16 12M12 16L8 12" />
+                                            <path d="M3 17V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V17" />
+                                        </svg>
+                                        <span>Download</span>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p>No feedback available yet</p>
+            }
+        }
+
+        @* <div class="btn-group">
                 <button class="btn">Accept</button>
                 <button class="btn btn-secondary">Request Review</button>
                 <button class="btn btn-outline">Download PDF</button>
             </div> *@
 
-        
+
 
     </div>
 </div>

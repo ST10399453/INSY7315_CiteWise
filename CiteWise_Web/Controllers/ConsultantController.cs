@@ -29,14 +29,14 @@ namespace CiteWise_Web.Controllers
             // 🔹 Get unassigned requests
             var unassignedResponse = await _apiService.GetUnassignedRequestsAsync(token);
             var unassignedJson = await unassignedResponse.Content.ReadAsStringAsync();
-            var unassigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(unassignedJson)
-                ?? new List<ServiceRequestItem>();
+            var unassigned = JsonConvert.DeserializeObject<List<RequestItem>>(unassignedJson)
+                ?? new List<RequestItem>();
 
             // 🔹 Get requests assigned to this consultant
             var assignedResponse = await _apiService.GetAssignedRequestsAsync(token, consultantId);
             var assignedJson = await assignedResponse.Content.ReadAsStringAsync();
-            var assigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(assignedJson) 
-                ?? new List<ServiceRequestItem>();
+            var assigned = JsonConvert.DeserializeObject<List<RequestItem>>(assignedJson) 
+                ?? new List<RequestItem>();
 
             
 
@@ -120,6 +120,66 @@ namespace CiteWise_Web.Controllers
 
 
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewRequests(string priority = "All")
+        {
+            var token = HttpContext.Session.GetString("FirebaseToken");
+            var role = HttpContext.Session.GetString("UserRole");
+            var consultantId = HttpContext.Session.GetString("UserUid");
+
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(role) || role.ToLower() != "consultant" || string.IsNullOrEmpty(consultantId))
+                return RedirectToAction("Login", "Account");
+
+            // Server-side filtered requests
+            var resp = await _apiService.GetAssignedRequestsAsync(token, consultantId);
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to load requests from API.";
+                return View(new List<RequestItem>());
+            }
+
+            var json = await resp.Content.ReadAsStringAsync();
+            var items = JsonConvert.DeserializeObject<List<RequestItem>>(json) ?? new List<RequestItem>();
+
+            // Optional: filter by priority
+            if (priority != "All")
+            {
+                items = items.Where(r => string.Equals(r.Priority, priority, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            return View(items);
+        }
+
+
+        [HttpGet]
+public async Task<IActionResult> ServiceRequestDetails(string id)
+{
+    var token = HttpContext.Session.GetString("FirebaseToken");
+    var role = HttpContext.Session.GetString("UserRole");
+
+    if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(role) || role.ToLower() != "consultant")
+        return RedirectToAction("Login", "Account");
+
+    // Fetch all assigned requests
+    var resp = await _apiService.GetAssignedRequestsAsync(token, HttpContext.Session.GetString("UserUid"));
+    if (!resp.IsSuccessStatusCode)
+        return RedirectToAction("ConsultantDashboard");
+
+    var json = await resp.Content.ReadAsStringAsync();
+    var requests = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(json) ?? new List<ServiceRequestItem>();
+
+    var request = requests.FirstOrDefault(r => r.Id == id);
+    if (request == null)
+        return RedirectToAction("ConsultantDashboard");
+
+    return View(request);
+}
+
+
+
+
     }
 }
 
