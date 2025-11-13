@@ -1,13 +1,23 @@
 ﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace CiteWise_Web.Models.Account
 {
     public class UserProfile
     {
+        [Display(Name = "Uid")]
         public string uid { get; set; }
+
+        [Display(Name = "First Name")]
         public string firstName { get; set; }
+
+        [Display(Name = "Surname")]
         public string surname { get; set; }
+
+        [Display(Name = "Email")]
         public string email { get; set; }
+
+        [Display(Name = "Role")]
         public string role { get; set; } = "Pending"; // until onboarding
                                                       //public long CreatedAt { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         public bool? isApproved { get; set; }
@@ -17,14 +27,20 @@ namespace CiteWise_Web.Models.Account
         public DateTime createdAt { get; set; } = DateTime.UtcNow;
 
         // Common Fields
+        [Display(Name = "Language")]
         public string language { get; set; }
 
         // Student-specific fields
+
+        [Display(Name = "Institution")]
         public string institution { get; set; }
+
+        [Display(Name = "Field of Study")]
         public string fieldOfStudy { get; set; }
 
 
         // Consultant-specific fields
+        [Display(Name = "Specialisation")]
         public string specialisation { get; set; }
     }
 

@@ -10,7 +10,7 @@ namespace CiteWise_Web.Models.Account
         public string email { get; set; }
 
         [Required]
-        [Display(Name = "Email")]
+        [Display(Name = "Password")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
     }

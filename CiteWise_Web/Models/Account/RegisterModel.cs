@@ -19,6 +19,7 @@ namespace CiteWise_Web.Models.Account
 
         [Required]
         [DataType(DataType.Password)]
+        [Display(Name = "Password")]
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters long")]
         public string Password { get; set; }
 
