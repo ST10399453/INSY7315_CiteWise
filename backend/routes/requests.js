@@ -389,36 +389,66 @@ router.get(
   }
 );
 
-// GET /requests/:id/feedback/download
+// GET /requests/:id/download  (student original file)
+router.get("/:id/download", checkAuth, async (req, res) => {
+  try {
+    const reqId = req.params.id;
+
+    const snap = await db.collection("ServiceReviews").doc(reqId).get();
+    if (!snap.exists)
+      return res.status(404).json({ message: "Request not found" });
+
+    const data = snap.data();
+    const file = data.file;
+    const storage = data.storage?.cloudflare;
+
+    if (!file || !storage?.key || !storage?.bucket) {
+      return res.status(404).json({ message: "No uploaded file found" });
+    }
+
+    const signed = await r2SignedUrl({
+      bucket: storage.bucket,
+      key: storage.key,
+      expiresSeconds: 900,
+      filename: file.originalName || "file",
+      disposition: "attachment",
+    });
+
+    return res.json({ url: signed });
+  } catch (err) {
+    console.error("student download error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+});
+
 router.get("/:id/feedback/download", checkAuth, async (req, res) => {
   try {
     const reqId = req.params.id;
 
     const snap = await db.collection("ServiceReviews").doc(reqId).get();
-    if (!snap.exists) return res.status(404).json({ message: "Request not found" });
+    if (!snap.exists)
+      return res.status(404).json({ message: "Request not found" });
 
     const data = snap.data();
+    const annotated = data.annotatedFile;
+    const storage = annotated?.storage?.cloudflare;
 
-    if (!data.feedbackFileName || !data.annotatedFile?.storage?.cloudflare) {
+    if (!annotated || !storage?.key || !storage?.bucket) {
       return res.status(404).json({ message: "No feedback file uploaded" });
     }
 
-    // Rebuild R2 key
-    const key = data.annotatedFile.storage.cloudflare.key;
-
-    // Generate signed URL
-    const url = await r2SignedUrl({
-      bucket: data.annotatedFile.storage.cloudflare.bucket,
-      key,
+    const signed = await r2SignedUrl({
+      bucket: storage.bucket,
+      key: storage.key,
       expiresSeconds: 900,
-      filename: data.feedbackFileName,
+      filename: data.feedbackFileName || annotated.fileName || "feedback.pdf",
       disposition: "attachment",
     });
 
-    res.json({ url });
-  } catch (e) {
-    console.error("feedback download error:", e);
-    res.status(500).json({ message: e.message });
+    res.json({ url: signed });
+  } catch (err) {
+    console.error("feedback download error:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
