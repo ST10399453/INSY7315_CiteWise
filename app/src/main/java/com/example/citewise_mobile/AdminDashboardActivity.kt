@@ -7,12 +7,15 @@ import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.citewise_mobile.adapters.TopConsultantAdapter
+import com.example.citewise_mobile.adapters.TopConsultant
 import com.example.citewise_mobile.offline.OfflineReset
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Description
@@ -50,8 +53,10 @@ class AdminDashboardActivity : BaseActivity() {
     private lateinit var tvLegendCompleted: TextView
 
     // Top consultants
-    private lateinit var listTopConsultants: LinearLayout
+    private lateinit var rvTopConsultants: RecyclerView
     private lateinit var emptyTopConsultants: TextView
+    private val topConsultants = mutableListOf<TopConsultant>()
+    private lateinit var topConsultantAdapter: TopConsultantAdapter
 
     // Chart & progress
     private lateinit var pieActiveTasks: PieChart
@@ -90,7 +95,7 @@ class AdminDashboardActivity : BaseActivity() {
         tvLegendAssigned    = childRoot.findViewById(R.id.tvLegendAssigned)
         tvLegendCompleted   = childRoot.findViewById(R.id.tvLegendCompleted)
 
-        listTopConsultants  = childRoot.findViewById(R.id.listTopConsultants)
+        rvTopConsultants    = childRoot.findViewById(R.id.rvTopConsultants)
         emptyTopConsultants = childRoot.findViewById(R.id.emptyTopConsultants)
 
         pieActiveTasks      = childRoot.findViewById(R.id.pieActiveTasks)
@@ -99,6 +104,11 @@ class AdminDashboardActivity : BaseActivity() {
         // Bottom nav
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
         setupBottomNav(bottomNav, selectedItemId = R.id.nav_dashboard)
+
+        // Setup Top Consultants RecyclerView
+        rvTopConsultants.layoutManager = LinearLayoutManager(this)
+        topConsultantAdapter = TopConsultantAdapter(topConsultants)
+        rvTopConsultants.adapter = topConsultantAdapter
 
         // Greeting from RTDB
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -138,7 +148,10 @@ class AdminDashboardActivity : BaseActivity() {
                                 OfflineReset.resetLocalData(applicationContext)
                                 startActivity(
                                     Intent(this@AdminDashboardActivity, LoginActivity::class.java)
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                                        .addFlags(
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        )
                                 )
                                 finish()
                             } catch (e: Exception) {
@@ -188,7 +201,10 @@ class AdminDashboardActivity : BaseActivity() {
                 var consultantCount = 0
 
                 for (child in snap.children) {
-                    val role = child.child("role").getValue(String::class.java)?.trim()?.lowercase()
+                    val role = child.child("role")
+                        .getValue(String::class.java)
+                        ?.trim()
+                        ?.lowercase()
                     when (role) {
                         "student"    -> studentCount++
                         "consultant" -> consultantCount++
@@ -258,7 +274,8 @@ class AdminDashboardActivity : BaseActivity() {
         }
     }
 
-    /** Render donut + legend, with colors:
+    /**
+     * Render donut + legend, with colors:
      *  Submitted -> priority_Medium (orange)
      *  Assigned  -> blue_400
      *  Completed -> green_500
@@ -319,54 +336,45 @@ class AdminDashboardActivity : BaseActivity() {
         pieActiveTasks.invalidate()
     }
 
-    /** Live TopConsultants stream with empty state handling. */
+    /** Live TopConsultants stream with empty state handling (TOP 3). */
     private fun startTopConsultantsStream() {
         val db = FirebaseFirestore.getInstance()
         val query = db.collection("TopConsultants")
-            .orderBy("rating", com.google.firebase.firestore.Query.Direction.DESCENDING)
-            .limit(5)
+            .orderBy("rating", Query.Direction.DESCENDING)
+            .limit(3) // TOP 3
 
         consultantsListener?.remove()
         consultantsListener = query.addSnapshotListener { snap, err ->
-            // Always reset the list container
-            listTopConsultants.removeAllViews()
-
             if (err != null) {
-                // Show empty state (DON'T add the empty view to the list)
                 emptyTopConsultants.visibility = View.VISIBLE
-                listTopConsultants.visibility = View.GONE
+                rvTopConsultants.visibility = View.GONE
+                topConsultantAdapter.setData(emptyList())
                 return@addSnapshotListener
             }
 
             val docs = snap?.documents.orEmpty()
             if (docs.isEmpty()) {
-                // Show empty state
                 emptyTopConsultants.visibility = View.VISIBLE
-                listTopConsultants.visibility = View.GONE
+                rvTopConsultants.visibility = View.GONE
+                topConsultantAdapter.setData(emptyList())
                 return@addSnapshotListener
             }
 
-            // We have items: hide empty view, show list
-            emptyTopConsultants.visibility = View.GONE
-            listTopConsultants.visibility = View.VISIBLE
-
-            docs.forEach { doc ->
-                val name  = doc.getString("name") ?: "Unknown"
-                val score = doc.getDouble("rating") ?: 0.0
-
-                val item = TextView(this).apply {
-                    text = "$name — ⭐ ${String.format("%.1f", score)}"
-                    textSize = 14f
-                    setTextColor(ContextCompat.getColor(context, R.color.text_dark))
-                    typeface = resources.getFont(R.font.public_sans_medium)
-                    setPadding(12, 8, 12, 8)
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                }
-                listTopConsultants.addView(item)
+            val mapped = docs.mapNotNull { doc ->
+                val id = doc.id
+                val name = doc.getString("name") ?: return@mapNotNull null
+                val rating = doc.getDouble("rating") ?: 0.0
+                TopConsultant(
+                    id = id,
+                    name = name,
+                    rating = rating
+                )
             }
+
+            emptyTopConsultants.visibility = View.GONE
+            rvTopConsultants.visibility = View.VISIBLE
+
+            topConsultantAdapter.setData(mapped)
         }
     }
 

@@ -55,7 +55,7 @@
             android:text="Ruben Silva"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="@android:color/black" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

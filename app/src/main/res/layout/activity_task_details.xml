@@ -161,11 +161,13 @@
             android:layout_marginBottom="12dp">
 
             <LinearLayout
+                android:id="@+id/filesContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/card_neumorphic_background"
                 android:padding="14dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:animateLayoutChanges="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -448,18 +450,19 @@
                     android:textColor="@color/text_faded"
                     android:fontFamily="@font/poppins_medium" />
 
-                <!-- NEW: quote amount + words shown here -->
+                <!-- Pretty quote summary pill -->
                 <TextView
                     android:id="@+id/tvQuoteSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="—"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_dark"
-                    android:fontFamily="@font/poppins_medium"
-                    android:gravity="center"
                     android:layout_marginTop="8dp"
-                    android:visibility="gone"/>
+                    android:background="@drawable/bg_pill_soft"
+                    android:padding="10dp"
+                    android:text="No quotes are available yet."
+                    android:textColor="@color/text_dark"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:fontFamily="@font/poppins_medium" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -515,7 +518,8 @@
                         app:icon="@drawable/ic_edit"
                         app:iconTint="@color/gradient_middle"
                         app:iconGravity="textStart"
-                        app:iconPadding="8dp" />
+                        app:iconPadding="8dp"
+                        android:visibility="gone"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -666,7 +670,8 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            android:visibility="gone">
 
             <Button
                 android:id="@+id/btnRevise"

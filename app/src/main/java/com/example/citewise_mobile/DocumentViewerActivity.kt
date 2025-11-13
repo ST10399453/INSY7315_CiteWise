@@ -37,6 +37,7 @@ class DocumentViewerActivity : AppCompatActivity() {
         const val EXTRA_FILE_PATH = "extra_file_path"
         const val EXTRA_REQUEST_ID = "extra_request_id"
         const val EXTRA_DISPLAY_NAME = "extra_display_name" // custom base name for _annotated
+        const val EXTRA_CAN_ANNOTATE = "extra_can_annotate"
     }
 
     // Top bar
@@ -55,6 +56,7 @@ class DocumentViewerActivity : AppCompatActivity() {
     private lateinit var zoomHud: TextView
 
     // Tools
+    private lateinit var toolsBar: View
     private lateinit var btnUndo: ImageButton
     private lateinit var btnRedo: ImageButton
     private lateinit var btnColor: ImageButton
@@ -71,6 +73,7 @@ class DocumentViewerActivity : AppCompatActivity() {
     private var filePath: String? = null
     private var requestId: String? = null
     private var displayName: String? = null
+    private var canAnnotate: Boolean = false
 
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -82,67 +85,101 @@ class DocumentViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_document_viewer)
 
-        // --- find views
+        // Read flags BEFORE wiring UI logic
+        filePath = intent.getStringExtra(EXTRA_FILE_PATH)
+        requestId = intent.getStringExtra(EXTRA_REQUEST_ID)
+        displayName = intent.getStringExtra(EXTRA_DISPLAY_NAME)
+        canAnnotate = intent.getBooleanExtra(EXTRA_CAN_ANNOTATE, false)
+
+        initViews()
+
+        if (filePath.isNullOrBlank()) {
+            toast("No file to preview")
+            finish()
+            return
+        }
+
+        val file = File(filePath!!)
+        titleView.text = displayName?.takeIf { it.isNotBlank() } ?: file.name
+
+        val mime = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
+        if (mime == "application/pdf") {
+            setupPdf(file)
+        } else if (mime.startsWith("image/")) {
+            showSingleImage(file)
+        } else {
+            pager.visibility = View.GONE
+            imgSingle.visibility = View.GONE
+            toast("Preview not supported for this file type.")
+        }
+
+        // Start in NAVIGATE mode
+        setDrawing(false)
+        updateZoomHud()
+    }
+
+    private fun initViews() {
+        // Top bar
         btnClose = findViewById(R.id.btnClose)
         btnToggleDraw = findViewById(R.id.btnToggleDraw)
         titleView = findViewById(R.id.tvTitle)
 
+        btnClose.setOnClickListener { finish() }
+
+        // Content
         zoomContainer = findViewById(R.id.zoomContainer)
         pager = findViewById(R.id.pager)
         imgSingle = findViewById(R.id.imageSingle)
         overlay = findViewById(R.id.overlay)
 
+        // HUD
         modePill = findViewById(R.id.modePill)
         zoomHud = findViewById(R.id.zoomHud)
 
-        btnUndo = findViewById(R.id.btnUndo)
-        btnRedo = findViewById(R.id.btnRedo)
+        // Tools row
+        toolsBar = findViewById(R.id.toolsBar)
+        colorSwatch = findViewById(R.id.colorSwatch)
         btnColor = findViewById(R.id.btnColor)
         btnStroke = findViewById(R.id.btnStroke)
+        btnUndo = findViewById(R.id.btnUndo)
+        btnRedo = findViewById(R.id.btnRedo)
         btnSave = findViewById(R.id.btnSave)
-        colorSwatch = findViewById(R.id.colorSwatch)
 
-        // --- data
-        btnClose.setOnClickListener { finish() }
-        filePath = intent.getStringExtra(EXTRA_FILE_PATH)
-        requestId = intent.getStringExtra(EXTRA_REQUEST_ID)
-        displayName = intent.getStringExtra(EXTRA_DISPLAY_NAME)
+        // Annotation allowed?
+        if (canAnnotate) {
+            // Wire annotation interactions
+            btnToggleDraw.setOnClickListener { setDrawing(!overlay.drawingEnabled) }
 
-        if (filePath.isNullOrBlank()) { toast("No file to preview"); finish(); return }
+            btnUndo.setOnClickListener { overlay.undo() }
+            btnRedo.setOnClickListener { overlay.redo() }
+            btnColor.setOnClickListener { pickColor() }
+            btnStroke.setOnClickListener { pickStroke() }
+            btnSave.setOnClickListener { saveAndMaybeUpload() }
 
-        val file = File(filePath!!)
-        titleView.text = file.name
+            overlay.bringToFront()
+            overlay.setOnTouchListener { _, _ ->
+                if (overlay.drawingEnabled) overlay.parent?.requestDisallowInterceptTouchEvent(true)
+                false
+            }
 
-        val mime = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
-        if (mime == "application/pdf") setupPdf(file)
-        else if (mime.startsWith("image/")) showSingleImage(file)
-        else { pager.visibility = View.GONE; imgSingle.visibility = View.GONE; toast("Preview not supported for this file type.") }
+            zoomContainer.shouldAllowChildDraw = { overlay.drawingEnabled }
+        } else {
+            // VIEW-ONLY MODE (e.g. student or reading annotated file)
+            overlay.drawingEnabled = false
+            overlay.visibility = View.GONE
 
-        // --- toggle draw/navigate
-        btnToggleDraw.setOnClickListener { setDrawing(!overlay.drawingEnabled) }
-        setDrawing(false)          // start in NAVIGATE (swipe pages)
+            toolsBar.visibility = View.GONE
+            btnToggleDraw.visibility = View.GONE
+            modePill.visibility = View.GONE
 
-        // --- tools
-        btnUndo.setOnClickListener { overlay.undo() }
-        btnRedo.setOnClickListener { overlay.redo() }
-        btnColor.setOnClickListener { pickColor() }
-        btnStroke.setOnClickListener { pickStroke() }
-        btnSave.setOnClickListener { saveAndMaybeUpload() }
-
-        // overlay above pager
-        overlay.bringToFront()
-        overlay.setOnTouchListener { _, _ ->
-            if (overlay.drawingEnabled) overlay.parent?.requestDisallowInterceptTouchEvent(true)
-            false
+            // Never treat child as drawing surface
+            zoomContainer.shouldAllowChildDraw = { false }
         }
 
-        // zoom logic: child draws while zoomed; zoom HUD updates
-        zoomContainer.shouldAllowChildDraw = { overlay.drawingEnabled }
         zoomContainer.onScaleOrPanChanged = {
             updatePagerSwiping()
             updateZoomHud()
         }
-        updateZoomHud()
     }
 
     // ---------- PDF setup ----------
@@ -151,7 +188,11 @@ class DocumentViewerActivity : AppCompatActivity() {
             pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
             pdfRenderer = PdfRenderer(pfd!!)
             val pageCount = pdfRenderer?.pageCount ?: 0
-            if (pageCount <= 0) { toast("Empty PDF"); finish(); return }
+            if (pageCount <= 0) {
+                toast("Empty PDF")
+                finish()
+                return
+            }
 
             pager.visibility = View.VISIBLE
             imgSingle.visibility = View.GONE
@@ -190,6 +231,9 @@ class DocumentViewerActivity : AppCompatActivity() {
 
     // ---------- Draw/Navigate ----------
     private fun setDrawing(enable: Boolean) {
+        // No-op in view-only mode
+        if (!canAnnotate) return
+
         overlay.drawingEnabled = enable
         btnToggleDraw.alpha = if (enable) 1f else 0.7f
         updateModeUi()
@@ -197,6 +241,8 @@ class DocumentViewerActivity : AppCompatActivity() {
     }
 
     private fun updateModeUi() {
+        if (!canAnnotate) return
+
         if (overlay.drawingEnabled) {
             modePill.text = "DRAW"
             modePill.background = getDrawable(R.drawable.bg_pill_green)
@@ -213,18 +259,26 @@ class DocumentViewerActivity : AppCompatActivity() {
 
     private fun updatePagerSwiping() {
         val zoomed = zoomContainer.currentScale() > 1f
-        val drawing = overlay.drawingEnabled
+        val drawing = overlay.drawingEnabled && canAnnotate
         // Enable ViewPager swipes only when not drawing AND not zoomed
         pager.isUserInputEnabled = !drawing && !zoomed
     }
 
     // ---------- Color & stroke ----------
     private val palette = intArrayOf(
-        Color.RED, Color.BLUE, Color.BLACK, Color.GREEN, Color.MAGENTA, Color.CYAN, Color.DKGRAY, Color.rgb(255,140,0)
+        Color.RED,
+        Color.BLUE,
+        Color.BLACK,
+        Color.GREEN,
+        Color.MAGENTA,
+        Color.CYAN,
+        Color.DKGRAY,
+        Color.rgb(255, 140, 0)
     )
 
     private fun pickColor() {
-        val names = arrayOf("Red","Blue","Black","Green","Magenta","Cyan","Dark Gray","Orange")
+        if (!canAnnotate) return
+        val names = arrayOf("Red", "Blue", "Black", "Green", "Magenta", "Cyan", "Dark Gray", "Orange")
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Stroke color")
             .setItems(names) { _, which ->
@@ -236,6 +290,7 @@ class DocumentViewerActivity : AppCompatActivity() {
     }
 
     private fun updateSwatch() {
+        if (!canAnnotate) return
         val d = android.graphics.drawable.GradientDrawable().apply {
             shape = android.graphics.drawable.GradientDrawable.OVAL
             setColor(overlay.strokeColor)
@@ -244,8 +299,9 @@ class DocumentViewerActivity : AppCompatActivity() {
     }
 
     private fun pickStroke() {
-        val widths = arrayOf("2 px","4 px","6 px","10 px","14 px","20 px")
-        val values = floatArrayOf(2f,4f,6f,10f,14f,20f)
+        if (!canAnnotate) return
+        val widths = arrayOf("2 px", "4 px", "6 px", "10 px", "14 px", "20 px")
+        val values = floatArrayOf(2f, 4f, 6f, 10f, 14f, 20f)
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Stroke width")
             .setItems(widths) { _, which ->
@@ -258,11 +314,21 @@ class DocumentViewerActivity : AppCompatActivity() {
 
     // ---------- Save + Upload: <custom>_annotated.pdf ----------
     private fun saveAndMaybeUpload() {
-        val src = File(filePath!!)
+        if (!canAnnotate) return
+
+        val srcPath = filePath ?: run {
+            toast("No source file.")
+            return
+        }
+        val src = File(srcPath)
+
         ioScope.launch {
             try {
                 val baseName = (displayName ?: src.nameWithoutExtension)
-                    .removeSuffix(".pdf").trim().ifBlank { "document" }
+                    .removeSuffix(".pdf")
+                    .trim()
+                    .ifBlank { "document" }
+
                 val safeBase = baseName.replace(Regex("""[\\/:*?"<>|]"""), "_")
                 val out = File(cacheDir, "${safeBase}_annotated.pdf")
 
@@ -274,7 +340,9 @@ class DocumentViewerActivity : AppCompatActivity() {
                     if (!rid.isNullOrBlank()) uploadAnnotated(rid, out)
                 }
             } catch (t: Throwable) {
-                withContext(Dispatchers.Main) { toast("Save failed: ${t.message}") }
+                withContext(Dispatchers.Main) {
+                    toast("Save failed: ${t.message}")
+                }
             }
         }
     }
@@ -299,19 +367,25 @@ class DocumentViewerActivity : AppCompatActivity() {
                     page.render(b, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                     page.close()
 
-                    val pdfPage = document.startPage(PdfDocument.PageInfo.Builder(width, height, i + 1).create())
+                    val pdfPage = document.startPage(
+                        PdfDocument.PageInfo.Builder(width, height, i + 1).create()
+                    )
                     pdfPage.canvas.drawBitmap(b, 0f, 0f, null)
                     drawStrokesToCanvas(pdfPage.canvas, i, width, height)
                     document.finishPage(pdfPage)
                     b.recycle()
                 }
             } finally {
-                renderer.close(); pfd.close()
+                renderer.close()
+                pfd.close()
             }
         } else {
             val bmp = BitmapFactory.decodeFile(original.absolutePath) ?: error("Bad image")
-            val width = bmp.width; val height = bmp.height
-            val page = document.startPage(PdfDocument.PageInfo.Builder(width, height, 1).create())
+            val width = bmp.width
+            val height = bmp.height
+            val page = document.startPage(
+                PdfDocument.PageInfo.Builder(width, height, 1).create()
+            )
             page.canvas.drawColor(Color.WHITE)
             page.canvas.drawBitmap(bmp, 0f, 0f, null)
             drawStrokesToCanvas(page.canvas, 0, width, height)
@@ -329,6 +403,8 @@ class DocumentViewerActivity : AppCompatActivity() {
         srcSurfaceWidth: Int,
         srcSurfaceHeight: Int
     ) {
+        if (!canAnnotate) return
+
         // Map overlay view pixels -> PDF page pixels
         val overlayW = overlay.width.coerceAtLeast(1)
         val overlayH = overlay.height.coerceAtLeast(1)
@@ -380,13 +456,20 @@ class DocumentViewerActivity : AppCompatActivity() {
         override fun getItemCount(): Int = renderer.pageCount
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
-            cache.get(position)?.let { holder.image.setImageBitmap(it); return }
+            cache.get(position)?.let {
+                holder.image.setImageBitmap(it)
+                return
+            }
 
             val page = renderer.openPage(position)
             val scale = targetWidthPx.toFloat() / page.width.toFloat()
             val targetHeight = (page.height * scale).toInt().coerceAtLeast(1)
 
-            val bmp = Bitmap.createBitmap(targetWidthPx, targetHeight, Bitmap.Config.ARGB_8888)
+            val bmp = Bitmap.createBitmap(
+                targetWidthPx,
+                targetHeight,
+                Bitmap.Config.ARGB_8888
+            )
             bmp.eraseColor(Color.WHITE)
             page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
             page.close()
@@ -395,7 +478,9 @@ class DocumentViewerActivity : AppCompatActivity() {
             holder.image.setImageBitmap(bmp)
         }
 
-        fun clear() { cache.evictAll() }
+        fun clear() {
+            cache.evictAll()
+        }
 
         class Holder(val image: ImageView) : RecyclerView.ViewHolder(image)
     }

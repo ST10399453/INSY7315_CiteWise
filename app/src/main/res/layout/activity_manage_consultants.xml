@@ -95,7 +95,8 @@
                 app:cardCornerRadius="20dp"
                 app:cardUseCompatPadding="true"
                 app:strokeColor="@android:color/transparent"
-                app:cardBackgroundColor="@android:color/transparent">
+                app:cardBackgroundColor="@android:color/transparent"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -147,7 +148,8 @@
                 app:cardCornerRadius="20dp"
                 app:cardUseCompatPadding="true"
                 app:strokeColor="@android:color/transparent"
-                app:cardBackgroundColor="@android:color/transparent">
+                app:cardBackgroundColor="@android:color/transparent"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -199,7 +201,8 @@
                 app:cardCornerRadius="20dp"
                 app:cardUseCompatPadding="true"
                 app:strokeColor="@android:color/transparent"
-                app:cardBackgroundColor="@android:color/transparent">
+                app:cardBackgroundColor="@android:color/transparent"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"

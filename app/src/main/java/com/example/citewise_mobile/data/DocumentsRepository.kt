@@ -28,7 +28,9 @@ class DocumentsRepository(
                 disposition = "attachment",
                 auth = auth
             )
-        }.getOrElse { t -> return@withContext NetResult.Err(t.message ?: "Signed URL failed") }
+        }.getOrElse { t ->
+            return@withContext NetResult.Err(t.message ?: "Signed URL failed")
+        }
 
         if (!signed.isSuccessful || signed.body() == null) {
             val msg = signed.errorBody()?.string().orEmpty().ifBlank { "HTTP ${signed.code()}" }
@@ -37,7 +39,9 @@ class DocumentsRepository(
         NetResult.Ok(signed.body()!!.url)
     }
 
-    /** Download a document (stream first, fallback to signed URL) and save to disk. */
+    /**
+     * Download a document (try direct streaming first, then always fall back to signed URL).
+     */
     suspend fun downloadToDisk(
         documentId: String,
         preferredName: String?,
@@ -52,6 +56,7 @@ class DocumentsRepository(
                 auth = auth
             )
         }.getOrElse { t ->
+            // Streaming failed at HTTP/IO level – we'll fall back to signed URL
             return@withContext NetResult.Err(t.message ?: "Stream failed")
         }
 
@@ -59,12 +64,10 @@ class DocumentsRepository(
             return@withContext saveBodyToFile(streamTry.body()!!, documentId, preferredName)
         }
 
-        // If not found, try signed URL then raw GET
-        if (streamTry.code() != 404) {
-            val msg = streamTry.errorBody()?.string().orEmpty().ifBlank { "HTTP ${streamTry.code()}" }
-            return@withContext NetResult.Err(msg, streamTry.code())
-        }
-
+        // ❗️CHANGED: do NOT bail out on non-404 – we just fall back to signed URL
+        // (You can log streamTry.code() here if you want)
+        // ------------------------------------------------------------
+        // 2) Get signed URL
         val signed = runCatching {
             api.signedUrl(
                 documentId = documentId,
@@ -86,6 +89,67 @@ class DocumentsRepository(
 
         resp.use { r ->
             if (!r.isSuccessful) return@withContext NetResult.Err("HTTP ${r.code}", r.code)
+            val body = r.body ?: return@withContext NetResult.Err("Empty body from signed URL")
+            return@withContext saveBodyToFile(body, documentId, preferredName)
+        }
+    }
+
+    // -------- Fallback via /download + raw GET --------
+
+    private suspend fun trySignedUrlDownload(
+        documentId: String,
+        preferredName: String?,
+        auth: String?,
+        hintError: String?
+    ): NetResult<File> = withContext(Dispatchers.IO) {
+        val signed = runCatching {
+            api.signedUrl(
+                documentId = documentId,
+                provider = null,
+                disposition = "attachment",
+                auth = auth
+            )
+        }.getOrElse { t ->
+            // Both stream + signed URL failed
+            val combined = buildString {
+                append("Signed URL failed")
+                if (!hintError.isNullOrBlank()) {
+                    append(" (stream error: ").append(hintError).append(")")
+                }
+                append(": ").append(t.message ?: "")
+            }
+            return@withContext NetResult.Err(combined.ifBlank { "Signed URL failed" })
+        }
+
+        if (!signed.isSuccessful || signed.body() == null) {
+            val msg = signed.errorBody()?.string().orEmpty().ifBlank { "HTTP ${signed.code()}" }
+            val combined = if (!hintError.isNullOrBlank()) {
+                "$msg (stream error: $hintError)"
+            } else msg
+            return@withContext NetResult.Err(combined, signed.code())
+        }
+
+        val url = signed.body()!!.url
+        val req = Request.Builder().url(url).get().build()
+        val resp = runCatching { rawHttp.newCall(req).execute() }
+            .getOrElse { t ->
+                val combined = if (!hintError.isNullOrBlank()) {
+                    "Download failed (stream error: $hintError): ${t.message}"
+                } else {
+                    "Download failed: ${t.message}"
+                }
+                return@withContext NetResult.Err(combined)
+            }
+
+        resp.use { r ->
+            if (!r.isSuccessful) {
+                val combined = if (!hintError.isNullOrBlank()) {
+                    "HTTP ${r.code} (stream error: $hintError)"
+                } else {
+                    "HTTP ${r.code}"
+                }
+                return@withContext NetResult.Err(combined, r.code)
+            }
             val body = r.body ?: return@withContext NetResult.Err("Empty body from signed URL")
             return@withContext saveBodyToFile(body, documentId, preferredName)
         }

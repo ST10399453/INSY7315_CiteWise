@@ -26,6 +26,7 @@ import com.example.citewise_mobile.offline.LocalRepos
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +43,8 @@ import java.util.TimeZone
  * Unified Task Details screen with student/consultant modes.
  * - Shows quote summary (amount + word count) when available.
  * - Student can view/download annotated file once uploaded.
+ * - If no quote is available, student sees a friendly message.
+ * - If the student declines a quote, the request is flagged in UI.
  * - Bottom sheet opens expanded reliably. Chat wired to ConversationActivity.
  */
 class TaskDetailsActivity :
@@ -96,7 +99,6 @@ class TaskDetailsActivity :
     private lateinit var tvDocName: TextView
     private lateinit var btnUploadFeedback: View
     private lateinit var btnRevise: Button
-    private lateinit var btnSendToStudent: Button
     private lateinit var btnDownloadPdf: Button
     private lateinit var btnConsultantPreview: MaterialButton
     private lateinit var btnConsultantDownload: MaterialButton
@@ -171,7 +173,6 @@ class TaskDetailsActivity :
         tvDocName = findViewById(R.id.tvDocName)
         btnUploadFeedback = findViewById(R.id.btnUploadFeedback)
         btnRevise = findViewById(R.id.btnRevise)
-        btnSendToStudent = findViewById(R.id.btnSendToStudent)
         btnDownloadPdf = findViewById(R.id.btnDownloadPdf)
         btnConsultantPreview = findViewById(R.id.btnConsultantPreview)
         btnConsultantDownload = findViewById(R.id.btnConsultantDownload)
@@ -211,10 +212,9 @@ class TaskDetailsActivity :
         }
 
         btnRevise.setOnClickListener { toast("Opening revision tools…") }
-        btnSendToStudent.setOnClickListener { toast("Status updated and sent to student.") }
         btnDownloadPdf.setOnClickListener { toast("Downloading Quote PDF…") }
 
-        // Student file actions
+        // Student file actions (view + download via DocumentsRepository)
         btnViewStudentFile.setOnClickListener {
             val req = currentReq ?: return@setOnClickListener
             val docId = req.documentId ?: return@setOnClickListener toast("Document not available yet.")
@@ -238,24 +238,42 @@ class TaskDetailsActivity :
             }
         }
 
-        // Feedback file actions (student)
+        // Feedback / annotated file actions:
+        // VIEW: download to cache then open in internal DocumentViewer (VIEW-ONLY)
         btnViewFeedbackFile.setOnClickListener {
-            val url = currentReq?.feedbackFileUrl
-            if (url.isNullOrBlank()) toast("No feedback file yet.") else openUrl(url)
-        }
-        btnDownloadFeedbackFile.setOnClickListener {
-            val url = currentReq?.feedbackFileUrl
-            val name = currentReq?.feedbackFileName ?: "Feedback"
-            if (url.isNullOrBlank()) toast("No feedback file yet.") else enqueueSystemDownload(url, name)
+            val req = currentReq ?: return@setOnClickListener
+            val url = req.feedbackFileUrl
+            val name = req.feedbackFileName ?: "Feedback"
+            if (url.isNullOrBlank()) {
+                toast("No feedback file yet.")
+            } else {
+                // Mirror student "View" behaviour but from public URL.
+                // Always view-only: EXTRA_CAN_ANNOTATE = false.
+                downloadAndOpenFromUrl(url, name, canAnnotate = false)
+            }
         }
 
-        // Quote actions (student) — endpoints TBD server-side
+        // DOWNLOAD: system DownloadManager, like student file download
+        btnDownloadFeedbackFile.setOnClickListener {
+            val req = currentReq ?: return@setOnClickListener
+            val url = req.feedbackFileUrl
+            val name = req.feedbackFileName ?: "Feedback"
+            if (url.isNullOrBlank()) {
+                toast("No feedback file yet.")
+            } else {
+                enqueueSystemDownload(url, name)
+            }
+        }
+
+        // Quote actions (student) — accept/decline/query
         btnAcceptQuote.setOnClickListener {
-            toast("Accept tapped. (Hook to /quotes/{id}/accept when available.)")
+            handleQuoteDecision("accepted")
         }
+
         btnDeclineQuote.setOnClickListener {
-            toast("Decline tapped. (Hook to /quotes/{id}/decline when available.)")
+            handleQuoteDecision("declined")
         }
+
         btnRequestReview.setOnClickListener {
             toast("Query tapped. (Open chat or feedback dialog.)")
         }
@@ -276,8 +294,9 @@ class TaskDetailsActivity :
 
         val deadlineFromRemote = req.deadline.toUiDate()
         tvDeadline.text = deadlineFromRemote
+        val student = req.studentName ?: "Student"
         val displayFileName = req.customName ?: req.originalFileName ?: "Student File"
-        tvStudentAndDeadline.text = "$displayFileName     $deadlineFromRemote"
+        tvStudentAndDeadline.text = "$student     $deadlineFromRemote"
 
         lifecycleScope.launch(Dispatchers.IO) {
             val localIso = tryFindLocalDeadlineIso(req)
@@ -285,11 +304,22 @@ class TaskDetailsActivity :
             val finalDeadline = if (deadlineFromRemote != "—") deadlineFromRemote else (localUi ?: "—")
             withContext(Dispatchers.Main) {
                 tvDeadline.text = finalDeadline
-                tvStudentAndDeadline.text = "$displayFileName     $finalDeadline"
+                if (student == "Student") {
+                    tvStudentAndDeadline.text = student
+                } else {
+                    tvStudentAndDeadline.text = ""
+                }
             }
         }
 
         tvServiceName.text = req.serviceType?.toPretty() ?: "Other"
+
+        // Additional information
+        tvDescription.text = if (!req.description.isNullOrBlank()) {
+            req.description
+        } else {
+            "No additional information provided."
+        }
 
         // Annotated/feedback file visibility
         val hasFeedback = !req.feedbackFileUrl.isNullOrEmpty()
@@ -301,8 +331,10 @@ class TaskDetailsActivity :
         // Quote summary (only if server provided a quote)
         val amount = req.quotationAmount
         val words = req.quotationWords
-        val currency = (req.quotationCurrency ?: "").ifBlank { "USD" }
+        val currency = (req.quotationCurrency ?: "").ifBlank { "R" } // default to Rand symbol
         val hasQuote = req.quotationId != null && amount != null && words != null
+
+        val isStudent = getCurrentUserRole() == UserRole.STUDENT
 
         if (hasQuote) {
             tvQuoteSummary.visibility = View.VISIBLE
@@ -310,12 +342,17 @@ class TaskDetailsActivity :
                 append(currency)
                 append(" ")
                 append(String.format(Locale.US, "%.2f", amount))
-                append(" • ")
-                append(words)
-                append(" words")
+//                append("  •  ")
+//                append(words)
+//                append(" words")
             }
         } else {
-            tvQuoteSummary.visibility = View.GONE
+            if (isStudent) {
+                tvQuoteSummary.visibility = View.VISIBLE
+                tvQuoteSummary.text = "No quotes are available yet."
+            } else {
+                tvQuoteSummary.visibility = View.GONE
+            }
         }
 
         tvDocName.text = req.originalFileName ?: displayFileName
@@ -341,7 +378,6 @@ class TaskDetailsActivity :
         setVisible(btnUploadFeedback, isConsultant)
 
         setVisible(btnRevise, isConsultant)
-        setVisible(btnSendToStudent, isConsultant)
         setVisible(btnDownloadPdf, isConsultant)
         setVisible(btnConsultantPreview, isConsultant)
         setVisible(btnConsultantDownload, isConsultant)
@@ -349,6 +385,7 @@ class TaskDetailsActivity :
         setVisible(btnViewStudentFile, isStudent)
         setVisible(btnDownloadStudentFile, isStudent)
 
+        // Students still see feedback row; consultants don't use this student files block.
         if (!isStudent) rowFeedbackFile.visibility = View.GONE
     }
 
@@ -552,14 +589,43 @@ class TaskDetailsActivity :
             when (val result = docsRepo.downloadToDisk(documentId, preferredName)) {
                 is NetResult.Ok -> withContext(Dispatchers.Main) {
                     val file = result.data
+                    val canAnnotate = getCurrentUserRole() == UserRole.CONSULTANT
                     val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
                         .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
                         .putExtra(DocumentViewerActivity.EXTRA_REQUEST_ID, currentReq?.id)
                         .putExtra(DocumentViewerActivity.EXTRA_DISPLAY_NAME, preferredName)
+                        .putExtra(DocumentViewerActivity.EXTRA_CAN_ANNOTATE, canAnnotate)
                     startActivity(intent)
                 }
                 is NetResult.Err -> withContext(Dispatchers.Main) {
                     toast("Download failed: ${result.message}")
+                }
+            }
+        }
+    }
+
+    // Used only for feedback/annotated URL -> view-only internal viewer
+    private fun downloadAndOpenFromUrl(url: String, preferredName: String, canAnnotate: Boolean) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val file = File(cacheDir, preferredName)
+                java.net.URL(url).openStream().use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    val intent = Intent(this@TaskDetailsActivity, DocumentViewerActivity::class.java)
+                        .putExtra(DocumentViewerActivity.EXTRA_FILE_PATH, file.absolutePath)
+                        .putExtra(DocumentViewerActivity.EXTRA_REQUEST_ID, currentReq?.id)
+                        .putExtra(DocumentViewerActivity.EXTRA_DISPLAY_NAME, preferredName)
+                        .putExtra(DocumentViewerActivity.EXTRA_CAN_ANNOTATE, canAnnotate)
+                    startActivity(intent)
+                }
+            } catch (t: Throwable) {
+                withContext(Dispatchers.Main) {
+                    toast("Download failed: ${t.message}")
                 }
             }
         }
@@ -577,11 +643,6 @@ class TaskDetailsActivity :
         val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         dm.enqueue(req)
         toast("Downloading to system Downloads…")
-    }
-
-    private fun openUrl(url: String) {
-        try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-        catch (_: Throwable) { toast("No app can handle this link.") }
     }
 
     private fun ServicePriority.toPretty(): String = when (this) {
@@ -604,6 +665,85 @@ class TaskDetailsActivity :
         val docId = req.documentId ?: return toast("Document not available yet.")
         val fileName = req.originalFileName ?: req.customName ?: "${docId}.bin"
         downloadAndOpenInApp(docId, fileName)
+    }
+
+    private fun handleQuoteDecision(decision: String) {
+        val req = currentReq ?: run {
+            toast("Task missing.")
+            return
+        }
+
+        val quoteId = req.quotationId
+        val requestId = req.id
+
+        if (quoteId.isNullOrBlank()) {
+            toast("No quote to $decision.")
+            return
+        }
+
+        val fs = FirebaseFirestore.getInstance()
+
+        // Disable buttons immediately to prevent double-taps
+        btnAcceptQuote.isEnabled = false
+        btnDeclineQuote.isEnabled = false
+        btnRequestReview.isEnabled = false
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // 1) Update quotation status
+                val quoteUpdate = mapOf(
+                    "status" to decision,
+                    "decisionAt" to FieldValue.serverTimestamp()
+                )
+                fs.collection("Quotations")
+                    .document(quoteId)
+                    .update(quoteUpdate)
+                    .await()
+
+                // 2) Update the related request (flag if declined)
+                if (!requestId.isNullOrBlank()) {
+                    val reqUpdate = mutableMapOf<String, Any>(
+                        "quoteDecision" to decision,
+                        "quoteDecisionAt" to FieldValue.serverTimestamp()
+                    )
+
+                    if (decision == "declined") {
+                        reqUpdate["quoteFlagged"] = true
+                    }
+
+                    fs.collection("ServiceReviews")
+                        .document(requestId)
+                        .update(reqUpdate)
+                        .await()
+                }
+
+                // 3) Update UI
+                withContext(Dispatchers.Main) {
+                    when (decision) {
+                        "accepted" -> {
+                            tvQuoteSummary.text = "Quote accepted. We’ll start working on your document."
+                        }
+                        "declined" -> {
+                            tvQuoteSummary.text = "Quote declined – this request has been flagged for follow-up."
+                        }
+                    }
+
+                    // Hide actions after a final decision
+                    btnAcceptQuote.visibility = View.GONE
+                    btnDeclineQuote.visibility = View.GONE
+                    btnRequestReview.visibility = View.VISIBLE
+
+                    toast("Quote $decision.")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    btnAcceptQuote.isEnabled = true
+                    btnDeclineQuote.isEnabled = true
+                    btnRequestReview.isEnabled = true
+                    toast("Failed to $decision quote: ${e.message}")
+                }
+            }
+        }
     }
 
     private fun toast(msg: String) =

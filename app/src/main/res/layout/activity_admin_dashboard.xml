@@ -401,6 +401,7 @@
                     </RelativeLayout>
 
                     <!-- Empty state for Top Consultants (hidden by default) -->
+                    <!-- Empty state for Top Consultants (hidden by default) -->
                     <TextView
                         android:id="@+id/emptyTopConsultants"
                         android:layout_width="match_parent"
@@ -411,15 +412,16 @@
                         android:textColor="@color/text_faded"
                         android:textSize="14sp"
                         android:fontFamily="@font/poppins_medium"
-                        android:visibility="invisible" />
+                        android:visibility="gone" />
 
-                    <!-- Dynamic list container -->
-                    <LinearLayout
-                        android:id="@+id/listTopConsultants"
+                    <!-- RecyclerView list -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvTopConsultants"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginTop="12dp" />
+                        android:layout_marginTop="12dp"
+                        android:nestedScrollingEnabled="false"
+                        tools:listitem="@layout/item_top_consultant" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
