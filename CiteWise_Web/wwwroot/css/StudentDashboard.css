@@ -107,11 +107,7 @@
     z-index: 1;
 }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 25px;
-}
+
 
 .dashboard-grid {
     display: grid;
@@ -279,6 +275,17 @@
     border-radius: 16px;
     padding: 0;
     margin-bottom: 16px;
+    box-shadow: 4px 4px 4px 0 rgba(255, 255, 255, 0.76) inset, -4px -4px 8px 0 rgba(0, 0, 0, 0.20) inset;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+
+.requ-items {
+    background: #F5F6FA;
+    border-radius: 8px;
+    padding: 0;
+    margin-bottom: 8px;
     box-shadow: 4px 4px 4px 0 rgba(255, 255, 255, 0.76) inset, -4px -4px 8px 0 rgba(0, 0, 0, 0.20) inset;
     overflow: hidden;
     transition: box-shadow 0.2s ease;
@@ -648,22 +655,22 @@
 
 
 .download-btn {
-    display: inline-block;      /* Only as wide as content */
-    padding: 6px 12px;          /* Small padding around text */
-    font-size: 0.9rem;          /* Text size */
-    color: #007bff;             /* Button text color */
-    border: 1px solid #007bff;  /* Border */
-    border-radius: 4px;         /* Rounded corners */
-    text-decoration: none;      /* Remove underline */
-    text-align: center;         /* Center text inside */
+    display: inline-block; /* Only as wide as content */
+    padding: 6px 12px; /* Small padding around text */
+    font-size: 0.9rem; /* Text size */
+    color: #007bff; /* Button text color */
+    border: 1px solid #007bff; /* Border */
+    border-radius: 4px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+    text-align: center; /* Center text inside */
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.download-btn:hover {
-    background-color: #007bff;  /* Hover background */
-    color: white;               /* Hover text color */
-}
+    .download-btn:hover {
+        background-color: #007bff; /* Hover background */
+        color: white; /* Hover text color */
+    }
 
 
 
@@ -704,10 +711,30 @@
         color: white;
     }
 
-    .download-btn svg {
-        width: 18px;
-        height: 18px;
-    }
+.rtg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    color: #EBECF0;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+
+.download-btn svg {
+    width: 18px;
+    height: 18px;
+}
 
 .feedback-list .request-item {
     position: relative; /* for absolute positioning of the button if needed */

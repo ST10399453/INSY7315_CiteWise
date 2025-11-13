@@ -35,16 +35,18 @@ namespace CiteWise_Web.Controllers
             var unassigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(unassignedJson)
                              ?? new List<ServiceRequestItem>();
 
-            // Simulated consultant list (replace with Firebase)
-            var consultants = await _firebaseService.GetConsultantAsync();
+            var consultants = await _firebaseService.GetAllConsultantsAsync();
             var students = await _firebaseService.GetStudentsAsync();
 
-
+            // 👇 Split consultants into pending and approved
+            ViewBag.Pending = consultants.Where(c => !c.IsApproved).ToList();
+            ViewBag.Approved = consultants.Where(c => c.IsApproved).ToList();
             ViewBag.Consultants = consultants;
             ViewBag.Students = students;
 
             return View(unassigned);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -171,13 +173,22 @@ namespace CiteWise_Web.Controllers
             if (string.IsNullOrEmpty(token) || role != "admin")
                 return RedirectToAction("Login", "Account");
 
+            // Get all consultants
             var consultants = await _firebaseService.GetAllConsultantsAsync();
 
             ViewBag.Pending = consultants.Where(c => !c.IsApproved).ToList();
             ViewBag.Approved = consultants.Where(c => c.IsApproved).ToList();
+            ViewBag.Consultants = consultants;
 
-            return View();
+            // 👇 Fetch unassigned service requests
+            var unassignedResponse = await _apiService.GetUnassignedRequestsAsync(token);
+            var unassignedJson = await unassignedResponse.Content.ReadAsStringAsync();
+            var unassigned = JsonConvert.DeserializeObject<List<ServiceRequestItem>>(unassignedJson)
+                             ?? new List<ServiceRequestItem>();
+
+            return View(unassigned); // 👈 Pass unassigned requests as model
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -192,6 +203,24 @@ namespace CiteWise_Web.Controllers
 
             return RedirectToAction("ManageConsultants");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectConsultant(string id)
+        {
+            string role = HttpContext.Session.GetString("UserRole")?.ToLower();
+            if (role != "admin")
+                return RedirectToAction("Login", "Account");
+
+            bool ok = await _firebaseService.DeleteUserAsync(id);
+
+            TempData[ok ? "Message" : "Error"] = ok
+                ? "❌ Consultant rejected and account deleted."
+                : "⚠️ Failed to reject consultant.";
+
+            return RedirectToAction("AdminDashboard");
+        }
+
 
     }
 }
