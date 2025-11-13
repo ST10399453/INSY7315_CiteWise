@@ -230,5 +230,24 @@ namespace CiteWise_Web.Controllers
 
             return Redirect(url); // redirect student to the signed URL
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadFeedback(string requestId)
+        {
+            var token = HttpContext.Session.GetString("FirebaseToken");
+
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Account");
+
+            var url = await _apiService.GetAnnotatedFileUrlAsync(requestId, token);
+
+            if (string.IsNullOrEmpty(url))
+            {
+                TempData["Error"] = "No file available";
+                return RedirectToAction("StudentDashboard");
+            }
+
+            return Redirect(url);
+        }
     }
 }
