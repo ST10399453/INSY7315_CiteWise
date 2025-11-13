@@ -1,0 +1,56 @@
+﻿@model CiteWise_Web.Models.ServiceRequest.ServiceRequestItem
+
+@{
+    Layout = "_LayoutAuth";
+}
+
+<div class="studentbody">
+    <div class="centered">
+        <h2 class="page-title">Request Details</h2>
+
+        <div class="dashboard-card">
+            <div class="category-header">
+                @{
+                    var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
+                    Model.ServiceType.Replace("_", " ").ToLower()
+                    );
+                    if (displayName.Contains("Proofreading Editing"))
+                        displayName = displayName.Replace("Proofreading Editing", "Proofreading & Editing");
+                    if (displayName.Contains("Formatting Referencing"))
+                        displayName = displayName.Replace("Formatting Referencing", "Formatting & Referencing");
+                }
+                <p class="category-title">@displayName</p>
+                <span class="priority-badge @(Model.Priority?.ToLower())">@Model.Priority</span>
+            </div>
+
+            <div class="request-content">
+                <p><strong>Document:</strong> @Model.DocumentName</p>
+                <p><strong>Status:</strong> @Model.Status</p>
+                <p><strong>Deadline:</strong> @(string.IsNullOrEmpty(Model.Deadline) ? "-" : Model.Deadline)</p>
+
+                <div class="file-actions mt-2">
+                    @if (!string.IsNullOrEmpty(Model.File?.FileId))
+                    {
+                        <a asp-action="DownloadFile"
+                           asp-route-fileId="@Model.File.FileId"
+                           class="btn btn-outline-primary btn-sm me-2">
+                            Download Original File
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No file uploaded yet.</span>
+                    }
+
+                    <form asp-action="UploadAnnotated" method="post" enctype="multipart/form-data" class="d-inline-block">
+                        <input type="hidden" name="requestId" value="@Model.Id" />
+                        <input type="file" name="file" accept=".pdf,.doc,.docx" class="form-control form-control-sm mb-1" required />
+                        <button type="submit" class="btn btn-primary btn-sm">Upload Annotated</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <a asp-action="ConsultantDashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    </div>
+</div>

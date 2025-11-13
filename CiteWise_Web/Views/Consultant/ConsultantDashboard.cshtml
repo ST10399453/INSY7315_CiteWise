@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Consultant Dashboard";
     Layout = "_LayoutAuth";
+    var selectedPriority = (string)Context.Request.Query["priority"] ?? "All";
 }
 
 <!-- Alerts -->
@@ -20,18 +21,213 @@
     </div>
 }
 
+
+<div class="dashboard-header">
+    @* <h2>Good morning, Connor</h2> *@
+    <h2>Good morning, @(Context.Session.GetString("UserName") ?? "Guest")</h2>
+    <br />
+    <p>Here's what's happening with your tasks today.</p>
+</div>
+
+<div class="resource-section">
+    <div class="resource-buttons">
+        <a asp-controller="Consultant" asp-action="ViewRequests" class="feature-btn">
+            <img src="~/icons/view_requests.png" alt="View all Requests" class="feature-icon" />
+            <span>View My Tasks</span>
+        </a>
+    </div>
+</div>
+
+
 <div class="dashboard-container">
-    <div class="dashboard-grid">
+    <div class="consult-grid">
+
+        <div class="dashboard-card">
+            <h3 class="dashboard-heading">
+                Assigned to me (@(Model?.Assigned?.Count() ?? 0))
+            </h3>
+
+            @if (Model?.Assigned == null || !Model.Assigned.Any())
+            {
+                <p class="text-muted">You haven’t claimed any requests yet.</p>
+            }
+            else
+            {
+                <div class="request-list">
+                    @foreach (var r in Model.Assigned)
+                    {
+                        <a asp-action="ServiceRequestDetails" asp-route-id="@r.Id" class="request-item-link">
+                            <div class="request-item">
+                                <div class="category-header">
+                                    @{
+                                        var displayName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(
+                                        r.ServiceType.Replace("_", " ").ToLower()
+                                        );
+
+                                        if (displayName.Contains("Proofreading Editing"))
+                                            displayName = displayName.Replace("Proofreading Editing", "Proofreading & Editing");
+
+                                        if (displayName.Contains("Formatting Referencing"))
+                                            displayName = displayName.Replace("Formatting Referencing", "Formatting & Referencing");
+                                    }
+
+                                    <p class="category-title">@displayName</p>
+                                    <span class="priority-badge @(r.Priority?.ToLower())">@r.Priority</span>
+                                </div>
+
+                                <div class="request-content">
+                                    <div class="content-left">
+                                        <h3 class="request-title">@r.File?.OriginalName</h3>
+                                    <p class="submission-date">
+                                        Submitted: @(r.CreatedAt.HasValue? r.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy"): "-")
+                                    </p>
+                                        <div class="request-footer">
+                                            <div class="status-group">
+                                                <span class="status-dot @(r.Status?.ToLower().Replace(" ", "-"))"></span>
+                                                <span class="status-text">@r.Status</span>
+                                            </div>
+                                            <span class="deadline-text">
+                                                Deadline: @(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="dashboard-card">
+            <h3>ddkjdkj</h3>
+            </div>
+
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @*     <div class="content-right">
+            @if (!string.IsNullOrEmpty(r.File?.FileId))
+            {
+                <a asp-action="DownloadFile"
+                   asp-route-fileId="@r.File.FileId"
+                   class="btn btn-outline-primary btn-sm">
+                    Download
+                </a>
+            }
+            else
+            {
+                <span class="text-muted">No File</span>
+            }
+        </div>
+    </div>
+
+    <div class="upload-annotated mt-2">
+        <form asp-action="UploadAnnotated"
+              method="post"
+              enctype="multipart/form-data"
+              class="upload-form d-flex gap-2">
+
+            <input type="hidden" name="requestId" value="@r.Id" />
+
+            <input type="file"
+                   name="file"
+                   accept=".pdf,.doc,.docx"
+                   class="form-control form-control-sm"
+                   required />
+
+            <button type="submit" class="btn btn-primary btn-sm">
+                Upload
+            </button>
+        </form>
+    </div> *@
+
+
+
+
+
+    @*     <div class="content-right">
+            @if (!string.IsNullOrEmpty(r.File?.FileId))
+            {
+                <a asp-action="DownloadFile"
+                   asp-route-fileId="@r.File.FileId"
+                   class="btn btn-outline-primary btn-sm">
+                    Download
+                </a>
+            }
+            else
+            {
+                <span class="text-muted">No File</span>
+            }
+        </div>
+    </div>
+
+    <div class="upload-annotated mt-2">
+        <form asp-action="UploadAnnotated"
+              method="post"
+              enctype="multipart/form-data"
+              class="upload-form d-flex gap-2">
+
+            <input type="hidden" name="requestId" value="@r.Id" />
+
+            <input type="file"
+                   name="file"
+                   accept=".pdf,.doc,.docx"
+                   class="form-control form-control-sm"
+                   required />
+
+            <button type="submit" class="btn btn-primary btn-sm">
+                Upload
+            </button>
+        </form>
+    </div> *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <!-- Overview -->
-        <div class="dashboard-card text-center">
+        @* <div class="dashboard-card text-center">
             <h3>Available Requests</h3>
             <p><strong>@Model.Unassigned.Count</strong> unassigned requests.</p>
             <p>Click <b>“Assign to Me”</b> to claim one.</p>
-        </div>
+        </div> *@
 
         <!-- Unassigned Requests -->
-        <div class="dashboard-card" style="grid-column: span 2;">
+        @* <div class="dashboard-card" style="grid-column: span 2;">
             <h3>Unassigned Service Requests</h3>
 
             @if (!Model.Unassigned.Any())
@@ -90,10 +286,10 @@
                     </table>
                 </div>
             }
-        </div>
+        </div> *@
 
         <!-- Assigned Requests -->
-        <div class="dashboard-card" style="grid-column: span 3;">
+        @* <div class="dashboard-card" style="grid-column: span 3;">
             <h3>My Assigned Requests (@Model.Assigned.Count)</h3>
 
             @if (!Model.Assigned.Any())
@@ -164,10 +360,10 @@
                     </table>
                 </div>
             }
-        </div>
+        </div> *@
 
-    </div>
-</div>
+@*     </div>
+</div> *@
 
 @section Scripts {
     <script>

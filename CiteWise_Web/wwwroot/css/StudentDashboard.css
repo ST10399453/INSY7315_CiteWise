@@ -56,7 +56,7 @@
 }
 
 .feature-btn {
-    flex: 0 0 calc((100% - (var(--gap) * 4)) / 4);
+    flex: 0 0 calc((100% - (var(--gap) * 3)) / 3);
     box-sizing: border-box;
     background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
     box-shadow: 3px 3px 6.1px -3px rgba(255, 255, 255, 0.36) inset, -4px -4px 6px -4px rgba(0, 0, 0, 0.10) inset;
@@ -488,3 +488,26 @@
     max-width: 1400px;
     margin: 0 auto;
 }
+
+
+.consult-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 3 equal columns horizontally */
+    gap: 25px; /* neat spacing between cards */
+    align-items: start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1400px; /* keeps layout centered and balanced */
+    margin: 0 auto;
+}
+
+
+.request-item-link {
+    display: block;
+    text-decoration: none; /* removes underline */
+    color: inherit; /* keeps text color same as normal */
+}
+
+    .request-item-link:hover {
+        text-decoration: none; /* optional hover effect */
+    }

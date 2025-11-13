@@ -1,7 +1,6 @@
 ﻿@model List<CiteWise_Web.Models.ServiceRequest.RequestItem>
 @using System.Linq
 
-@* student *@
 @{
     Layout = "_LayoutAuth";
 
@@ -10,7 +9,7 @@
 
 <div class="studentbody">
     <div class="centered">
-        <h2 class="page-title">View All Requests</h2>
+        <h2 class="page-title">My Tasks</h2>
 
         <div class="filter-tabs">
             <div class="active-bg"></div>
@@ -20,12 +19,15 @@
             <a class="tab @(selectedPriority == "Low" ? "active" : "")" data-priority="Low">Low</a>
         </div>
 
-
         <div class="dashboard-card">
             @if (Model != null && Model.Any())
             {
                 <div class="request-list">
-                    @foreach (var request in Model.OrderBy(r => string.IsNullOrEmpty(r.Deadline) ? DateTime.MaxValue : DateTime.Parse(r.Deadline)))                                
+                    @foreach (var request in Model.OrderBy(r =>
+                    {
+                        DateTime dt;
+                        return DateTime.TryParse(r.Deadline, out dt) ? dt : DateTime.MaxValue;
+                    }))
                     {
                         <div class="request-item">
                             <div class="category-header">
@@ -41,9 +43,7 @@
                                         displayName = displayName.Replace("Formatting Referencing", "Formatting & Referencing");
                                 }
                                 <p class="category-title">@displayName</p>
-                                <span class="priority-badge @(request.Priority?.ToLower())">
-                                    @request.Priority
-                                </span>
+                                <span class="priority-badge @(request.Priority?.ToLower())">@request.Priority</span>
                             </div>
 
                             <div class="request-content">
@@ -64,12 +64,12 @@
                                 </div>
                             </div>
                         </div>
-                      }
+                    }
                 </div>
             }
             else
             {
-                <p>No service requests found.</p>
+                <p>No assigned requests found.</p>
             }
         </div>
     </div>

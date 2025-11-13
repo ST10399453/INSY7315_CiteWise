@@ -5,8 +5,9 @@ namespace CiteWise_Web.Models.ViewModels
 {
     public class ConsultantDashboardViewModel
     {
-        public List<ServiceRequestItem> Unassigned { get; set; }
+        public List<RequestItem> Unassigned { get; set; }
 
-        public List<ServiceRequestItem> Assigned { get; set; }
+        public List<RequestItem> Assigned { get; set; }
+
     }
 }
