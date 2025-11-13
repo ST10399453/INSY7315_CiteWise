@@ -152,6 +152,26 @@ export function computeQuote({
 
 /** If your R2 adapter returns publicUrl, pass it through. Otherwise return null. */
 export async function publicUrlFromR2Meta(r2Meta) {
-  if (r2Meta?.publicUrl) return r2Meta.publicUrl;
-  return null;
+  if (!r2Meta?.bucket || !r2Meta?.key) return null;
+
+  const { R2_PUBLIC_BASE_URL } = process.env;
+
+  // 1) If you have a public base URL configured, just build a stable URL
+  if (R2_PUBLIC_BASE_URL) {
+    const base = R2_PUBLIC_BASE_URL.replace(/\/+$/, "");
+    return `${base}/${r2Meta.key}`;
+  }
+
+  // 2) Fallback: long-lived signed URL (e.g. 7 days)
+  try {
+    const url = await r2SignedUrl({
+      bucket: r2Meta.bucket,
+      key: r2Meta.key,
+      expiresSeconds: 60 * 60 * 24 * 7, // 7 days
+    });
+    return url;
+  } catch (e) {
+    console.error("publicUrlFromR2Meta: failed to create signed URL", e);
+    return null;
+  }
 }
