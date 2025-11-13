@@ -347,5 +347,32 @@ namespace CiteWise_Web.Services
         }
 
 
+        public async Task<bool> ChangePasswordAsync(string idToken, string newPassword)
+        {
+            var data = new
+            {
+                idToken,
+                password = newPassword,
+                returnSecureToken = true
+            };
+
+            var json = JsonConvert.SerializeObject(data);
+
+            var response = await _client.PostAsync(
+                $"https://identitytoolkit.googleapis.com/v1/accounts:update?key={_apiKey}",
+                new StringContent(json, Encoding.UTF8, "application/json")
+            );
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Firebase password update failed: {result}");
+            }
+
+            return true;
+        }
+
     }
+
 }

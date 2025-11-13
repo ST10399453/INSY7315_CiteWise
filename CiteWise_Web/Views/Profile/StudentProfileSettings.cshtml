@@ -1,0 +1,189 @@
+﻿@model CiteWise_Web.Models.Profile.ProfileOverviewViewModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Student Profile";
+}
+
+<link rel="stylesheet" href="~/css/ProfileSettings.css" asp-append-version="true" />
+
+<div class="profile-page student-profile">
+    <div class="profile-title">Profile</div>
+    <div class="profile-subtitle">Manage your student account, requests and preferences.</div>
+
+    <div class="profile-toggle">
+        <button type="button" class="toggle-btn active" data-target="overview">Overview</button>
+        <button type="button" class="toggle-btn" data-target="settings">Settings</button>
+    </div>
+
+    <div class="profile-layout">
+        <!-- LEFT -->
+        <div>
+            <!-- OVERVIEW -->
+            <div id="overview-section" class="profile-section active">
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <div class="avatar-circle">
+                            @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                            {
+                                <img src="@Model.AvatarUrl" alt="Profile" />
+                            }
+                            else
+                            {
+                                var initials = string.Join("",
+                                (Model.Name ?? "Student")
+                                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                .Take(2)
+                                .Select(s => char.ToUpperInvariant(s[0])));
+                                @initials
+                            }
+                        </div>
+
+                        <div>
+                            <div class="profile-name">@(!string.IsNullOrWhiteSpace(Model.Name) ? Model.Name : "Student")</div>
+                            <div class="profile-email">@Model.Email</div>
+                            <div class="chip-role">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                                <span>Student</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-pill">
+                            <div class="stat-label">Requests</div>
+                            <div class="stat-value">@Model.Stats.TotalRequests</div>
+                        </div>
+                        <div class="stat-pill">
+                            <div class="stat-label">Completed</div>
+                            <div class="stat-value">@Model.Stats.Completed</div>
+                        </div>
+                        <div class="stat-pill">
+                            <div class="stat-label">In Progress</div>
+                            <div class="stat-value">@Model.Stats.InProgress</div>
+                        </div>
+                        <div class="stat-pill">
+                            <div class="stat-label">Pending</div>
+                            <div class="stat-value">@Model.Stats.Pending</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <div class="section-title">Study info</div>
+                    <div class="info-row">
+                        <span class="info-label">Field of Study</span>
+                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.FieldOfStudy) ? Model.FieldOfStudy : "Not set")</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Institution</span>
+                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Institution) ? Model.Institution : "Not set")</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Language</span>
+                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Language) ? Model.Language : "English")</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Role</span>
+                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Role) ? Model.Role : "Student")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div id="settings-section" class="profile-section">
+                <div class="profile-card">
+                    <div class="section-title">Account</div>
+                    <div class="settings-list">
+                        <a asp-controller="AccountSettings" asp-action="EditProfile" class="settings-item">
+                            <div class="settings-label">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                                <span>Edit profile</span>
+                            </div>
+                            <span class="settings-chevron"><i class="fa-solid fa-chevron-right"></i></span>
+                        </a>
+
+                        <a asp-controller="AccountSettings" asp-action="ChangePassword" class="settings-item">
+                            <div class="settings-label">
+                                <i class="fa-solid fa-key"></i>
+                                <span>Change password</span>
+                            </div>
+                            <span class="settings-chevron"><i class="fa-solid fa-chevron-right"></i></span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <div class="section-title">Notifications</div>
+                    <div class="settings-list">
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <i class="fa-solid fa-bell"></i>
+                                <span>Push notifications</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked disabled />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <div class="settings-label">
+                                <i class="fa-regular fa-envelope"></i>
+                                <span>Email notifications</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" disabled />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <div class="section-title">Language</div>
+                    <div class="info-row">
+                        <span class="info-label">App language</span>
+                        <span class="info-value">@(!string.IsNullOrWhiteSpace(Model.Language) ? Model.Language : "English")</span>
+                    </div>
+                </div>
+
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="logout-btn">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Log out</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT (empty for now) -->
+        <div></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const buttons = document.querySelectorAll('.profile-toggle .toggle-btn');
+            const overview = document.getElementById('overview-section');
+            const settings = document.getElementById('settings-section');
+
+            if (!buttons.length || !overview || !settings) return;
+
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const target = btn.getAttribute('data-target');
+                    if (target === 'overview') {
+                        overview.classList.add('active');
+                        settings.classList.remove('active');
+                    } else {
+                        settings.classList.add('active');
+                        overview.classList.remove('active');
+                    }
+                });
+            });
+        })();
+    </script>
+}

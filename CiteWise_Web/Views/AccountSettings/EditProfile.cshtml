@@ -1,0 +1,97 @@
+﻿@model CiteWise_Web.Models.Account.EditProfileViewModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Edit Profile";
+
+    var role = Context.Session.GetString("UserRole")?.ToLower();
+    var profileAction = role == "admin"
+        ? "Admin"
+        : role == "consultant"
+            ? "Consultant"
+            : "Student";
+}
+
+<link rel="stylesheet" href="~/css/ProfileSettings.css" asp-append-version="true" />
+
+<div class="profile-back-row">
+    <a asp-controller="Profile" asp-action="@profileAction" class="profile-back-link">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to profile</span>
+    </a>
+</div>
+
+<div class="profile-form-card">
+    <div class="profile-form-title">Edit profile</div>
+    <div class="profile-form-subtitle">
+        Update your personal details. Fields left blank will stay unchanged.
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Message"]
+        </div>
+    }
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+    {
+        <div class="alert alert-danger" role="alert">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <form asp-action="EditProfile" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="profile-form-grid">
+            <div class="profile-form-group">
+                <label asp-for="FirstName" class="profile-form-label"></label>
+                <input asp-for="FirstName" class="profile-form-input" />
+            </div>
+
+            <div class="profile-form-group">
+                <label asp-for="Surname" class="profile-form-label"></label>
+                <input asp-for="Surname" class="profile-form-input" />
+            </div>
+
+            <div class="profile-form-group">
+                <label asp-for="Email" class="profile-form-label"></label>
+                <input asp-for="Email" class="profile-form-input" readonly />
+            </div>
+
+            <div class="profile-form-group">
+                <label asp-for="Language" class="profile-form-label"></label>
+                <input asp-for="Language" class="profile-form-input" placeholder="e.g. English" />
+            </div>
+
+            <div class="profile-form-group">
+                <label asp-for="Institution" class="profile-form-label"></label>
+                <input asp-for="Institution" class="profile-form-input" placeholder="Institution (students)" />
+            </div>
+
+            <div class="profile-form-group">
+                <label asp-for="FieldOfStudy" class="profile-form-label"></label>
+                <input asp-for="FieldOfStudy" class="profile-form-input" placeholder="Field of study (students)" />
+            </div>
+
+            <div class="profile-form-group">
+                <label asp-for="Specialisation" class="profile-form-label"></label>
+                <input asp-for="Specialisation" class="profile-form-input" placeholder="Specialisation (consultants)" />
+            </div>
+        </div>
+
+        <div class="profile-form-actions">
+            <a asp-controller="Profile" asp-action="@profileAction" class="profile-btn-ghost">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Cancel</span>
+            </a>
+            <button type="submit" class="profile-btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Save changes</span>
+            </button>
+        </div>
+    </form>
+</div>

@@ -20,21 +20,21 @@
 
             <div class="navbar-center">
                 <a asp-area="" asp-controller="Home" asp-action="Index"
-                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                   class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
                     Home
                 </a>
 
                 <a asp-area="" asp-controller="Home" asp-action="Privacy"
-                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
+                   class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
                     Services
                 </a>
 
                 <a asp-area="" asp-controller="Home" asp-action="ContactUs"
-                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ContactUs" ? "active" : "")">
+                   class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ContactUs" ? "active" : "")">
                     Contact Us
                 </a>
                 <a asp-area="" asp-controller="Home" asp-action="AboutUs"
-                class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AboutUs" ? "active" : "")">
+                   class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AboutUs" ? "active" : "")">
                     About Us
                 </a>
             </div>
@@ -80,7 +80,7 @@
             </a>
             <a asp-area="" asp-controller="Account" asp-action="Register"
                class="mobile-nav-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
-                Register 
+                Register
             </a>
         </div>
     </div>
