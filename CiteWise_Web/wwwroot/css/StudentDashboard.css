@@ -513,16 +513,11 @@
     }
 
 
-
 .file-actions {
-    margin-top: 20px;
-    padding: 20px;
-    border-top: 1px solid #ccc;
-    background-color: #f9f9f9;
     border-radius: 6px;
     display: flex;
     flex-direction: column; /* Stack everything vertically */
-    gap: 15px; /* Space between download button and upload form */
+    gap: 8px; /* Space between download button and upload form */
 }
 
 /* Download button styling */
@@ -634,4 +629,23 @@
 
 .download-text {
     display: inline-block;
+}
+
+
+.download-btn {
+    display: inline-block;      /* Only as wide as content */
+    padding: 6px 12px;          /* Small padding around text */
+    font-size: 0.9rem;          /* Text size */
+    color: #007bff;             /* Button text color */
+    border: 1px solid #007bff;  /* Border */
+    border-radius: 4px;         /* Rounded corners */
+    text-decoration: none;      /* Remove underline */
+    text-align: center;         /* Center text inside */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background-color: #007bff;  /* Hover background */
+    color: white;               /* Hover text color */
 }
