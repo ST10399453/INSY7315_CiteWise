@@ -110,7 +110,8 @@
                         android:textColor="@color/text_dark"
                         android:textSize="12sp"
                         android:fontFamily="@font/poppins_medium"
-                        android:layout_marginBottom="6dp"/>
+                        android:layout_marginBottom="6dp"
+                        android:visibility="gone"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilVisibility"
@@ -120,7 +121,8 @@
                         app:hintEnabled="false"
                         app:endIconMode="dropdown_menu"
                         app:endIconDrawable="@drawable/ic_down_arrow"
-                        app:endIconTint="@null">
+                        app:endIconTint="@null"
+                        android:visibility="gone">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actVisibility"
