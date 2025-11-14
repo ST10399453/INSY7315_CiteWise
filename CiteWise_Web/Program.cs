@@ -65,10 +65,18 @@ var firebasepath = !string.IsNullOrEmpty(firebasePathFromEnv)
     ? firebasePathFromEnv
     : Path.Combine(app.Environment.ContentRootPath, "FirebaseKey", "citewise_two.json");
 
-if (!File.Exists(firebasepath))
+if (File.Exists(firebasepath))
 {
-    throw new FileNotFoundException($"Firebase key not found {firebasepath}");
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile(firebasepath)
+    });
 }
+else
+{
+    Console.WriteLine($"WARNING: Firebase key not found at {firebasepath}. Firebase will not be initialized.");
+}
+
 
 FirebaseApp.Create(new AppOptions()
 {

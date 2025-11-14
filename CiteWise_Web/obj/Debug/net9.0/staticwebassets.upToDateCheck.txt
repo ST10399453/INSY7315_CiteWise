@@ -18,6 +18,7 @@ wwwroot\icons\cal.svg
 wwwroot\icons\confirm.svg
 wwwroot\icons\Dashboard.svg
 wwwroot\icons\document.png
+wwwroot\icons\documents.png
 wwwroot\icons\down_arrow.svg
 wwwroot\icons\eye_closed.svg
 wwwroot\icons\eye_open.svg

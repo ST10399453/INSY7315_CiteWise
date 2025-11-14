@@ -25,5 +25,6 @@ EXPOSE 8080
 
 # If your app listens on a different port, change ASPNETCORE_URLS
 ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "CiteWise_Web.dll"]
