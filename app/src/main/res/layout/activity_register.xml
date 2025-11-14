@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="48dp">
+        android:paddingBottom="310dp">
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/toggleAccountType"
