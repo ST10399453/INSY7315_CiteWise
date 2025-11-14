@@ -77,12 +77,6 @@ else
     Console.WriteLine($"WARNING: Firebase key not found at {firebasepath}. Firebase will not be initialized.");
 }
 
-
-FirebaseApp.Create(new AppOptions()
-{
-    Credential = GoogleCredential.FromFile(firebasepath)
-});
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
