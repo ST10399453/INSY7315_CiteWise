@@ -29,6 +29,8 @@ namespace CiteWise_Web.Models.ServiceRequest
     {
         [JsonProperty("fileId")] public string FileId { get; set; }
         [JsonProperty("originalName")] public string OriginalName { get; set; }
+
+        [JsonProperty("customName")] public string DocName { get; set; }
         [JsonProperty("mimeType")] public string MimeType { get; set; }
         [JsonProperty("size")] public long? Size { get; set; }
     }
@@ -41,7 +43,10 @@ namespace CiteWise_Web.Models.ServiceRequest
         [JsonProperty("serviceType")] public string ServiceType { get; set; }
         [JsonProperty("description")] public string Description { get; set; }
         [JsonProperty("priority")] public string Priority { get; set; }
-        [JsonProperty("deadline")] public string Deadline { get; set; }
+
+        [JsonProperty("deadline")]
+        [JsonConverter(typeof(FlexibleTimestampConverter))]
+        public DateTime? Deadline { get; set; }
         [JsonProperty("status")] public string Status { get; set; }
         [JsonProperty("documentId")] public string DocumentId { get; set; }
         [JsonProperty("file")] public RequestFile File { get; set; }

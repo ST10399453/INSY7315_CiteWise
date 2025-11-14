@@ -1,6 +1,7 @@
 ﻿using CiteWise_Web.Models.Resources;
 using CiteWise_Web.Models.ServiceRequest;
 using CiteWise_Web.Services;
+using CiteWise_Web.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -38,7 +39,8 @@ namespace CiteWise_Web.Controllers
             try
             {
                 // Normal deserialization if API returns simple primitives
-                items = JsonConvert.DeserializeObject<List<RequestItem>>(json) ?? new List<RequestItem>();
+                 items = JsonConvert.DeserializeObject<List<RequestItem>>(json, new FlexibleTimestampConverter());
+
             }
             catch (JsonSerializationException)
             {
@@ -51,7 +53,9 @@ namespace CiteWise_Web.Controllers
                         ServiceType = entry.serviceType,
                         Description = entry.description,
                         Priority = entry.priority,
+                        //Deadline = entry.deadline,
                         Deadline = entry.deadline,
+
                         CreatedAt = entry.createdAt?._seconds,
                         UpdatedAt = entry.updatedAt?._seconds
                     };

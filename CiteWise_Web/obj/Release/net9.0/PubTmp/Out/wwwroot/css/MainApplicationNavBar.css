@@ -1,0 +1,509 @@
+﻿:root {
+    --main-color: #0027b2
+}
+
+body {
+    margin: 0;
+    /*    background: #EBECF0;*/
+    background: #f5f6f9;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ebecf0;
+    padding: 12px 35px;
+    /*  border-radius: 25px;*/
+    border-radius: 16px;
+    /*    background: linear-gradient(90deg, #E8EAF1 2.4%, rgba(235, 236, 240, 0.00) 98.82%);*/
+    box-shadow: 8px 7px 21px 0 rgba(0, 0, 0, 0.15), -6px -7px 11px 0 rgba(255, 255, 255, 0.84);
+    width: 90%;
+    margin: 18px auto;
+    position: sticky;
+    top: 15px;
+    /* increased z-index to ensure navbar stays above all scrolling content */
+    z-index: 1000;
+}
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.nav-logo {
+    width: 40px;
+    height: auto;
+    background-color: #ebecf0;
+}
+
+.brand-name {
+    color: var(--main-color);
+    font-family: "Poppins", sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.84px;
+}
+
+.navbar-center {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.nav-link {
+    font-family: "Public Sans", sans-serif;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 8px 18px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+    .nav-link:hover {
+        border-radius: 13px;
+        background: #ebecf0;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+    .nav-link.active {
+        border-radius: 13px;
+        background: #ebecf0;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.nav-account {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "Public Sans", sans-serif;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.account-text {
+    padding: 8px 18px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    font-family: "Public Sans", sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+}
+
+    .account-text:hover {
+        border-radius: 29px;
+        background: #ebecf0;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+.nav-account.active {
+    border-radius: 29px;
+    background: #ebecf0;
+    box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+}
+
+/*This is for the landing page nav bar*/
+.register-btn .account-text {
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 22px;
+    transition: all 0.3s ease;
+}
+
+    .register-btn .account-text:hover {
+        border-radius: 12px;
+        background: #0027B2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+/*This is for the landing page nav bar*/
+
+
+.nav-item.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 145%; /* below the parent link */
+    left: 0;
+    background-color: #ebecf0;
+    min-width: 190px;
+    border-radius: 12px;
+    flex-direction: column;
+    z-index: 100;
+}
+
+    .dropdown-content .dropdown-item {
+        display: block;
+        padding: 10px 16px;
+        color: #333;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 17px;
+        font-family: "Public Sans", sans-serif;
+        transition: all 0.3s ease;
+    }
+
+        .dropdown-content .dropdown-item:hover {
+            border-radius: 12px;
+            background: #ebecf0;
+            box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+        }
+
+.nav-item.dropdown:hover .dropdown-content {
+    display: flex;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-initials {
+    border-radius: 50%;
+    background-color: #0027b2;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Public Sans", sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.account-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: transparent;
+}
+
+.profile-initials {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: #0027b2;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Public Sans", sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.account-icon i {
+    font-size: 18px;
+}
+
+
+/* Added hamburger menu button styles - hidden by default on desktop */
+.hamburger-menu {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #0027b2;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Added mobile sidebar overlay */
+.mobile-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+    .mobile-sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+/* Updated mobile sidebar width to 65% and simplified styles */
+.mobile-sidebar {
+    position: fixed;
+    top: 0;
+    right: -65%;
+    width: 65%;
+    height: 100%;
+    background: #ebecf0;
+    z-index: 999;
+    transition: right 0.3s ease;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+}
+
+    .mobile-sidebar.active {
+        right: 0;
+    }
+
+.mobile-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.mobile-sidebar-brand {
+    display: flex;
+    align-items: center;
+
+}
+
+.mobile-logo {
+    width: 35px;
+    height: auto;
+}
+
+.mobile-brand-name {
+    color: #0027b2;
+    font-family: "Poppins", sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.84px;
+}
+
+/* Simplified close button - removed hover effects */
+.close-sidebar {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #333;
+    cursor: pointer;
+    padding: 4px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-sidebar-links {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 12px;
+}
+
+/* Simplified mobile nav links - removed hover and active states */
+.mobile-nav-link {
+    font-family: "Public Sans", sans-serif;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    display: block;
+}
+
+
+.mobile-sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+.mobile-sidebar-links {
+    flex-grow: 1;
+}
+
+
+.mobile-account-section {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background: #ebecf0;
+}
+
+.mobile-account-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #333;
+    font-family: "Public Sans", sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+
+/* Profile pic for mobile */
+.mobile-profile-pic {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Initials fallback */
+.mobile-profile-initials {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: #0027b2;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Public Sans", sans-serif;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+/* Container for icon or initials */
+.mobile-account-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #333;
+}
+
+    .mobile-account-icon i {
+        font-size: 18px;
+    }
+
+.mobile-account-text {
+    font-family: "Public Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+
+
+@media (max-width: 992px) {
+    .navbar {
+        width: 90%;
+        padding: 12px 20px;
+    }
+
+    .navbar-center {
+        gap: 16px;
+    }
+
+    .nav-link {
+        font-size: 16px;
+        padding: 6px 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        width: 95%;
+        padding: 12px 16px;
+    }
+
+
+    .navbar-center {
+        display: none;
+    }
+
+
+    .account-text {
+        display: none;
+    }
+
+
+    .hamburger-menu {
+        display: block;
+        margin-left: 12px;
+    }
+
+    .brand-name {
+        font-size: 18px;
+    }
+
+    .nav-logo {
+        width: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        width: 95%;
+        padding: 10px 12px;
+        border-radius: 30px;
+    }
+
+    .brand-name {
+        font-size: 16px;
+    }
+
+    .nav-logo {
+        width: 30px;
+    }
+
+    .mobile-sidebar {
+        width: 80%;
+        right: -80%;
+    }
+
+    .profile-pic,
+    .account-icon {
+        width: 35px;
+        height: 35px;
+    }
+
+    .profile-initials {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+}
+

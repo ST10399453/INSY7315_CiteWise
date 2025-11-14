@@ -1,0 +1,639 @@
+﻿:root {
+
+    --top-offset: 80px;
+}
+
+.studentbody {
+    position: fixed;
+    top: var(--top-offset);
+    left: 0; 
+    right: 0;
+    bottom: 0;
+    box-sizing: border-box;
+    padding: 40px;
+    overflow: auto;
+    display: flex;
+    justify-content: center; 
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.centered {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+
+/* --- Page Title --- */
+.page-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    text-align: center;
+    font-size: 34px;
+    font-style: normal;
+    color: #0027B2;
+    margin-bottom: 12px;
+    letter-spacing: 0.36px;
+}
+
+/* --- Progress Bar --- */
+.progress-bar {
+    height: 12px;
+    background: #E5E7EB;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    width: 0;
+    border-radius: 10px;
+}
+
+/* --- White Card --- */
+.studentcard {
+    background: #EBECF0;
+    border-radius: 16px;
+    padding: 24px 32px;
+    box-shadow: 4px 4px 4.1px 0 rgba(0, 0, 0, 0.25) inset, -4px -4px 4px 0 rgba(255, 255, 255, 0.63) inset, 2px 2px 4px 0 rgba(0, 0, 0, 0.2), -1px -1px 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+
+    /* --- Step Header --- */
+    .studentcard h3 {
+        color: #0027B2;
+        font-family: 'Poppins', sans-serif;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 500;
+        margin-bottom: 30px;
+    }
+
+    /* --- Radio Styling --- */
+    .studentcard label {
+        display: block;
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        color: #000;
+        margin-bottom: 12px;
+    }
+
+    .studentcard .form-group input[type="radio"] {
+        width: 18px; 
+        height: 18px; 
+        accent-color: #0027B2; 
+        vertical-align: middle; 
+        margin: 0 10px 0 0; 
+        flex-shrink: 0; 
+    }
+
+    .studentcard .form-group label {
+        display: flex;
+        align-items: center;
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #000;
+        margin-bottom: 12px;
+    }
+
+.custom-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 16px;
+    font-size: 18px;
+    line-height: 1.5;
+    border: 1px solid #d1d5db;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+
+    .custom-textarea:focus {
+        outline: none;
+        border-color: #0027B2; /* deep blue focus */
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+        background: #F1F2F5;
+    }
+
+
+.button-container {
+    display: flex;
+    justify-content: flex-end; /* moves button to the right */
+    margin-top: 20px;
+}
+
+
+.file-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 2px;
+    border: 2px dashed #3b82f6;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #f9f9f9, #ffffff);
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.05), -3px -3px 6px rgba(255, 255, 255, 0.7);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    max-width: 450px;
+    margin: 0;
+    min-height: auto;
+}
+
+    .file-upload p {
+        margin: 0; /* remove default margin */
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+        color: black;
+        font-size: 18px;
+        text-align: center;
+    }
+
+.upload-icon {
+    width: 24px;
+    height: 24px;
+    display: block; /* Removed margin-bottom since we're using gap now */
+    opacity: 0.9;
+}
+
+.file-upload input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+
+}
+
+.register-form .form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+
+
+.btn-next {
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
+    color: white;
+    border: none;
+    padding: 10px 48px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-next:hover {
+        background: #0027B2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+
+.text-dangers {
+    color: #D32F2F;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    margin-top: 4px;
+    display: block;
+}
+
+input.input-validation-error,
+textarea.input-validation-error,
+select.input-validation-error {
+    border: 1px solid #D32F2F !important;
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+    input.input-validation-error:focus,
+    textarea.input-validation-error:focus,
+    select.input-validation-error:focus {
+        outline: none;
+        border-color: #b71c1c !important;
+    }
+
+
+label.file-upload-container.input-validation-error {
+    border: 1px solid #D32F2F !important;
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+    label.file-upload-container.input-validation-error:focus-within {
+        border-color: #b71c1c !important;
+        box-shadow: 0 0 6px rgba(211, 47, 47, 0.4);
+    }
+
+
+.file-upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  border: 1px solid #d1d5db;
+    border-radius: 20px;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    margin-bottom: 16px;
+    width: auto;
+    max-width: 350px;
+    align-self: flex-start;
+}
+
+
+
+    .file-upload-container:hover {
+        background: #F3F4F6;
+        border-color: #001a7a;
+    }
+
+.upload-icon {
+    width: 24px;
+    height: 24px;
+    opacity: 1;
+    display: block;
+    margin: 0 auto; 
+}
+
+
+.upload-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    color: #6B7280;
+    margin-top: 16px
+}
+
+.upload-lines {
+    width: 60px;
+    height: 2px;
+    background: #0027B2;
+}
+
+.upload-label {
+    font-weight: 500;
+    color: #757575;
+}
+
+.file-input-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+}
+
+.selected-file-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #0027B2;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+}
+
+    .selected-file-name.show {
+        display: flex;
+    }
+
+/* Input with Icon Container */
+.input-with-icon {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+}
+
+/* Styled Input Fields */
+.icon-input {
+    width: 100%;
+    max-width: 370px;
+    padding: 14px 50px 14px 18px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    font-family: "Poppins", sans-serif;
+    background: #F1F2F5;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+
+    .icon-input:focus {
+        outline: none;
+        border-color: #0027B2;
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+        background: #F1F2F5;
+    }
+
+
+    .icon-input::placeholder {
+        color: #9ca3af;
+        font-size: 16px;
+    }
+
+/* Icon Positioning */
+.input-icon {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    width: 24px;
+    height: 24px;
+}
+
+select.icon-input {
+    cursor: pointer;
+    background-image: none; 
+}
+
+/* Date Input - Adjust for browser calendar icon */
+input[type="date"].icon-input {
+    position: relative;
+}
+
+    /* Hide default date picker icon in Chrome/Safari */
+    input[type="date"].icon-input::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        position: absolute;
+        right: 0;
+        width: 50px;
+        height: 100%;
+        cursor: pointer;
+    }
+
+
+/* Form Group Spacing */
+.form-group {
+    margin-bottom: 24px;
+}
+
+    .form-group label {
+        display: block;
+        font-family: "Poppins", sans-serif;
+        font-size: 18px;
+        font-weight: 500;
+        color: #000000;
+        margin-bottom: 12px;
+    }
+
+/* Error State */
+input.input-validation-error.icon-input,
+select.input-validation-error.icon-input {
+    border-color: #d32f2f !important;
+}
+
+
+/* --- Confirmation Page Styling --- */
+.confirmation-icon {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    padding: 20px;
+}
+
+.text-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    padding: 60px 40px;
+    border: none;
+    text-align: center;
+}
+
+    .studentcard.text-center h2 {
+        font-family: 'Poppins', sans-serif;
+        color: #0027B2;
+        font-size: 30px;
+        font-weight: 600;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+    .studentcard.text-center p {
+        font-family: 'Poppins', sans-serif;
+        font-size: 18px;
+        color: #6B7280;
+        margin-bottom: 6px;
+    }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .icon-input {
+        padding: 12px 45px 12px 16px;
+        font-size: 14px;
+    }
+
+    .input-icon {
+        width: 20px;
+        height: 20px;
+        right: 14px;
+    }
+}
+
+/* Custom Dropdown Styles - Add this to your existing CSS file */
+/* Custom Urgency Dropdown with Colored Indicators */
+.custom-urgency-dropdown {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+}
+
+    /* Hidden select for form submission */
+    .custom-urgency-dropdown select {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+/* Custom dropdown trigger button */
+.urgency-dropdown-trigger {
+    width: 100%;
+    padding: 14px 50px 14px 18px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: "Poppins", sans-serif;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+    .urgency-dropdown-trigger:hover {
+        border-color: #001e8d;
+        box-shadow: 0 0 6px rgba(0, 39, 178, 0.25);
+    }
+
+    .urgency-dropdown-trigger.active {
+        border-color: #001a7a;
+        box-shadow: 0 0 8px rgba(0, 39, 178, 0.35);
+        background-color: #f8faff;
+    }
+
+/* Arrow icon */
+.urgency-dropdown-arrow {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+}
+
+.urgency-dropdown-trigger.active .urgency-dropdown-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Dropdown menu */
+.urgency-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #f8f9fc;
+    border: 2px solid #0027b2;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: hidden;
+    display: none;
+}
+
+    .urgency-dropdown-menu.show {
+        display: block;
+    }
+
+/* Dropdown options */
+.urgency-option {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+    .urgency-option:last-child {
+        border-bottom: none;
+    }
+
+    .urgency-option:hover {
+        background: #ffffff;
+    }
+
+    .urgency-option.selected {
+        background: #f0f4ff;
+    }
+
+/* Colored indicator dots */
+.urgency-indicator {
+    width: 32px;
+    height: 12px;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+    .urgency-indicator.high {
+        background: #ff6b6b;
+    }
+
+    .urgency-indicator.medium {
+        background: #ffd93d;
+    }
+
+    .urgency-indicator.low {
+        background: #6bcf7f;
+    }
+
+/* Text styling */
+.urgency-text {
+    font-family: "Poppins", sans-serif;
+    font-size: 15px;
+    color: #000;
+}
+
+
+
+    .urgency-text span {
+        font-weight: 400;
+        color: #6b7280;
+    }
+
+/* Placeholder text */
+.urgency-placeholder {
+    color: #9ca3af;
+    font-size: 16px;
+}
+
+/* Selected value display */
+.urgency-selected-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .urgency-dropdown-trigger {
+        padding: 12px 45px 12px 16px;
+        font-size: 14px;
+    }
+
+    .urgency-option {
+        padding: 14px 16px;
+    }
+
+    .urgency-text {
+        font-size: 14px;
+    }
+}
+
+
+.dashboard-card h2 {
+    color: #0027B2;
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    margin-bottom: 30px;
+}

@@ -50,13 +50,13 @@ namespace CiteWise_Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Assign(string requestId, string consultantId)
+        public async Task<IActionResult> Assign(RequestItem request, string consultantId)
         {
             string token = HttpContext.Session.GetString("FirebaseToken");
             if (string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
 
-            var response = await _apiService.AssignRequestToConsultantAsync(requestId, consultantId, token);
+            var response = await _apiService.AssignRequestToConsultantAsync(request.Id, consultantId, token, request.Deadline.ToString());
 
             if (response.IsSuccessStatusCode)
                 TempData["Message"] = "✅ Successfully assigned request!";

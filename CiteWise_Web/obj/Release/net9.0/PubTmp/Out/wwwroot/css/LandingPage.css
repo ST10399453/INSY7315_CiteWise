@@ -1,0 +1,309 @@
+﻿/* Hero Section */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4rem 8%;
+    gap: 3rem;
+    background: #f5f6f9;
+    font-family: "Poppins", sans-serif;
+}
+
+/* Left side */
+.hero-left {
+    flex: 1;
+}
+
+.hero-title {
+    font-size: 50px;
+    font-weight: 800;
+    color: #0027b2;
+    margin-bottom: 1.5rem;
+}
+
+.hero-desc {
+    font-size: 20px;
+    line-height: 1.7;
+    color: #444;
+    max-width: 600px;
+    margin-bottom: 2rem;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1.5rem;
+}
+
+    .hero-buttons a {
+        font-family: "Poppins", sans-serif;
+        font-weight: 500;
+        font-size: 18px;
+        text-decoration: none;
+    }
+
+.reg {
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 8px 7px 21px 0 rgba(0, 0, 0, 0.15), -6px -7px 11px 0 rgba(255, 255, 255, 0.84);
+}
+
+    .reg:hover {
+        border-radius: 12px;
+        background: #0027B2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+/* Secondary button (Login) */
+.btn-secondary {
+    background: #ebecf0;
+    color: black;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 8px 7px 21px 0 rgba(0, 0, 0, 0.15), -6px -7px 11px 0 rgba(255, 255, 255, 0.84);
+}
+
+    .btn-secondary:hover {
+        border-radius: 13px;
+        background: #ebecf0;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+/* Right side */
+.hero-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.outer-circle {
+    position: relative;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    border: 4px solid white;
+    background: #f5f6f9;
+    box-shadow: inset 0 0 40px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .outer-circle .main-img {
+        width: 75%;
+        height: 75%;
+        object-fit: contain;
+    }
+
+/* Small circles */
+.small-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #f5f6f9;
+    border: 2px solid white;
+    box-shadow: inset 0 0 40px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center;
+}
+
+    .small-circle img {
+        width: 52px;
+        height: 52px;
+    }
+
+.icon1 {
+    transform: rotate(-135deg) translate(265px) rotate(135deg);
+}
+
+.icon2 {
+    transform: rotate(-160deg) translate(265px) rotate(160deg);
+}
+
+.icon3 {
+    transform: rotate(-185deg) translate(245px) rotate(185deg);
+}
+
+.icon4 {
+    transform: rotate(-210deg) translate(210px) rotate(210deg);
+}
+
+/* Media queries for tablet devices (768px and below) */
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        padding: 3rem 5%;
+        gap: 2.5rem;
+    }
+
+    .hero-left {
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 38px;
+    }
+
+    .hero-desc {
+        font-size: 18px;
+        max-width: 100%;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-right {
+        justify-content: center;
+    }
+
+    .outer-circle {
+        width: 350px;
+        height: 350px;
+    }
+
+    .small-circle {
+        width: 70px;
+        height: 70px;
+    }
+
+        .small-circle img {
+            width: 45px;
+            height: 45px;
+        }
+
+    .icon1 {
+        transform: rotate(-135deg) translate(220px) rotate(135deg);
+    }
+
+    .icon2 {
+        transform: rotate(-160deg) translate(220px) rotate(160deg);
+    }
+
+    .icon3 {
+        transform: rotate(-185deg) translate(205px) rotate(185deg);
+    }
+
+    .icon4 {
+        transform: rotate(-210deg) translate(175px) rotate(210deg);
+    }
+}
+
+/* Media queries for mobile devices (480px and below) */
+@media (max-width: 480px) {
+    .hero {
+        padding: 2rem 4%;
+        gap: 2rem;
+    }
+
+    .hero-title {
+        font-size: 32px;
+        margin-bottom: 1rem;
+    }
+
+    .hero-desc {
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+
+        .hero-buttons a {
+            font-size: 16px;
+            text-align: center;
+            display: block;
+        }
+
+    .outer-circle {
+        width: 280px;
+        height: 280px;
+        border: 3px solid white;
+    }
+
+    .small-circle {
+        width: 55px;
+        height: 55px;
+    }
+
+        .small-circle img {
+            width: 35px;
+            height: 35px;
+        }
+
+    .icon1 {
+        transform: rotate(-135deg) translate(175px) rotate(135deg);
+    }
+
+    .icon2 {
+        transform: rotate(-160deg) translate(175px) rotate(160deg);
+    }
+
+    .icon3 {
+        transform: rotate(-185deg) translate(160px) rotate(185deg);
+    }
+
+    .icon4 {
+        transform: rotate(-210deg) translate(135px) rotate(210deg);
+    }
+}
+
+/* Media queries for very small devices (360px and below) */
+@media (max-width: 360px) {
+    .hero {
+        padding: 1.5rem 3%;
+    }
+
+    .hero-title {
+        font-size: 28px;
+    }
+
+    .hero-desc {
+        font-size: 14px;
+    }
+
+    .outer-circle {
+        width: 240px;
+        height: 240px;
+    }
+
+    .small-circle {
+        width: 45px;
+        height: 45px;
+    }
+
+        .small-circle img {
+            width: 28px;
+            height: 28px;
+        }
+
+    .icon1 {
+        transform: rotate(-135deg) translate(145px) rotate(135deg);
+    }
+
+    .icon2 {
+        transform: rotate(-160deg) translate(145px) rotate(160deg);
+    }
+
+    .icon3 {
+        transform: rotate(-185deg) translate(135px) rotate(185deg);
+    }
+
+    .icon4 {
+        transform: rotate(-210deg) translate(115px) rotate(210deg);
+    }
+}

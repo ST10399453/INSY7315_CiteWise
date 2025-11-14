@@ -50,14 +50,14 @@ namespace CiteWise_Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AssignToMe(string id)
+        public async Task<IActionResult> AssignToMe(RequestItem request)
         {
             string token = HttpContext.Session.GetString("FirebaseToken");
             if (string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Account");
 
             // 🔹 Perform self-assignment
-            var response = await _apiService.SelfAssignRequestAsync(id, token);
+            var response = await _apiService.SelfAssignRequestAsync(request, token);
 
             if (response.IsSuccessStatusCode)
             {

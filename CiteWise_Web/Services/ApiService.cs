@@ -48,10 +48,10 @@ namespace CiteWise_Web.Services
             return await SendAsync(req);
         }
 
-        public async Task<HttpResponseMessage> SelfAssignRequestAsync(string requestId, string firebaseToken)
+        public async Task<HttpResponseMessage> SelfAssignRequestAsync(RequestItem reqquest, string firebaseToken)
         {
             SetBearer(firebaseToken);
-            var req = new HttpRequestMessage(HttpMethod.Post, $"requests/{requestId}/self-assign")
+            var req = new HttpRequestMessage(HttpMethod.Post, $"requests/{reqquest.Id}/self-assign")
             {
                 Content = JsonContent.Create(new { })
             };
@@ -62,7 +62,7 @@ namespace CiteWise_Web.Services
             string requestId,
             string consultantId,
             string firebaseToken,
-            string? deadline = null)
+            string? deadline)
         {
             SetBearer(firebaseToken);
 

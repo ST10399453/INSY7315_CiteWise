@@ -1,0 +1,141 @@
+﻿/* ============================================= */
+/* --- CUSTOM FLATPICKR THEME (App Blue #0027B2) --- */
+/* ============================================= */
+
+/* ----------------- Calendar Base ----------------- */
+/* The overall calendar container */
+.flatpickr-calendar {
+    font-family: 'Poppins', sans-serif; /* Custom font */
+    border: 1px solid #d9e1f5; /* Outer border */
+    border-radius: 16px; /* Rounded corners of calendar */
+    background-color: #f6f8ff; /* Background of entire calendar */
+    box-shadow: 0 4px 12px rgba(0, 39, 178, 0.1); /* Subtle shadow */
+}
+
+/* ----------------- Month Header ----------------- */
+/* Month name and navigation arrows */
+.flatpickr-months {
+    background: #f6f8ff; /* Background of month header */
+    color: #0027B2; /* Text color of month name */
+    font-weight: 600;
+}
+
+/* ----------------- Arrows (Navigation) ----------------- */
+/* Previous and next month arrows */
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    fill: #0027B2 !important; /* Arrow color */
+    stroke: #0027B2 !important;
+    transition: 0.2s ease;
+}
+
+.flatpickr-prev-month:hover svg,
+.flatpickr-next-month:hover svg {
+    fill: #001e8d !important; /* Darker on hover */
+}
+
+/* ----------------- Selected Date ----------------- */
+/* Date that user selects */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected:hover {
+    background: #0027B2 !important; /* Blue filled circle */
+    border-color: #0027B2 !important;
+    color: white !important; /* White text */
+    border-radius: 50%; /* Circle shape */
+}
+
+/* ----------------- Hover Effect ----------------- */
+/* Day hovered by the mouse */
+.flatpickr-day:hover {
+    background: #e5ecff;
+    border-color: #0027B2;
+    color: #0027B2;
+}
+
+/* ----------------- Today Highlight ----------------- */
+/* Current date (today) */
+.flatpickr-day.today {
+    color: #0027B2 !important; /* Blue text only */
+    border: none !important; /* No circle */
+    background: none !important;
+    font-weight: 600;
+}
+
+/* ----------------- Weekday Labels ----------------- */
+/* Sun, Mon, Tue, etc. */
+span.flatpickr-weekday {
+    color: #0027B2;
+    font-weight: 600;
+}
+
+/* ----------------- Input Field ----------------- */
+/* The text input field for the calendar */
+.flatpickr-input {
+    border: 1px solid #d1d5f3;
+    border-radius: 12px; /* Rounded corners for input */
+    padding: 10px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ----------------- Calendar Open Animation ----------------- */
+.flatpickr-calendar.open {
+    animation: fadeIn 0.25s ease-out;
+}
+
+/* ----------------- Month Selection ----------------- */
+/* Circle around selected month in month picker */
+.flatpickr-monthSelect-month.selected {
+    background: #0027B2 !important;
+    color: #fff !important;
+    border-radius: 50%;
+    font-weight: 600;
+}
+
+/* Hover effect on months */
+.flatpickr-monthSelect-month:hover {
+    background: #e5ecff !important;
+    color: #0027B2 !important;
+}
+
+/* Focused month (keyboard navigation) */
+.flatpickr-monthSelect-month:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 39, 178, 0.3);
+}
+
+
+/* Dim disabled weekends */
+.flatpickr-day.flatpickr-disabled-day {
+    opacity: 0.4;
+    cursor: not-allowed;
+    color: #999 !important;
+}
+
+
+/* ----------------- Animation Keyframes ----------------- */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Remove the dropdown arrow next to the month selector */
+.flatpickr-monthDropdown-months {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background: transparent !important;
+    background-image: none !important;
+    padding-right: 0 !important;
+    text-align: center;
+    font-weight: 600;
+    color: #0027B2;
+}

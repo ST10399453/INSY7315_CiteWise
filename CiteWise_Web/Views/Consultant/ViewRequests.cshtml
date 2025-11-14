@@ -26,7 +26,7 @@
                     @foreach (var request in Model.OrderBy(r =>
                     {
                         DateTime dt;
-                        return DateTime.TryParse(r.Deadline, out dt) ? dt : DateTime.MaxValue;
+                        return DateTime.TryParse(r.Deadline.ToString(), out dt) ? dt : DateTime.MaxValue;
                     }))
                     {
                         <a asp-action="ServiceRequestDetails" asp-route-id="@request.Id" class="request-item-link">
@@ -59,7 +59,7 @@
                                             <span class="status-text">@request.Status</span>
                                         </div>
                                         <span class="deadline-text">
-                                            Deadline: @(string.IsNullOrEmpty(request.Deadline) ? "-" : request.Deadline)
+                                                Deadline: @(string.IsNullOrEmpty(request.Deadline.ToString()) ? "-" : request.Deadline)
                                         </span>
                                     </div>
                                 </div>

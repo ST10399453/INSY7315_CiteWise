@@ -1,0 +1,591 @@
+﻿.profile-page {
+    width: 100%; /* Use full width of viewport */
+    max-width: 1300px; /* Optional: limit very wide screens */
+    margin: 0 auto; /* Centers horizontally */
+    padding: 2rem 1rem; /* Optional spacing around content */
+    font-family: 'Public Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #1f2933;
+    box-sizing: border-box; /* Ensures padding doesn’t break width */
+}
+
+
+.profile-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: left;
+    margin-bottom: 0.75rem;
+}
+
+.profile-subtitle {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* Toggle */
+.profile-toggle {
+    display: inline-flex;
+    background: #f3f4f6;
+    border-radius: 999px;
+    padding: 0.2rem;
+    margin-bottom: 1.75rem;
+}
+
+    .profile-toggle button {
+        border: none;
+        background: transparent;
+        padding: 0.45rem 1.4rem;
+        font-size: 0.9rem;
+        border-radius: 999px;
+        cursor: pointer;
+        color: #4b5563;
+        transition: background 0.18s ease, color 0.18s ease, transform 0.08s ease;
+    }
+
+/* Role-specific active toggle colors */
+.student-profile .profile-toggle button.active {
+    background: #0027B2;
+    color: #ffffff;
+    font-weight: 600;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+}
+
+.admin-profile .profile-toggle button.active {
+    background: #0027B2;
+    color: #ffffff;
+    font-weight: 600;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
+}
+
+.consultant-profile .profile-toggle button.active {
+    background: #0027B2;
+    color: #ffffff;
+    font-weight: 600;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.35);
+}
+
+/* Layout */
+
+@media (max-width: 900px) {
+    .profile-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Cards */
+.profile-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 1.25rem 1.4rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    border: 1px solid #e5e7eb;
+}
+
+    .profile-card + .profile-card {
+        margin-top: 1rem;
+    }
+
+/* Header */
+.profile-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* Avatar */
+.avatar-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+    .avatar-circle img {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        object-fit: cover;
+    }
+
+/* Role-specific avatar gradients */
+.student-profile .avatar-circle {
+    background: #0027B2;
+}
+
+.admin-profile .avatar-circle {
+    background: #0027B2;
+}
+
+.consultant-profile .avatar-circle {
+    background: #0027B2;
+}
+
+/* Name + Email */
+.profile-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+}
+
+.profile-email {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* Role chip */
+.chip-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 0.35rem;
+}
+
+/* Role-specific chips */
+.student-profile .chip-role {
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+}
+
+.admin-profile .chip-role {
+    background: rgba(79, 70, 229, 0.08);
+    color: #4338ca;
+}
+
+.consultant-profile .chip-role {
+    background: rgba(5, 150, 105, 0.08);
+    color: #047857;
+}
+
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.stat-pill {
+    border-radius: 14px;
+    padding: 0.65rem 0.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 16px;
+    color: black;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Role-specific stat colors */
+.student-profile .stat-value {
+    color: #0027B2;
+}
+
+.admin-profile .stat-value {
+    color: #0027B2;
+}
+
+.consultant-profile .stat-value {
+    color: #0027B2;
+}
+
+/* Info rows */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px dashed #e5e7eb;
+}
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+.info-label {
+    color: black;
+}
+
+.info-value {
+    font-weight: 500;
+    color: #0027B2;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* Section title */
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #0027B2;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+}
+
+/* Settings list */
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0.05rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 0.14s ease, transform 0.05s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+    .settings-item:hover {
+        background: #f3f4f6;
+        transform: translateY(-1px);
+    }
+
+.settings-label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+    .settings-label i {
+        color: #6b7280;
+        font-size: 0.85rem;
+        width: 16px;
+        text-align: center;
+    }
+
+.settings-chevron {
+    color: #9ca3af;
+    font-size: 0.8rem;
+}
+
+/* Toggle switches */
+.switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    display: inline-block;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: not-allowed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e5e7eb;
+    transition: 0.2s;
+    border-radius: 999px;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.2s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(148, 163, 184, 0.7);
+    }
+
+/* Role-specific ON state */
+.student-profile .switch input:checked + .slider {
+    background-color: #2563eb;
+}
+
+.admin-profile .switch input:checked + .slider {
+    background-color: #4f46e5;
+}
+
+.consultant-profile .switch input:checked + .slider {
+    background-color: #059669;
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+/* Logout button */
+.logout-btn {
+    margin-top: 1.3rem;
+    width: 100%;
+    border-radius: 12px;
+    color: white;
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    box-shadow: 3px 3px 6.1px -3px rgba(255, 255, 255, 0.36) inset, -4px -4px 6px -4px rgba(0, 0, 0, 0.10) inset;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+    .logout-btn:hover {
+        background: #0027B2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+    .logout-btn i {
+        font-size: 0.9rem;
+    }
+
+/* Sections */
+.profile-section {
+    display: none;
+}
+
+    .profile-section.active {
+        display: block;
+    }
+
+
+/* --- Shared settings forms --- */
+
+.profile-form-card {
+    max-width: 640px;
+    margin: 0 auto 2rem auto;
+}
+
+.profile-form-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+.profile-form-subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 1.3rem;
+}
+
+.profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.25rem;
+}
+
+@media (max-width: 700px) {
+    .profile-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.profile-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.profile-form-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.profile-form-input {
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .profile-form-input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.25);
+    }
+
+    .profile-form-input[readonly] {
+        background: #f3f4f6;
+        cursor: not-allowed;
+    }
+
+.profile-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+}
+
+.profile-btn-primary {
+    border-radius: 999px;
+    border: none;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+    background: #4f46e5;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.06s ease;
+}
+
+    .profile-btn-primary:hover {
+        background: #4338ca;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+    }
+
+.profile-btn-ghost {
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: #ffffff;
+    color: #374151;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.06s ease;
+}
+
+    .profile-btn-ghost:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+        transform: translateY(-1px);
+    }
+
+/* Back-to-profile link */
+.profile-back-row {
+    max-width: 960px;
+    margin: 1.25rem auto 0.5rem auto;
+    display: flex;
+    align-items: center;
+}
+
+.profile-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+    text-decoration: none;
+    padding: 0.25rem 0.4rem;
+    border-radius: 999px;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.06s ease;
+}
+
+    .profile-back-link i {
+        font-size: 0.9rem;
+    }
+
+    .profile-back-link:hover {
+        background: #f3f4f6;
+        color: #111827;
+        transform: translateY(-1px);
+    }
+
+/* Change-password specific */
+.password-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 0.15rem;
+}
+
+
+.centereds {
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    width: 100%; /* Full width of container */
+    /* Optional spacing top/bottom */
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 52px;
+    width: 100%;
+}
+
+background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+box-shadow: 3px 3px 6.1px -3px rgba(255, 255, 255, 0.36) inset, -4px -4px 6px -4px rgba(0, 0, 0, 0.10) inset;
+/* Optional: make cards fill their column */
+.dashboard-card {
+    width: 100%;
+}
+
+
+/* Make the toggle container bigger */
+.profile-toggle {
+    display: inline-flex;
+    background: #f3f4f6;
+    border-radius: 999px;
+    padding: 0.5rem; /* increased from 0.2rem */
+    margin-bottom: 2rem; /* slightly larger spacing below */
+}
+
+    /* Make the buttons bigger */
+    .profile-toggle button {
+        border: none;
+        background: transparent;
+        padding: 0.75rem 2rem; /* bigger padding: taller and wider */
+        font-size: 1.1rem; /* larger font */
+        border-radius: 999px;
+        cursor: pointer;
+        color:;
+        transition: background 0.18s ease, color 0.18s ease, transform 0.08s ease;
+    }
+
+/* Active buttons (role-specific) - keep existing styles, they scale automatically */
+.admin-profile .profile-toggle button.active {
+    background: #0027B2;
+    color: #ffffff;
+    font-weight: 600;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.35);
+}

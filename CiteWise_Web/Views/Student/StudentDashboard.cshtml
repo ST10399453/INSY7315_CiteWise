@@ -45,7 +45,7 @@
             {
                 // Find the request with the closest deadline
                 var closestRequest = Model
-                .Where(r => !string.IsNullOrEmpty(r.Deadline)).OrderBy(r => DateTime.Parse(r.Deadline)).FirstOrDefault();
+                .Where(r => !string.IsNullOrEmpty(r.Deadline.ToString())).OrderBy(r => DateTime.Parse(r.Deadline.ToString())).FirstOrDefault();
                 if (closestRequest != null)
                 {
                     <div class="request-list">
@@ -79,7 +79,7 @@
                                             <span class="status-text">@closestRequest.Status</span>
                                         </div>
                                         <span class="deadline-text">
-                                            Deadline: @(string.IsNullOrEmpty(closestRequest.Deadline)
+                                            Deadline: @(string.IsNullOrEmpty(closestRequest.Deadline.ToString())
                                                                                 ? "-" : closestRequest.Deadline)
 
                                 </span>

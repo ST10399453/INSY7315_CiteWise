@@ -115,7 +115,7 @@
                                                 <span class="status-text">@r.Status</span>
                                             </div>
                                             <span class="deadline-text">
-                                                Deadline: @(string.IsNullOrEmpty(r.Deadline) ? "-" : r.Deadline)
+                                                Deadline: @(string.IsNullOrEmpty(r.Deadline.ToString()) ? "-" : r.Deadline)
                                             </span>
                                         </div>
                                     </div>

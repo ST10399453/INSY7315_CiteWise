@@ -1,0 +1,310 @@
+﻿.register-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 36px;
+    margin-bottom: 36px;
+}
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 80px;
+}
+
+.register-container {
+    background: #EBECF0;
+    padding: 28px 28px 36px;
+    border-radius: 16px;
+    box-shadow: 4px 4px 4.1px 0 rgba(0, 0, 0, 0.25) inset, -4px -4px 4px 0 rgba(255, 255, 255, 0.63) 
+                inset, 2px 2px 4px 0 rgba(0, 0, 0, 0.2), -1px -1px 2px 0 rgba(255, 255, 255, 0.5);
+    width: 390px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* center horizontally */
+    margin-bottom: 16px;
+}
+
+    .logo-header .logo {
+        width: 60px; /* smaller size to fit next to name */
+        height: auto;
+        background-color: #EBECF0;
+    }
+
+    .logo-header .app-name {
+        font-family: 'Poppins', sans-serif;
+        font-size: 30px;
+        color: #0027B2;
+        margin: 0;
+    }
+
+.register-container h2.heading {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 24px;
+    color: #0027B2;
+    margin: 8px 0 24px 0;
+}
+
+
+.register-form .form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    background: #F1F2F5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+.form-input:focus {
+    outline: none;
+    border-color: #0027B2; /* deep blue focus */
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    background: #F1F2F5;
+}
+.register-form .form-group {
+    margin-bottom: 14px;
+    text-align: left;
+}
+
+    .register-form .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 16px;
+        color: #333;
+    }
+
+.btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, #0027B2 0%, #02134D 100%);
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 6px;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid #001C80;
+    text-decoration: none;
+    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+
+    .btn-primary:hover {
+        background: #0027B2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+.btn-google {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    display: flex;
+    font-size: 16px;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    background: #f2f2f2;
+    cursor: pointer;
+    box-shadow: 8px 7px 21px 0 rgba(0, 0, 0, 0.15), -6px -7px 11px 0 rgba(255, 255, 255, 0.84);
+    margin-top: 16px;
+}
+
+    .btn-google img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .btn-google:hover {
+        transform: translateY(-4px);
+        background: #f2f2f2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+/* Simple divider line */
+.divider-line {
+    border-top: 2px solid #C1C8DF;
+    margin: 16px 16px;
+}
+
+/* Already have an account link */
+.login-link {
+    text-align: center;
+    margin-top: 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #333;
+}
+
+    .login-link a {
+        color: #0027B2;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+.forgot-password {
+    text-align: right;
+    margin-top: 10px;
+}
+
+    .forgot-password a {
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        color: #0027B2;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease, text-decoration 0.2s ease;
+    }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+
+.password-field {
+    position: relative;
+}
+
+    .password-field .toggle-password {
+        position: absolute;
+        top: 55%;
+        right: 12px;
+        color: #0027B2;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+        .password-field .toggle-password img {
+            width: 20px;
+            height: 20px;
+        }
+
+
+.forgot-description {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    color: #555;
+    margin: 4px 0 24px 0;
+    line-height: 1.5;
+}
+
+.text-danger {
+    color: #D32F2F; 
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    margin-top: 4px;
+    display: block;
+}
+
+input.input-validation-error,
+textarea.input-validation-error,
+select.input-validation-error {
+    border: 1px solid #D32F2F !important;
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+    input.input-validation-error:focus,
+    textarea.input-validation-error:focus,
+    select.input-validation-error:focus {
+        outline: none;
+        border-color: #b71c1c !important;
+    }
+
+/*Forgot password*/
+.text-success {
+    color: #1B5E20;
+    background: #E8F5E9;
+    border: 1px solid #A5D6A7;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+/*Forgot password*/
+
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.form-input {
+    appearance: none; /* Hides default arrow (Chrome, Safari, Edge) */
+    -moz-appearance: none; /* Hides default arrow (Firefox) */
+    -webkit-appearance: none; /* Ensures compatibility */
+    width: 100%;
+    padding: 10px 40px 10px 12px; /* Add right padding for the SVG */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: white;
+}
+
+.urgency-dropdown-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Let clicks go through to the select */
+}
+
+
+.action-icons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.icon-link,
+.icon-button {
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* Colors for each icon */
+.icon-open svg {
+    stroke: #38E154B5; /* green */
+}
+
+.icon-download svg {
+    stroke: #0027B294; /* blue */
+}
+
+.icon-delete svg {
+    stroke: #FF0000D6; /* red */
+}
+
+/* Hover effects */
+.icon-link:hover svg,
+.icon-button:hover svg {
+    transform: scale(1.15);
+    opacity: 0.8;
+}
