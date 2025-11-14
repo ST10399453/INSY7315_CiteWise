@@ -1,0 +1,209 @@
+﻿.contact-page {
+    font-family: "Poppins", sans-serif;
+    color: #111827;
+    padding: 3.5rem 8% 4rem;
+    background: #f5f6f9;
+    box-sizing: border-box;
+}
+
+.contact-hero {
+    text-align: left;
+    margin-bottom: 2.5rem;
+}
+
+    .contact-hero h1 {
+        font-size: 34px;
+        font-weight: 700;
+        color: #0027b2;
+        margin-bottom: 0.6rem;
+    }
+
+    .contact-hero p {
+        font-size: 16px;
+        color: #4b5563;
+    }
+
+/* Layout */
+.contact-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.2fr);
+    gap: 2.4rem;
+}
+
+.contact-card {
+    background: #ebecf0;
+    border-radius: 18px;
+    padding: 2rem 2.2rem;
+    box-shadow: 4px 4px 4.1px 0 rgba(0, 0, 0, 0.25) inset, -4px -4px 4px 0 rgba(255, 255, 255, 0.63) inset, 2px 2px 4px 0 rgba(0, 0, 0, 0.12), -1px -1px 2px 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid #d1d5db;
+}
+
+    .contact-card h2 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #0027b2;
+        margin-bottom: 0.4rem;
+    }
+
+.card-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 1.6rem;
+}
+
+/* Form */
+.contact-form {
+    width: 100%;
+}
+
+/* Name + Email row – clear gap so fields don't touch */
+.contact-card .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem; /* horizontal gap between Name & Email */
+    row-gap: 0;
+    margin-bottom: 1.3rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+    }
+
+.form-input,
+.form-textarea {
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    padding: 0.55rem 0.7rem;
+    font-size: 14px;
+    font-family: "Poppins", sans-serif;
+    background: #f1f2f5;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.1);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    resize: none;
+}
+
+    .form-input:focus,
+    .form-textarea:focus {
+        border-color: #0027b2;
+    }
+
+.form-textarea {
+    min-height: 140px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.3rem;
+}
+
+/* Green success message */
+.alert-success {
+    background: #e8f7ed !important;
+    border: 1px solid #4caf50 !important;
+    color: #1e7b32 !important;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+/* Red error message */
+.alert-danger {
+    background: #fdecea !important;
+    border: 1px solid #ff4646 !important;
+    color: #b10000 !important;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+/* Button */
+.btn-primary {
+    background: linear-gradient(135deg, #0027b2 0%, #02134d 100%);
+    font-size: 15px;
+    font-family: "Poppins", sans-serif;
+    color: #fff;
+    border-radius: 12px;
+    cursor: pointer;
+    padding: 0.7rem 1.6rem;
+    border: 1px solid #001c80;
+    text-decoration: none;
+    box-shadow: inset 0 0 15px rgba(193, 200, 223, 0.4), 0 10px 20px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+
+    .btn-primary:hover {
+        background: #0027b2;
+        box-shadow: -4px -4px 4px 0 #fff inset, 5px 5px 2px 0 rgba(0, 0, 0, 0.12) inset;
+    }
+
+/* Sidebar info */
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+}
+
+.info-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.3rem 1.4rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+}
+
+    .info-card h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0027b2;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-card p {
+        font-size: 14px;
+        color: #4b5563;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-card i {
+        color: #0027b2;
+        margin-right: 0.6rem;
+    }
+
+.small-note {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+    .contact-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .contact-page {
+        padding: 2.5rem 5% 3rem;
+    }
+
+    /* Stack Name & Email on small screens */
+    .contact-card .form-row {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 1rem;
+    }
+
+    .contact-card {
+        padding: 1.5rem 1.4rem;
+    }
+}

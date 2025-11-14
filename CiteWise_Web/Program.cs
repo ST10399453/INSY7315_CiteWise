@@ -1,3 +1,4 @@
+using CiteWise_Web.Models;
 using CiteWise_Web.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
@@ -9,6 +10,38 @@ builder.Services.AddControllersWithViews();
 
 //Add HttpClient support
 builder.Services.AddHttpClient();
+
+//For appsettings.json
+//builder.Services.Configure<EmailSettings>(
+//    builder.Configuration.GetSection("EmailSettings"));
+
+// ---------- EmailSettings from ENV instead of appsettings.json ----------
+builder.Services.Configure<EmailSettings>(options =>
+{
+    var provider = Environment.GetEnvironmentVariable("EMAIL_PROVIDER");
+    var sender = Environment.GetEnvironmentVariable("EMAIL_SENDER_EMAIL");
+    var senderName = Environment.GetEnvironmentVariable("EMAIL_SENDER_NAME");
+    var user = Environment.GetEnvironmentVariable("EMAIL_SMTP_USERNAME");
+    var pass = Environment.GetEnvironmentVariable("EMAIL_SMTP_PASSWORD");
+
+    options.Provider = string.IsNullOrWhiteSpace(provider) ? "Gmail" : provider;
+    options.SenderEmail = string.IsNullOrWhiteSpace(sender) ? "" : sender;
+    options.SenderName = string.IsNullOrWhiteSpace(senderName) ? "CiteWise" : senderName;
+    options.SmtpUsername = string.IsNullOrWhiteSpace(user) ? options.SenderEmail : user;
+    options.SmtpPassword = string.IsNullOrWhiteSpace(pass) ? "" : pass;
+
+    if (string.IsNullOrWhiteSpace(options.SenderEmail) ||
+        string.IsNullOrWhiteSpace(options.SmtpUsername) ||
+        string.IsNullOrWhiteSpace(options.SmtpPassword))
+    {
+        // DEMO MODE: don't crash the app if email isn't configured.
+        Console.WriteLine(
+            "WARNING: Email configuration is incomplete. " +
+            "Email features may not work, but the site will run.");
+    }
+});
+
+// -----------------------------------------------------------------------
 
 //Register ApiService
 builder.Services.AddScoped<ApiService>();
@@ -26,15 +59,24 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-var firebasepath = Path.Combine(app.Environment.ContentRootPath, "FirebaseKey", "citewise_two.json");
+var firebasePathFromEnv = Environment.GetEnvironmentVariable("FIREBASE_KEY_PATH");
 
-if (!File.Exists(firebasepath))
-    throw new FileNotFoundException($"Firebase key not found {firebasepath}");
+var firebasepath = !string.IsNullOrEmpty(firebasePathFromEnv)
+    ? firebasePathFromEnv
+    : Path.Combine(app.Environment.ContentRootPath, "FirebaseKey", "citewise_two.json");
 
-FirebaseApp.Create(new AppOptions()
+if (File.Exists(firebasepath))
 {
-    Credential = GoogleCredential.FromFile(firebasepath)
-});
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile(firebasepath)
+    });
+}
+else
+{
+    Console.WriteLine($"WARNING: Firebase key not found at {firebasepath}. Firebase will not be initialized.");
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

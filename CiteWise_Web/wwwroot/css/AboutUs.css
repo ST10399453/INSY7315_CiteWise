@@ -1,0 +1,227 @@
+﻿.about-page {
+    font-family: "Poppins", sans-serif;
+    color: #111827;
+    padding: 3.5rem 8% 4rem;
+    background: #ffffff;
+}
+
+/* Hero */
+.about-hero {
+    max-width: 760px;
+    margin-bottom: 2.5rem;
+}
+
+    .about-hero h1 {
+        font-size: 34px;
+        font-weight: 700;
+        color: #0027b2;
+        margin-bottom: 0.6rem;
+    }
+
+    .about-hero p {
+        font-size: 16px;
+        color: #4b5563;
+    }
+
+/* Grid */
+.about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.5fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.about-card {
+    background: #ebecf0;
+    border-radius: 18px;
+    padding: 1.8rem 1.9rem;
+    box-shadow: 4px 4px 4.1px 0 rgba(0, 0, 0, 0.25) inset, -4px -4px 4px 0 rgba(255, 255, 255, 0.63) inset, 2px 2px 4px 0 rgba(0, 0, 0, 0.12), -1px -1px 2px 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid #d1d5db;
+}
+
+    .about-card h2 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #0027b2;
+        margin-bottom: 0.7rem;
+    }
+
+    .about-card p {
+        font-size: 14px;
+        color: #374151;
+        margin-bottom: 0.7rem;
+    }
+
+    .about-card ul {
+        padding-left: 1rem;
+    }
+
+    .about-card li {
+        font-size: 14px;
+        color: #111827;
+        margin-bottom: 0.3rem;
+    }
+
+/* Steps */
+.steps-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+    .steps-list li {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.8rem;
+        align-items: flex-start;
+    }
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0027b2 0%, #02134d 100%);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.steps-list h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0027b2;
+    margin-bottom: 0.1rem;
+}
+
+.steps-list p {
+    font-size: 13px;
+    color: #4b5563;
+}
+
+/* Stats strip */
+.stats-strip {
+    margin-bottom: 3rem;
+    padding: 1.8rem 1.6rem;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #0027b2 0%, #02134d 100%);
+    color: #ffffff;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.4rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.stat-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.stat-footnote {
+    display: block;
+    font-size: 12px;
+    color: rgba(243, 244, 246, 0.85);
+    margin-top: 0.25rem;
+}
+
+/* Footer CTA */
+.about-footer-cta {
+    padding: 2.4rem 2rem;
+    border-radius: 18px;
+    background: #f5f6f9;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+    .about-footer-cta h2 {
+        font-size: 22px;
+        font-weight: 600;
+        color: #0027b2;
+        margin-bottom: 0.4rem;
+    }
+
+    .about-footer-cta p {
+        font-size: 14px;
+        color: #374151;
+        max-width: 560px;
+    }
+
+.footer-cta-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Buttons reuse service CTA styles */
+.about-footer-cta .cta-btn-primary,
+.about-footer-cta .cta-btn-ghost {
+    border-radius: 12px;
+    padding: 0.7rem 1.6rem;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.about-footer-cta .cta-btn-primary {
+    background: linear-gradient(135deg, #0027b2 0%, #02134d 100%);
+    color: #ffffff;
+    border: 1px solid #001c80;
+}
+
+    .about-footer-cta .cta-btn-primary:hover {
+        background: #0027b2;
+    }
+
+.about-footer-cta .cta-btn-ghost {
+    background: #ffffff;
+    color: #0027b2;
+    border: 1px solid #d1d5db;
+}
+
+    .about-footer-cta .cta-btn-ghost:hover {
+        background: #eef2ff;
+    }
+
+/* Responsive */
+@media (max-width: 960px) {
+    .about-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .about-page {
+        padding: 2.5rem 5% 3rem;
+    }
+
+    .about-footer-cta {
+        padding: 1.8rem 1.4rem;
+        flex-direction: column;
+        text-align: left;
+    }
+}

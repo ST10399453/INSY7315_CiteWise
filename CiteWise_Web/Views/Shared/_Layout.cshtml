@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="~/css/LandingPage.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/MainApplicationNavBar.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    @RenderSection("Styles", required: false)
 </head>
 <body>
     @if (!(ViewData["HideLayoutElements"] as bool? ?? false))
@@ -24,8 +26,8 @@
                     Home
                 </a>
 
-                <a asp-area="" asp-controller="Home" asp-action="Privacy"
-                   class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
+                <a asp-area="" asp-controller="Home" asp-action="Services"
+                   class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")">
                     Services
                 </a>
 
@@ -33,6 +35,7 @@
                    class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ContactUs" ? "active" : "")">
                     Contact Us
                 </a>
+
                 <a asp-area="" asp-controller="Home" asp-action="AboutUs"
                    class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AboutUs" ? "active" : "")">
                     About Us
@@ -44,13 +47,13 @@
                     <span class="account-text">Register Now</span>
                 </a>
 
-                <!-- media queries stuff -->
                 <button class="hamburger-menu" id="hamburgerMenu" aria-label="Open menu">
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </nav>
     }
+
     <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
     <div class="mobile-sidebar" id="mobileSidebar">
         <div class="mobile-sidebar-header">
@@ -65,26 +68,26 @@
 
         <div class="mobile-sidebar-links">
             <a asp-area="" asp-controller="Home" asp-action="Index"
-               class="mobile-nav-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+               class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
                 Home
             </a>
 
-            <a asp-area="" asp-controller="Home" asp-action="Privacy"
-               class="mobile-nav-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
+            <a asp-area="" asp-controller="Home" asp-action="Services"
+               class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")">
                 Services
             </a>
 
-            <a asp-area="" asp-controller="Home" asp-action="Privacy"
-               class="mobile-nav-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
+            <a asp-area="" asp-controller="Home" asp-action="ContactUs"
+               class="mobile-nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ContactUs" ? "active" : "")">
                 Contact Us
             </a>
+
             <a asp-area="" asp-controller="Account" asp-action="Register"
-               class="mobile-nav-link  @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")">
+               class="mobile-nav-link">
                 Register
             </a>
         </div>
     </div>
-
 
     <div class="container">
         <main role="main" class="pb-3">
@@ -92,19 +95,11 @@
         </main>
     </div>
 
-    @* <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - CiteWise_Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
-
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/Landing.js" asp-append-version="true"></script>
     <script src="~/js/MainApplicationNavBar.js" asp-append-version="true"></script>
-
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

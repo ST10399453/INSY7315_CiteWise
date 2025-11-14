@@ -1,0 +1,310 @@
+﻿/* Base */
+.services-page {
+    font-family: "Poppins", sans-serif;
+    color: #1f2933;
+}
+
+/* Reuse hero baseline from sample and tweak */
+.services-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4rem 8%;
+    gap: 3rem;
+    background: #f5f6f9;
+}
+
+    .services-hero .hero-title {
+        font-size: 48px;
+        font-weight: 800;
+        color: #0027b2;
+        margin-bottom: 1.5rem;
+    }
+
+    .services-hero .hero-desc {
+        font-size: 18px;
+        line-height: 1.7;
+        color: #444;
+        max-width: 620px;
+        margin-bottom: 2rem;
+    }
+
+/* Hero buttons are already styled in your base CSS (reg, btn-secondary) */
+
+/* Services section */
+.services-section {
+    padding: 3.5rem 8% 4rem;
+    background: #ffffff;
+}
+
+.section-heading {
+    font-size: 30px;
+    font-weight: 700;
+    color: #0027b2;
+    margin-bottom: 0.3rem;
+    text-align: left;
+}
+
+.section-subtitle {
+    font-size: 16px;
+    color: #6b7280;
+    margin-bottom: 2.5rem;
+}
+
+/* Grid */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.75rem;
+}
+
+.service-card {
+    background: #ebecf0;
+    border-radius: 18px;
+    padding: 1.8rem 1.6rem;
+    box-shadow: 4px 4px 4.1px 0 rgba(0, 0, 0, 0.25) inset, -4px -4px 4px 0 rgba(255, 255, 255, 0.63) inset, 2px 2px 4px 0 rgba(0, 0, 0, 0.12), -1px -1px 2px 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid #d1d5db;
+}
+
+    .service-card h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #0027b2;
+        margin-bottom: 0.75rem;
+    }
+
+    .service-card p {
+        font-size: 14px;
+        color: #374151;
+        margin-bottom: 0.9rem;
+    }
+
+    .service-card ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+    }
+
+    .service-card li {
+        font-size: 14px;
+        color: #111827;
+        margin-bottom: 0.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+        .service-card li::before {
+            content: "•";
+            color: #0027b2;
+            font-size: 18px;
+        }
+
+/* CTA strip */
+.cta-strip {
+    padding: 2.8rem 8%;
+    background: linear-gradient(135deg, #0027b2 0%, #02134d 100%);
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.cta-content h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.cta-content p {
+    font-size: 15px;
+    max-width: 520px;
+}
+
+.cta-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.cta-btn-primary,
+.cta-btn-ghost {
+    border-radius: 12px;
+    padding: 0.7rem 1.6rem;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cta-btn-primary {
+    background: #ffffff;
+    color: #0027b2;
+    box-shadow: 3px 3px 6.1px -3px rgba(255, 255, 255, 0.36) inset, -4px -4px 6px -4px rgba(0, 0, 0, 0.1) inset;
+}
+
+    .cta-btn-primary:hover {
+        background: #f3f4ff;
+    }
+
+.cta-btn-ghost {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+    .cta-btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+/* Responsiveness */
+@media (max-width: 900px) {
+    .services-hero {
+        flex-direction: column;
+        padding: 3rem 6%;
+    }
+
+        .services-hero .hero-left {
+            text-align: center;
+        }
+
+        .services-hero .hero-desc {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .cta-strip {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cta-content p {
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .services-hero .hero-title {
+        font-size: 34px;
+    }
+
+    .services-hero .hero-desc {
+        font-size: 15px;
+    }
+}
+
+/* Ensure the layout has space and no fields touch */
+.contact-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2.5rem;
+    padding: 2rem 8%;
+}
+
+.contact-card {
+    background: #ffffff;
+    padding: 2rem 2.5rem;
+    border-radius: 18px;
+    box-shadow: 4px 4px 4.1px rgba(0, 0, 0, 0.25) inset, -4px -4px 4px rgba(255, 255, 255, 0.63) inset, 2px 2px 4px rgba(0, 0, 0, 0.12), -1px -1px 2px rgba(255, 255, 255, 0.5);
+    border: 1px solid #d1d5db;
+}
+
+/* Space between form rows */
+.form-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 1.2rem;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+    .form-input:focus,
+    .form-textarea:focus {
+        border-color: #0027b2;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 39, 178, 0.12);
+    }
+
+/* Green success message */
+.alert-success {
+    background: #e8f7ed !important;
+    border: 1px solid #4caf50 !important;
+    color: #1e7b32 !important;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+/* Red error message tweaking */
+.alert-danger {
+    background: #fdecea !important;
+    border: 1px solid #ff4646 !important;
+    color: #b10000 !important;
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+/* Right-side info cards */
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-card {
+    background: #ffffff;
+    padding: 1.6rem 1.8rem;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+    .info-card h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0027b2;
+        margin-bottom: 0.6rem;
+    }
+
+/* Responsive fixes */
+@media (max-width: 900px) {
+    .contact-layout {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+        gap: 2rem;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+

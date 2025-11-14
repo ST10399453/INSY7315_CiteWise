@@ -12,12 +12,21 @@
           "FirebaseAdmin": "3.4.0",
           "FirebaseDatabase.net": "5.0.0",
           "Google.Apis.Auth": "1.72.0",
-          "Google.Cloud.Firestore": "3.11.0",
+          "Google.Cloud.Firestore": "3.12.0",
+          "MailKit": "4.14.1",
           "Microsoft.AspNetCore.Session": "2.3.0",
           "Newtonsoft.Json": "13.0.4"
         },
         "runtime": {
           "CiteWise_Web.dll": {}
+        }
+      },
+      "BouncyCastle.Cryptography/2.6.1": {
+        "runtime": {
+          "lib/net6.0/BouncyCastle.Cryptography.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.6.1.59591"
+          }
         }
       },
       "Firebase.Auth/1.0.0": {
@@ -70,7 +79,7 @@
           }
         }
       },
-      "Google.Api.Gax/4.11.0": {
+      "Google.Api.Gax/4.12.1": {
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "Newtonsoft.Json": "13.0.4",
@@ -78,15 +87,15 @@
         },
         "runtime": {
           "lib/netstandard2.0/Google.Api.Gax.dll": {
-            "assemblyVersion": "4.11.0.0",
-            "fileVersion": "4.11.0.0"
+            "assemblyVersion": "4.12.1.0",
+            "fileVersion": "4.12.1.0"
           }
         }
       },
-      "Google.Api.Gax.Grpc/4.11.0": {
+      "Google.Api.Gax.Grpc/4.12.1": {
         "dependencies": {
           "Google.Api.CommonProtos": "2.17.0",
-          "Google.Api.Gax": "4.11.0",
+          "Google.Api.Gax": "4.12.1",
           "Google.Apis.Auth": "1.72.0",
           "Grpc.Auth": "2.71.0",
           "Grpc.Core.Api": "2.71.0",
@@ -95,14 +104,14 @@
         },
         "runtime": {
           "lib/netstandard2.0/Google.Api.Gax.Grpc.dll": {
-            "assemblyVersion": "4.11.0.0",
-            "fileVersion": "4.11.0.0"
+            "assemblyVersion": "4.12.1.0",
+            "fileVersion": "4.12.1.0"
           }
         }
       },
       "Google.Api.Gax.Rest/4.8.0": {
         "dependencies": {
-          "Google.Api.Gax": "4.11.0",
+          "Google.Api.Gax": "4.12.1",
           "Google.Apis.Auth": "1.72.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2"
         },
@@ -148,51 +157,51 @@
           }
         }
       },
-      "Google.Cloud.Firestore/3.11.0": {
+      "Google.Cloud.Firestore/3.12.0": {
         "dependencies": {
-          "Google.Cloud.Firestore.V1": "3.11.0",
+          "Google.Cloud.Firestore.V1": "3.12.0",
           "System.Collections.Immutable": "8.0.0",
           "System.Linq.Async": "6.0.3"
         },
         "runtime": {
           "lib/netstandard2.0/Google.Cloud.Firestore.dll": {
-            "assemblyVersion": "3.11.0.0",
-            "fileVersion": "3.11.0.0"
+            "assemblyVersion": "3.12.0.0",
+            "fileVersion": "3.12.0.0"
           }
         }
       },
-      "Google.Cloud.Firestore.V1/3.11.0": {
+      "Google.Cloud.Firestore.V1/3.12.0": {
         "dependencies": {
-          "Google.Api.Gax.Grpc": "4.11.0",
-          "Google.Cloud.Location": "2.3.0",
-          "Google.LongRunning": "3.4.0"
+          "Google.Api.Gax.Grpc": "4.12.1",
+          "Google.Cloud.Location": "2.4.0",
+          "Google.LongRunning": "3.5.0"
         },
         "runtime": {
           "lib/netstandard2.0/Google.Cloud.Firestore.V1.dll": {
-            "assemblyVersion": "3.11.0.0",
-            "fileVersion": "3.11.0.0"
+            "assemblyVersion": "3.12.0.0",
+            "fileVersion": "3.12.0.0"
           }
         }
       },
-      "Google.Cloud.Location/2.3.0": {
+      "Google.Cloud.Location/2.4.0": {
         "dependencies": {
-          "Google.Api.Gax.Grpc": "4.11.0"
+          "Google.Api.Gax.Grpc": "4.12.1"
         },
         "runtime": {
           "lib/netstandard2.0/Google.Cloud.Location.dll": {
-            "assemblyVersion": "2.3.0.0",
-            "fileVersion": "2.3.0.0"
+            "assemblyVersion": "2.4.0.0",
+            "fileVersion": "2.4.0.0"
           }
         }
       },
-      "Google.LongRunning/3.4.0": {
+      "Google.LongRunning/3.5.0": {
         "dependencies": {
-          "Google.Api.Gax.Grpc": "4.11.0"
+          "Google.Api.Gax.Grpc": "4.12.1"
         },
         "runtime": {
           "lib/netstandard2.0/Google.LongRunning.dll": {
-            "assemblyVersion": "3.4.0.0",
-            "fileVersion": "3.4.0.0"
+            "assemblyVersion": "3.5.0.0",
+            "fileVersion": "3.5.0.0"
           }
         }
       },
@@ -252,6 +261,18 @@
           "lib/netstandard2.0/LiteDB.dll": {
             "assemblyVersion": "5.0.17.0",
             "fileVersion": "5.0.17.0"
+          }
+        }
+      },
+      "MailKit/4.14.1": {
+        "dependencies": {
+          "MimeKit": "4.14.0",
+          "System.Formats.Asn1": "8.0.1"
+        },
+        "runtime": {
+          "lib/net8.0/MailKit.dll": {
+            "assemblyVersion": "4.14.0.0",
+            "fileVersion": "4.14.1.0"
           }
         }
       },
@@ -386,6 +407,18 @@
         "dependencies": {
           "System.Security.AccessControl": "4.5.0",
           "System.Security.Principal.Windows": "5.0.0"
+        }
+      },
+      "MimeKit/4.14.0": {
+        "dependencies": {
+          "BouncyCastle.Cryptography": "2.6.1",
+          "System.Security.Cryptography.Pkcs": "8.0.1"
+        },
+        "runtime": {
+          "lib/net8.0/MimeKit.dll": {
+            "assemblyVersion": "4.14.0.0",
+            "fileVersion": "4.14.0.0"
+          }
         }
       },
       "NETStandard.Library/1.6.0": {
@@ -543,6 +576,7 @@
           "System.Runtime": "4.1.0"
         }
       },
+      "System.Formats.Asn1/8.0.1": {},
       "System.Globalization/4.0.11": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "2.0.0",
@@ -1090,6 +1124,13 @@
       "serviceable": false,
       "sha512": ""
     },
+    "BouncyCastle.Cryptography/2.6.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vZsG2YILhthgRqO+ZVgRff4ZFKKTl0v7kqaVBLCtRvpREhfBP33pcWrdA3PRYgWuFL1RxiUFvjMUHTdBZlJcoA==",
+      "path": "bouncycastle.cryptography/2.6.1",
+      "hashPath": "bouncycastle.cryptography.2.6.1.nupkg.sha512"
+    },
     "Firebase.Auth/1.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1118,19 +1159,19 @@
       "path": "google.api.commonprotos/2.17.0",
       "hashPath": "google.api.commonprotos.2.17.0.nupkg.sha512"
     },
-    "Google.Api.Gax/4.11.0": {
+    "Google.Api.Gax/4.12.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-0o/Yz3SnnSf0/0ZtBOlY1enYHEPfy6RAfMc5poIDDven3TBM1eYVeq/AFBYo98q6NBZrHTZp//CTQ5CofTSw+A==",
-      "path": "google.api.gax/4.11.0",
-      "hashPath": "google.api.gax.4.11.0.nupkg.sha512"
+      "sha512": "sha512-G62dRNOv5DolfRviT6CCrL2a5nZ/CWWdRzhADkGnpCkYSOc3QnH5xxRvZiOKuHU8weJ/pAqAqrj7+T9IWdlu2Q==",
+      "path": "google.api.gax/4.12.1",
+      "hashPath": "google.api.gax.4.12.1.nupkg.sha512"
     },
-    "Google.Api.Gax.Grpc/4.11.0": {
+    "Google.Api.Gax.Grpc/4.12.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-22wm6lNa+R2CrwZnHZOs5A1gYD76dL08ENQKdYT4KfSFCwbEtO6InwbpwC8Vsh+SChKMIdFEgbQADG+jEcFoqQ==",
-      "path": "google.api.gax.grpc/4.11.0",
-      "hashPath": "google.api.gax.grpc.4.11.0.nupkg.sha512"
+      "sha512": "sha512-W3LjuitOWxWyvbwqeHvpgp0LdshEiTnw/pneDAfAhQ02VgU2gVEzSXfGNPsvL8hDPBXjngR/fWNme8Kungwwkw==",
+      "path": "google.api.gax.grpc/4.12.1",
+      "hashPath": "google.api.gax.grpc.4.12.1.nupkg.sha512"
     },
     "Google.Api.Gax.Rest/4.8.0": {
       "type": "package",
@@ -1160,33 +1201,33 @@
       "path": "google.apis.core/1.72.0",
       "hashPath": "google.apis.core.1.72.0.nupkg.sha512"
     },
-    "Google.Cloud.Firestore/3.11.0": {
+    "Google.Cloud.Firestore/3.12.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-99+8qOCYqQfSXbr6gaHjeJVeHcI6uRYaMfnp9CUl6hPvIfVxU4fzAk+MBaE9yK+V+PTrku8HNp32rmhXAQ++RQ==",
-      "path": "google.cloud.firestore/3.11.0",
-      "hashPath": "google.cloud.firestore.3.11.0.nupkg.sha512"
+      "sha512": "sha512-cprPkj0Ua0TOTs9Q0N8zA7zZsF8IEDl28InEGn6pwT4xLFRYC+GD/8Gv1U7QPliAfncZDkdvJbrl47R4DNqfvQ==",
+      "path": "google.cloud.firestore/3.12.0",
+      "hashPath": "google.cloud.firestore.3.12.0.nupkg.sha512"
     },
-    "Google.Cloud.Firestore.V1/3.11.0": {
+    "Google.Cloud.Firestore.V1/3.12.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-CjamSBXi3sDHCl9c4DkaotQ2gNHCkqoKv1nSkNbVD5TClD9JjY+CduSjnThVFbGiTnoAcSW5TecqL404Xvscgg==",
-      "path": "google.cloud.firestore.v1/3.11.0",
-      "hashPath": "google.cloud.firestore.v1.3.11.0.nupkg.sha512"
+      "sha512": "sha512-Q0LpxWahTF5baOPV86pWrci4SoKfindcXohm6wgTqgPCcnHSNIOBW3ZUs7lZOt6Zg7Xs1jTviJaj9daEr858lw==",
+      "path": "google.cloud.firestore.v1/3.12.0",
+      "hashPath": "google.cloud.firestore.v1.3.12.0.nupkg.sha512"
     },
-    "Google.Cloud.Location/2.3.0": {
+    "Google.Cloud.Location/2.4.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ABQ4EM7FsOM7tx0cmlkZmHFqH1LeCf4teWPM26UT7mZJzlH4Pk8HUcyi/xEFe3l6LanNFCTHbKT+eOlQ/axkJg==",
-      "path": "google.cloud.location/2.3.0",
-      "hashPath": "google.cloud.location.2.3.0.nupkg.sha512"
+      "sha512": "sha512-ZFChsp6OYVPBAzpoEWFMf/W9lfOgPj5BY+75/VjGV6EoirhA3YNlSKta3fX2MPaWH6RqJ9ZtNJT4vmdxhxbkbQ==",
+      "path": "google.cloud.location/2.4.0",
+      "hashPath": "google.cloud.location.2.4.0.nupkg.sha512"
     },
-    "Google.LongRunning/3.4.0": {
+    "Google.LongRunning/3.5.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-wwjdGIpAgAgnXy2NK9AU9mRUTsjHfJZzxbcV5lG6i4fx+RTch7TjFBDaIebNJleFLC5y3pGNoRIJUZ6V7x+FhQ==",
-      "path": "google.longrunning/3.4.0",
-      "hashPath": "google.longrunning.3.4.0.nupkg.sha512"
+      "sha512": "sha512-W8xO6FA+rG8WjKOsyIjTKjeKLcyCrjBBYeEdZ4QBkKQcxmRczbrfKhKQmdorb2V35CqXeeTbue5Na6Zkgyv8ow==",
+      "path": "google.longrunning/3.5.0",
+      "hashPath": "google.longrunning.3.5.0.nupkg.sha512"
     },
     "Google.Protobuf/3.31.1": {
       "type": "package",
@@ -1229,6 +1270,13 @@
       "sha512": "sha512-cKPvkdlzIts3ZKu/BzoIc/Y71e4VFKlij4LyioPFATZMot+wB7EAm1FFbZSJez6coJmQUoIg/3yHE1MMU+zOdg==",
       "path": "litedb/5.0.17",
       "hashPath": "litedb.5.0.17.nupkg.sha512"
+    },
+    "MailKit/4.14.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Rawu+h3lSSjKra0AxR+IUB99VQ7jWI+MvxThekqLhf+ic7VQ7a69lmPFW+LXuRYHla4ADcn3x16Gsvju3LTq9w==",
+      "path": "mailkit/4.14.1",
+      "hashPath": "mailkit.4.14.1.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Cryptography.Internal/2.3.0": {
       "type": "package",
@@ -1412,6 +1460,13 @@
       "path": "microsoft.win32.registry/4.5.0",
       "hashPath": "microsoft.win32.registry.4.5.0.nupkg.sha512"
     },
+    "MimeKit/4.14.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-g0LtsMC8DCTkc030C3UgVqbltOJmV5cz4AX8ASowz2ZA+lxopXSYtC1XXYmenxy606aWFLwi5Xy4cC/zyYjbjQ==",
+      "path": "mimekit/4.14.0",
+      "hashPath": "mimekit.4.14.0.nupkg.sha512"
+    },
     "NETStandard.Library/1.6.0": {
       "type": "package",
       "serviceable": true,
@@ -1530,6 +1585,13 @@
       "sha512": "sha512-vDN1PoMZCkkdNjvZLql592oYJZgS7URcJzJ7bxeBgGtx5UtR5leNm49VmfHGqIffX4FKacHbI3H6UyNSHQknBg==",
       "path": "system.diagnostics.tracing/4.1.0",
       "hashPath": "system.diagnostics.tracing.4.1.0.nupkg.sha512"
+    },
+    "System.Formats.Asn1/8.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XqKba7Mm/koKSjKMfW82olQdmfbI5yqeoLV/tidRp7fbh5rmHAQ5raDI/7SU0swTzv+jgqtUGkzmFxuUg0it1A==",
+      "path": "system.formats.asn1/8.0.1",
+      "hashPath": "system.formats.asn1.8.0.1.nupkg.sha512"
     },
     "System.Globalization/4.0.11": {
       "type": "package",

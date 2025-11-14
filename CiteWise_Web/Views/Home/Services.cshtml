@@ -1,0 +1,128 @@
+﻿@{
+    ViewData["Title"] = "Services";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Services.css" asp-append-version="true" />
+}
+
+<div class="services-page">
+    <section class="hero services-hero">
+        <div class="hero-left">
+            <h1 class="hero-title">
+                Research Support for Postgraduate Success
+            </h1>
+            <p class="hero-desc">
+                CiteWise, powered by <strong>Dr Majoko Projects (Pty) Ltd</strong>, connects
+                postgraduate students with experienced research consultants. Upload your work,
+                receive structured feedback, and access curated resources from your admin team.
+            </p>
+
+            <div class="hero-buttons">
+                <a asp-controller="Account" asp-action="Register" class="reg">
+                    Get Started with CiteWise
+                </a>
+                <a asp-controller="Home" asp-action="ContactUs" class="btn-secondary">
+                    Talk to our team
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <div class="outer-circle">
+                <img src="~/img/main_circle.png" alt="CiteWise Platform" class="main-img" />
+                <div class="small-circle icon1">
+                    <img src="~/img/Growth.png" alt="Growth" />
+                </div>
+                <div class="small-circle icon2">
+                    <img src="/img/Network.png" alt="Network" />
+                </div>
+                <div class="small-circle icon3">
+                    <img src="/img/Calander.png" alt="Calendar" />
+                </div>
+                <div class="small-circle icon4">
+                    <img src="/img/Cloud.png" alt="Cloud" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-section">
+        <h2 class="section-heading">What we offer</h2>
+        <p class="section-subtitle">
+            Tailored support for Masters and PhD students across disciplines.
+        </p>
+
+        <div class="services-grid">
+            <article class="service-card">
+                <h3>Manuscript & Proposal Review</h3>
+                <p>
+                    Upload your proposals, chapters, or full manuscripts to be
+                    reviewed by vetted consultants. Get feedback on structure,
+                    argumentation, academic writing style, and alignment with
+                    institutional guidelines.
+                </p>
+                <ul>
+                    <li>Line-by-line comments</li>
+                    <li>High-level conceptual feedback</li>
+                    <li>Revision suggestions & clarity checks</li>
+                </ul>
+            </article>
+
+            <article class="service-card">
+                <h3>Research Design & Methodology Support</h3>
+                <p>
+                    Work with consultants to refine your research questions,
+                    methodology, and data collection strategy – from qualitative
+                    designs to advanced quantitative approaches.
+                </p>
+                <ul>
+                    <li>Problem statement & research aims refinement</li>
+                    <li>Sampling, ethics and instrument design</li>
+                    <li>Analysis approach guidance</li>
+                </ul>
+            </article>
+
+            <article class="service-card">
+                <h3>Admin-Managed Resources Library</h3>
+                <p>
+                    Admins on your institution’s side can upload guides,
+                    templates, exemplars and announcements – all surfaced in one
+                    central space for students.
+                </p>
+                <ul>
+                    <li>Faculty-specific resources</li>
+                    <li>Policy & guideline documents</li>
+                    <li>Workshops and webinar recordings</li>
+                </ul>
+            </article>
+
+            <article class="service-card">
+                <h3>Messaging & Collaboration</h3>
+                <p>
+                    Built-in messaging connects students and consultants directly,
+                    keeping feedback in context and conversations easy to track.
+                </p>
+                <ul>
+                    <li>Secure student–consultant chat</li>
+                    <li>Threaded feedback conversations</li>
+                    <li>Notifications for new comments</li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <section class="cta-strip">
+        <div class="cta-content">
+            <h2>Ready to onboard your postgraduate cohort?</h2>
+            <p>
+                Partner with <strong>Dr Majoko Projects (Pty) Ltd</strong> to
+                deploy CiteWise as your institution’s central postgraduate support hub.
+            </p>
+        </div>
+        <div class="cta-actions">
+            <a asp-action="ContactUs" class="cta-btn-primary">Book a demo</a>
+            <a asp-action="AboutUs" class="cta-btn-ghost">Learn more about us</a>
+        </div>
+    </section>
+</div>

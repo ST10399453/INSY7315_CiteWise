@@ -1,5 +1,118 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model CiteWise_Web.Models.ContactFormModel
+
 @{
+    ViewData["Title"] = "Contact Us";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/ContactUs.css" asp-append-version="true" />
+}
+
+<div class="contact-page">
+    <section class="contact-hero">
+        <h1>Contact CiteWise</h1>
+        <p>
+            Whether you’re a postgraduate student, consultant, or university representative,
+            the <strong>Dr Majoko Projects (Pty) Ltd</strong> team is ready to assist.
+        </p>
+    </section>
+
+    <section class="contact-layout">
+        <div class="contact-card">
+            <h2>Send us a message</h2>
+            <p class="card-subtitle">
+                Share a bit about your needs and we’ll get back to you with next steps.
+            </p>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+
+            <form asp-action="ContactUs" asp-controller="Home" method="post" class="contact-form">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-input" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-input" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Subject"></label>
+                    <input asp-for="Subject" class="form-input" />
+                    <span asp-validation-for="Subject" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Message"></label>
+                    <textarea asp-for="Message" class="form-textarea"></textarea>
+                    <span asp-validation-for="Message" class="text-danger"></span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i>
+                        Submit enquiry
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <aside class="contact-info">
+            <div class="info-card">
+                <h3>Business details</h3>
+                <p>
+                    <strong>Dr Majoko Projects (Pty) Ltd</strong><br />
+                    CiteWise Postgraduate Support Platform
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Get in touch</h3>
+                <p>
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>support@citewise.co.za</span>
+                </p>
+                <p>
+                    <i class="fa-solid fa-phone"></i>
+                    <span>+27 (0) XX XXX XXXX</span>
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>Typical response time</h3>
+                <p>We aim to respond within 1–2 business days.</p>
+                <p class="small-note">
+                    For urgent platform issues, please include “URGENT” in your subject line.
+                </p>
+            </div>
+        </aside>
+    </section>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
