@@ -102,43 +102,51 @@ Citewise postgraduate research management application will automate consultant a
 
 ## Screenshots
 
-### Landing page
-<img src="webscreenshots/landing.jpg">
-
 ### Student Dashboard
- <img src="webscreenshots/asudentdash.jpg">
+ <img src="screenshots/student_dash.jpg">
 
  ### Student Submit Requests
-  <img src="webscreenshots/service1.jpg">
-  <img src="webscreenshots/service2.jpg"> 
-<img src="webscreenshots/service3.jpg"> 
+  <img src="screenshots/request1.jpg">
+<img src="screenshots/request2.jpg"> 
+<img src="screenshots/request3.jpg"> 
+<img src="screenshots/request4.jpg"> 
+<img src="screenshots/request_datepicker.jpg"> 
+<img src="screenshots/request_success.jpg"> 
 
  ### Student View all Requests
-  <img src="webscreenshots/reqStudent.jpg"> 
+  <img src="screenshots/student_tasks.jpg"> 
 
  ### Student Resources
-  <img src="webscreenshots/docsStudent.jpg"> 
+  <img src="screenshots/student_resources.jpg"> 
 
   ### Consultant Dashboard
- <img src="webscreenshots/consultdash.jpg"> 
+ <img src="screenshots/consultant_dashboard.jpg"> 
 
   ### Consultant Assigned Tasks
- <img src="webscreenshots/cnsultalltasks.jpg"> 
+ <img src="screenshots/consultant_active_tasks.jpg"> 
 
    ### Consultant Provides Feedback
- <img src="webscreenshots/feedback.jpg"> 
+ <img src="screenshots/consultant_navigate.jpg"> 
+<img src="screenshots/consultant_annotated.jpg"> 
+
+  ### Messages
+ <img src="screenshots/student_messages_overview.jpg"> 
+ <img src="screenshots/student_message.jpg"> 
+ <img src="screenshots/consultant_message_overview.jpg"> 
+ <img src="screenshots/consultant_message.jpg"> 
 
   ### Admin Dashboard
- <img src="webscreenshots/admindash1.jpg"> 
+ <img src="screenshots/admin_dashboard.jpg"> 
 
    ### Admin Assign Consultant
- <img src="webscreenshots/adminassign.jpg"> 
+ <img src="screenshots/admin_manager.jpg"> 
+<img src="screenshots/admin_assign_consultant.jpg">
 
    ### Admin Resources
- <img src="webscreenshots/adminresource.jpg"> 
+ <img src="screenshots/admin_resource.jpg"> 
 
    ### Admin Add Resources
- <img src="webscreenshots/addresource.jpg"> 
+ <img src="screenshots/admin_resource_add.jpg"> 
 
 
 
@@ -147,8 +155,7 @@ Citewise postgraduate research management application will automate consultant a
 ### Prerequisites
 Before setting up, ensure you have the following installed:
 
-- .NET 8 SDK
-- Visual Studio 2022 or later
+- Android Studio Narwhal Patch 4
 - Windows 10 or later
 
 ### Installation Steps
