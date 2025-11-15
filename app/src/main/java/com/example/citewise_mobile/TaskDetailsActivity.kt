@@ -266,18 +266,85 @@ class TaskDetailsActivity :
             downloadAndOpenInApp(docId, fileName)
         }
 
-        // Quote actions (student) — endpoints TBD server-side
         btnAcceptQuote.setOnClickListener {
-            toast("Accept tapped. (Hook to /quotes/{id}/accept when available.)")
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
+            val requestId = req.id ?: return@setOnClickListener toast("Request ID missing.")
+
+            lifecycleScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        setQuotationStatusForRequest(
+                            requestId = requestId,
+                            quotationId = req.quotationId, // if ServiceRequestDto has this
+                            status = "approved"
+                        )
+                    }
+
+                    // UI thread
+                    btnAcceptQuote.isEnabled = false
+                    btnDeclineQuote.isEnabled = false
+                    toast("Quote approved.")
+                } catch (t: Throwable) {
+                    toast("Failed to approve quote: ${t.message}")
+                }
+            }
         }
+
         btnDeclineQuote.setOnClickListener {
-            toast("Decline tapped. (Hook to /quotes/{id}/decline when available.)")
+            val req = currentReq ?: return@setOnClickListener toast("Task missing.")
+            val requestId = req.id ?: return@setOnClickListener toast("Request ID missing.")
+
+            lifecycleScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        setQuotationStatusForRequest(
+                            requestId = requestId,
+                            quotationId = req.quotationId, // if available
+                            status = "underReview"
+                        )
+                    }
+
+                    btnAcceptQuote.isEnabled = false
+                    btnDeclineQuote.isEnabled = false
+                    toast("Quote marked as under review.")
+                } catch (t: Throwable) {
+                    toast("Failed to update quote: ${t.message}")
+                }
+            }
         }
+
+
 
         // Chat
         btnChatConsultant.setOnClickListener { startChatWithConsultant() }
     }
 
+    private suspend fun setQuotationStatusForRequest(
+        requestId: String,
+        quotationId: String?,
+        status: String
+    ) {
+        val fs = FirebaseFirestore.getInstance()
+
+        // Prefer using quotationId if we have it, otherwise look it up by requestId
+        val quoteRef = if (!quotationId.isNullOrBlank()) {
+            fs.collection("Quotations").document(quotationId)
+        } else {
+            val snap = fs.collection("Quotations")
+                .whereEqualTo("requestId", requestId)
+                .limit(1)
+                .get()
+                .await()
+
+            snap.documents.firstOrNull()?.reference
+                ?: throw IllegalStateException("Quotation not found for request $requestId")
+        }
+
+        // Update status only
+        quoteRef.update("status", status).await()
+    }
+
+    
     private fun bindRequest(req: ServiceRequestDto) {
         chipPriority.text = req.priority?.toPretty() ?: "—"
 
