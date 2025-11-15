@@ -2,8 +2,14 @@
 
 ## Overview
 
-Citewise postgraduate research management application will automate consultant assignments, quotation, communication, and document exchange. Provide students with clear, timely service delivery and progress visibility. Help consultants manage their workload and deliver feedback efficiently. Equip admins with dashboards and performance analytics to improve decision-making and service quality.
+CiteWise is a mobile postgraduate research management application that streamlines student–consultant interactions. The app:
 
+- Provides students with clear, timely service delivery and progress visibility via their mobile devices.
+
+- Helps consultants manage their workload, communicate with students, and deliver annotated feedback efficiently.
+
+- Equips admins with dashboards and performance analytics to improve decision-making and service quality.
+- 
 ## Group Members
 - Akhilesh Parshotam - ST10281011
 - Erin Chisholm - ST10279615
@@ -17,6 +23,7 @@ Citewise postgraduate research management application will automate consultant a
 - Secure login and registration using Firebase Authentication
 - Password recovery functionality
 - User profile management
+- Mobile-friendly UI for authentication and profile screens.
 
 
 ### Role-Based Features
@@ -25,13 +32,42 @@ Citewise postgraduate research management application will automate consultant a
 
 ### 1. Student Dashboard
 - Displays a list of all service requests the student has submitted.
-- Each request shows key information such as service type, title, priority, date submitted, deadline, and current status 
-- Students can see feedback and quotations uploaded by the consultant for each request.
+
+- Each request shows key information such as:
+  
+    - Service type
+
+    - Title
+
+    - Priority/urgency
+
+    - Date submitted
+
+    - Deadline
+
+    - Status
+
+- Students can view feedback and annotated documents uploaded by the consultant for each request.
+
+- Designed for mobile: scrollable cards and compact layouts for quick overview on phones.
 
 ### 2. Request a Service Page
-- Allows students to submit a new service request.
-- Students can enter request details (e.g., service type, description, uplaod document, urgency and deadline).
-- Once submitted, the request appears on the dashboard and in the "View All Submitted Requests" page.
+- Allows students to submit a new service request from their mobile device.
+
+- Students can:
+
+  - Enter request details (service type, title, description).
+
+  - Upload a document (e.g., proposal, chapter draft).
+
+  - Set urgency and deadline using mobile-friendly controls (e.g., date picker).
+
+- Once submitted:
+
+  - The request appears on the Student Dashboard.
+
+  - The request is visible in the View All Submitted Requests page.
+
 
 ### 3. View All Submitted Requests Page
 - Shows a full list of all the student’s requests in one place.
@@ -79,23 +115,34 @@ Citewise postgraduate research management application will automate consultant a
   - View a list of **approved consultants** currently active on the system.
 
 ### 2. Manage Consultants
-- Allows the admin to **assign consultants to student service requests**.
-- Helps ensure that service requests are distributed to the appropriate consultants.
+- Allows the admin to assign consultants to student service requests.
+
+- Helps ensure that service requests are distributed to the appropriate consultants based on availability and expertise.
 
 ### 3. Resources Page
 - Admins can view all resources they have uploaded to the system.
-- Includes filtering options:
-  - Filter resources by **faculty**.
-  - Search for a resource by **name/title**.
+
+  - Includes filtering options:
+
+  - Filter resources by faculty.
+
+- Search for a resource by name/title.
+
 - Makes it easier to manage and maintain learning materials, guides, and templates.
 
 ### 4. Add Resource Page
 - Allows the admin to add new resources to the system.
+
 - The admin can:
-  - Enter the **title** of the resource.
-  - Select a **category**.
-  - Select the **faculty** the resource belongs to.
+
+  - Enter the title of the resource.
+
+  - Select a category.
+
+  - Select the faculty the resource belongs to.
+
   - Upload a file as the resource.
+
 - Once added, resources become available to students on the Resources page.
 
 
@@ -103,51 +150,76 @@ Citewise postgraduate research management application will automate consultant a
 ## Screenshots
 
 ### Student Dashboard
- <img src="screenshots/student_dash.jpg">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/student_dash.jpg" width="250" alt="Login" style="margin: 5px;"> 
+</div>
 
  ### Student Submit Requests
-  <img src="screenshots/request1.jpg">
-<img src="screenshots/request2.jpg"> 
-<img src="screenshots/request3.jpg"> 
-<img src="screenshots/request4.jpg"> 
-<img src="screenshots/request_datepicker.jpg"> 
-<img src="screenshots/request_success.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/request_nav.jpg" width="250" alt="Login" style="margin: 5px;">
+   <img src="screenshots/request1.jpg" width="250" alt="Login" style="margin: 5px;">
+  <img src="screenshots/request2.jpg" width="250" alt="sso" style="margin: 5px;">
+  <img src="screenshots/request3.jpg" width="250" alt="sso" style="margin: 5px;">
+    <img src="screenshots/request4.jpg" width="250" alt="sso" style="margin: 5px;">
+<img src="screenshots/request_datepicker.jpg" width="250" alt="sso" style="margin: 5px;">
+    <img src="screenshots/request_success.jpg" width="250" alt="sso" style="margin: 5px;"> 
+</div>
 
  ### Student View all Requests
-  <img src="screenshots/student_tasks.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/student_tasks.jpg" width="250" alt="Login" style="margin: 5px;"> 
+</div>
 
  ### Student Resources
-  <img src="screenshots/student_resources.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/student_resources.jpg" width="250" alt="Login" style="margin: 5px;"> 
+</div>
 
   ### Consultant Dashboard
- <img src="screenshots/consultant_dashboard.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/consultant_dashboard.jpg" width="250" alt="Login" style="margin: 5px;"> 
+</div>
 
-  ### Consultant Assigned Tasks
- <img src="screenshots/consultant_active_tasks.jpg"> 
+  ### Consultant Assigned Tasks 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/consultant_active_tasks.jpg" width="250" alt="Login" style="margin: 5px;"> 
+</div>
 
    ### Consultant Provides Feedback
- <img src="screenshots/consultant_navigate.jpg"> 
-<img src="screenshots/consultant_annotated.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/consultant_navigate.jpg" width="250" alt="Login" style="margin: 5px;">
+<img src="screenshots/consultant_annotated.jpg" width="250" alt="Login" style="margin: 5px;">
+</div>
 
   ### Messages
- <img src="screenshots/student_messages_overview.jpg"> 
- <img src="screenshots/student_message.jpg"> 
- <img src="screenshots/consultant_message_overview.jpg"> 
- <img src="screenshots/consultant_message.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/student_messages_overview.jpg" width="250" alt="Login" style="margin: 5px;">
+<img src="screenshots/student_message.jpg" width="250" alt="Login" style="margin: 5px;">
+<img src="screenshots/consultant_message_overview.jpg" width="250" alt="Login" style="margin: 5px;">
+<img src="screenshots/consultant_message.jpg" width="250" alt="Login" style="margin: 5px;">
+</div>
 
   ### Admin Dashboard
- <img src="screenshots/admin_dashboard.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/admin_dashboard.jpg" width="250" alt="Login" style="margin: 5px;">
+</div>
+
 
    ### Admin Assign Consultant
- <img src="screenshots/admin_manager.jpg"> 
-<img src="screenshots/admin_assign_consultant.jpg">
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/admin_manager.jpg" width="250" alt="Login" style="margin: 5px;">
+<img src="screenshots/admin_assign_consultant.jpg" width="250" alt="Login" style="margin: 5px;">
+</div>
 
    ### Admin Resources
- <img src="screenshots/admin_resource.jpg"> 
+<div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/admin_resource.jpg" width="250" alt="Login" style="margin: 5px;">
+</div>
 
    ### Admin Add Resources
- <img src="screenshots/admin_resource_add.jpg"> 
-
+ <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+<img src="screenshots/admin_resource_add.jpg" width="250" alt="Login" style="margin: 5px;">
+</div>
 
 
 ## Setup Instructions
@@ -156,13 +228,23 @@ Citewise postgraduate research management application will automate consultant a
 Before setting up, ensure you have the following installed:
 
 - Android Studio Narwhal Patch 4
+
 - Windows 10 or later
 
+- Android SDK and an Android emulator or a physical Android device
+
 ### Installation Steps
-- Clone or download the project repository.
-- Open the solution in Visual Studio.
-- Build the project (Ctrl + Shift + B).
-- Run the application (click Run OR press F5).
+1. Clone or download the project repository.
+
+2. Open Android Studio.
+
+3. Select “Open an existing project” and choose the CiteWise project folder.
+
+4. Allow Android Studio to sync Gradle and download required dependencies.
+
+5. Connect an Android device (with USB debugging enabled) or start an Android emulator.
+
+6. Click Run in Android Studio (or press Shift + F10) to build and install the app on your device/emulator.
 
 ## Links
 
