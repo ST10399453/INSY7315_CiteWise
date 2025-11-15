@@ -7,6 +7,8 @@ import android.view.MotionEvent
 import android.view.View
 import kotlin.math.abs
 
+//https://developer.android.com/reference/android/graphics/package-summary
+
 data class PenStroke(
     val path: Path,
     val paint: Paint,

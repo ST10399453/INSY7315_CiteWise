@@ -90,7 +90,6 @@ class ResourcesViewModel(
             val remote: List<ResourceEntity> = resp.body()!!.map { it.toResourceEntity() }
 
             val dao = localRepos.resources
-            // naive replace-or-upsert by remoteId
             val existing = runCatching { dao.getAll() }.getOrDefault(emptyList())
             val byRemote = existing.associateBy { it.remoteId }
             val merged = remote.map { r ->
@@ -132,9 +131,6 @@ class ResourcesViewModel(
         }
     }
 
-    // (optional) offline download still via Documents repo if you need it later
-    // suspend fun markOffline(...) { ... }
-
     private suspend fun buildAuthHeader(): String? = withContext(Dispatchers.IO) {
         val user = FirebaseAuth.getInstance().currentUser ?: return@withContext null
         val token = runCatching { user.getIdToken(true).await().token }.getOrNull()
@@ -170,3 +166,15 @@ class ResourcesViewModel(
             ResourcesViewModel(api, localRepos, docsRepo) as T
     }
 }
+
+/*
+ * REFERENCES
+ *
+ * Firebase. 2019a. “Cloud Firestore | Firebase”.
+ * https://firebase.google.com/docs/firestore
+ * [accessed 23 September 2025].
+ *
+ * Firebase. 2019b. “Firebase Authentication | Firebase”.
+ * https://firebase.google.com/docs/auth
+ * [accessed 24 September 2025].
+ */

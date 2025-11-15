@@ -291,3 +291,5 @@ class ConversationActivity : AppCompatActivity() {
         Log.d(TAG, " ✓ Broadcast receiver registered for action: ${AppMessagingService.ACTION_NEW_MESSAGE}")
     }
 }
+
+

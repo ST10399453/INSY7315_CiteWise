@@ -11,6 +11,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.citewise_mobile.adapters.AssignmentAdapter
+import com.example.citewise_mobile.adapters.ConsultantRowAdapter
+import com.example.citewise_mobile.adapters.PendingConsultantAdapter
+import com.example.citewise_mobile.adapters.PriorityFilter
 import com.example.citewise_mobile.databinding.ActivityManageConsultantsBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButtonToggleGroup
@@ -42,7 +46,7 @@ class ManageConsultantsActivity : BaseActivity() {
     private val pendingConsultants = mutableListOf<Consultant>()
     private val pendingAssignments = mutableListOf<Assignment>()
     private val unassignedConsultants = mutableListOf<Consultant>()
-    private val assignedConsultants = mutableListOf<Consultant>() // NEW
+    private val assignedConsultants = mutableListOf<Consultant>()
     private val allReviews = mutableListOf<Assignment>()
     private val allApprovedUsers = mutableMapOf<String, Consultant>()
 
@@ -50,10 +54,10 @@ class ManageConsultantsActivity : BaseActivity() {
     private lateinit var pendingConsAdapter: PendingConsultantAdapter
     private lateinit var assignmentAdapter: AssignmentAdapter
     private lateinit var unassignedAdapter: ConsultantRowAdapter
-    private lateinit var assignedAdapter: ConsultantRowAdapter // NEW
+    private lateinit var assignedAdapter: ConsultantRowAdapter
 
     private var isAdmin: Boolean = false
-    private var showingUnassigned = true // NEW
+    private var showingUnassigned = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +74,7 @@ class ManageConsultantsActivity : BaseActivity() {
         setupLists()
         setupPriorityChips()
         setupSearch()
-        setupConsultantToggles() // NEW
+        setupConsultantToggles()
 
         observeServiceReviews()
         observeUsersFromRtdb()
@@ -163,7 +167,7 @@ class ManageConsultantsActivity : BaseActivity() {
         })
     }
 
-    // NEW: Toggle between Unassigned / Assigned consultants
+    //Toggle between Unassigned / Assigned consultants
     private fun setupConsultantToggles() {
         binding.groupConsultants.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
@@ -452,284 +456,8 @@ class ManageConsultantsActivity : BaseActivity() {
             titleOverride ?: customName ?: originalFileName ?: description ?: serviceType ?: "Request"
     }
 
-    /** Pending consultant approval adapter */
-    private class PendingConsultantAdapter(
-        private val data: MutableList<Consultant>,
-        private val onApprove: (Consultant) -> Unit,
-        private val onReject: (Consultant) -> Unit
-    ) : RecyclerView.Adapter<PendingConsultantAdapter.VH>() {
 
-        class VH(v: View) : RecyclerView.ViewHolder(v) {
-            val tvInitial: TextView = v.findViewById(R.id.tvInitial)
-            val tvUsername: TextView = v.findViewById(R.id.tvUsername)
-            val tvName: TextView = v.findViewById(R.id.tvName)
-            val btnAccept: View = v.findViewById(R.id.btnAccept)
-            val btnReject: View = v.findViewById(R.id.btnReject)
-        }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_pending_consultant, parent, false)
-            return VH(v)
-        }
-
-        override fun onBindViewHolder(h: VH, position: Int) {
-            val c = data[position]
-            val initial = (c.firstName.trim().firstOrNull() ?: c.email.trim().firstOrNull() ?: '?')
-                .uppercaseChar().toString()
-            h.tvInitial.text = initial
-            h.tvUsername.text = c.email
-            h.tvName.text = if (c.firstName.isBlank()) "(no name)" else c.firstName
-
-            h.btnAccept.setOnClickListener { onApprove(c) }
-            h.btnReject.setOnClickListener { onReject(c) }
-        }
-
-        override fun getItemCount(): Int = data.size
-    }
-
-    private enum class PriorityFilter { ALL, LOW, MEDIUM, HIGH }
-
-    private class AssignmentAdapter(
-        private val base: MutableList<Assignment>,
-        private val onClick: (Assignment) -> Unit,
-        private var isAdmin: Boolean,
-        private val onAssign: (Assignment, Consultant) -> Unit
-    ) : RecyclerView.Adapter<AssignmentAdapter.VH>() {
-
-        private val visible = mutableListOf<Assignment>()
-        private var filter: PriorityFilter = PriorityFilter.ALL
-        private val dateFmt = DATE_FMT
-        private var assignableConsultants: List<Consultant> = emptyList()
-
-        init { resetBase(base) }
-
-        fun resetBase(newItems: List<Assignment>) {
-            val snapshot = newItems.toList()
-            base.clear()
-            base.addAll(snapshot)
-            applyFilter()
-        }
-
-        fun setPriorityFilter(f: PriorityFilter) {
-            filter = f
-            applyFilter()
-        }
-
-        fun setAssignableConsultants(list: List<Consultant>) {
-            assignableConsultants = list
-            notifyDataSetChanged()
-        }
-
-        fun setIsAdmin(value: Boolean) {
-            isAdmin = value
-            notifyDataSetChanged()
-        }
-
-        private fun applyFilter() {
-            visible.clear()
-            visible += when (filter) {
-                PriorityFilter.ALL -> base
-                PriorityFilter.LOW -> base.filter { it.priority == Priority.LOW }
-                PriorityFilter.MEDIUM -> base.filter { it.priority == Priority.MEDIUM }
-                PriorityFilter.HIGH -> base.filter { it.priority == Priority.HIGH }
-            }
-            notifyDataSetChanged()
-        }
-
-        class VH(v: View) : RecyclerView.ViewHolder(v) {
-            val card: MaterialCardView = v.findViewById(R.id.taskCard)
-            val tvCategory: TextView = v.findViewById(R.id.tvCategory)
-            val tvPriority: TextView = v.findViewById(R.id.tvPriority)
-            val tvServiceTitle: TextView = v.findViewById(R.id.tvServiceTitle)
-            val tvSubmittedDate: TextView = v.findViewById(R.id.tvSubmittedDate)
-            val tvStatusLabel: TextView = v.findViewById(R.id.tvStatusLabel)
-            val tvDeadline: TextView = v.findViewById(R.id.tvDeadline)
-            val ddConsultants: MaterialAutoCompleteTextView? = v.findViewById(R.id.ddConsultants)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_service_review, parent, false)
-            return VH(v)
-        }
-
-        override fun onBindViewHolder(h: VH, position: Int) {
-            val item = visible[position]
-            val context = h.itemView.context
-
-            h.tvCategory.text = item.serviceType ?: "Other"
-            h.tvServiceTitle.text = item.title()
-
-            val statusLabel = item.status
-                ?.replace('_', ' ')
-                ?.lowercase()
-                ?.replaceFirstChar { it.titlecase(Locale.getDefault()) }
-                ?: "Pending"
-            h.tvStatusLabel.text = statusLabel
-
-            val statusColor = when (statusLabel.lowercase()) {
-                "assigned" -> R.color.blue_400
-                "completed", "done" -> R.color.green_500
-                "pending", "submitted" -> R.color.priority_Medium
-                else -> R.color.light_highlight
-            }
-            h.tvStatusLabel.setTextColor(context.getColor(statusColor))
-
-            h.tvSubmittedDate.text = "Submitted: ${dateFmt.safe(item.createdAt)}"
-            val deadlineText = dateFmt.safe(item.deadline)
-            h.tvDeadline.visibility = if (deadlineText == "—") View.GONE else View.VISIBLE
-            h.tvDeadline.text = "Deadline: $deadlineText"
-
-            h.tvPriority.text = when (item.priority) {
-                Priority.HIGH -> "High"
-                Priority.MEDIUM -> "Medium"
-                Priority.LOW -> "Low"
-            }
-            val priorityColor = when (item.priority) {
-                Priority.HIGH -> R.color.priority_High
-                Priority.MEDIUM -> R.color.priority_Medium
-                Priority.LOW -> R.color.priority_Low
-            }
-            h.tvPriority.setTextColor(context.getColor(priorityColor))
-
-            h.card.setOnClickListener { onClick(item) }
-
-            val showDropdown = isAdmin && item.consultantId.isNullOrBlank() && h.ddConsultants != null
-            h.ddConsultants?.visibility = if (showDropdown) View.VISIBLE else View.GONE
-
-            if (showDropdown) {
-                val dropdownAdapter = ConsultantDropdownAdapter(context, assignableConsultants)
-                h.ddConsultants?.apply {
-                    setAdapter(dropdownAdapter)
-                    setDropDownBackgroundResource(R.drawable.bg_spinner_popup_white)
-
-                    // open dropdown when field tapped
-                    setOnClickListener { showDropDown() }
-                    setOnFocusChangeListener { v, hasFocus ->
-                        if (hasFocus) (v as? MaterialAutoCompleteTextView)?.showDropDown()
-                    }
-
-                    // clear any old selection when reused
-                    setText("", false)
-                    tag = null
-
-                    setOnItemClickListener { _, _, idx, _ ->
-                        val chosen = assignableConsultants.getOrNull(idx) ?: return@setOnItemClickListener
-                        onAssign(item, chosen)
-                        // Show selected consultant in the field
-                        val label = buildString {
-                            append(if (chosen.firstName.isBlank()) "Unknown" else chosen.firstName)
-                            append(" · ")
-                            append(chosen.email)
-                        }
-                        setText(label, false)
-                        clearFocus() // collapse dropdown
-                    }
-                }
-            }
-        }
-
-        override fun getItemCount(): Int = visible.size
-
-        private fun SimpleDateFormat.safe(ts: Long?): String =
-            ts?.let { format(Date(it)) } ?: "—"
-
-        private class ConsultantDropdownAdapter(
-            context: android.content.Context,
-            private val items: List<Consultant>
-        ) : ArrayAdapter<Consultant>(context, 0, items) {
-
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                // Text shown in the field after selection
-                return createItemView(position, convertView, parent)
-            }
-
-            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-                // Rows in the dropdown list
-                return createItemView(position, convertView, parent)
-            }
-
-            private fun createItemView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val v = convertView ?: LayoutInflater.from(context)
-                    .inflate(R.layout.item_assign_consultant_option, parent, false)
-
-                val consultant = items[position]
-
-                val tvAvatar = v.findViewById<TextView>(R.id.tvAvatar)
-                val tvName = v.findViewById<TextView>(R.id.tvName)
-                val tvEmail = v.findViewById<TextView>(R.id.tvEmail)
-
-                val initial = (consultant.firstName.trim().firstOrNull()
-                    ?: consultant.email.trim().firstOrNull()
-                    ?: '?').uppercaseChar()
-
-                tvAvatar.text = initial.toString()
-                tvName.text = if (consultant.firstName.isBlank()) "Unknown" else consultant.firstName
-                tvEmail.text = consultant.email
-
-                return v
-            }
-        }
-
-    }
-
-    private class ConsultantRowAdapter(
-        private val all: MutableList<Consultant>,
-        private val onClick: (Consultant) -> Unit
-    ) : RecyclerView.Adapter<ConsultantRowAdapter.VH>() {
-
-        private val visible = mutableListOf<Consultant>()
-        var filter: String = ""
-            set(value) {
-                field = value
-                apply()
-            }
-
-        init { reset() }
-
-        fun reset() {
-            visible.clear()
-            visible.addAll(all)
-            notifyDataSetChanged()
-        }
-
-        private fun apply() {
-            val f = filter.trim()
-            visible.clear()
-            if (f.isEmpty()) {
-                visible.addAll(all)
-            } else {
-                visible.addAll(all.filter {
-                    it.firstName.contains(f, true) ||
-                            it.email.contains(f, true) ||
-                            it.specialty.contains(f, true)
-                })
-            }
-            notifyDataSetChanged()
-        }
-
-        class VH(v: View) : RecyclerView.ViewHolder(v) {
-            val tvInitials: TextView = v.findViewById(R.id.tvAvatarInitials)
-            val tvName: TextView = v.findViewById(R.id.tvConsultantName)
-            val tvEmail: TextView = v.findViewById(R.id.tvConsultantEmail)
-            val tvSpecialty: TextView = v.findViewById(R.id.tvSpecialty)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_consultant_row, parent, false)
-            return VH(v)
-        }
-
-        override fun onBindViewHolder(h: VH, position: Int) {
-            val c = visible[position]
-            h.tvInitials.text = c.firstName.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
-            h.tvName.text = c.firstName
-            h.tvEmail.text = c.email
-            h.tvSpecialty.text = if (c.specialty.isBlank()) "General" else c.specialty
-            h.itemView.setOnClickListener { onClick(c) }
-        }
-
-        override fun getItemCount(): Int = visible.size
-    }
 
     companion object {
         private const val COL_REVIEWS = "ServiceReviews"
@@ -743,6 +471,6 @@ class ManageConsultantsActivity : BaseActivity() {
         private const val F_DESCRIPTION = "description"
         private const val F_STATUS = "status"
 
-        private val DATE_FMT = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
     }
 }

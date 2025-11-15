@@ -11,6 +11,7 @@ import android.widget.FrameLayout
  * minScale = 1f (page size). Can't zoom out below page.
  * Double-tap cycles 1x -> 2x -> 4x -> 1x.
  */
+//https://developer.android.com/develop/ui/views/animations/zoom
 class ZoomFrameLayout @JvmOverloads constructor(
     context: Context,
     attrs: android.util.AttributeSet? = null

@@ -93,7 +93,7 @@ class AppMessagingService : FirebaseMessagingService() {
         }
 
         // Only show if we have permission on API 33+
-        val canPost = if (android.os.Build.VERSION.SDK_INT >= 33) {
+        val canPost = if (Build.VERSION.SDK_INT >= 33) {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
                     PackageManager.PERMISSION_GRANTED
         } else true
@@ -153,3 +153,19 @@ class AppMessagingService : FirebaseMessagingService() {
         }
     }
 }
+
+/*
+ * REFERENCES
+ *
+ * Firebase. 2019a. “Cloud Firestore | Firebase”.
+ * https://firebase.google.com/docs/firestore
+ * [accessed 23 September 2025].
+ *
+ * Firebase. 2019b. “Firebase Authentication | Firebase”.
+ * https://firebase.google.com/docs/auth
+ * [accessed 24 September 2025].
+ *
+ * Firebase. 2019c. “Firebase Cloud Messaging | Firebase”.
+ * https://firebase.google.com/docs/cloud-messaging
+ * [accessed 15 September 2025].
+ */

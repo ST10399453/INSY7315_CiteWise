@@ -57,3 +57,20 @@ object RetrofitInstance {
     val messagesApi: MessagesApi by lazy { retrofit.create(MessagesApi::class.java) }
     val resourcesApi: ResourcesApi by lazy { retrofit.create(ResourcesApi::class.java) }
 }
+
+/*
+ * REFERENCES
+ *
+ * Firebase. 2019c. “Firebase Cloud Messaging | Firebase”.
+ * https://firebase.google.com/docs/cloud-messaging
+ * [accessed 15 September 2025].
+ *
+ * Firebase. 2019d. “Firebase Realtime Database”.
+ * https://firebase.google.com/docs/database
+ * [accessed 23 September 2025].
+ *
+ * GeeksforGeeks. 2023. “How to GET Data from API Using Retrofit Library in Android?”.
+ * https://www.geeksforgeeks.org/kotlin/how-to-get-data-from-api-using-retrofit-library-in-android/
+ * [accessed 22 September 2025].
+ *
+ */

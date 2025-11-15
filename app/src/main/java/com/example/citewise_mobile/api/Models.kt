@@ -61,3 +61,16 @@ data class ServiceRequestDto(
 //    val outcome: String,        // "approve" | "reject" | "fail"
 //    val feedback: String? = null
 //)
+
+/*
+ * REFERENCES
+ *
+ * Ananth.k. 2023. “Kotlin — SerializedName Annotation”.
+ * https://medium.com/@ananthkvn2016/kotlin-serializedname-annotation-2ad375f83371
+ * [accessed 19 September 2025].
+ *
+ * GeeksforGeeks. 2023. “How to GET Data from API Using Retrofit Library in Android?”.
+ * https://www.geeksforgeeks.org/kotlin/how-to-get-data-from-api-using-retrofit-library-in-android/
+ * [accessed 22 September 2025].
+ *
+ */

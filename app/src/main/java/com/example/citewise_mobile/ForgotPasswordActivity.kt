@@ -108,3 +108,28 @@ class ForgotPasswordActivity : AppCompatActivity() {
         }
     }
 }
+
+
+/*
+ * REFERENCES
+ *
+ * Ahamad, Musthaq. 2018. “Using Intents and Extras to Pass Data between Activities — Android Beginner’s Guide”.
+ * https://medium.com/@haxzie/using-intents-and-extras-to-pass-data-between-activities-android-beginners-guide-565239407ba0
+ * [accessed 28 August 2025].
+ *
+ * Android Developers. 2025. “Create Dynamic Lists with RecyclerView”.
+ * https://developer.android.com/develop/ui/views/layout/recyclerview
+ * [accessed 18 September 2025].
+ *
+ * Android Developer. 2025. “Request Location Permissions | Sensors and Location”.
+ * https://developer.android.com/develop/sensors-and-location/location/permissions
+ * [accessed 16 August 2025].
+ *
+ * Firebase. 2019b. “Firebase Authentication | Firebase”.
+ * https://firebase.google.com/docs/auth
+ * [accessed 24 September 2025].
+ *
+ * Firebase. 2019d. “Firebase Realtime Database”.
+ * https://firebase.google.com/docs/database
+ * [accessed 23 September 2025].
+ */

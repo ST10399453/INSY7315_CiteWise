@@ -142,3 +142,14 @@ class DocumentsRepository(
     }
 
 }
+/*
+ * REFERENCES
+ *
+ * Firebase. 2019a. “Cloud Firestore | Firebase”.
+ * https://firebase.google.com/docs/firestore
+ * [accessed 23 September 2025].
+ *
+ * Firebase. 2019b. “Firebase Authentication | Firebase”.
+ * https://firebase.google.com/docs/auth
+ * [accessed 24 September 2025].
+ */
