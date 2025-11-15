@@ -159,7 +159,13 @@ Before setting up, ensure you have the following installed:
 
 ## Links
 
----
+### CiteWise Platform Walkthrough
+[![Watch the video](https://img.youtube.com/vi//maxresdefault.jpg)]()
+
+**Back up access:** 
+
+- 
+
 
 Developed by Ethan Ruey Huntley, Akhilesh Parshotam, Connor Tre Van Buuren, Erin Chisholm, and Alicia Orren
 ```
