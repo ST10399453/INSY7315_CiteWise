@@ -49,7 +49,7 @@
 
                             <div class="request-content">
                                 <div class="content-left">
-                                    <h3 class="request-title">@request.File?.OriginalName</h3>
+                                    <h3 class="request-title">@request.DocName</h3>
                                     <p class="submission-date">
                                         Submitted: @(request.CreatedAt.HasValue? request.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy"): "-")
                                     </p>

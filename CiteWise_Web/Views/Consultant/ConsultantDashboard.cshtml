@@ -105,7 +105,7 @@
 
                                 <div class="request-content">
                                     <div class="content-left">
-                                        <h3 class="request-title">@r.File?.OriginalName</h3>
+                                        <h3 class="request-title">@r.DocName</h3>
                                         <p class="submission-date">
                                             Submitted: @(r.CreatedAt.HasValue? r.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy") : "-")
                                         </p>

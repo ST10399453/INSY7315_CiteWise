@@ -659,7 +659,6 @@ C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compresse
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\bin\Debug\net9.0\BouncyCastle.Cryptography.dll
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\bin\Debug\net9.0\MailKit.dll
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\bin\Debug\net9.0\MimeKit.dll
-C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\dhi5jx3ei3-2noblge1qn.gz
 C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\2l6lz3np9a-95cw8hdq2l.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\BouncyCastle.Cryptography.dll
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\MailKit.dll
@@ -667,3 +666,4 @@ C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\bin\Debug\net9.0\Mime
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\1c1ubakj8c-z42io4q9gi.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\dhi5jx3ei3-2noblge1qn.gz
 C:\Users\akhil\source\repos\INSY7315_CiteWise\CiteWise_Web\obj\Debug\net9.0\compressed\2l6lz3np9a-95cw8hdq2l.gz
+C:\Users\Ethan\source\repos\CiteWise_Web\CiteWise_Web\obj\Debug\net9.0\compressed\dhi5jx3ei3-n2g4a7vu52.gz

@@ -77,7 +77,7 @@
 
                             <div class="request-content">
                                 <div class="content-left">
-                                    <h3 class="request-title">@(req.File?.OriginalName ?? "-")</h3>
+                                    <h3 class="request-title">@(req.DocumentName ?? "-")</h3>
                                     <p class="submission-date">
                                         Deadline: @(string.IsNullOrEmpty(req.Deadline) ? "-" : req.Deadline)
                                     </p>
