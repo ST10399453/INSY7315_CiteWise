@@ -109,9 +109,9 @@ Citewise postgraduate research management application will automate consultant a
  <img src="webscreenshots/asudentdash.jpg">
 
  ### Student Submit Requests
-  <img src="webscreenshots/Service1.jpg">
-  <img src="webscreenshots/Service2.jpg"> 
-<img src="webscreenshots/Service3.jpg"> 
+  <img src="webscreenshots/service1.jpg">
+  <img src="webscreenshots/service2.jpg"> 
+<img src="webscreenshots/service3.jpg"> 
 
  ### Student View all Requests
   <img src="webscreenshots/reqStudent.jpg"> 
@@ -135,7 +135,7 @@ Citewise postgraduate research management application will automate consultant a
  <img src="webscreenshots/adminassign.jpg"> 
 
    ### Admin Resources
- <img src="webscreenshots/adminresources.jpg"> 
+ <img src="webscreenshots/adminresource.jpg"> 
 
    ### Admin Add Resources
  <img src="webscreenshots/addresource.jpg"> 
