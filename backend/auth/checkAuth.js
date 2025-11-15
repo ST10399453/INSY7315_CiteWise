@@ -8,7 +8,7 @@ import { getFirestore } from "firebase-admin/firestore";
  */
 export async function checkAuth(req, res, next) {
   try {
-    // --- 1️⃣ Extract and verify Bearer token ---
+    // --- 1 Extract and verify Bearer token ---
     const h = req.headers.authorization || "";
     const m = h.match(/^Bearer (.+)$/i);
     if (!m) {
@@ -18,7 +18,7 @@ export async function checkAuth(req, res, next) {
     const idToken = m[1];
     const decoded = await admin.auth().verifyIdToken(idToken, true);
 
-    // --- 2️⃣ Validate that token belongs to this Firebase project ---
+    // --- 2️ Validate that token belongs to this Firebase project ---
     const projectId = process.env.FIREBASE_PROJECT_ID;
     if (projectId) {
       const expectedIss = `https://securetoken.google.com/${projectId}`;
@@ -33,7 +33,7 @@ export async function checkAuth(req, res, next) {
       }
     }
 
-    // --- 3️⃣ Try to load the user's role from Firestore ---
+    // --- 3️ Try to load the user's role from Firestore ---
     const db = getFirestore();
     let role = null;
 
@@ -46,18 +46,18 @@ export async function checkAuth(req, res, next) {
       console.warn("[AUTH] Could not fetch role from Firestore:", err.message);
     }
 
-    // --- 4️⃣ Fallback to custom claim if Firestore role not found ---
+    // --- 4️ Fallback to custom claim if Firestore role not found ---
     if (!role && decoded.role) {
       role = decoded.role;
     }
 
-    // --- 5️⃣ Normalize role ---
+    // --- 5️ Normalize role ---
     if (role) role = String(role).toLowerCase();
 
     // Default role for safety
     if (!role) role = "student";
 
-    // --- 6️⃣ Attach to request for route access checks ---
+    // --- 6️ Attach to request for route access checks ---
     req.user = {
       uid: decoded.uid,
       email: decoded.email || null,

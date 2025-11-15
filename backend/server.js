@@ -8,6 +8,7 @@ import requestsRouter from "./routes/requests.js"; // Modular route organization
 import documentsRouter from "./routes/documents.js";
 import resourcesRouter from "./routes/resources.js";
 import messagesRouter from "./routes/messages.js";
+import "./cron/scheduler.js";
 
 const app = express();
 app.use(cors()); // Middleware for CORS (GeeksforGeeks, 2022a)
