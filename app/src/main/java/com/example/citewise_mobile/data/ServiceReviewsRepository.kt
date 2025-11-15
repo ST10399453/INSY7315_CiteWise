@@ -61,16 +61,16 @@ class ServiceReviewsRepository(
     ): NetResult<List<ServiceRequestDto>> = safe {
         api.listRequests(consultantId = consultantId, status = status, userId = userId)
     }
-
-    suspend fun listPendingAssignments(): NetResult<List<ServiceRequestDto>> = safe {
-        api.listPendingAssignments()
-    }
-
-    suspend fun listUnassignedConsultants(): NetResult<List<ConsultantDto>> =
-        when (val resp = safe { api.listUnassignedConsultants() }) {
-            is NetResult.Ok -> NetResult.Ok(resp.data.items)
-            is NetResult.Err -> resp
-        }
+//Unused functions related to API
+//    suspend fun listPendingAssignments(): NetResult<List<ServiceRequestDto>> = safe {
+//        api.listPendingAssignments()
+//    }
+//
+//    suspend fun listUnassignedConsultants(): NetResult<List<ConsultantDto>> =
+//        when (val resp = safe { api.listUnassignedConsultants() }) {
+//            is NetResult.Ok -> NetResult.Ok(resp.data.items)
+//            is NetResult.Err -> resp
+//        }
 
     /** Upload annotated file (feedback). Optionally bump status (e.g. "review_submitted"). */
     suspend fun uploadAnnotatedFile(

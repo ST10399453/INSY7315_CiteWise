@@ -8,17 +8,6 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
-data class FirestoreTimestamp(
-    val _seconds: Long? = null,
-    val _nanoseconds: Int? = null
-) {
-    fun toEpochMillis(): Long {
-        val s = _seconds ?: 0L
-        val ns = _nanoseconds ?: 0
-        return s * 1_000L + ns / 1_000_000L
-    }
-}
-
 /** DTO returned by the backend for a resource. */
 data class ResourceDto(
     val id: String,

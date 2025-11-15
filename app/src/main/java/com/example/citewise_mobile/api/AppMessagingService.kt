@@ -76,7 +76,7 @@ class AppMessagingService : FirebaseMessagingService() {
         val title = message.notification?.title ?: message.data["title"] ?: "Notification"
         val body  = message.notification?.body  ?: message.data["body"]  ?: ""
 
-        // Optional deep link data from server (recommended for chat)
+
         val chatId    = message.data["chatId"]
         val chatTitle = message.data["chatTitle"] ?: title
         val peerUid   = message.data["peerUid"]

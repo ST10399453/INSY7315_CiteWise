@@ -1,4 +1,4 @@
-package com.example.citewise_mobile.reviews
+package com.example.citewise_mobile
 
 import android.os.Bundle
 import android.widget.Toast
@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.citewise_mobile.R
+import com.example.citewise_mobile.adapters.RateConsultantAdapter
 import com.example.citewise_mobile.api.ServiceRequestDto
 import com.example.citewise_mobile.offline.LocalRepos
 import com.example.citewise_mobile.offline.toServiceRequestDto

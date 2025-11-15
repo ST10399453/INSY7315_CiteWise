@@ -33,7 +33,6 @@ interface MessagesApi {
     @POST("/messages")
     suspend fun send(@Body payload: SendMessagePayload): Response<MessageDto>
 
-    // Keep if you’ll also support peer-based conversations:
     @GET("/messages")
     suspend fun listWithPeer(
         @Query("peerId") peerId: String,
@@ -44,7 +43,6 @@ interface MessagesApi {
     @GET("/messages/since")
     suspend fun listSince(@Query("since") sinceEpochMs: Long): Response<List<MessageDto>>
 
-    // NEW: aligns with backend GET /messages/:chatId (ascending + nextAfter)
     @GET("/messages/{chatId}")
     suspend fun listByChat(
         @Path("chatId") chatId: String,

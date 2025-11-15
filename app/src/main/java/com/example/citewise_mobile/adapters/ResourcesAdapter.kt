@@ -44,5 +44,3 @@ class ResourcesAdapter(
         h.overflow.setOnClickListener { onOverflow(item, it) }
     }
 }
-
-private val Int.dp get() = (this * Resources.getSystem().displayMetrics.density).toInt()

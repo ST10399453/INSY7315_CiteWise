@@ -31,42 +31,43 @@ interface ServiceReviewsApi {
         @Query("consultantId") consultantId: String? = null
     ): Response<List<ServiceRequestDto>>
 
-    // 3) Details
-    @GET("/requests/{id}")
-    suspend fun getRequest(@Path("id") id: String): Response<ServiceRequestDto>
-
-    // 4) Assign
-    @POST("/requests/{id}/assign")
-    suspend fun assignRequest(
-        @Path("id") id: String,
-        @Body body: AssignRequestPayload
-    ): Response<ServiceRequestDto>
-
-    // 5) Update assignment
-    @PUT("/requests/{id}/assign")
-    suspend fun updateAssignment(
-        @Path("id") id: String,
-        @Body body: UpdateAssignmentPayload
-    ): Response<ServiceRequestDto>
-
-    // 6) Start review
-    @POST("/requests/{id}/start-review")
-    suspend fun startReview(@Path("id") id: String): Response<ServiceRequestDto>
-
-    // 7) Submit review outcome
-    @POST("/requests/{id}/review")
-    suspend fun submitReview(
-        @Path("id") id: String,
-        @Body body: SubmitReviewPayload
-    ): Response<ServiceRequestDto>
-
-    // 8) Resubmit
-    @POST("/requests/{id}/resubmit")
-    suspend fun resubmit(@Path("id") id: String): Response<ServiceRequestDto>
-
-    // 9) Cancel
-    @POST("/requests/{id}/cancel")
-    suspend fun cancel(@Path("id") id: String): Response<ServiceRequestDto>
+    //Unused enpoints
+//    // 3) Details
+//    @GET("/requests/{id}")
+//    suspend fun getRequest(@Path("id") id: String): Response<ServiceRequestDto>
+//
+//    // 4) Assign
+//    @POST("/requests/{id}/assign")
+//    suspend fun assignRequest(
+//        @Path("id") id: String,
+//        @Body body: AssignRequestPayload
+//    ): Response<ServiceRequestDto>
+//
+//    // 5) Update assignment
+//    @PUT("/requests/{id}/assign")
+//    suspend fun updateAssignment(
+//        @Path("id") id: String,
+//        @Body body: UpdateAssignmentPayload
+//    ): Response<ServiceRequestDto>
+//
+//    // 6) Start review
+//    @POST("/requests/{id}/start-review")
+//    suspend fun startReview(@Path("id") id: String): Response<ServiceRequestDto>
+//
+//    // 7) Submit review outcome
+//    @POST("/requests/{id}/review")
+//    suspend fun submitReview(
+//        @Path("id") id: String,
+//        @Body body: SubmitReviewPayload
+//    ): Response<ServiceRequestDto>
+//
+//    // 8) Resubmit
+//    @POST("/requests/{id}/resubmit")
+//    suspend fun resubmit(@Path("id") id: String): Response<ServiceRequestDto>
+//
+//    // 9) Cancel
+//    @POST("/requests/{id}/cancel")
+//    suspend fun cancel(@Path("id") id: String): Response<ServiceRequestDto>
 
     // Utility
     @GET("/requests/pending-assignments")
@@ -88,7 +89,7 @@ interface ServiceReviewsApi {
     suspend fun getFeedbackDownloadUrl(@Path("id") id: String): Response<SignedUrlDto>
 }
 
-/* ---------- Supporting DTOs (add if not present) ---------- */
+/* ---------- Supporting DTOs ---------- */
 
 data class ConsultantDto(
     val uid: String,

@@ -46,18 +46,18 @@ data class ServiceRequestDto(
 ) : Serializable
 
 // ---- Small request payloads ----
-
-data class AssignRequestPayload(
-    val consultantId: String,
-    val deadline: String? = null // ISO-8601 string
-)
-
-data class UpdateAssignmentPayload(
-    val consultantId: String? = null,
-    val deadline: String? = null
-)
-
-data class SubmitReviewPayload(
-    val outcome: String,        // "approve" | "reject" | "fail"
-    val feedback: String? = null
-)
+//Relates to unimplemented endpoint (future changes)
+//data class AssignRequestPayload(
+//    val consultantId: String,
+//    val deadline: String? = null // ISO-8601 string
+//)
+//
+//data class UpdateAssignmentPayload(
+//    val consultantId: String? = null,
+//    val deadline: String? = null
+//)
+//
+//data class SubmitReviewPayload(
+//    val outcome: String,        // "approve" | "reject" | "fail"
+//    val feedback: String? = null
+//)

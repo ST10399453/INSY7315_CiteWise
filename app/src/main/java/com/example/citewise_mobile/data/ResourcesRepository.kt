@@ -52,27 +52,28 @@ class ResourcesRepository(
             auth = auth
         )
     }
-
-    suspend fun listResources(
-        faculty: String? = null,
-        visibility: String? = null,
-        q: String? = null,
-        sort: String? = null,
-        dir: String? = null,
-        auth: String? = null
-    ): NetResult<List<ResourceDto>> = safeCall {
-        api.listResources(faculty, visibility, q, sort, dir, auth)
-    }
-
-    suspend fun getResource(id: String, auth: String? = null): NetResult<ResourceDto> = safeCall {
-        api.getResource(id, auth)
-    }
-
-    suspend fun deleteResource(id: String, auth: String, strict: Boolean = false): NetResult<Unit> =
-        safeCall { api.deleteResource(id, auth, strict) }
+    //Unused endpoint
+//
+//    suspend fun listResources(
+//        faculty: String? = null,
+//        visibility: String? = null,
+//        q: String? = null,
+//        sort: String? = null,
+//        dir: String? = null,
+//        auth: String? = null
+//    ): NetResult<List<ResourceDto>> = safeCall {
+//        api.listResources(faculty, visibility, q, sort, dir, auth)
+//    }
+//
+//    suspend fun getResource(id: String, auth: String? = null): NetResult<ResourceDto> = safeCall {
+//        api.getResource(id, auth)
+//    }
+//
+//    suspend fun deleteResource(id: String, auth: String, strict: Boolean = false): NetResult<Unit> =
+//        safeCall { api.deleteResource(id, auth, strict) }
 
     /**
-     * NEW: Download a resource file to disk using /resources/:id/file
+     * Download a resource file to disk using /resources/:id/file
      * and return the File wrapped in NetResult.
      */
     suspend fun downloadResourceToDisk(

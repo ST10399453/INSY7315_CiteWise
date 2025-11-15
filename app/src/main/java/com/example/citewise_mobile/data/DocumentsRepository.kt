@@ -113,67 +113,6 @@ class DocumentsRepository(
     }
 
 
-    // -------- Fallback via /download + raw GET --------
-
-    private suspend fun trySignedUrlDownload(
-        documentId: String,
-        preferredName: String?,
-        auth: String?,
-        hintError: String?
-    ): NetResult<File> = withContext(Dispatchers.IO) {
-        val signed = runCatching {
-            api.signedUrl(
-                documentId = documentId,
-                provider = null,
-                disposition = "attachment",
-                auth = auth
-            )
-        }.getOrElse { t ->
-            // Both stream + signed URL failed
-            val combined = buildString {
-                append("Signed URL failed")
-                if (!hintError.isNullOrBlank()) {
-                    append(" (stream error: ").append(hintError).append(")")
-                }
-                append(": ").append(t.message ?: "")
-            }
-            return@withContext NetResult.Err(combined.ifBlank { "Signed URL failed" })
-        }
-
-        if (!signed.isSuccessful || signed.body() == null) {
-            val msg = signed.errorBody()?.string().orEmpty().ifBlank { "HTTP ${signed.code()}" }
-            val combined = if (!hintError.isNullOrBlank()) {
-                "$msg (stream error: $hintError)"
-            } else msg
-            return@withContext NetResult.Err(combined, signed.code())
-        }
-
-        val url = signed.body()!!.url
-        val req = Request.Builder().url(url).get().build()
-        val resp = runCatching { rawHttp.newCall(req).execute() }
-            .getOrElse { t ->
-                val combined = if (!hintError.isNullOrBlank()) {
-                    "Download failed (stream error: $hintError): ${t.message}"
-                } else {
-                    "Download failed: ${t.message}"
-                }
-                return@withContext NetResult.Err(combined)
-            }
-
-        resp.use { r ->
-            if (!r.isSuccessful) {
-                val combined = if (!hintError.isNullOrBlank()) {
-                    "HTTP ${r.code} (stream error: $hintError)"
-                } else {
-                    "HTTP ${r.code}"
-                }
-                return@withContext NetResult.Err(combined, r.code)
-            }
-            val body = r.body ?: return@withContext NetResult.Err("Empty body from signed URL")
-            return@withContext saveBodyToFile(body, documentId, preferredName)
-        }
-    }
-
     // -------- Internal helpers --------
 
     /** Save ResponseBody to disk. Works for both docId-based and URL-based downloads. */

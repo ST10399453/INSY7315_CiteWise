@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Empty stars -->
-    <item android:id="@android:id/background"
-        android:drawable="@drawable/rating_star_selector" />
+    <!-- Empty stars (background) -->
+    <item android:id="@android:id/background">
+        <bitmap
+            android:src="@drawable/ic_star_empty"
+            android:tileMode="repeat"
+            android:gravity="center" />
+    </item>
 
-    <!-- Partial stars (optional, used for half ratings) -->
-    <item android:id="@android:id/secondaryProgress"
-        android:drawable="@drawable/rating_star_selector" />
+    <!-- Secondary progress (half stars) -->
+    <item android:id="@android:id/secondaryProgress">
+        <bitmap
+            android:src="@drawable/ic_star"
+            android:tileMode="repeat"
+            android:gravity="center" />
+    </item>
 
     <!-- Filled stars -->
-    <item android:id="@android:id/progress"
-        android:drawable="@drawable/rating_star_selector" />
+    <item android:id="@android:id/progress">
+        <bitmap
+            android:src="@drawable/ic_star"
+            android:tileMode="repeat"
+            android:gravity="center" />
+    </item>
 
 </layer-list>

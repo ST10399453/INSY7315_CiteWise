@@ -138,7 +138,8 @@ open class BaseActivity : AppCompatActivity() {
     private fun handleStudentSelection(itemId: Int): Boolean = when (itemId) {
         R.id.nav_dashboard -> launchTop(getDashboardActivityClass())
 //        R.id.nav_request   -> launchTop(getRequestsActivityClass())
-        R.id.nav_request -> launchTop(RequestServiceStepsActivity::class.java)
+       // R.id.nav_request -> launchTop(RequestServiceStepsActivity::class.java)
+        R.id.nav_request -> launchTop(ServiceRequestActivity::class.java)
         R.id.nav_resources -> launchTop(getResourcesActivityClass())
         R.id.nav_messages  -> launchTop(getMessagesActivityClass())
         R.id.nav_profile   -> launchTop(getProfileActivityClass())

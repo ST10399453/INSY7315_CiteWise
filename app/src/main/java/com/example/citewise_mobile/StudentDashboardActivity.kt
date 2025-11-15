@@ -22,7 +22,7 @@ import com.example.citewise_mobile.offline.OfflineReset
 import com.example.citewise_mobile.offline.RequestsPullWorker
 import com.example.citewise_mobile.offline.ServiceRequestEntity
 import com.example.citewise_mobile.offline.toServiceRequestDto
-import com.example.citewise_mobile.reviews.RateConsultantListActivity
+import com.example.citewise_mobile.RateConsultantListActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.progressindicator.CircularProgressIndicator

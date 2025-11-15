@@ -16,7 +16,6 @@ class MessagesRepository(private val api: MessagesApi) {
     suspend fun withPeer(peerId: String, limit: Int? = null, before: Long? = null)
             : NetResult<List<MessageDto>> = safe { api.listWithPeer(peerId, limit, before) }
 
-    // NEW
     suspend fun byChat(chatId: String, limit: Int? = 100, after: Long? = null)
             : NetResult<ChatPageDto> = safe { api.listByChat(chatId, limit, after) }
 

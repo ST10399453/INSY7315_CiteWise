@@ -9,8 +9,6 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.citewise_mobile.adapters.QuoteRequestAdapter
-import com.example.citewise_mobile.adapters.ScheduleTaskAdapter
 import com.example.citewise_mobile.adapters.ServiceReviewAdapter
 import com.example.citewise_mobile.api.RetrofitInstance
 import com.example.citewise_mobile.api.ServicePriority
@@ -34,8 +32,8 @@ class ConsultantDashboardActivity : BaseActivity() {
 
     // Adapters
     private lateinit var serviceReviewAdapter: ServiceReviewAdapter
-    private lateinit var scheduleAdapter: ScheduleTaskAdapter
-    private lateinit var quoteRequestAdapter: QuoteRequestAdapter
+//    private lateinit var scheduleAdapter: ScheduleTaskAdapter
+//    private lateinit var quoteRequestAdapter: QuoteRequestAdapter
 
     // UI
     private lateinit var tasksRecyclerView: RecyclerView
@@ -109,7 +107,7 @@ class ConsultantDashboardActivity : BaseActivity() {
         if (uid.isNullOrBlank()) {
             Toast.makeText(this, "User not logged in.", Toast.LENGTH_LONG).show()
             fullTaskList = emptyList()
-            updateAllSections()
+            //updateAllSections()
             return
         }
 
@@ -127,16 +125,16 @@ class ConsultantDashboardActivity : BaseActivity() {
                         emptyList()
                     }
                 }
-                updateAllSections()
+                //updateAllSections()
             }
         }
     }
 
-    private fun updateAllSections() {
-        filterTasks(Urgency.ALL)
-        scheduleAdapter.updateList(getTasksForDate(System.currentTimeMillis()))
-        quoteRequestAdapter.updateList(getPendingQuotes())
-    }
+//    private fun updateAllSections() {
+//        filterTasks(Urgency.ALL)
+//        scheduleAdapter.updateList(getTasksForDate(System.currentTimeMillis()))
+//        quoteRequestAdapter.updateList(getPendingQuotes())
+//    }
 
     // ---- Setup ----
     private fun setupAdapters() {
@@ -149,13 +147,13 @@ class ConsultantDashboardActivity : BaseActivity() {
 
         // ─── Schedule List ───
         scheduleRecyclerView.layoutManager = LinearLayoutManager(this)
-        scheduleAdapter = ScheduleTaskAdapter(emptyList(), onTaskClick)
-        scheduleRecyclerView.adapter = scheduleAdapter
+        //scheduleAdapter = ScheduleTaskAdapter(emptyList(), onTaskClick)
+       // scheduleRecyclerView.adapter = scheduleAdapter
 
         // ─── Quote Requests ───
         quoteRequestsRecyclerView.layoutManager = LinearLayoutManager(this)
-        quoteRequestAdapter = QuoteRequestAdapter(emptyList(), onTaskClick)
-        quoteRequestsRecyclerView.adapter = quoteRequestAdapter
+       // quoteRequestAdapter = QuoteRequestAdapter(emptyList(), onTaskClick)
+        //quoteRequestsRecyclerView.adapter = quoteRequestAdapter
     }
 
     private fun setupUrgencyFilter() {
