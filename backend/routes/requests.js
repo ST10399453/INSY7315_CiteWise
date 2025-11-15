@@ -26,6 +26,7 @@ const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipa
  * Uploads to Cloudflare R2, persists Firestore record (Cloudflare, 2024; Firebase, 2019a)
  * ============================================================
  */
+//Immplemented in App
 router.post(
   "/",
   checkAuth, // Require auth (Balaji, 2023)
@@ -97,6 +98,7 @@ router.post(
  * Role-based visibility to be enforced (Manico & Detlefsen, 2015)
  * ============================================================
  */
+//Implemented in app
 router.get("/",
   checkAuth,  // (Balaji, 2023)
   async (req, res) => {
@@ -321,6 +323,7 @@ router.post("/:id/self-assign",
 );
 
 // GET /consultants/unassigned
+//Implemented in app
 router.get(
   "/consultants/unassigned",
   checkAuth,
@@ -422,6 +425,8 @@ router.get("/:id/download", checkAuth, async (req, res) => {
   }
 });
 
+
+//Download the consultants uploaded feedback file (in app)
 router.get("/:id/feedback/download", checkAuth, async (req, res) => {
   try {
     const reqId = req.params.id;
@@ -455,6 +460,7 @@ router.get("/:id/feedback/download", checkAuth, async (req, res) => {
 
 
 // POST /requests/:id/annotated  (upload feedback + quote generation + Completed)
+//Implemented in app
 router.post(
   "/:id/annotated",
   checkAuth,
@@ -635,6 +641,7 @@ router.post(
 )
 
 // GET /requests/pending-assignments  (treat null OR "")
+//Implemented in app
 router.get(
   "/pending-assignments",
   checkAuth,

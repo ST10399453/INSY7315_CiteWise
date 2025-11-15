@@ -24,6 +24,7 @@ const upload = multer({ storage: multer.memoryStorage() }); // In-memory multipa
  * Create Resource (Admins only)
  * ============================================================
  */
+//Implemented in App
 router.post(
   "/",
   checkAuth,
@@ -132,6 +133,7 @@ router.post(
  * List Resources
  * ============================================================
  */
+//Implemented in App
 router.get(
   "/",
   checkAuth,
@@ -206,6 +208,7 @@ router.get(
  * Generate Signed URL (R2 only)
  * ============================================================
  */
+//Implemented in App
 router.get(
   "/:id/download",
   checkAuth,
@@ -248,6 +251,7 @@ router.get(
  * Stream File (R2 only)
  * ============================================================
  */
+//Implemented in App
 router.get(
   "/:id/file",
   checkAuth,
@@ -293,6 +297,7 @@ router.get(
  * Delete Resource (Admins only)
  * ============================================================
  */
+//Implemented in App
 router.delete(
   "/:id",
   checkAuth,

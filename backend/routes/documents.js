@@ -17,6 +17,7 @@ const router = Router();
  * ========================================
  */
 // Uses authentication middleware (Balaji, 2023)
+//Implemented in app
 router.get("/:documentId/download", checkAuth, async (req, res) => {
   try {
     // Retrieve document metadata (Firebase, 2019a)
@@ -63,6 +64,7 @@ router.get("/:documentId/download", checkAuth, async (req, res) => {
  * ========================================
  */
 // Implements secure direct streaming (Cloudflare, 2024)
+//Implemented in app
 router.get("/:documentId/file", checkAuth, async (req, res) => {
   try {
     // Fetch document metadata (Firebase, 2019a)
