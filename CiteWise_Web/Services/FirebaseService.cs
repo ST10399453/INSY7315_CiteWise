@@ -389,8 +389,18 @@ namespace CiteWise_Web.Services
                 return false;
             }
         }
-
-
     }
-
 }
+//References 
+
+//Brett Westwood. 2023. Setting Up Google Authentication in Firebase 9: A Step-by-Step Guide.
+//[video online] Avaliable at <https://www.youtube.com/watch?v=-YA5kORugeI>
+//Accessed 14 September 2025]
+
+//firebase, 2025. Firebase Authentication [online]
+//Avaliable at: <https://firebase.google.com/docs/auth#implementation_paths>
+//Accessed 14 September 2025]
+
+//The Tech Platform, 2022. Session State in ASP.NET Core [online]
+//Avaliable at: <http://thetechplatform.com/post/session-state-in-asp-net-core?utm_source=chatgpt.com>
+//Accessed 21 September 2025]

@@ -176,10 +176,15 @@ public async Task<IActionResult> ServiceRequestDetails(string id)
 
     return View(request);
 }
-
-
-
-
     }
 }
 
+//References 
+
+//Microsoft, 2023. Asynchronous programming with async and await.
+//[online] Avaliable at <https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/?utm_source=chatgpt.com>
+//Accessed 20 September 2025]
+
+//The Tech Platform, 2022. Session State in ASP.NET Core [online]
+//Avaliable at: <http://thetechplatform.com/post/session-state-in-asp-net-core?utm_source=chatgpt.com>
+//Accessed 21 September 2025]

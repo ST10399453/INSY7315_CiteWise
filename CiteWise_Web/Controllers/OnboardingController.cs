@@ -161,3 +161,9 @@ namespace CiteWise_Web.Controllers
         }
     }
 }
+
+//References 
+
+//Microsoft, 2023. Asynchronous programming with async and await.
+//[online] Avaliable at <https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/?utm_source=chatgpt.com>
+//Accessed 20 September 2025]

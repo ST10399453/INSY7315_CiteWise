@@ -259,3 +259,14 @@ namespace CiteWise_Web.Controllers
         //ADDED LOGOUT FEATUERE HERE FOR NOW, FOR TESTING
     }
 }
+
+
+//References
+
+//Brett Westwood. 2023. Setting Up Google Authentication in Firebase 9: A Step-by-Step Guide.
+//[video online] Avaliable at <https://www.youtube.com/watch?v=-YA5kORugeI>
+//Accessed 14 September 2025]
+
+//firebase, 2025. Firebase Authentication [online]
+//Avaliable at: <https://firebase.google.com/docs/auth#implementation_paths>
+//Accessed 14 September 2025]
