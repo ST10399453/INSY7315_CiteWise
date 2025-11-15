@@ -160,11 +160,11 @@ Before setting up, ensure you have the following installed:
 ## Links
 
 ### CiteWise Platform Walkthrough
-[![Watch the video](https://img.youtube.com/vi//maxresdefault.jpg)]()
+[![Watch the video](https://img.youtube.com/vi/_yIdpGbDg2M/maxresdefault.jpg)](https://youtu.be/_yIdpGbDg2M)
 
 **Back up access:** 
 
-- 
+- https://drive.google.com/uc?id=1AON-3u5ABLNzXCVUjiqaPlrY1r_k9R4z&export=download
 
 
 Developed by Ethan Ruey Huntley, Akhilesh Parshotam, Connor Tre Van Buuren, Erin Chisholm, and Alicia Orren
