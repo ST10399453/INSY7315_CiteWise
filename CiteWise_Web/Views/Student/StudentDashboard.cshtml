@@ -69,7 +69,7 @@
 
                             <div class="request-content">
                                 <div class="content-left">
-                                    <h3 class="request-title">@closestRequest.File?.OriginalName</h3>
+                                    <h3 class="request-title">@closestRequest.DocName</h3>
                                     <p class="submission-date">
                                         Submitted: @(closestRequest.CreatedAt.HasValue? closestRequest.CreatedAt.Value.ToLocalTime().ToString("dd/MM/yyyy"): "-")
                                     </p>
@@ -161,7 +161,7 @@
                                 </div>
                                 <div class="request-content">
                                     <div class="content-left">
-                                        <h3 class="request-title">@req.File?.OriginalName</h3>
+                                        <h3 class="request-title">@req.DocName?</h3>
                                         <p class="submission-date">
                                             Submitted: @req.CreatedAt
                                         </p>
