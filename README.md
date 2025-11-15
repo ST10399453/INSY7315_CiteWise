@@ -103,45 +103,42 @@ Citewise postgraduate research management application will automate consultant a
 ## Screenshots
 
 ### Landing page
-<img src="webscreenshots/landing.jpg" 
+<img src="webscreenshots/landing.jpg">
 
 ### Student Dashboard
- <img src="webscreenshots/asudentdash.jpg" 
+ <img src="webscreenshots/asudentdash.jpg">
 
  ### Student Submit Requests
-  <img src="webscreenshots/Service1.jpg" 
-  <img src="webscreenshots/Service2.jpg" 
-<img src="webscreenshots/Service3.jpg" 
+  <img src="webscreenshots/Service1.jpg">
+  <img src="webscreenshots/Service2.jpg"> 
+<img src="webscreenshots/Service3.jpg"> 
 
  ### Student View all Requests
-  <img src="webscreenshots/reqStudent.jpg" 
-
- ### Student View all Requests
-  <img src="webscreenshots/reqStudent.jpg" 
+  <img src="webscreenshots/reqStudent.jpg"> 
 
  ### Student Resources
-  <img src="webscreenshots/docsStudent.jpg" 
+  <img src="webscreenshots/docsStudent.jpg"> 
 
   ### Consultant Dashboard
- <img src="webscreenshots/consultdash.jpg" 
+ <img src="webscreenshots/consultdash.jpg"> 
 
   ### Consultant Assigned Tasks
- <img src="webscreenshots/cnsultalltasks.jpg" 
+ <img src="webscreenshots/cnsultalltasks.jpg"> 
 
    ### Consultant Provides Feedback
- <img src="webscreenshots/feedback.jpg" 
+ <img src="webscreenshots/feedback.jpg"> 
 
   ### Admin Dashboard
- <img src="webscreenshots/admindash1.jpg" 
+ <img src="webscreenshots/admindash1.jpg"> 
 
    ### Admin Assign Consultant
- <img src="webscreenshots/adminassign.jpg" 
+ <img src="webscreenshots/adminassign.jpg"> 
 
    ### Admin Resources
- <img src="webscreenshots/adminresources.jpg" 
+ <img src="webscreenshots/adminresources.jpg"> 
 
    ### Admin Add Resources
- <img src="webscreenshots/addresource.jpg" 
+ <img src="webscreenshots/addresource.jpg"> 
 
 
 
